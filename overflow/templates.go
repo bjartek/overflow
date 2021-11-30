@@ -69,7 +69,7 @@ func fileAsBase64(path string) (string, error) {
 }
 
 //UploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
-func (f *GoWithTheFlow) UploadFile(filename string, accountName string) error {
+func (f *Overflow) UploadFile(filename string, accountName string) error {
 	content, err := fileAsBase64(filename)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func getUrl(url string) ([]byte, error) {
 }
 
 //DownloadAndUploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
-func (f *GoWithTheFlow) DownloadAndUploadFile(url string, accountName string) error {
+func (f *Overflow) DownloadAndUploadFile(url string, accountName string) error {
 	body, err := getUrl(url)
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (f *GoWithTheFlow) DownloadAndUploadFile(url string, accountName string) er
 }
 
 //DownloadImageAndUploadAsDataUrl download an image and upload as data url
-func (f *GoWithTheFlow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
+func (f *Overflow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
 	body, err := getUrl(url)
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func (f *GoWithTheFlow) DownloadImageAndUploadAsDataUrl(url, accountName string)
 }
 
 //UploadImageAsDataUrl will upload a image file from the filesystem into /storage/upload of the given account
-func (f *GoWithTheFlow) UploadImageAsDataUrl(filename string, accountName string) error {
+func (f *Overflow) UploadImageAsDataUrl(filename string, accountName string) error {
 	content, err := fileAsImageData(filename)
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (f *GoWithTheFlow) UploadImageAsDataUrl(filename string, accountName string
 }
 
 //UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
-func (f *GoWithTheFlow) UploadString(content string, accountName string) error {
+func (f *Overflow) UploadString(content string, accountName string) error {
 	//unload previous content if any.
 	if _, err := f.Transaction(`
 	transaction {

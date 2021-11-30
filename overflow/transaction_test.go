@@ -12,7 +12,7 @@ import (
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestTransactionArguments(t *testing.T) {
-	g := NewGoWithTheFlow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
+	g := NewOverflow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
 	t.Parallel()
 
 	t.Run("Gas test", func(t *testing.T) {

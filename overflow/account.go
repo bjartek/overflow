@@ -8,18 +8,18 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
-	gwtf, err := f.CreateAccountsE(saAccountName)
+func (f *Overflow) CreateAccounts(saAccountName string) *Overflow {
+	overflow, err := f.CreateAccountsE(saAccountName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return gwtf
+	return overflow
 
 }
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
-func (f *GoWithTheFlow) CreateAccountsE(saAccountName string) (*GoWithTheFlow, error) {
+func (f *Overflow) CreateAccountsE(saAccountName string) (*Overflow, error) {
 	p := f.State
 	signerAccount, err := p.Accounts().ByName(saAccountName)
 	if err != nil {
@@ -58,7 +58,7 @@ func (f *GoWithTheFlow) CreateAccountsE(saAccountName string) (*GoWithTheFlow, e
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
-func (f *GoWithTheFlow) InitializeContracts() *GoWithTheFlow {
+func (f *Overflow) InitializeContracts() *Overflow {
 	f.Logger.Info("Deploying contracts")
 	if _, err := f.Services.Project.Deploy(f.Network, false); err != nil {
 		log.Fatal(err)

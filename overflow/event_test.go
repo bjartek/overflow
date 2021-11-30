@@ -10,7 +10,7 @@ import (
 
 func TestEvent(t *testing.T) {
 
-	g := NewGoWithTheFlow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
+	g := NewOverflow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
 
 	t.Run("Start argument", func(t *testing.T) {
 		ef := g.EventFetcher().Start(100)

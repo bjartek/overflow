@@ -11,14 +11,14 @@ import (
 
 //FlowScriptBuilder is a struct to hold information for running a script
 type FlowScriptBuilder struct {
-	GoWithTheFlow  *GoWithTheFlow
+	GoWithTheFlow  *Overflow
 	FileName       string
 	Arguments      []cadence.Value
 	ScriptAsString string
 }
 
 //Script start a script builder with the inline script as body
-func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
+func (f *Overflow) Script(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
 		GoWithTheFlow:  f,
 		FileName:       "inline",
@@ -28,7 +28,7 @@ func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
 }
 
 //ScriptFromFile will start a flow script builder
-func (f *GoWithTheFlow) ScriptFromFile(filename string) FlowScriptBuilder {
+func (f *Overflow) ScriptFromFile(filename string) FlowScriptBuilder {
 	return FlowScriptBuilder{
 		GoWithTheFlow:  f,
 		FileName:       filename,

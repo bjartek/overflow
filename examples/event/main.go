@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	g := overflow.NewGoWithTheFlowDevNet()
+	g := overflow.NewOverflowTestnet()
 
 	eventsFetcher := g.EventFetcher().
 		Last(1000).
@@ -23,6 +23,6 @@ func main() {
 	log.Printf("%v", events)
 
 	//to send events to a discord eventhook use
-	//	message, err := gwtf.NewDiscordWebhook("http://your-webhook-url").SendEventsToWebhook(events)
+	//	message, err := overflow.NewDiscordWebhook("http://your-webhook-url").SendEventsToWebhook(events)
 
 }

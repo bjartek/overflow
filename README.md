@@ -36,10 +36,10 @@ to work correctly
 First create a project directory, initialize the go module and install `go-with-the-flow`:
 
 ```sh
-mkdir test-gwtf && cd test-gtwf
+mkdir test-overflow && cd test-overflow
 flow init
-go mod init example.com/test-gwtf
-go get github.com/bjartek/go-with-the-flow/v2/gwtf
+go mod init example.com/test-overflow
+go get github.com/bjartek/overflow/overflow
 ```
 
 Then create a task file:
@@ -56,12 +56,12 @@ package main
 import (
     "fmt"
 
-    "github.com/bjartek/go-with-the-flow/v2/gwtf"
+    "github.com/bjartek/overflow/overflow"
 )
 
 func main() {
-    g := gwtf.NewGoWithTheFlowInMemoryEmulator()
-    fmt.Printf("%v", g.State.Accounts())
+    o := overflow.NewOverflowInMemoryEmulator()
+    fmt.Printf("%v", o.State.Accounts())
 }
 ```
 

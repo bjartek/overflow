@@ -14,7 +14,7 @@ import (
 )
 
 // TransactionFromFile will start a flow transaction builder
-func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuilder {
+func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
 		GoWithTheFlow:  f,
 		FileName:       filename,
@@ -26,7 +26,7 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 }
 
 // Transaction will start a flow transaction builder using the inline transaction
-func (f *GoWithTheFlow) Transaction(content string) FlowTransactionBuilder {
+func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
 		GoWithTheFlow:  f,
 		FileName:       "inline",
@@ -348,7 +348,7 @@ func (t FlowTransactionBuilder) getContractCode(codeFileName string) ([]byte, er
 
 // FlowTransactionBuilder used to create a builder pattern for a transaction
 type FlowTransactionBuilder struct {
-	GoWithTheFlow  *GoWithTheFlow
+	GoWithTheFlow  *Overflow
 	FileName       string
 	Content        string
 	Arguments      []cadence.Value
