@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/bjartek/go-with-the-flow/v2/gwtf"
+	"github.com/bjartek/overflow/overflow"
 )
 
 func main() {
 
-	g := gwtf.NewGoWithTheFlowDevNet()
+	g := overflow.NewGoWithTheFlowDevNet()
 
 	eventsFetcher := g.EventFetcher().
 		Last(1000).

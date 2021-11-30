@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/bjartek/go-with-the-flow/v2/gwtf"
+	"github.com/bjartek/overflow/overflow"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestScript(t *testing.T) {
-	g := gwtf.NewTestingEmulator()
+	g := overflow.NewTestingEmulator()
 	t.Parallel()
 
 	t.Run("Raw account argument", func(t *testing.T) {

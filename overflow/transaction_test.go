@@ -26,10 +26,10 @@ func TestTransactionArguments(t *testing.T) {
 		ufix, _ := cadence.NewUFix64("1.0")
 		dateFix, _ := cadence.NewUFix64("1627560000.00000000")
 
-		stringValues := []cadence.Value{
-			cadence.NewString("foo"),
-			cadence.NewString("bar"),
-		}
+		foo, _ := cadence.NewString("foo")
+		bar, _ := cadence.NewString("bar")
+
+		stringValues := []cadence.Value{foo, bar}
 
 		builder := g.Transaction("").BooleanArgument(true).
 			BytesArgument([]byte{1}).
