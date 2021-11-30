@@ -1,0 +1,6 @@
+
+.DS_Store
+vendor
+.idea
+profile.cov
+test-result.xml
