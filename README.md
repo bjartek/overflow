@@ -1,5 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/github/bjartek/overflow/badge.svg?branch=main)](https://coveralls.io/github/bjartek/overflow?branch=main) [![ci](https://github.com/bjartek/overflow/actions/workflows/ci.yml/badge.svg)](https://github.com/bjartek/overflow/actions/workflows/ci.yml)
-
 # Overflow
 
 > Tooling to help develop application on the the Flow Blockchain
@@ -26,17 +24,6 @@ These go scripts also make writing integration tests of your smart contracts muc
 - When writing integration tests, tests must be in the same folder as flow.json
 with contracts and transactions/scripts in subdirectories in order for the path resolver
 to work correctly
-
-### Note on v2
-
-v2 of GoWithTheFlow removed a lot of the code in favor of `flowkit` in the flow-cli. Some of the code from here was
-contributed by me into flow-cli like the goroutine based event fetcher.
-
-Breaking changes between v1 and v2:
-
-- v1 had a config section for discord webhooks. That has been removed since the flow-cli will remove extra config things in flow.json. Store the webhook url in an env variable and use it as argument when creating the DiscordWebhook struct.
-
-Special thanks to @sideninja for helping me get my changes into flow-cli. and for jayShen that helped with fixing some issues!
 
 ## Resources
 
