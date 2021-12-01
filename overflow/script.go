@@ -231,7 +231,7 @@ func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 
 }
 
-//RunReturnsJsonString runs the script and returns pretty printed json string
+//RunMarshalAs runs the script and marshals the result into the provided value, returning an error if any
 func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 	result, err := t.RunReturns()
 	if err != nil {
