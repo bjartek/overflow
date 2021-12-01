@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -228,6 +229,17 @@ func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 	}
 	return result
 
+}
+
+//RunMarshalAs runs the script and marshals the result into the provided value, returning an error if any
+func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
+	result, err := t.RunReturns()
+	if err != nil {
+		return err
+	}
+	jsonResult := CadenceValueToJsonString(result)
+	err = json.Unmarshal([]byte(jsonResult), &value)
+	return err
 }
 
 //RunReturnsJsonString runs the script and returns pretty printed json string
