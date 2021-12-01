@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/bjartek/overflow/overflow"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestScript(t *testing.T) {
@@ -28,4 +29,52 @@ func TestScript(t *testing.T) {
 
 	})
 
+	t.Run("marshal test result into struct", func(t *testing.T) {
+		var result []TestReturn
+		err := g.Script(`
+			pub struct Report{
+			   pub let name: String
+				 pub let test: String
+
+				 init(name: String, test:String) {
+				   self.name=name
+					 self.test=test
+				 }
+			 }
+
+			 pub fun main() : [Report] {
+			   return [Report(name:"name1", test: "test1"), Report(name:"name2", test: "test2")]
+			 }
+		`).RunMarshalAs(&result)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(result))
+		assert.Equal(t, TestReturn{Name: "name1", Test: "test1"}, result[0])
+	})
+
+	t.Run("marshal test result into struct should fail if wrong type", func(t *testing.T) {
+		var result TestReturn
+		err := g.Script(`
+			pub struct Report{
+			   pub let name: String
+				 pub let test: String
+
+				 init(name: String, test:String) {
+				   self.name=name
+					 self.test=test
+				 }
+			 }
+
+			 pub fun main() : [Report] {
+			   return [Report(name:"name1", test: "test1"), Report(name:"name2", test: "test2")]
+			 }
+		`).RunMarshalAs(&result)
+		assert.Error(t, err, "should return error")
+		assert.Contains(t, err.Error(), "json: cannot unmarshal array into Go value of type main.TestReturn")
+	})
+
+}
+
+type TestReturn struct {
+	Name string
+	Test string
 }
