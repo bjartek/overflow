@@ -1,4 +1,4 @@
-	package overflow
+package overflow
 
 import (
 	"testing"
@@ -30,7 +30,7 @@ func TestScriptArguments(t *testing.T) {
 		builder := g.Script("").BooleanArgument(true).
 			BytesArgument([]byte{1}).
 			Fix64Argument("-1.0").
-			UFix64Argument("1.0").
+			UFix64Argument(1.0).
 			StringArgument("test").
 			DateStringAsUnixTimestamp("July 29, 2021 08:00:00 AM", "America/New_York")
 

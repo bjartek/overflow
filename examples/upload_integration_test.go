@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/bjartek/overflow/overflow"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTransactionUpload(t *testing.T) {
@@ -29,7 +30,7 @@ func TestTransactionUpload(t *testing.T) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").
+			UFix64Argument(100.0).
 			Test(t).
 			AssertSuccess()
 
@@ -55,7 +56,7 @@ transaction {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").
+			UFix64Argument(100.0).
 			Test(t).
 			AssertSuccess()
 
@@ -91,13 +92,12 @@ transaction {
 
 	})
 
-
 	t.Run("Download and upload file", func(t *testing.T) {
 		//need flow in account to upload image
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").
+			UFix64Argument(100.0).
 			Test(t).
 			AssertSuccess()
 
@@ -123,7 +123,7 @@ transaction {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").
+			UFix64Argument(100.0).
 			Test(t).
 			AssertSuccess()
 

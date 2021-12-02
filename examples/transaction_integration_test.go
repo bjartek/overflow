@@ -43,14 +43,14 @@ func TestTransaction(t *testing.T) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").
+			UFix64Argument(100.0).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3).                                                                                                                                                                           //assert the number of events returned
-			AssertPartialEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                       //assert a given event, can also take multiple events if you like
+			AssertPartialEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                   //assert a given event, can also take multiple events if you like
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").                                                                                                                              //assert the name of a single event
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated").                                //or assert more then one eventname in a go
-			AssertEmitEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                             //assert a given event, can also take multiple events if you like
+			AssertEmitEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                         //assert a given event, can also take multiple events if you like
 			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": \"100.00000000\"\n  }\n}") //assert a given event using json, can also take multiple events if you like
 
 	})
@@ -109,7 +109,7 @@ transaction(user:Address) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").RunPrintEventsFull()
+			UFix64Argument(100.0).RunPrintEventsFull()
 
 		assert.Contains(t, str.String(), "A.0ae53cb6e3f42a79.FlowToken.MinterCreated")
 
@@ -123,7 +123,7 @@ transaction(user:Address) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			AccountArgument("first").
-			UFix64Argument("100.0").
+			UFix64Argument(100.0).
 			RunPrintEvents(map[string][]string{"A.0ae53cb6e3f42a79.FlowToken.TokensDeposited": {"to"}})
 
 		assert.NotContains(t, str.String(), "0x1cf0e2f2f715450")
