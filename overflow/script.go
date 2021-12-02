@@ -56,7 +56,12 @@ func (t FlowScriptBuilder) RawAccountArgument(key string) FlowScriptBuilder {
 
 //DateStringAsUnixTimestamp sends a dateString parsed in the timezone as a unix timeszone ufix
 func (t FlowScriptBuilder) DateStringAsUnixTimestamp(dateString string, timezone string) FlowScriptBuilder {
-	return t.UFix64Argument(parseTime(dateString, timezone))
+	value := parseTime(dateString, timezone)
+	amount, err := cadence.NewUFix64(value)
+	if err != nil {
+		panic(err)
+	}
+	return t.Argument(amount)
 }
 
 //Argument add an argument to the transaction
@@ -180,7 +185,8 @@ func (t FlowScriptBuilder) Fix64Argument(value string) FlowScriptBuilder {
 }
 
 //UFix64Argument add a UFix64 Argument to the transaction
-func (t FlowScriptBuilder) UFix64Argument(value string) FlowScriptBuilder {
+func (t FlowScriptBuilder) UFix64Argument(input float64) FlowScriptBuilder {
+	value := fmt.Sprintf("%f", input)
 	amount, err := cadence.NewUFix64(value)
 	if err != nil {
 		panic(err)

@@ -55,7 +55,7 @@ transaction(value:Debug.Foo) {
 	g.ScriptFromFile("test").AccountArgument("second").Run()
 
 	//In this transaction we actually do some meaningful work. We mint 10 flowTokens into the account of user first. Note that this method will not work on mainnet or testnet. If you want tokens on testnet use the faucet or transfer from one account to another
-	g.TransactionFromFile("mint_tokens").SignProposeAndPayAsService().AccountArgument("first").UFix64Argument("10.0").RunPrintEventsFull()
+	g.TransactionFromFile("mint_tokens").SignProposeAndPayAsService().AccountArgument("first").UFix64Argument(10.0).RunPrintEventsFull()
 
 	//If you do not want to store a script in a file you can use a inline representation with go multiline strings
 	g.Script(`
