@@ -21,6 +21,11 @@ func TestScript(t *testing.T) {
 		assert.Equal(t, "0x1cf0e2f2f715450", value)
 	})
 
+	t.Run("Script in different folder", func(t *testing.T) {
+		_, err := g.ScriptFromFile("block").ScriptPath("./cadence/scripts").RunReturns()
+		assert.NoError(t, err)
+	})
+
 	t.Run("Script should report failure", func(t *testing.T) {
 		value, err := g.Script("asdf").RunReturns()
 		assert.Error(t, err)

@@ -31,9 +31,10 @@ func TestTransaction(t *testing.T) {
 			AssertFailure("Could not read transaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
 	})
 
-	t.Run("Create NFT collection", func(t *testing.T) {
+	t.Run("Create NFT collection with differnt base path", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
 			SignProposeAndPayAs("first").
+			TransactionPath("./tx").
 			Test(t).         //This method will return a TransactionResult that we can assert upon
 			AssertSuccess(). //Assert that there are no errors and that the transactions succeeds
 			AssertNoEvents() //Assert that we did not emit any events.
@@ -60,9 +61,7 @@ func TestTransaction(t *testing.T) {
 import Debug from "../contracts/Debug.cdc"
 transaction(message:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
-	Debug.log(message)
- }
-}`).
+	Debug.log(message) } }`).
 			SignProposeAndPayAs("first").
 			PayloadSigner("second").
 			StringArgument("foobar").

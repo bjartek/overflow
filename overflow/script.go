@@ -16,6 +16,7 @@ type FlowScriptBuilder struct {
 	FileName       string
 	Arguments      []cadence.Value
 	ScriptAsString string
+	BasePath       string
 }
 
 //Script start a script builder with the inline script as body
@@ -25,6 +26,7 @@ func (f *Overflow) Script(content string) FlowScriptBuilder {
 		FileName:       "inline",
 		Arguments:      []cadence.Value{},
 		ScriptAsString: content,
+		BasePath:       "./scripts",
 	}
 }
 
@@ -35,7 +37,13 @@ func (f *Overflow) ScriptFromFile(filename string) FlowScriptBuilder {
 		FileName:       filename,
 		Arguments:      []cadence.Value{},
 		ScriptAsString: "",
+		BasePath:       "./scripts",
 	}
+}
+
+func (t FlowScriptBuilder) ScriptPath(path string) FlowScriptBuilder {
+	t.BasePath = path
+	return t
 }
 
 //AccountArgument add an account as an argument
@@ -204,7 +212,7 @@ func (t FlowScriptBuilder) Run() {
 func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	f := t.GoWithTheFlow
-	scriptFilePath := fmt.Sprintf("./scripts/%s.cdc", t.FileName)
+	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 
 	var err error
 	script := []byte(t.ScriptAsString)

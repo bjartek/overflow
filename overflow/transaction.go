@@ -22,6 +22,7 @@ func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       9999,
+		BasePath:       "./transactions",
 	}
 }
 
@@ -35,7 +36,13 @@ func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       9999,
+		BasePath:       "./transactions",
 	}
+}
+
+func (t FlowTransactionBuilder) TransactionPath(path string) FlowTransactionBuilder {
+	t.BasePath = path
+	return t
 }
 
 // Gas sets the gas limit for this transaction
@@ -279,7 +286,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
 	}
 
-	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
+	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getContractCode(codeFileName)
 	if err != nil {
 		return nil, err
@@ -361,4 +368,5 @@ type FlowTransactionBuilder struct {
 	MainSigner     *flowkit.Account
 	PayloadSigners []*flowkit.Account
 	GasLimit       uint64
+	BasePath       string
 }
