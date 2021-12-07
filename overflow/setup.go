@@ -11,6 +11,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 )
 
 // Overflow Entire configuration to work with Go With the Flow
@@ -20,6 +21,66 @@ type Overflow struct {
 	Network                      string
 	Logger                       output.Logger
 	PrependNetworkToAccountNames bool
+}
+
+/* Type
+  - mainnet
+	- devnet
+	- emulator
+	- embedded
+
+  Logs:
+
+	Contracts:true/false
+	Accounts:true/false
+	BasePath: this will change default path for scripts and transactons
+	GasLimit: standard gas limit
+	SericeAccountSuffix
+	PrependNetworkToAccountNames
+*/
+
+type OverflowConfig struct {
+	Network         string
+	DeployContracts *bool
+	GasLimit        int
+	BasePath        string
+	LogLevel        int
+	Accounts        struct {
+		Initialize         bool
+		PrependNetworkName bool
+		ServiceSuffix      string
+	}
+}
+
+func LoadConfig(file string) (config OverflowConfig, err error) {
+
+	viper.SetDefault("network", "emulator")
+	viper.SetDefault("gasLimit", 9999)
+	viper.SetDefault("basePath", ".")
+	viper.SetDefault("accounts.initialize", true)
+	viper.SetDefault("accounts.prependNetworkName", true)
+	viper.SetDefault("accounts.serviceSuffix", "account")
+
+	viper.AddConfigPath("$HOME/.overflow")
+	viper.AddConfigPath("$XDB_CONFIG_HOME/.overflow")
+	viper.AddConfigPath(".")
+
+	viper.SetConfigName("overflow")
+	viper.SetConfigType("yaml")
+
+	if file != "" {
+		viper.SetConfigFile(file)
+	}
+
+	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return
+	}
+
+	err = viper.Unmarshal(&config)
+	return
 }
 
 //NewOverflowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts

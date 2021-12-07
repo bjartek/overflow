@@ -2,12 +2,22 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/bjartek/overflow/overflow"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/onflow/cadence"
 )
 
 func main() {
+
+	config, err := overflow.LoadConfig("")
+	if err != nil {
+		panic(err)
+	}
+
+	spew.Dump(config)
+	os.Exit(1)
 
 	//This method starts an in memory flow emulator
 	// - it then looks at all the contracts in the deployment block for emulator and deploys them
