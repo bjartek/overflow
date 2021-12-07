@@ -12,12 +12,12 @@ func TestScript(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Raw account argument", func(t *testing.T) {
-		value := g.ScriptFromFile("test").RawAccountArgument("0x1cf0e2f2f715450").RunReturnsInterface()
+		value := g.ScriptFromFile("test").Args(g.Arguments().RawAccount("0x1cf0e2f2f715450")).RunReturnsInterface()
 		assert.Equal(t, "0x1cf0e2f2f715450", value)
 	})
 
 	t.Run("Raw account argument", func(t *testing.T) {
-		value := g.ScriptFromFile("test").AccountArgument("first").RunReturnsInterface()
+		value := g.ScriptFromFile("test").Args(g.Arguments().Account("first")).RunReturnsInterface()
 		assert.Equal(t, "0x1cf0e2f2f715450", value)
 	})
 

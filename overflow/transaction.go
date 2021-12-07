@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
-	"github.com/araddon/dateparse"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
@@ -16,7 +14,7 @@ import (
 // TransactionFromFile will start a flow transaction builder
 func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
-		GoWithTheFlow:  f,
+		Overflow:       f,
 		FileName:       filename,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
@@ -29,7 +27,7 @@ func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 // Transaction will start a flow transaction builder using the inline transaction
 func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
-		GoWithTheFlow:  f,
+		Overflow:       f,
 		FileName:       "inline",
 		Content:        content,
 		MainSigner:     nil,
@@ -38,6 +36,26 @@ func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 		GasLimit:       9999,
 		BasePath:       "./transactions",
 	}
+}
+
+// Specify arguments to send to transaction using a raw list of values
+func (t FlowTransactionBuilder) ArgsV(args []cadence.Value) FlowTransactionBuilder {
+	t.Arguments = args
+	return t
+}
+
+// Specify arguments to send to transaction using a builder you send in
+func (t FlowTransactionBuilder) Args(args *FlowArgumentsBuilder) FlowTransactionBuilder {
+	t.Arguments = args.Build()
+	return t
+}
+
+// Specify arguments to send to transaction using a function that takes a builder where you call the builder
+func (t FlowTransactionBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowTransactionBuilder {
+	args := t.Overflow.Arguments()
+	fn(args)
+	t.Arguments = args.Build()
+	return t
 }
 
 func (t FlowTransactionBuilder) TransactionPath(path string) FlowTransactionBuilder {
@@ -53,14 +71,14 @@ func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 
 // SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
-	t.MainSigner = t.GoWithTheFlow.Account(signer)
+	t.MainSigner = t.Overflow.Account(signer)
 	return t
 }
 
 // SignProposeAndPayAsService set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
-	key := fmt.Sprintf("%s-account", t.GoWithTheFlow.Network)
-	account, err := t.GoWithTheFlow.State.Accounts().ByName(key)
+	key := fmt.Sprintf("%s-account", t.Overflow.Network)
+	account, err := t.Overflow.State.Accounts().ByName(key)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,194 +86,9 @@ func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuil
 	return t
 }
 
-// RawAccountArgument add an account from a string as an argument
-func (t FlowTransactionBuilder) RawAccountArgument(key string) FlowTransactionBuilder {
-	account := flow.HexToAddress(key)
-	accountArg := cadence.BytesToAddress(account.Bytes())
-	return t.Argument(accountArg)
-}
-
-// AccountArgument add an account as an argument
-func (t FlowTransactionBuilder) AccountArgument(key string) FlowTransactionBuilder {
-	f := t.GoWithTheFlow
-
-	account := f.Account(key)
-	return t.Argument(cadence.BytesToAddress(account.Address().Bytes()))
-}
-
-// StringArgument add a String Argument to the transaction
-func (t FlowTransactionBuilder) StringArgument(value string) FlowTransactionBuilder {
-	return t.Argument(cadence.String(value))
-}
-
-// BooleanArgument add a Boolean Argument to the transaction
-func (t FlowTransactionBuilder) BooleanArgument(value bool) FlowTransactionBuilder {
-	return t.Argument(cadence.NewBool(value))
-}
-
-// BytesArgument add a Bytes Argument to the transaction
-func (t FlowTransactionBuilder) BytesArgument(value []byte) FlowTransactionBuilder {
-	return t.Argument(cadence.NewBytes(value))
-}
-
-// IntArgument add an Int Argument to the transaction
-func (t FlowTransactionBuilder) IntArgument(value int) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt(value))
-}
-
-// Int8Argument add an Int8 Argument to the transaction
-func (t FlowTransactionBuilder) Int8Argument(value int8) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt8(value))
-}
-
-// Int16Argument add an Int16 Argument to the transaction
-func (t FlowTransactionBuilder) Int16Argument(value int16) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt16(value))
-}
-
-// Int32Argument add an Int32 Argument to the transaction
-func (t FlowTransactionBuilder) Int32Argument(value int32) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt32(value))
-}
-
-// Int64Argument add an Int64 Argument to the transaction
-func (t FlowTransactionBuilder) Int64Argument(value int64) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt64(value))
-}
-
-// Int128Argument add an Int128 Argument to the transaction
-func (t FlowTransactionBuilder) Int128Argument(value int) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt128(value))
-}
-
-// Int256Argument add an Int256 Argument to the transaction
-func (t FlowTransactionBuilder) Int256Argument(value int) FlowTransactionBuilder {
-	return t.Argument(cadence.NewInt256(value))
-}
-
-// UIntArgument add an UInt Argument to the transaction
-func (t FlowTransactionBuilder) UIntArgument(value uint) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt(value))
-}
-
-// UInt8Argument add an UInt8 Argument to the transaction
-func (t FlowTransactionBuilder) UInt8Argument(value uint8) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt8(value))
-}
-
-// UInt16Argument add an UInt16 Argument to the transaction
-func (t FlowTransactionBuilder) UInt16Argument(value uint16) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt16(value))
-}
-
-// UInt32Argument add an UInt32 Argument to the transaction
-func (t FlowTransactionBuilder) UInt32Argument(value uint32) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt32(value))
-}
-
-// UInt64Argument add an UInt64 Argument to the transaction
-func (t FlowTransactionBuilder) UInt64Argument(value uint64) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt64(value))
-}
-
-// UInt128Argument add an UInt128 Argument to the transaction
-func (t FlowTransactionBuilder) UInt128Argument(value uint) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt128(value))
-}
-
-// UInt256Argument add an UInt256 Argument to the transaction
-func (t FlowTransactionBuilder) UInt256Argument(value uint) FlowTransactionBuilder {
-	return t.Argument(cadence.NewUInt256(value))
-}
-
-// Word8Argument add a Word8 Argument to the transaction
-func (t FlowTransactionBuilder) Word8Argument(value uint8) FlowTransactionBuilder {
-	return t.Argument(cadence.NewWord8(value))
-}
-
-// Word16Argument add a Word16 Argument to the transaction
-func (t FlowTransactionBuilder) Word16Argument(value uint16) FlowTransactionBuilder {
-	return t.Argument(cadence.NewWord16(value))
-}
-
-// Word32Argument add a Word32 Argument to the transaction
-func (t FlowTransactionBuilder) Word32Argument(value uint32) FlowTransactionBuilder {
-	return t.Argument(cadence.NewWord32(value))
-}
-
-// Word64Argument add a Word64 Argument to the transaction
-func (t FlowTransactionBuilder) Word64Argument(value uint64) FlowTransactionBuilder {
-	return t.Argument(cadence.NewWord64(value))
-}
-
-// Fix64Argument add a Fix64 Argument to the transaction
-func (t FlowTransactionBuilder) Fix64Argument(value string) FlowTransactionBuilder {
-	amount, err := cadence.NewFix64(value)
-	if err != nil {
-		panic(err)
-	}
-	return t.Argument(amount)
-}
-
-// DateStringAsUnixTimestamp sends a dateString parsed in the timezone as a unix timeszone ufix
-func (t FlowTransactionBuilder) DateStringAsUnixTimestamp(dateString string, timezone string) FlowTransactionBuilder {
-	value := parseTime(dateString, timezone)
-	amount, err := cadence.NewUFix64(value)
-	if err != nil {
-		panic(err)
-	}
-	return t.Argument(amount)
-}
-
-func parseTime(timeString string, location string) string {
-	loc, err := time.LoadLocation(location)
-	if err != nil {
-		panic(err)
-	}
-
-	time.Local = loc
-	t, err := dateparse.ParseLocal(timeString)
-	if err != nil {
-		panic(err)
-	}
-
-	return fmt.Sprintf("%d.0", t.Unix())
-}
-
-// UFix64Argument add a UFix64 Argument to the transaction
-func (t FlowTransactionBuilder) UFix64Argument(input float64) FlowTransactionBuilder {
-	value := fmt.Sprintf("%f", input)
-	amount, err := cadence.NewUFix64(value)
-	if err != nil {
-		panic(err)
-	}
-	return t.Argument(amount)
-}
-
-// Argument add an argument to the transaction
-func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBuilder {
-	t.Arguments = append(t.Arguments, value)
-	return t
-}
-
-// Argument add an argument to the transaction
-func (t FlowTransactionBuilder) StringArrayArgument(value ...string) FlowTransactionBuilder {
-	array := []cadence.Value{}
-	for _, val := range value {
-		stringVal, err := cadence.NewString(val)
-		if err != nil {
-			//TODO: what to do with errors here? Accumulate in builder?
-			panic(err)
-		}
-		array = append(array, stringVal)
-	}
-	t.Arguments = append(t.Arguments, cadence.NewArray(array))
-	return t
-}
-
 // PayloadSigner set a signer for the payload
 func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
-	signer := t.GoWithTheFlow.Account(value)
+	signer := t.Overflow.Account(value)
 	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }
@@ -274,7 +107,7 @@ func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string)
 func (t FlowTransactionBuilder) Run() []flow.Event {
 	events, err := t.RunE()
 	if err != nil {
-		t.GoWithTheFlow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
+		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
 		os.Exit(1)
 	}
 	return events
@@ -302,7 +135,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		authorizers = append(authorizers, signer.Address())
 	}
 
-	tx, err := t.GoWithTheFlow.Services.Transactions.Build(
+	tx, err := t.Overflow.Services.Transactions.Build(
 		t.MainSigner.Address(),
 		authorizers,
 		t.MainSigner.Address(),
@@ -311,7 +144,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		codeFileName,
 		t.GasLimit,
 		t.Arguments,
-		t.GoWithTheFlow.Network,
+		t.Overflow.Network,
 	)
 	if err != nil {
 		return nil, err
@@ -329,11 +162,11 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		}
 	}
 
-	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
-	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")
-	defer t.GoWithTheFlow.Logger.StopProgress()
+	t.Overflow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
+	t.Overflow.Logger.StartProgress("Sending transaction...")
+	defer t.Overflow.Logger.StopProgress()
 	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
-	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(txBytes)
+	_, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes)
 
 	if err != nil {
 		return nil, err
@@ -343,7 +176,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, res.Error
 	}
 
-	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
+	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
 	return res.Events, nil
 }
 
@@ -351,7 +184,7 @@ func (t FlowTransactionBuilder) getContractCode(codeFileName string) ([]byte, er
 	code := []byte(t.Content)
 	var err error
 	if t.Content == "" {
-		code, err = t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
+		code, err = t.Overflow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
 			return nil, fmt.Errorf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
 		}
@@ -361,7 +194,7 @@ func (t FlowTransactionBuilder) getContractCode(codeFileName string) ([]byte, er
 
 // FlowTransactionBuilder used to create a builder pattern for a transaction
 type FlowTransactionBuilder struct {
-	GoWithTheFlow  *Overflow
+	Overflow       *Overflow
 	FileName       string
 	Content        string
 	Arguments      []cadence.Value
