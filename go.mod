@@ -27,13 +27,11 @@ require (
 	github.com/dgraph-io/badger/v2 v2.0.3 // indirect
 	github.com/dgraph-io/ristretto v0.0.2 // indirect
 	github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 // indirect
-	github.com/dnephin/pflag v1.0.7 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/ef-ds/deque v1.0.4 // indirect
 	github.com/ethereum/go-ethereum v1.9.13 // indirect
-	github.com/fatih/color v1.10.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/fxamacker/cbor/v2 v2.2.1-0.20210927235116-3d6d5d1de29b // indirect
+	github.com/fxamacker/cbor/v2 v2.3.1-0.20211029162100-5d5d7c3edd41 // indirect
 	github.com/fxamacker/circlehash v0.1.0 // indirect
 	github.com/go-test/deep v1.0.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -41,7 +39,6 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
@@ -61,7 +58,6 @@ require (
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/jbenet/goprocess v0.1.4 // indirect
 	github.com/joho/godotenv v1.3.0 // indirect
-	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/jrick/bitset v1.0.0 // indirect
 	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
 	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
@@ -86,7 +82,7 @@ require (
 	github.com/multiformats/go-multibase v0.0.3 // indirect
 	github.com/multiformats/go-multihash v0.0.15 // indirect
 	github.com/multiformats/go-varint v0.0.6 // indirect
-	github.com/onflow/atree v0.1.0-beta1.0.20211027184039-559ee654ece9 // indirect
+	github.com/onflow/atree v0.1.1 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v0.7.9 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/templates v0.7.9 // indirect
 	github.com/onflow/flow-emulator v0.26.0 // indirect
@@ -126,15 +122,10 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.18.1 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420 // indirect
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.5 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gonum.org/v1/gonum v0.8.2 // indirect
 	google.golang.org/api v0.58.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -144,5 +135,4 @@ require (
 	gopkg.in/ini.v1 v1.63.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	gotest.tools/gotestsum v1.7.0 // indirect
 )
