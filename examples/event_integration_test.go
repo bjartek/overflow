@@ -15,8 +15,9 @@ func TestEvents(t *testing.T) {
 		g := overflow.NewTestingEmulator()
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3)
@@ -30,8 +31,9 @@ func TestEvents(t *testing.T) {
 		g := overflow.NewTestingEmulator()
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3)
@@ -45,16 +47,18 @@ func TestEvents(t *testing.T) {
 		g := overflow.NewTestingEmulator()
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3)
 
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3)
@@ -69,8 +73,9 @@ func TestEvents(t *testing.T) {
 		g := overflow.NewTestingEmulator()
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3)
@@ -100,8 +105,9 @@ func TestEvents(t *testing.T) {
 		g := overflow.NewTestingEmulator()
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3)

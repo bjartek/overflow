@@ -29,8 +29,9 @@ func TestTransactionUpload(t *testing.T) {
 		//need flow in account to upload
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess()
 
@@ -55,8 +56,9 @@ transaction {
 		//need flow in account to upload
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess()
 
@@ -96,8 +98,9 @@ transaction {
 		//need flow in account to upload image
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess()
 
@@ -122,8 +125,9 @@ transaction {
 		//need flow in account to upload image
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			Test(t).
 			AssertSuccess()
 

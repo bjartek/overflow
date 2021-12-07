@@ -148,7 +148,7 @@ func (f *Overflow) UploadString(content string, accountName string) error {
 				log(part)
 			}
 		}
-			`).SignProposeAndPayAs(accountName).StringArgument(part).RunE(); err != nil {
+			`).SignProposeAndPayAs(accountName).Args(f.Arguments().String(part)).RunE(); err != nil {
 			return err
 		}
 	}
