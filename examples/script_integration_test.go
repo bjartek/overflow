@@ -8,7 +8,7 @@ import (
 )
 
 func TestScript(t *testing.T) {
-	g := overflow.NewTestingEmulator()
+	g := overflow.NewTestingEmulator().Start()
 	t.Parallel()
 
 	t.Run("Raw account argument", func(t *testing.T) {

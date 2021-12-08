@@ -8,7 +8,7 @@ import (
 )
 
 func TestTransactionUpload(t *testing.T) {
-	g := overflow.NewTestingEmulator()
+	g := overflow.NewTestingEmulator().Start()
 
 	t.Run("Upload image file invalid file", func(t *testing.T) {
 

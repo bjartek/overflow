@@ -8,20 +8,10 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-func (f *Overflow) CreateAccounts(saAccountName string) *Overflow {
-	overflow, err := f.CreateAccountsE(saAccountName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return overflow
-
-}
-
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
-func (f *Overflow) CreateAccountsE(saAccountName string) (*Overflow, error) {
+func (f *Overflow) CreateAccountsE() (*Overflow, error) {
 	p := f.State
-	signerAccount, err := p.Accounts().ByName(saAccountName)
+	signerAccount, err := p.Accounts().ByName(f.ServiceAccountName())
 	if err != nil {
 		return nil, err
 	}

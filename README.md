@@ -28,12 +28,12 @@ to work correctly
 ## Resources
 
 - Run the demo example in this project with `cd example && make`. The emulator will be run in memory.
-- Check [other codebases](https://github.com/bjartek/go-with-the-flow/network/dependents?package_id=UGFja2FnZS0yMjc1NjE0OTAz) that use this project
+- Check [other codebases](https://github.com/bjartek/overflow/network/dependents) that use this project
 - Feel free to ask questions to @bjartek in the Flow Discord.
 
 ## Usage
 
-First create a project directory, initialize the go module and install `go-with-the-flow`:
+First create a project directory, initialize the go module and install `overflow`:
 
 ```sh
 mkdir test-overflow && cd test-overflow
@@ -48,7 +48,7 @@ Then create a task file:
 touch tasks/main.go
 ```
 
-In that task file, you can then import `go-with-the-flow` and use it to your convenience, for example:
+In that task file, you can then import `overflow` and use it to your convenience, for example:
 
 ```go
 package main
@@ -60,7 +60,7 @@ import (
 )
 
 func main() {
-    o := overflow.NewOverflowInMemoryEmulator()
+    o := overflow.NewOverflow().Start()
     fmt.Printf("%v", o.State.Accounts())
 }
 ```
@@ -72,6 +72,11 @@ go run ./tasks/main.go
 ```
 
 This is a minimal example that only prints accounts, but from there you can branch out.
+
+The following env vars are supported
+ - OVERFLOW_ENV : set the environment to run against "emulator|embedded|testnet|mainnet" (embedded is standard)
+ - OVEFFLOW_CONTINUE: if you do not want overflow to deploy contracts and accounts on emulator you can set this to true
+ - OVERFLOW_LOGGING: Set this to 0-4 to get increasing log
 
 ## Credits
 
