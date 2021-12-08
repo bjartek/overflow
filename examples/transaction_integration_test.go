@@ -43,8 +43,10 @@ func TestTransaction(t *testing.T) {
 	t.Run("Mint tokens assert events", func(t *testing.T) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			ArgsFn(func(args *overflow.FlowArgumentsBuilder) {
+				args.Account("first")
+				args.UFix64(100.0)
+			}).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3).                                                                                                                                                                           //assert the number of events returned
@@ -64,7 +66,7 @@ transaction(message:String) {
 	Debug.log(message) } }`).
 			SignProposeAndPayAs("first").
 			PayloadSigner("second").
-			StringArgument("foobar").
+			Args(g.Arguments().String("foobar")).
 			Test(t).
 			AssertSuccess().
 			AssertDebugLog("foobar") //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
@@ -80,7 +82,7 @@ transaction(user:Address) {
  }
 }`).
 			SignProposeAndPayAsService().
-			RawAccountArgument("0x1cf0e2f2f715450").
+			Args(g.Arguments().RawAccount("0x1cf0e2f2f715450")).
 			Test(t).
 			AssertSuccess().
 			AssertDebugLog("0x1cf0e2f2f715450")
@@ -95,7 +97,8 @@ transaction(user:Address) {
  }
 }`).
 			SignProposeAndPayAsService().
-			RawAccountArgument("0x1cf0e2f2f715450").
+			Args(g.Arguments().
+				RawAccount("0x1cf0e2f2f715450")).
 			Test(t).
 			AssertFailure("has no member `toStrig`") //assert failure with an error message. uses contains so you do not need to write entire message
 	})
@@ -107,8 +110,8 @@ transaction(user:Address) {
 
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).RunPrintEventsFull()
+			ArgsV(g.Arguments().Account("first").UFix64(100.0).Build()).
+			RunPrintEventsFull()
 
 		assert.Contains(t, str.String(), "A.0ae53cb6e3f42a79.FlowToken.MinterCreated")
 
@@ -121,8 +124,9 @@ transaction(user:Address) {
 
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			AccountArgument("first").
-			UFix64Argument(100.0).
+			Args(g.Arguments().
+				Account("first").
+				UFix64(100.0)).
 			RunPrintEvents(map[string][]string{"A.0ae53cb6e3f42a79.FlowToken.TokensDeposited": {"to"}})
 
 		assert.NotContains(t, str.String(), "0x1cf0e2f2f715450")

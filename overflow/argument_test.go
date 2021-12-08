@@ -1,0 +1,94 @@
+package overflow
+
+import (
+	"testing"
+
+	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/stretchr/testify/assert"
+)
+
+/*
+ Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
+*/
+func TestArguments(t *testing.T) {
+	g := NewOverflow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
+	t.Parallel()
+
+	t.Run("Argument test", func(t *testing.T) {
+
+		fix, _ := cadence.NewFix64("-1.0")
+		ufix, _ := cadence.NewUFix64("1.0")
+		dateFix, _ := cadence.NewUFix64("1627560000.00000000")
+
+		foo, _ := cadence.NewString("foo")
+		bar, _ := cadence.NewString("bar")
+
+		stringValues := []cadence.Value{foo, bar}
+
+		builder := g.Arguments().Booolean(true).
+			Bytes([]byte{1}).
+			Fix64("-1.0").
+			UFix64(1.0).
+			DateStringAsUnixTimestamp("July 29, 2021 08:00:00 AM", "America/New_York").
+			StringArray("foo", "bar")
+
+		assert.Contains(t, builder.Arguments, cadence.NewBool(true))
+		assert.Contains(t, builder.Arguments, cadence.NewBytes([]byte{1}))
+		assert.Contains(t, builder.Arguments, fix)
+		assert.Contains(t, builder.Arguments, ufix)
+		assert.Contains(t, builder.Arguments, dateFix)
+		assert.Contains(t, builder.Arguments, cadence.NewArray(stringValues))
+	})
+
+	t.Run("Word argument test", func(t *testing.T) {
+		builder := g.Arguments().
+			Word8(8).
+			Word16(16).
+			Word32(32).
+			Word64(64)
+
+		assert.Contains(t, builder.Arguments, cadence.NewWord8(8))
+		assert.Contains(t, builder.Arguments, cadence.NewWord16(16))
+		assert.Contains(t, builder.Arguments, cadence.NewWord32(32))
+		assert.Contains(t, builder.Arguments, cadence.NewWord64(64))
+	})
+
+	t.Run("UInt argument test", func(t *testing.T) {
+		builder := g.Arguments().
+			UInt(1).
+			UInt8(8).
+			UInt16(16).
+			UInt32(32).
+			UInt64(64).
+			UInt128(128).
+			UInt256(256)
+
+		assert.Contains(t, builder.Arguments, cadence.NewUInt(1))
+		assert.Contains(t, builder.Arguments, cadence.NewUInt8(8))
+		assert.Contains(t, builder.Arguments, cadence.NewUInt16(16))
+		assert.Contains(t, builder.Arguments, cadence.NewUInt32(32))
+		assert.Contains(t, builder.Arguments, cadence.NewUInt64(64))
+		assert.Contains(t, builder.Arguments, cadence.NewUInt128(128))
+		assert.Contains(t, builder.Arguments, cadence.NewUInt256(256))
+	})
+
+	t.Run("Int argument test", func(t *testing.T) {
+		builder := g.Arguments().
+			Int(1).
+			Int8(-8).
+			Int16(16).
+			Int32(32).
+			Int64(64).
+			Int128(128).
+			Int256(256)
+
+		assert.Contains(t, builder.Arguments, cadence.NewInt(1))
+		assert.Contains(t, builder.Arguments, cadence.NewInt8(-8))
+		assert.Contains(t, builder.Arguments, cadence.NewInt16(16))
+		assert.Contains(t, builder.Arguments, cadence.NewInt32(32))
+		assert.Contains(t, builder.Arguments, cadence.NewInt64(64))
+		assert.Contains(t, builder.Arguments, cadence.NewInt128(128))
+		assert.Contains(t, builder.Arguments, cadence.NewInt256(256))
+	})
+}
