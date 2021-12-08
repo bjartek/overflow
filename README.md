@@ -60,7 +60,7 @@ import (
 )
 
 func main() {
-    o := overflow.NewOverflowInMemoryEmulator().Start()
+    o := overflow.NewOverflow().Start()
     fmt.Printf("%v", o.State.Accounts())
 }
 ```
@@ -72,6 +72,11 @@ go run ./tasks/main.go
 ```
 
 This is a minimal example that only prints accounts, but from there you can branch out.
+
+The following env vars are supported
+ - OVERFLOW_ENV : set the environment to run against "emulator|embedded|testnet|mainnet" (embedded is standard)
+ - OVEFFLOW_CONTINUE: if you do not want overflow to deploy contracts and accounts on emulator you can set this to true
+ - OVERFLOW_LOGGING: Set this to 0-4 to get increasing log
 
 ## Credits
 

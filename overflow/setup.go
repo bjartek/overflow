@@ -62,7 +62,7 @@ type OverflowBuilder struct {
 	ConfigFiles        []string
 }
 
-func NewFromEnv() *OverflowBuilder {
+func NewOverflow() *OverflowBuilder {
 	network := os.Getenv("OVERFLOW_ENV")
 	existing := os.Getenv("OVERFLOW_CONTINUE")
 	loglevel := os.Getenv("OVERFLOW_LOGGING")
@@ -82,7 +82,7 @@ func NewFromEnv() *OverflowBuilder {
 
 func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *OverflowBuilder {
 	if network == "" {
-		network = "emulator"
+		network = "embedded"
 	}
 
 	inMemory := false
@@ -117,6 +117,11 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 func (o *OverflowBuilder) ExistingEmulator() *OverflowBuilder {
 	o.DeployContracts = false
 	o.InitializeAccounts = false
+	return o
+}
+
+func (o *OverflowBuilder) DoNotPrependNetworkToAccountNames() *OverflowBuilder {
+	o.PrependNetworkName = false
 	return o
 }
 
