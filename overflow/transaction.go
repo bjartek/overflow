@@ -19,8 +19,8 @@ func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit:       9999,
-		BasePath:       "./transactions",
+		GasLimit:       uint64(f.Gas),
+		BasePath:       fmt.Sprintf("%s/transactions", f.BasePath),
 	}
 }
 
@@ -33,8 +33,8 @@ func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit:       9999,
-		BasePath:       "./transactions",
+		GasLimit:       uint64(f.Gas),
+		BasePath:       fmt.Sprintf("%s/transactions", f.BasePath),
 	}
 }
 
@@ -77,7 +77,7 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 
 // SignProposeAndPayAsService set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
-	key := fmt.Sprintf("%s-account", t.Overflow.Network)
+	key := t.Overflow.ServiceAccountName()
 	account, err := t.Overflow.State.Accounts().ByName(key)
 	if err != nil {
 		log.Fatal(err)

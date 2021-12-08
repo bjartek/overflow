@@ -25,7 +25,7 @@ func (f *Overflow) Script(content string) FlowScriptBuilder {
 		FileName:       "inline",
 		Arguments:      []cadence.Value{},
 		ScriptAsString: content,
-		BasePath:       "./scripts",
+		BasePath:       fmt.Sprintf("%s/scripts", f.BasePath),
 	}
 }
 
@@ -36,7 +36,7 @@ func (f *Overflow) ScriptFromFile(filename string) FlowScriptBuilder {
 		FileName:       filename,
 		Arguments:      []cadence.Value{},
 		ScriptAsString: "",
-		BasePath:       "./scripts",
+		BasePath:       fmt.Sprintf("%s/scripts", f.BasePath),
 	}
 }
 
