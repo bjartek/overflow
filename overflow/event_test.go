@@ -4,13 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEvent(t *testing.T) {
 
-	g := NewOverflow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
+	g := NewTestingEmulator().Start()
 
 	t.Run("Start argument", func(t *testing.T) {
 		ef := g.EventFetcher().Start(100)

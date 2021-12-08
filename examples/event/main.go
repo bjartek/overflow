@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	g := overflow.NewOverflowTestnet()
+	g := overflow.NewOverflowTestnet().Start()
 
 	eventsFetcher := g.EventFetcher().
 		Last(1000).
