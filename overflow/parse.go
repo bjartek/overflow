@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/onflow/cadence/runtime/ast"
@@ -20,24 +21,37 @@ type Solution struct {
 }
 
 type SolutionNetwork struct {
-	Scripts      map[string]string `json:"scripts"`
-	Transactions map[string]string `json:"transactions"`
-	Contracts    map[string]string `json:"contracts"`
+	Scripts      map[string]string  `json:"scripts"`
+	Transactions map[string]string  `json:"transactions,omitempty"`
+	Contracts    *map[string]string `json:"contracts,omitempty"`
 }
 
 type DeclarationInfo struct {
-	ParameterOrder []string
-	Parameters     map[string]string
+	ParameterOrder []string          `json:"order"`
+	Parameters     map[string]string `json:"parameters"`
 }
 
 func (o *Overflow) ParseAll() (*Solution, error) {
+	return o.ParseAllWithConfig(false, []string{}, []string{})
+}
 
-	//transactions
+func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
 
 	transactions := map[string]string{}
 	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".cdc") {
-			transactions[path] = strings.TrimSuffix(info.Name(), ".cdc")
+			name := strings.TrimSuffix(info.Name(), ".cdc")
+			for _, txSkip := range txSkip {
+				match, err := regexp.MatchString(txSkip, name)
+				if err != nil {
+					return err
+				}
+				if match {
+					return nil
+				}
+			}
+
+			transactions[path] = name
 		}
 		return nil
 	})
@@ -48,7 +62,17 @@ func (o *Overflow) ParseAll() (*Solution, error) {
 	scripts := map[string]string{}
 	err = filepath.Walk(fmt.Sprintf("%s/scripts/", o.BasePath), func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".cdc") {
-			scripts[path] = strings.TrimSuffix(info.Name(), ".cdc")
+			name := strings.TrimSuffix(info.Name(), ".cdc")
+			for _, scriptSkip := range txSkip {
+				match, err := regexp.MatchString(scriptSkip, name)
+				if err != nil {
+					return err
+				}
+				if match {
+					return nil
+				}
+			}
+			scripts[path] = name
 		}
 		return nil
 	})
@@ -81,7 +105,6 @@ func (o *Overflow) ParseAll() (*Solution, error) {
 	}
 
 	networks := o.State.Networks()
-
 	solutionNetworks := map[string]*SolutionNetwork{}
 	for _, nw := range *networks {
 
@@ -120,8 +143,13 @@ func (o *Overflow) ParseAll() (*Solution, error) {
 			}
 			txResult[name] = result
 		}
+
+		contract := &contractResult
+		if skipContracts {
+			contract = nil
+		}
 		solutionNetworks[nw.Name] = &SolutionNetwork{
-			Contracts:    contractResult,
+			Contracts:    contract,
 			Transactions: txResult,
 			Scripts:      scriptResult,
 		}
