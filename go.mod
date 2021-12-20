@@ -7,7 +7,7 @@ require (
 	github.com/bwmarrin/discordgo v0.23.2
 	github.com/enescakir/emoji v1.0.0
 	github.com/onflow/cadence v0.20.2
-	github.com/onflow/flow-cli v0.29.0
+	github.com/onflow/flow-cli v0.30.1
 	github.com/onflow/flow-go-sdk v0.24.0
 	github.com/spf13/afero v1.6.0
 	github.com/stretchr/testify v1.7.0
@@ -57,19 +57,16 @@ require (
 	github.com/ipfs/go-log/v2 v2.1.3 // indirect
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/jbenet/goprocess v0.1.4 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/jrick/bitset v1.0.0 // indirect
-	github.com/juju/ansiterm v0.0.0-20180109212912-720a0952cc2a // indirect
 	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
 	github.com/klauspost/cpuid/v2 v2.0.4 // indirect
 	github.com/libp2p/go-buffer-pool v0.0.2 // indirect
 	github.com/libp2p/go-libp2p-core v0.8.6 // indirect
 	github.com/libp2p/go-openssl v0.0.7 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381 // indirect
-	github.com/lunixbochs/vtclean v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/manifoldco/promptui v0.8.0 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
@@ -85,7 +82,7 @@ require (
 	github.com/onflow/atree v0.1.1 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v0.7.9 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/templates v0.7.9 // indirect
-	github.com/onflow/flow-emulator v0.26.0 // indirect
+	github.com/onflow/flow-emulator v0.27.2 // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
 	github.com/onflow/flow-go v0.23.2-0.20211125195119-1ee2fc2dd5d9 // indirect
 	github.com/onflow/flow-go/crypto v0.21.4-0.20211125190211-7b31c986316e // indirect
@@ -126,11 +123,11 @@ require (
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f // indirect
 	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gonum.org/v1/gonum v0.8.2 // indirect
+	gonum.org/v1/gonum v0.9.3 // indirect
 	google.golang.org/api v0.58.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20211007155348-82e027067bd4 // indirect
-	google.golang.org/grpc v1.40.0 // indirect
+	google.golang.org/grpc v1.42.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.63.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
