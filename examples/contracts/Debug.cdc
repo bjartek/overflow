@@ -1,3 +1,5 @@
+import NonFungibleToken from "./NonFungibleToken.cdc"
+
 pub contract Debug {
 
 

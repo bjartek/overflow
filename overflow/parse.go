@@ -115,7 +115,7 @@ func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scrip
 
 		contractResult := map[string]string{}
 		for _, contract := range contracts {
-			contractResult[contract.Name()] = contract.Code()
+			contractResult[contract.Name()] = contract.TranspiledCode()
 		}
 
 		scriptResult := map[string]string{}
