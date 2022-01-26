@@ -25,7 +25,7 @@ func TestArguments(t *testing.T) {
 
 		stringValues := []cadence.Value{foo, bar}
 
-		builder := g.Arguments().Booolean(true).
+		builder := g.Arguments().Boolean(true).
 			Bytes([]byte{1}).
 			Fix64("-1.0").
 			UFix64(1.0).
