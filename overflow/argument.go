@@ -46,8 +46,8 @@ func (a *FlowArgumentsBuilder) String(value string) *FlowArgumentsBuilder {
 	return a.Argument(cadence.String(value))
 }
 
-// Booolean add a Boolean Argument to the transaction
-func (a *FlowArgumentsBuilder) Booolean(value bool) *FlowArgumentsBuilder {
+// Boolean add a Boolean Argument to the transaction
+func (a *FlowArgumentsBuilder) Boolean(value bool) *FlowArgumentsBuilder {
 	return a.Argument(cadence.NewBool(value))
 }
 
