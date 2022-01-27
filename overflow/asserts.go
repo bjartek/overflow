@@ -48,10 +48,12 @@ func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 
 }
 func (t TransactionResult) AssertNoEvents() TransactionResult {
-	assert.Empty(t.Testing, t.Events)
+	res := assert.Empty(t.Testing, t.Events)
 
-	for _, ev := range t.Events {
-		t.Testing.Log(ev.String())
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(ev.String())
+		}
 	}
 
 	return t
@@ -63,12 +65,17 @@ func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResul
 		eventNames = append(eventNames, fe.Name)
 	}
 
+	res := false
 	for _, ev := range event {
-		assert.Contains(t.Testing, eventNames, ev)
+		if assert.Contains(t.Testing, eventNames, ev) {
+			res = true
+		}
 	}
 
-	for _, ev := range t.Events {
-		t.Testing.Log(ev.String())
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(ev.String())
+		}
 	}
 
 	return t
@@ -81,12 +88,17 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 		jsonEvents = append(jsonEvents, fe.String())
 	}
 
+	res := false
 	for _, ev := range event {
-		assert.Contains(t.Testing, jsonEvents, ev)
+		if assert.Contains(t.Testing, jsonEvents, ev) {
+			res = true
+		}
 	}
 
-	for _, ev := range t.Events {
-		t.Testing.Log(ev.String())
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(ev.String())
+		}
 	}
 
 	return t
@@ -107,21 +119,28 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 		}
 	}
 
-	assert.Contains(t.Testing, events, expected)
+	result := assert.Contains(t.Testing, events, expected)
 
-	for _, ev := range events {
-		t.Testing.Log(ev.String())
+	if !result {
+		for _, ev := range events {
+			t.Testing.Log(ev.String())
+		}
 	}
 
 	return t
 }
 func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionResult {
+	res := false
 	for _, ev := range event {
-		assert.Contains(t.Testing, t.Events, ev)
+		if assert.Contains(t.Testing, t.Events, ev) {
+			res = true
+		}
 	}
 
-	for _, ev := range t.Events {
-		t.Testing.Log(ev.String())
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(ev.String())
+		}
 	}
 
 	return t
