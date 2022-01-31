@@ -11,6 +11,10 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
+func (f *Overflow) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
+	f.TransactionFromFile(filename).SignProposeAndPayAs(signer).Args(args).RunPrintEventsFull()
+}
+
 // TransactionFromFile will start a flow transaction builder
 func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
