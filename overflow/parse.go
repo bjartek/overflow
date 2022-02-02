@@ -12,6 +12,8 @@ import (
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-cli/pkg/flowkit/contracts"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type Solution struct {
@@ -96,7 +98,7 @@ func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scrip
 	for path, name := range scripts {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "cannot read file at path %s", path)
 		}
 		info := declarationInfo(path, code)
 		if info != nil {
@@ -110,7 +112,7 @@ func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scrip
 
 		contracts, err := o.contracts(nw.Name)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "cannot find contracts for network %s", nw.Name)
 		}
 
 		contractResult := map[string]string{}
@@ -125,10 +127,12 @@ func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scrip
 				return nil, err
 			}
 			result, err := o.Parse(path, code, nw.Name)
-			if err != nil {
-				return nil, err
+			if err == nil {
+				scriptResult[name] = result
+			} else {
+				log.Printf("Could not create script %s for network %s", path, nw.Name)
+
 			}
-			scriptResult[name] = result
 		}
 
 		txResult := map[string]string{}
@@ -139,9 +143,10 @@ func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scrip
 			}
 			result, err := o.Parse(path, code, nw.Name)
 			if err != nil {
-				return nil, err
+				log.Printf("Could not create transaction %s for network %s", path, nw.Name)
+			} else {
+				txResult[name] = result
 			}
-			txResult[name] = result
 		}
 
 		contract := &contractResult
