@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -115,6 +116,22 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 		os.Exit(1)
 	}
 	return events
+}
+
+func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
+
+	result, err := t.RunE()
+	if err != nil {
+		panic(err)
+	}
+
+	for _, event := range result {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		if ev.Name == eventName {
+			return ev.GetFieldAsUInt64(fieldName)
+		}
+	}
+	panic("did not find field")
 }
 
 // RunE runs returns error
