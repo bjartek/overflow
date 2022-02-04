@@ -210,3 +210,25 @@ func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilde
 	a.Arguments = append(a.Arguments, cadence.NewArray(array))
 	return a
 }
+
+// Argument add an argument to the transaction
+func (a *FlowArgumentsBuilder) UInt64Array(value ...uint64) *FlowArgumentsBuilder {
+	array := []cadence.Value{}
+	for _, val := range value {
+		cadenceVal := cadence.NewUInt64(val)
+		array = append(array, cadenceVal)
+	}
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
+}
+
+// Argument add an argument to the transaction
+func (a *FlowArgumentsBuilder) UInt8Array(value ...uint8) *FlowArgumentsBuilder {
+	array := []cadence.Value{}
+	for _, val := range value {
+		cadenceVal := cadence.NewUInt8(val)
+		array = append(array, cadenceVal)
+	}
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
+}
