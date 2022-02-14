@@ -37,6 +37,52 @@ func (o *Overflow) ParseAll() (*Solution, error) {
 	return o.ParseAllWithConfig(false, []string{}, []string{})
 }
 
+type MergedSolution struct {
+	Networks map[string]MergedSolutionNetwork `json:"networks"`
+}
+
+type MergedSolutionNetwork struct {
+	Scripts      map[string]CodeWithSpec `json:"scripts"`
+	Transactions map[string]CodeWithSpec `json:"transactions,omitempty"`
+	Contracts    *map[string]string      `json:"contracts,omitempty"`
+}
+
+type CodeWithSpec struct {
+	Code string           `json:"code"`
+	Spec *DeclarationInfo `json:"spec"`
+}
+
+func (s *Solution) MergeSpecAndCode() *MergedSolution {
+
+	networks := map[string]MergedSolutionNetwork{}
+	for name, network := range s.Networks {
+
+		scripts := map[string]CodeWithSpec{}
+		for name, code := range network.Scripts {
+			scripts[name] = CodeWithSpec{
+				Code: code,
+				Spec: s.Scripts[name],
+			}
+		}
+
+		transactions := map[string]CodeWithSpec{}
+		for name, code := range network.Transactions {
+			transactions[name] = CodeWithSpec{
+				Code: code,
+				Spec: s.Transactions[name],
+			}
+		}
+
+		networks[name] = MergedSolutionNetwork{
+			Contracts:    network.Contracts,
+			Scripts:      scripts,
+			Transactions: transactions,
+		}
+
+	}
+	return &MergedSolution{Networks: networks}
+}
+
 func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
 
 	transactions := map[string]string{}
