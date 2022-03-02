@@ -190,6 +190,24 @@ func (a *FlowArgumentsBuilder) UFix64(input float64) *FlowArgumentsBuilder {
 	return a.Argument(amount)
 }
 
+// PublicPath argument
+func (a *FlowArgumentsBuilder) PublicPath(input string) *FlowArgumentsBuilder {
+	path := cadence.Path{Domain: "public", Identifier: input}
+	return a.Argument(path)
+}
+
+// StoragePath argument
+func (a *FlowArgumentsBuilder) StoragePath(input string) *FlowArgumentsBuilder {
+	path := cadence.Path{Domain: "storage", Identifier: input}
+	return a.Argument(path)
+}
+
+// PrivatePath argument
+func (a *FlowArgumentsBuilder) PrivatePath(input string) *FlowArgumentsBuilder {
+	path := cadence.Path{Domain: "private", Identifier: input}
+	return a.Argument(path)
+}
+
 // Argument add an argument to the transaction
 func (a *FlowArgumentsBuilder) Argument(value cadence.Value) *FlowArgumentsBuilder {
 	a.Arguments = append(a.Arguments, value)
