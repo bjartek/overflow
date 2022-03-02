@@ -9,6 +9,8 @@ require (
 	github.com/onflow/cadence v0.20.2
 	github.com/onflow/flow-cli v0.30.1
 	github.com/onflow/flow-go-sdk v0.24.0
+	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.19.0
 	github.com/spf13/afero v1.6.0
 	github.com/stretchr/testify v1.7.0
 )
@@ -89,7 +91,6 @@ require (
 	github.com/onflow/flow/protobuf/go/flow v0.2.3 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.10.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
@@ -97,7 +98,6 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/rs/zerolog v1.19.0 // indirect
 	github.com/sethvargo/go-retry v0.1.0 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
