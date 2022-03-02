@@ -236,14 +236,14 @@ func (o *Overflow) contracts(network string) ([]*contracts.Contract, error) {
 	}
 
 	for _, contract := range contractsNetwork {
-		err := processor.AddContractSource(
+		err2 := processor.AddContractSource(
 			contract.Name,
 			contract.Source,
 			contract.Target,
 			contract.Args,
 		)
-		if err != nil {
-			return nil, err
+		if err2 != nil {
+			return nil, err2
 		}
 	}
 

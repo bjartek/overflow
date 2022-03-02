@@ -342,8 +342,8 @@ func (e FormatedEvent) String() string {
 }
 
 func (e FormatedEvent) GetFieldAsUInt64(field string) uint64 {
-	id := e.Fields[field].(string)
-	n, err := strconv.ParseUint(id, 10, 64)
+	id := e.Fields[field]
+	n, err := strconv.ParseUint(fmt.Sprintf("%s", id), 10, 64)
 	if err != nil {
 		panic(err)
 	}
