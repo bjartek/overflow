@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/bjartek/overflow/badge.svg?branch=main)](https://coveralls.io/github/bjartek/overflow?branch=main) [![ci](https://github.com/bjartek/overflow/actions/workflows/ci.yml/badge.svg)](https://github.com/bjartek/overflow/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/bjartek/overflow/badge.svg?branch=main)](https://coveralls.io/github/bjartek/overflow?branch=main) [![ci](https://github.com/bjartek/overflow/actions/workflows/ci.yaml/badge.svg)](https://github.com/bjartek/overflow/actions/workflows/ci.yaml)
 
 
 
