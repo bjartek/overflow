@@ -1,3 +1,9 @@
+[![Coverage Status](https://coveralls.io/repos/github/bjartek/overflow/badge.svg?branch=main)](https://coveralls.io/github/bjartek/overflow?branch=main) [![ci](https://github.com/bjartek/overflow/actions/workflows/ci.yml/badge.svg)](https://github.com/bjartek/overflow/actions/workflows/ci.yml)
+
+
+
+
+
 # Overflow
 
 > Tooling to help develop application on the the Flow Blockchain
