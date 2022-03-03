@@ -214,7 +214,25 @@ func (a *FlowArgumentsBuilder) Argument(value cadence.Value) *FlowArgumentsBuild
 	return a
 }
 
-// Argument add an argument to the transaction
+//  add an {String:String} to the transaction
+func (a *FlowArgumentsBuilder) StringMap(input map[string]string) *FlowArgumentsBuilder {
+	array := []cadence.KeyValuePair{}
+	for key, val := range input {
+		stringVal, err := cadence.NewString(val)
+		if err != nil {
+			panic(err)
+		}
+		stringKey, err := cadence.NewString(key)
+		if err != nil {
+			panic(err)
+		}
+		array = append(array, cadence.KeyValuePair{Key: stringKey, Value: stringVal})
+	}
+	a.Arguments = append(a.Arguments, cadence.NewDictionary(array))
+	return a
+}
+
+// Argument add an StringArray to the transaction
 func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
 	for _, val := range value {
