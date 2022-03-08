@@ -45,8 +45,8 @@ func (t TransactionResult) AssertSuccess() TransactionResult {
 func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 	assert.Equal(t.Testing, len(t.Events), number)
 	return t
-
 }
+
 func (t TransactionResult) AssertNoEvents() TransactionResult {
 	res := assert.Empty(t.Testing, t.Events)
 
@@ -158,4 +158,15 @@ func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
 		assert.Contains(t.Testing, logMessages, ev)
 	}
 	return t
+}
+
+func (t TransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
+
+	for _, ev := range t.Events {
+		if ev.Name == eventName {
+			return ev.GetFieldAsUInt64(fieldName)
+		}
+	}
+	panic("from event name of fieldname")
+
 }

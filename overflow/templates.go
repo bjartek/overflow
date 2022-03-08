@@ -6,8 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func splitByWidthMake(str string, size int) []string {
@@ -154,4 +159,40 @@ func (f *Overflow) UploadString(content string, accountName string) error {
 	}
 
 	return nil
+}
+
+func (f *Overflow) GetFreeCapacity(accountName string) int {
+
+	result := f.Script(`
+pub fun main(user:Address): UInt64{
+	let account=getAccount(user)
+	return account.storageCapacity - account.storageUsed
+}
+`).Args(f.Arguments().Account(accountName)).RunReturnsInterface().(string)
+
+	intVar, err := strconv.Atoi(result)
+	if err != nil {
+		panic(err)
+	}
+
+	return intVar
+
+}
+
+func (f *Overflow) FillUpStorage(accountName string) {
+
+	length := f.GetFreeCapacity(accountName) - 35 //some storage is made outside of the string so need to adjust
+
+	spew.Dump(length)
+	err := f.UploadString(randomString(length), accountName)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func randomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	b := make([]byte, length)
+	rand.Read(b)
+	return fmt.Sprintf("%x", b)[:length]
 }
