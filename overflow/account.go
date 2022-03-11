@@ -36,8 +36,8 @@ func (f *Overflow) CreateAccountsE() (*Overflow, error) {
 			signerAccount,
 			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
 			[]int{1000},
-			account.Key().SigAlgo(),
-			account.Key().HashAlgo(),
+			[]crypto.SignatureAlgorithm{account.Key().SigAlgo()},
+			[]crypto.HashAlgorithm{account.Key().HashAlgo()},
 			[]string{})
 		if err != nil {
 			return nil, err

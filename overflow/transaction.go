@@ -155,7 +155,6 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	for _, signer := range signers {
 		authorizers = append(authorizers, signer.Address())
 	}
-
 	tx, err := t.Overflow.Services.Transactions.Build(
 		t.MainSigner.Address(),
 		authorizers,
@@ -166,6 +165,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		t.GasLimit,
 		t.Arguments,
 		t.Overflow.Network,
+		true,
 	)
 	if err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	t.Overflow.Logger.StartProgress("Sending transaction...")
 	defer t.Overflow.Logger.StopProgress()
 	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
-	_, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes)
+	_, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes, true)
 
 	if err != nil {
 		return nil, err
