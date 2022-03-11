@@ -26,14 +26,29 @@ func (a *FlowArgumentsBuilder) Build() []cadence.Value {
 	return a.Arguments
 }
 
-// RawAccount add an account from a string as an argument
-func (a *FlowArgumentsBuilder) RawAccount(key string) *FlowArgumentsBuilder {
-	account := flow.HexToAddress(key)
+// RawAccount add an address from a string as an argument
+func (a *FlowArgumentsBuilder) RawAddress(address string) *FlowArgumentsBuilder {
+	account := flow.HexToAddress(address)
 	accountArg := cadence.BytesToAddress(account.Bytes())
 	return a.Argument(accountArg)
 }
 
-// Account add an account as an argument
+// Account add an address as an argument
+func (a *FlowArgumentsBuilder) Address(key string) *FlowArgumentsBuilder {
+	f := a.Overflow
+
+	account := f.Account(key)
+	return a.Argument(cadence.BytesToAddress(account.Address().Bytes()))
+}
+
+// RawAccount add an address from a string as an argument
+func (a *FlowArgumentsBuilder) RawAccount(address string) *FlowArgumentsBuilder {
+	account := flow.HexToAddress(address)
+	accountArg := cadence.BytesToAddress(account.Bytes())
+	return a.Argument(accountArg)
+}
+
+// Account add an address as an argument
 func (a *FlowArgumentsBuilder) Account(key string) *FlowArgumentsBuilder {
 	f := a.Overflow
 
