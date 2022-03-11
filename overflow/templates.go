@@ -181,7 +181,7 @@ pub fun main(user:Address): UInt64{
 
 func (f *Overflow) FillUpStorage(accountName string) {
 
-	length := f.GetFreeCapacity(accountName) - 35 //some storage is made outside of the string so need to adjust
+	length := f.GetFreeCapacity(accountName) - 67 //some storage is made outside of the string so need to adjust
 
 	spew.Dump(length)
 	err := f.UploadString(randomString(length), accountName)
