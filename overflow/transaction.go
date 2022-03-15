@@ -118,13 +118,17 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	return events
 }
 
-func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
-
+func (t FlowTransactionBuilder) RunGetIdFromEventPrintAll(eventName string, fieldName string) uint64 {
 	result, err := t.RunE()
 	if err != nil {
 		panic(err)
 	}
+	PrintEvents(result, map[string][]string{})
 
+	return getUInt64FieldFromEvent(result, eventName, fieldName)
+}
+
+func getUInt64FieldFromEvent(result []flow.Event, eventName string, fieldName string) uint64 {
 	for _, event := range result {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		if ev.Name == eventName {
@@ -132,6 +136,16 @@ func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName st
 		}
 	}
 	panic("did not find field")
+}
+
+func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
+
+	result, err := t.RunE()
+	if err != nil {
+		panic(err)
+	}
+
+	return getUInt64FieldFromEvent(result, eventName, fieldName)
 }
 
 // RunE runs returns error
