@@ -148,6 +148,22 @@ func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName st
 	return getUInt64FieldFromEvent(result, eventName, fieldName)
 }
 
+func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []FormatedEvent {
+
+	result, err := t.RunE()
+	if err != nil {
+		panic(err)
+	}
+	var events []FormatedEvent
+	for _, event := range result {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		if ev.Name == eventName {
+			events = append(events, *ev)
+		}
+	}
+	return events
+}
+
 // RunE runs returns error
 func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	if t.MainSigner == nil {
