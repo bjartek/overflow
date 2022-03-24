@@ -148,6 +148,38 @@ func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName st
 	return getUInt64FieldFromEvent(result, eventName, fieldName)
 }
 
+func (t FlowTransactionBuilder) RunGetIds(eventName string, fieldName string) ([]uint64, error) {
+
+	result, err := t.RunE()
+	if err != nil {
+		return nil, err
+	}
+	var ids []uint64
+	for _, event := range result {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		if ev.Name == eventName {
+			ids = append(ids, ev.GetFieldAsUInt64(fieldName))
+		}
+	}
+	return ids, nil
+}
+
+func (t FlowTransactionBuilder) RunGetEventsWithNameOrError(eventName string) ([]FormatedEvent, error) {
+
+	result, err := t.RunE()
+	if err != nil {
+		return nil, err
+	}
+	var events []FormatedEvent
+	for _, event := range result {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		if ev.Name == eventName {
+			events = append(events, *ev)
+		}
+	}
+	return events, nil
+}
+
 func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []FormatedEvent {
 
 	result, err := t.RunE()
