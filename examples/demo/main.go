@@ -18,6 +18,31 @@ func main() {
 
 	g := overflow.NewOverflow().Start()
 
+	//NameArguments inline
+	g.Transaction(`
+import Debug from "../contracts/Debug.cdc"
+
+transaction(value:Address) {
+	prepare(acct: AuthAccount) {
+		Debug.log(value.toString())
+ }
+}`).SignProposeAndPayAs("first").NamedArguments(map[string]string{
+		"value": "first",
+	}).RunPrintEventsFull()
+
+	//Named agument for scripts
+	g.Script(`
+pub fun main(account: Address): String {
+		return getAccount(account).address.toString()
+}`).NamedArguments(map[string]string{
+		"account": "second",
+	}).Run()
+
+	//NameArguments supports
+	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").NamedArguments(map[string]string{
+		"test": "argument1",
+	}).RunPrintEventsFull()
+
 	structValue := cadence.Struct{
 		Fields: []cadence.Value{cadence.String("baz")},
 		StructType: &cadence.StructType{
@@ -33,7 +58,7 @@ func main() {
 import Debug from "../contracts/Debug.cdc"
 
 transaction(value:Debug.Foo) {
-  prepare(acct: AuthAccount) {
+	prepare(acct: AuthAccount) {
 	Debug.log(value.bar)
  }
 }`).SignProposeAndPayAs("first").Args(g.Arguments().Argument(structValue)).RunPrintEventsFull()
@@ -62,14 +87,14 @@ transaction(value:Debug.Foo) {
 	//If you do not want to store a script in a file you can use a inline representation with go multiline strings
 	g.Script(`
 pub fun main(account: Address): String {
-    return getAccount(account).address.toString()
+		return getAccount(account).address.toString()
 }`).Args(g.Arguments().Account("second")).Run()
 
 	//The same is also possible for a transaction. Also note the handy Debug contracts log method that allow you to assert some output from a transaction other then an event.
 	g.Transaction(`
 import Debug from "../contracts/Debug.cdc"
 transaction(value:String) {
-  prepare(acct: AuthAccount) {
+	prepare(acct: AuthAccount) {
 	Debug.log(value)
  }
 }`).SignProposeAndPayAs("first").Args(g.Arguments().String("foobar")).RunPrintEventsFull()

@@ -43,6 +43,21 @@ func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 	}
 }
 
+func (t FlowTransactionBuilder) NamedArguments(args map[string]string) FlowTransactionBuilder {
+
+	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
+	code, err := t.getContractCode(codeFileName)
+	if err != nil {
+		panic(err)
+	}
+	parseArgs, err := t.Overflow.ParseArgumentsWithoutType(t.FileName, code, args)
+	if err != nil {
+		panic(err)
+	}
+	t.Arguments = parseArgs
+	return t
+}
+
 // Specify arguments to send to transaction using a raw list of values
 func (t FlowTransactionBuilder) ArgsV(args []cadence.Value) FlowTransactionBuilder {
 	t.Arguments = args

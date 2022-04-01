@@ -45,6 +45,21 @@ func (t FlowScriptBuilder) ScriptPath(path string) FlowScriptBuilder {
 	return t
 }
 
+func (t FlowScriptBuilder) NamedArguments(args map[string]string) FlowScriptBuilder {
+
+	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
+	code, err := t.getScriptCode(scriptFilePath)
+	if err != nil {
+		panic(err)
+	}
+	parseArgs, err := t.Overflow.ParseArgumentsWithoutType(t.FileName, code, args)
+	if err != nil {
+		panic(err)
+	}
+	t.Arguments = parseArgs
+	return t
+}
+
 // Specify arguments to send to transaction using a raw list of values
 func (t FlowScriptBuilder) ArgsV(args []cadence.Value) FlowScriptBuilder {
 	t.Arguments = args
@@ -71,19 +86,28 @@ func (t FlowScriptBuilder) Run() {
 	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result)))
 }
 
+func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) {
+
+	var err error
+	script := []byte(t.ScriptAsString)
+	if t.ScriptAsString == "" {
+		script, err = t.Overflow.State.ReaderWriter().ReadFile(scriptFilePath)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return script, nil
+}
+
 // RunReturns executes a read only script
 func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	f := t.Overflow
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
-
-	var err error
-	script := []byte(t.ScriptAsString)
-	if t.ScriptAsString == "" {
-		script, err = f.State.ReaderWriter().ReadFile(scriptFilePath)
-		if err != nil {
-			return nil, err
-		}
+	script, err := t.getScriptCode(scriptFilePath)
+	if err != nil {
+		return nil, err
 	}
 
 	result, err := f.Services.Scripts.Execute(

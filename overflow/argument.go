@@ -2,10 +2,16 @@ package overflow
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/araddon/dateparse"
 	"github.com/onflow/cadence"
+	"github.com/onflow/cadence/runtime"
+	"github.com/onflow/cadence/runtime/ast"
+	"github.com/onflow/cadence/runtime/cmd"
+	"github.com/onflow/cadence/runtime/common"
+	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-go-sdk"
 )
 
@@ -13,6 +19,78 @@ import (
 type FlowArgumentsBuilder struct {
 	Overflow  *Overflow
 	Arguments []cadence.Value
+}
+
+func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) (scriptArgs []cadence.Value, err error) {
+
+	var resultArgs []cadence.Value = make([]cadence.Value, 0)
+
+	codes := map[common.LocationID]string{}
+	location := common.StringLocation(fileName)
+	program, must := cmd.PrepareProgram(string(code), location, codes)
+	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
+
+	var parameterList []*ast.Parameter
+
+	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
+	if functionDeclaration != nil {
+		if functionDeclaration.ParameterList != nil {
+			parameterList = functionDeclaration.ParameterList.Parameters
+		}
+	}
+
+	transactionDeclaration := program.TransactionDeclarations()
+	if len(transactionDeclaration) == 1 {
+		if transactionDeclaration[0].ParameterList != nil {
+			parameterList = transactionDeclaration[0].ParameterList.Parameters
+		}
+	}
+
+	if parameterList == nil {
+		return resultArgs, nil
+	}
+
+	args := []string{}
+	for _, parameter := range parameterList {
+		args = append(args, inputArgs[parameter.Identifier.Identifier])
+	}
+
+	if len(parameterList) != len(args) {
+		return nil, fmt.Errorf("argument count is %d, expected %d", len(args), len(parameterList))
+	}
+
+	for index, argumentString := range args {
+		astType := parameterList[index].TypeAnnotation.Type
+		semaType := checker.ConvertType(astType)
+
+		switch semaType {
+		case sema.StringType:
+			if len(argumentString) > 0 && !strings.HasPrefix(argumentString, "\"") {
+				argumentString = "\"" + argumentString + "\""
+			}
+		}
+
+		switch semaType.(type) {
+		case *sema.AddressType:
+
+			account := f.Account(argumentString)
+
+			if account != nil {
+				argumentString = account.Address().String()
+			}
+
+			if !strings.Contains(argumentString, "0x") {
+				argumentString = fmt.Sprintf("0x%s", argumentString)
+			}
+		}
+
+		var value, err = runtime.ParseLiteral(argumentString, semaType)
+		if err != nil {
+			return nil, fmt.Errorf("argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
+		}
+		resultArgs = append(resultArgs, value)
+	}
+	return resultArgs, nil
 }
 
 func (f *Overflow) Arguments() *FlowArgumentsBuilder {
