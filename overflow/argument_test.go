@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-go-sdk"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,14 +24,21 @@ func TestArguments(t *testing.T) {
 		foo, _ := cadence.NewString("foo")
 		bar, _ := cadence.NewString("bar")
 
+		address1 := flow.HexToAddress("f8d6e0586b0a20c7")
+		address2 := flow.HexToAddress("01cf0e2f2f715450")
+		cadenceAddress1 := cadence.BytesToAddress(address1.Bytes())
+		cadenceAddress2 := cadence.BytesToAddress(address2.Bytes())
+
 		stringValues := []cadence.Value{foo, bar}
+		addressValues := []cadence.Value{cadenceAddress1, cadenceAddress2}
 
 		builder := g.Arguments().Boolean(true).
 			Bytes([]byte{1}).
 			Fix64("-1.0").
 			UFix64(1.0).
 			DateStringAsUnixTimestamp("July 29, 2021 08:00:00 AM", "America/New_York").
-			StringArray("foo", "bar")
+			StringArray("foo", "bar").
+			AddressArray("f8d6e0586b0a20c7", "01cf0e2f2f715450")
 
 		assert.Contains(t, builder.Arguments, cadence.NewBool(true))
 		assert.Contains(t, builder.Arguments, cadence.NewBytes([]byte{1}))
@@ -38,6 +46,7 @@ func TestArguments(t *testing.T) {
 		assert.Contains(t, builder.Arguments, ufix)
 		assert.Contains(t, builder.Arguments, dateFix)
 		assert.Contains(t, builder.Arguments, cadence.NewArray(stringValues))
+		assert.Contains(t, builder.Arguments, cadence.NewArray(addressValues))
 	})
 
 	t.Run("Word argument test", func(t *testing.T) {

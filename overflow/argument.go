@@ -340,6 +340,18 @@ func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilde
 	return a
 }
 
+// Argument add an AddressArray to the transaction
+func (a *FlowArgumentsBuilder) AddressArray(value ...string) *FlowArgumentsBuilder {
+	array := []cadence.Value{}
+	for _, val := range value {
+		address := flow.HexToAddress(val)
+		cadenceAddress := cadence.BytesToAddress(address.Bytes())
+		array = append(array, cadenceAddress)
+	}
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
+}
+
 // Argument add an argument to the transaction
 func (a *FlowArgumentsBuilder) UInt64Array(value ...uint64) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
