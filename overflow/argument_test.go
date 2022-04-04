@@ -38,7 +38,7 @@ func TestArguments(t *testing.T) {
 			UFix64(1.0).
 			DateStringAsUnixTimestamp("July 29, 2021 08:00:00 AM", "America/New_York").
 			StringArray("foo", "bar").
-			AddressArray("f8d6e0586b0a20c7", "01cf0e2f2f715450")
+			RawAddressArray("f8d6e0586b0a20c7", "01cf0e2f2f715450")
 
 		assert.Contains(t, builder.Arguments, cadence.NewBool(true))
 		assert.Contains(t, builder.Arguments, cadence.NewBytes([]byte{1}))
