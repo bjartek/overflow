@@ -341,7 +341,7 @@ func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilde
 }
 
 // Argument add an AddressArray to the transaction
-func (a *FlowArgumentsBuilder) AddressArray(value ...string) *FlowArgumentsBuilder {
+func (a *FlowArgumentsBuilder) RawAddressArray(value ...string) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
 	for _, val := range value {
 		address := flow.HexToAddress(val)
