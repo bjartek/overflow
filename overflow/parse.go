@@ -60,7 +60,7 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 		scripts := map[string]CodeWithSpec{}
 		for name, code := range network.Scripts {
 			scripts[name] = CodeWithSpec{
-				Code: code,
+				Code: FormatCode(code),
 				Spec: s.Scripts[name],
 			}
 		}
@@ -68,7 +68,7 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 		transactions := map[string]CodeWithSpec{}
 		for name, code := range network.Transactions {
 			transactions[name] = CodeWithSpec{
-				Code: code,
+				Code: FormatCode(code),
 				Spec: s.Transactions[name],
 			}
 		}
@@ -330,4 +330,8 @@ func params(fileName string, code []byte) *ast.ParameterList {
 	}
 
 	return nil
+}
+
+func FormatCode(input string) string {
+	return strings.ReplaceAll(strings.TrimSpace(input), "\t", "    ")
 }
