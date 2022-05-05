@@ -1,10 +1,12 @@
 package overflow
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/flow-cli/pkg/flowkit"
@@ -12,6 +14,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	logrus "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
 
@@ -25,6 +28,7 @@ type Overflow struct {
 	ServiceAccountSuffix         string
 	Gas                          int
 	BasePath                     string
+	Log                          *bytes.Buffer
 }
 
 func (o *Overflow) ServiceAccountName() string {
@@ -164,10 +168,15 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 
 	logger := output.NewStdoutLogger(o.LogLevel)
 	var service *services.Services
+	var memlog bytes.Buffer
 	if o.InMemory {
 		//YAY we can run it inline in memory!
 		acc, _ := state.EmulatorServiceAccount()
-		gw := gateway.NewEmulatorGateway(acc)
+
+		logrus.SetFormatter(&logrus.JSONFormatter{})
+		logrus.SetOutput(&memlog)
+		gw := gateway.NewEmulatorGatewayWithLogger(logrus.StandardLogger(), acc)
+		//		gw := gateway.NewEmulatorGateway(acc)
 		service = services.NewServices(gw, state, logger)
 	} else {
 		network, err := state.Networks().ByName(o.Network)
@@ -190,6 +199,7 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 		ServiceAccountSuffix:         o.ServiceSuffix,
 		Gas:                          o.GasLimit,
 		BasePath:                     o.Path,
+		Log:                          &memlog,
 	}
 
 	if o.DeployContracts {
@@ -230,4 +240,12 @@ func NewOverflowTestnet() *OverflowBuilder {
 //NewOverflowMainnet creates a new gwft client for mainnet
 func NewOverflowMainnet() *OverflowBuilder {
 	return NewOverflowBuilder("mainnet", false, output.InfoLog)
+}
+
+type LogrusMessage struct {
+	ComputationUsed int       `json:"computationUsed"`
+	Level           string    `json:"level"`
+	Msg             string    `json:"msg"`
+	Time            time.Time `json:"time"`
+	TxID            string    `json:"txID"`
 }

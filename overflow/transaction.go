@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -213,6 +214,7 @@ func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []Formate
 
 // RunE runs returns error
 func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
+
 	if t.MainSigner == nil {
 		return nil, fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
 	}
@@ -222,6 +224,8 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	t.Overflow.Log.Reset()
 	// we append the mainSigners at the end here so that it signs last
 	signers := t.PayloadSigners
 	signers = append(signers, t.MainSigner)
@@ -274,6 +278,14 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, res.Error
 	}
 
+	var logMessage LogrusMessage
+	err = json.Unmarshal(t.Overflow.Log.Bytes(), &logMessage)
+	if err != nil {
+		panic(err)
+	}
+
+	t.Overflow.Logger.Info(fmt.Sprintf("Gas used %d", logMessage.ComputationUsed))
+	t.Overflow.Log.Reset()
 	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
 	return res.Events, nil
 }
