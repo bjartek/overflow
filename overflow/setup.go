@@ -174,6 +174,7 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 		acc, _ := state.EmulatorServiceAccount()
 
 		logrus.SetFormatter(&logrus.JSONFormatter{})
+		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetOutput(&memlog)
 		gw := gateway.NewEmulatorGatewayWithLogger(logrus.StandardLogger(), acc)
 		//		gw := gateway.NewEmulatorGateway(acc)

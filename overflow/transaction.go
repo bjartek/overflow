@@ -3,6 +3,7 @@ package overflow
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -278,15 +279,32 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, res.Error
 	}
 
-	var logMessage LogrusMessage
-	err = json.Unmarshal(t.Overflow.Log.Bytes(), &logMessage)
-	if err != nil {
-		panic(err)
+	var logMessage []LogrusMessage
+	dec := json.NewDecoder(t.Overflow.Log)
+	for {
+		var doc LogrusMessage
+
+		err := dec.Decode(&doc)
+		if err == io.EOF {
+			// all done
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		logMessage = append(logMessage, doc)
 	}
 
-	t.Overflow.Logger.Info(fmt.Sprintf("Gas used %d", logMessage.ComputationUsed))
+	var gas int
+	for _, msg := range logMessage {
+		if msg.ComputationUsed != 0 {
+			gas = msg.ComputationUsed
+		}
+		t.Overflow.Logger.Info(fmt.Sprintf("%v", msg.Msg))
+	}
 	t.Overflow.Log.Reset()
-	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
+	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied using gas:%d\n", emoji.OkHand, t.FileName, gas))
 	return res.Events, nil
 }
 

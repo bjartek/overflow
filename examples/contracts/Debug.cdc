@@ -15,6 +15,9 @@ pub contract Debug {
 
 	pub fun log(_ msg: String) : String {
 		emit Log(msg: msg)
+		if true {
+			panic("foo")
+		}
 		return msg
 	}
 
