@@ -61,6 +61,28 @@ func (t TransactionResult) AssertNoEvents() TransactionResult {
 	return t
 }
 
+func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) TransactionResult {
+	var eventNames []string
+	for _, fe := range t.Events {
+		eventNames = append(eventNames, fe.ShortName())
+	}
+
+	res := false
+	for _, ev := range event {
+		if assert.Contains(t.Testing, eventNames, ev) {
+			res = true
+		}
+	}
+
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(ev.String())
+		}
+	}
+
+	return t
+}
+
 func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResult {
 	var eventNames []string
 	for _, fe := range t.Events {
@@ -172,6 +194,11 @@ func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
 
 	assert.Fail(t.Testing, "No emulator log contain message "+message, t.Result.EmulatorLog)
 
+	return t
+}
+
+func (t TransactionResult) AssertComputationLessThenOrEqual(computation int) TransactionResult {
+	assert.LessOrEqual(t.Testing, t.Result.ComputationUsed, computation)
 	return t
 }
 

@@ -320,6 +320,10 @@ type FormatedEvent struct {
 	Fields      map[string]interface{} `json:"fields"`
 }
 
+func (fe FormatedEvent) ShortName() string {
+	return fe.Name[19:]
+}
+
 func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
 	loc, _ := time.LoadLocation("UTC")
 	// handle err
