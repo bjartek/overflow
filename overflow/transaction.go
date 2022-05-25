@@ -213,17 +213,29 @@ func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []Formate
 	return events
 }
 
-// RunE runs returns error
 func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 
+	result := t.Execute()
+	return result.RawEvents, result.Err
+}
+
+// RunE runs returns error
+func (t FlowTransactionBuilder) Execute() *OverflowResult {
+
+	result := &OverflowResult{}
+
 	if t.MainSigner == nil {
-		return nil, fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
+		fmt.Println("err")
+		result.Err = fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
+		return result
 	}
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getContractCode(codeFileName)
 	if err != nil {
-		return nil, err
+		fmt.Println("err")
+		result.Err = err
+		return result
 	}
 
 	t.Overflow.Log.Reset()
@@ -237,6 +249,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	for _, signer := range signers {
 		authorizers = append(authorizers, signer.Address())
 	}
+
 	tx, err := t.Overflow.Services.Transactions.Build(
 		t.MainSigner.Address(),
 		authorizers,
@@ -250,33 +263,36 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		true,
 	)
 	if err != nil {
-		return nil, err
+		result.Err = err
+		return result
 	}
 
 	for _, signer := range signers {
 		err = tx.SetSigner(signer)
 		if err != nil {
-			return nil, err
+			result.Err = err
+			return result
 		}
 
 		tx, err = tx.Sign()
 		if err != nil {
-			return nil, err
+			result.Err = err
+			return result
 		}
 	}
+	txId := tx.FlowTransaction().ID()
+	result.Id = txId
 
-	t.Overflow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
+	t.Overflow.Logger.Info(fmt.Sprintf("Transaction ID: %s", txId))
 	t.Overflow.Logger.StartProgress("Sending transaction...")
 	defer t.Overflow.Logger.StopProgress()
 	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
-	_, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes, true)
+	ftx, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes, true)
+	result.Transaction = ftx
 
 	if err != nil {
-		return nil, err
-	}
-
-	if res.Error != nil {
-		return nil, res.Error
+		result.Err = err
+		return result
 	}
 
 	var logMessage []LogrusMessage
@@ -290,22 +306,34 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			result.Err = err
+			return result
 		}
 
 		logMessage = append(logMessage, doc)
 	}
 
 	var gas int
+	messages := []string{}
 	for _, msg := range logMessage {
 		if msg.ComputationUsed != 0 {
+			result.ComputationUsed = msg.ComputationUsed
 			gas = msg.ComputationUsed
 		}
-		t.Overflow.Logger.Info(fmt.Sprintf("%v", msg.Msg))
+		messages = append(messages, msg.Msg)
 	}
+	result.RawLog = logMessage
+	result.EmulatorLog = messages
+
+	if res.Error != nil {
+		result.Err = res.Error
+		return result
+	}
+
 	t.Overflow.Log.Reset()
 	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied using gas:%d\n", emoji.OkHand, t.FileName, gas))
-	return res.Events, nil
+	result.RawEvents = res.Events
+	return result
 }
 
 func (t FlowTransactionBuilder) getContractCode(codeFileName string) ([]byte, error) {
@@ -330,4 +358,14 @@ type FlowTransactionBuilder struct {
 	PayloadSigners []*flowkit.Account
 	GasLimit       uint64
 	BasePath       string
+}
+
+type OverflowResult struct {
+	Err             error
+	Id              flow.Identifier
+	EmulatorLog     []string
+	ComputationUsed int
+	RawEvents       []flow.Event
+	RawLog          []LogrusMessage
+	Transaction     *flow.Transaction
 }

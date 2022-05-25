@@ -69,7 +69,9 @@ transaction(message:String) {
 			Args(g.Arguments().String("foobar")).
 			Test(t).
 			AssertSuccess().
-			AssertDebugLog("foobar") //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
+			AssertDebugLog("foobar"). //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
+			AssertComputationUsed(5).
+			AssertEmulatorLog("Transaction submitted")
 
 	})
 

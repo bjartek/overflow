@@ -171,13 +171,17 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 	var memlog bytes.Buffer
 	if o.InMemory {
 		//YAY we can run it inline in memory!
+		fmt.Println("InMemory")
 		acc, _ := state.EmulatorServiceAccount()
 
-		logrus.SetFormatter(&logrus.JSONFormatter{})
-		logrus.SetLevel(logrus.TraceLevel)
-		logrus.SetOutput(&memlog)
+		logrusLogger := &logrus.Logger{
+			Formatter: &logrus.JSONFormatter{},
+			Level:     logrus.TraceLevel,
+			Out:       &memlog,
+		}
+
 		//YAY we can now get out embedded logs!
-		gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrus.StandardLogger()))
+		gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrusLogger))
 		service = services.NewServices(gw, state, logger)
 	} else {
 		network, err := state.Networks().ByName(o.Network)

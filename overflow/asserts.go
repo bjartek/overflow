@@ -11,21 +11,23 @@ import (
 type TransactionResult struct {
 	Err     error
 	Events  []*FormatedEvent
+	Result  *OverflowResult
 	Testing *testing.T
 }
 
 func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
-	events, err := f.RunE()
+	result := f.Execute()
 	var formattedEvents []*FormatedEvent
-	for _, event := range events {
+	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		formattedEvents = append(formattedEvents, ev)
 	}
 	return TransactionResult{
-		Err:     err,
+		Err:     result.Err,
 		Events:  formattedEvents,
+		Result:  result,
 		Testing: t,
 	}
 }
@@ -157,6 +159,24 @@ func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
 	for _, ev := range message {
 		assert.Contains(t.Testing, logMessages, ev)
 	}
+	return t
+}
+
+func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
+
+	for _, log := range t.Result.EmulatorLog {
+		if strings.Contains(log, message) {
+			return t
+		}
+	}
+
+	assert.Fail(t.Testing, "No emulator log contain message "+message, t.Result.EmulatorLog)
+
+	return t
+}
+
+func (t TransactionResult) AssertComputationUsed(computation int) TransactionResult {
+	assert.Equal(t.Testing, computation, t.Result.ComputationUsed)
 	return t
 }
 
