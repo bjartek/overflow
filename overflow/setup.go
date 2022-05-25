@@ -171,7 +171,6 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 	var memlog bytes.Buffer
 	if o.InMemory {
 		//YAY we can run it inline in memory!
-		fmt.Println("InMemory")
 		acc, _ := state.EmulatorServiceAccount()
 
 		logrusLogger := &logrus.Logger{
