@@ -51,7 +51,7 @@ func TestTransaction(t *testing.T) {
 			AssertSuccess().
 			AssertEventCount(3).                                                                                                                                                                           //assert the number of events returned
 			AssertPartialEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                   //assert a given event, can also take multiple events if you like
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").                                                                                                                              //assert the name of a single event
+			AssertEmitEventNameShortForm("FlowToken.TokensMinted").                                                                                                                                        //assert the name of a single event
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated").                                //or assert more then one eventname in a go
 			AssertEmitEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                         //assert a given event, can also take multiple events if you like
 			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": \"100.00000000\"\n  }\n}") //assert a given event using json, can also take multiple events if you like
@@ -69,7 +69,9 @@ transaction(message:String) {
 			Args(g.Arguments().String("foobar")).
 			Test(t).
 			AssertSuccess().
-			AssertDebugLog("foobar") //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
+			AssertDebugLog("foobar"). //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
+			AssertComputationUsed(5).
+			AssertEmulatorLog("Transaction submitted")
 
 	})
 
@@ -85,7 +87,8 @@ transaction(user:Address) {
 			Args(g.Arguments().RawAccount("0x1cf0e2f2f715450")).
 			Test(t).
 			AssertSuccess().
-			AssertDebugLog("0x1cf0e2f2f715450")
+			AssertDebugLog("0x1cf0e2f2f715450").
+			AssertComputationLessThenOrEqual(10)
 	})
 
 	t.Run("transaction that should fail", func(t *testing.T) {

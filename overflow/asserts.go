@@ -11,21 +11,23 @@ import (
 type TransactionResult struct {
 	Err     error
 	Events  []*FormatedEvent
+	Result  *OverflowResult
 	Testing *testing.T
 }
 
 func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
-	events, err := f.RunE()
+	result := f.Send()
 	var formattedEvents []*FormatedEvent
-	for _, event := range events {
+	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		formattedEvents = append(formattedEvents, ev)
 	}
 	return TransactionResult{
-		Err:     err,
+		Err:     result.Err,
 		Events:  formattedEvents,
+		Result:  result,
 		Testing: t,
 	}
 }
@@ -49,6 +51,28 @@ func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 
 func (t TransactionResult) AssertNoEvents() TransactionResult {
 	res := assert.Empty(t.Testing, t.Events)
+
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(ev.String())
+		}
+	}
+
+	return t
+}
+
+func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) TransactionResult {
+	var eventNames []string
+	for _, fe := range t.Events {
+		eventNames = append(eventNames, fe.ShortName())
+	}
+
+	res := false
+	for _, ev := range event {
+		if assert.Contains(t.Testing, eventNames, ev) {
+			res = true
+		}
+	}
 
 	if !res {
 		for _, ev := range t.Events {
@@ -157,6 +181,29 @@ func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
 	for _, ev := range message {
 		assert.Contains(t.Testing, logMessages, ev)
 	}
+	return t
+}
+
+func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
+
+	for _, log := range t.Result.EmulatorLog {
+		if strings.Contains(log, message) {
+			return t
+		}
+	}
+
+	assert.Fail(t.Testing, "No emulator log contain message "+message, t.Result.EmulatorLog)
+
+	return t
+}
+
+func (t TransactionResult) AssertComputationLessThenOrEqual(computation int) TransactionResult {
+	assert.LessOrEqual(t.Testing, t.Result.ComputationUsed, computation)
+	return t
+}
+
+func (t TransactionResult) AssertComputationUsed(computation int) TransactionResult {
+	assert.Equal(t.Testing, computation, t.Result.ComputationUsed)
 	return t
 }
 
