@@ -213,13 +213,14 @@ func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []Formate
 	return events
 }
 
+// RunE runs returns events and error
 func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 
 	result := t.Execute()
 	return result.RawEvents, result.Err
 }
 
-// RunE runs returns error
+// The new main way of running an overflow transaction
 func (t FlowTransactionBuilder) Execute() *OverflowResult {
 
 	result := &OverflowResult{}
@@ -368,4 +369,31 @@ type OverflowResult struct {
 	RawEvents       []flow.Event
 	RawLog          []LogrusMessage
 	Transaction     *flow.Transaction
+}
+
+func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
+	return getUInt64FieldFromEvent(o.RawEvents, eventName, fieldName)
+}
+
+func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {
+	var ids []uint64
+	for _, event := range o.RawEvents {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		if ev.Name == eventName {
+			ids = append(ids, ev.GetFieldAsUInt64(fieldName))
+		}
+	}
+	return ids
+}
+
+func (o OverflowResult) GetEventsWithName(eventName string) []FormatedEvent {
+
+	var events []FormatedEvent
+	for _, event := range o.RawEvents {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		if ev.Name == eventName {
+			events = append(events, *ev)
+		}
+	}
+	return events
 }
