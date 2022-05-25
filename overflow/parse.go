@@ -239,7 +239,8 @@ func (o *Overflow) contracts(network string) ([]*contracts.Contract, error) {
 		err2 := processor.AddContractSource(
 			contract.Name,
 			contract.Source,
-			contract.Target,
+			contract.AccountAddress,
+			contract.AccountName,
 			contract.Args,
 		)
 		if err2 != nil {

@@ -8,10 +8,11 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/enescakir/emoji v1.0.0
 	github.com/onflow/cadence v0.23.3
-	github.com/onflow/flow-cli v0.33.0
+	github.com/onflow/flow-cli v0.34.0
 	github.com/onflow/flow-go-sdk v0.24.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.1
 )
@@ -93,7 +94,6 @@ require (
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
 	github.com/sethvargo/go-retry v0.1.0 // indirect
-	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
@@ -128,5 +128,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
 )
-
-replace github.com/onflow/flow-cli => ../flow-cli_wallet/
