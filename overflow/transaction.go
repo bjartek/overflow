@@ -216,12 +216,12 @@ func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []Formate
 // RunE runs returns events and error
 func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 
-	result := t.Execute()
+	result := t.Send()
 	return result.RawEvents, result.Err
 }
 
 // The new main way of running an overflow transaction
-func (t FlowTransactionBuilder) Execute() *OverflowResult {
+func (t FlowTransactionBuilder) Send() *OverflowResult {
 
 	result := &OverflowResult{}
 

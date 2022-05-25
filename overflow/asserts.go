@@ -18,7 +18,7 @@ type TransactionResult struct {
 func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
-	result := f.Execute()
+	result := f.Send()
 	var formattedEvents []*FormatedEvent
 	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
