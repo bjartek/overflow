@@ -176,8 +176,8 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetOutput(&memlog)
-		gw := gateway.NewEmulatorGatewayWithLogger(logrus.StandardLogger(), acc)
-		//		gw := gateway.NewEmulatorGateway(acc)
+		//YAY we can now get out embedded logs!
+		gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrus.StandardLogger()))
 		service = services.NewServices(gw, state, logger)
 	} else {
 		network, err := state.Networks().ByName(o.Network)
