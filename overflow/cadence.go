@@ -59,11 +59,14 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 			result = append(result, CadenceValueToInterface(item))
 		}
 		return result
-	default:
+
+	case cadence.String:
 		result, err := strconv.Unquote(field.String())
 		if err != nil {
 			return field.String()
 		}
 		return result
+	default:
+		return field.ToGoValue()
 	}
 }
