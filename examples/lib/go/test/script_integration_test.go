@@ -16,7 +16,7 @@ func TestScriptSubdir(t *testing.T) {
 			ScriptPath("../../../scripts/").
 			Args(g.Arguments().RawAccount("0x1cf0e2f2f715450")).
 			RunReturnsInterface()
-		assert.Equal(t, "0x1cf0e2f2f715450", value)
+		assert.Equal(t, "0x01cf0e2f2f715450", value)
 	})
 
 }
