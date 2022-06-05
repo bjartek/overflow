@@ -325,6 +325,24 @@ func (a *FlowArgumentsBuilder) StringMap(input map[string]string) *FlowArguments
 	return a
 }
 
+//  add an {String:UFix64} to the transaction
+func (a *FlowArgumentsBuilder) ScalarMap(input map[string]string) *FlowArgumentsBuilder {
+	array := []cadence.KeyValuePair{}
+	for key, val := range input {
+		UFix64Val, err := cadence.NewUFix64(val)
+		if err != nil {
+			panic(err)
+		}
+		stringKey, err := cadence.NewString(key)
+		if err != nil {
+			panic(err)
+		}
+		array = append(array, cadence.KeyValuePair{Key: stringKey, Value: UFix64Val})
+	}
+	a.Arguments = append(a.Arguments, cadence.NewDictionary(array))
+	return a
+}
+
 // Argument add an StringArray to the transaction
 func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
@@ -340,12 +358,68 @@ func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilde
 	return a
 }
 
+// Argument add an StringMapArray to the transaction
+func (a *FlowArgumentsBuilder) StringMapArray(value ...map[string]string) *FlowArgumentsBuilder {
+	array := []cadence.Value{}
+	for _, vals := range value {
+		dict := []cadence.KeyValuePair{}
+		for key, val := range vals {
+			StringVal, err := cadence.NewString(val)
+			if err != nil {
+				panic(err)
+			}
+			stringKey, err := cadence.NewString(key)
+			if err != nil {
+				panic(err)
+			}
+			dict = append(dict, cadence.KeyValuePair{Key: stringKey, Value: StringVal})
+		}
+		array = append(array, cadence.NewDictionary(dict))
+	}
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
+}
+
+// Argument add an StringArray to the transaction
+func (a *FlowArgumentsBuilder) ScalarMapArray(value ...map[string]string) *FlowArgumentsBuilder {
+	array := []cadence.Value{}
+	for _, vals := range value {
+		dict := []cadence.KeyValuePair{}
+		for key, val := range vals {
+			UFix64Val, err := cadence.NewUFix64(val)
+			if err != nil {
+				panic(err)
+			}
+			stringKey, err := cadence.NewString(key)
+			if err != nil {
+				panic(err)
+			}
+			dict = append(dict, cadence.KeyValuePair{Key: stringKey, Value: UFix64Val})
+		}
+		array = append(array, cadence.NewDictionary(dict))
+	}
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
+}
+
 // Argument add a RawAddressArray to the transaction
 func (a *FlowArgumentsBuilder) RawAddressArray(value ...string) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
 	for _, val := range value {
 		address := flow.HexToAddress(val)
 		cadenceAddress := cadence.BytesToAddress(address.Bytes())
+		array = append(array, cadenceAddress)
+	}
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
+}
+
+// Argument add a RawAddressArray to the transaction
+func (a *FlowArgumentsBuilder) AccountArray(value ...string) *FlowArgumentsBuilder {
+	array := []cadence.Value{}
+	for _, val := range value {
+		address := a.Overflow.Account(val)
+		cadenceAddress := cadence.BytesToAddress(address.Address().Bytes())
 		array = append(array, cadenceAddress)
 	}
 	a.Arguments = append(a.Arguments, cadence.NewArray(array))
