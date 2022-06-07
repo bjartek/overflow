@@ -8,7 +8,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/enescakir/emoji v1.0.0
 	github.com/onflow/cadence v0.21.3-0.20220601002855-8b113c539a2c
-	github.com/onflow/flow-cli v0.34.1-0.20220602173002-0e5be6809b7a
+	github.com/onflow/flow-cli v0.35.0
 	github.com/onflow/flow-go-sdk v0.24.1-0.20220513205729-d1f58d47c4e3
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
