@@ -84,10 +84,10 @@ transaction(user:Address) {
  }
 }`).
 			SignProposeAndPayAsService().
-			Args(g.Arguments().RawAccount("0x1cf0e2f2f715450")).
+			Args(g.Arguments().RawAccount("0x01cf0e2f2f715450")).
 			Test(t).
 			AssertSuccess().
-			AssertDebugLog("0x1cf0e2f2f715450").
+			AssertDebugLog("0x01cf0e2f2f715450").
 			AssertComputationLessThenOrEqual(10)
 	})
 
