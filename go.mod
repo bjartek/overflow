@@ -7,9 +7,9 @@ require (
 	github.com/bwmarrin/discordgo v0.23.2
 	github.com/davecgh/go-spew v1.1.1
 	github.com/enescakir/emoji v1.0.0
-	github.com/onflow/cadence v0.21.3-0.20220601002855-8b113c539a2c
-	github.com/onflow/flow-cli v0.35.0
-	github.com/onflow/flow-go-sdk v0.24.1-0.20220513205729-d1f58d47c4e3
+	github.com/onflow/cadence v0.24.1
+	github.com/onflow/flow-cli v0.36.0
+	github.com/onflow/flow-go-sdk v0.26.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
 	github.com/sirupsen/logrus v1.8.1
@@ -79,12 +79,12 @@ require (
 	github.com/onflow/atree v0.3.1-0.20220531231935-525fbc26f40a // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20220513155751-c4c1f8d59f83 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20220513155751-c4c1f8d59f83 // indirect
-	github.com/onflow/flow-emulator v0.32.0 // indirect
+	github.com/onflow/flow-emulator v0.33.1 // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
-	github.com/onflow/flow-go v0.26.2 // indirect
+	github.com/onflow/flow-go v0.26.3 // indirect
 	github.com/onflow/flow-go/crypto v0.24.3 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.3.1 // indirect
-	github.com/onflow/sdks v0.4.2 // indirect
+	github.com/onflow/sdks v0.4.4 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
