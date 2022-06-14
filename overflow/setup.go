@@ -94,15 +94,11 @@ func NewOverflow() *OverflowBuilder {
 }
 
 func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *OverflowBuilder {
-	if network == "" {
-		network = "embedded"
-	}
-
 	inMemory := false
 	deployContracts := newEmulator
 	initializeAccounts := newEmulator
 
-	if network == "embedded" {
+	if network == "embedded" || network == "" {
 		inMemory = true
 		network = "emulator"
 	}
