@@ -21,8 +21,7 @@ type FlowArgumentsBuilder struct {
 	Arguments []cadence.Value
 }
 
-func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) (scriptArgs []cadence.Value, err error) {
-
+func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
 	codes := map[common.LocationID]string{}
@@ -50,9 +49,21 @@ func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, input
 		return resultArgs, nil
 	}
 
+	argumentNotPresent := []string{}
 	args := []string{}
 	for _, parameter := range parameterList {
-		args = append(args, inputArgs[parameter.Identifier.Identifier])
+		parameterName := parameter.Identifier.Identifier
+		value, ok := inputArgs[parameterName]
+		if !ok {
+			argumentNotPresent = append(argumentNotPresent, parameterName)
+		} else {
+			args = append(args, value)
+		}
+	}
+
+	if len(argumentNotPresent) > 0 {
+		err := fmt.Errorf("the following arguments where not present %v", argumentNotPresent)
+		return nil, err
 	}
 
 	if len(parameterList) != len(args) {

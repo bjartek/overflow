@@ -134,4 +134,23 @@ transaction(user:Address) {
 
 		assert.NotContains(t, str.String(), "0x1cf0e2f2f715450")
 	})
+
+	t.Run("Named arguments", func(t *testing.T) {
+		g.TransactionFromFile("mint_tokens").
+			SignProposeAndPayAsService().
+			NamedArguments(map[string]string{
+				"recipient": "first",
+				"amount":    "100.0",
+			}).
+			Test(t).AssertSuccess()
+	})
+	t.Run("Named arguments error if not all arguments", func(t *testing.T) {
+		g.TransactionFromFile("mint_tokens").
+			SignProposeAndPayAsService().
+			NamedArguments(map[string]string{
+				"recipient": "first",
+			}).
+			Test(t).AssertFailure("the following arguments where not present [amount]")
+	})
+
 }
