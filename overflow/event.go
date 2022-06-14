@@ -14,7 +14,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/onflow/flow-go-sdk"
-	"github.com/onflow/flow-go-sdk/client"
 )
 
 // EventFetcherBuilder builder to hold info about eventhook context.
@@ -265,7 +264,7 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 }
 
 //FormatEvents
-func FormatEvents(blockEvents []client.BlockEvents, ignoreFields map[string][]string) []*FormatedEvent {
+func FormatEvents(blockEvents []flow.BlockEvents, ignoreFields map[string][]string) []*FormatedEvent {
 	var events []*FormatedEvent
 
 	for _, blockEvent := range blockEvents {
