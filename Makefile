@@ -1,7 +1,7 @@
 .PHONY: coveralls cover install-gotestsum test-report
 
 coveralls:
-	go test -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/overflow/overflow -v ./...
+	go test --timeout 20s -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/overflow/overflow -v ./...
 
 cover: test
 	go tool cover -html=profile.cov

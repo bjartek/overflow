@@ -1,0 +1,7 @@
+[]cadence.Value{cadence.Array{
+	Values: []cadence.Value{
+		cadence.UInt8(1),
+		cadence.UInt8(2),
+		cadence.UInt8(3),
+	},
+}}

@@ -1,0 +1,14 @@
+[]cadence.Value{cadence.Array{
+	Values: []cadence.Value{
+		cadence.Dictionary{
+			Pairs: []cadence.KeyValuePair{cadence.KeyValuePair{
+				Key:   cadence.String("Sith"),
+				Value: cadence.UFix64(2.00000000),
+			}},
+		},
+		cadence.Dictionary{Pairs: []cadence.KeyValuePair{cadence.KeyValuePair{
+			Key:   cadence.String("Jedi"),
+			Value: cadence.UFix64(1000.00000000),
+		}}},
+	},
+}}

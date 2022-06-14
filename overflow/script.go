@@ -3,7 +3,6 @@ package overflow
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -16,6 +15,7 @@ type FlowScriptBuilder struct {
 	Arguments      []cadence.Value
 	ScriptAsString string
 	BasePath       string
+	Error          error
 }
 
 //Script start a script builder with the inline script as body
@@ -50,11 +50,13 @@ func (t FlowScriptBuilder) NamedArguments(args map[string]string) FlowScriptBuil
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getScriptCode(scriptFilePath)
 	if err != nil {
-		panic(err)
+		t.Error = err
+		return t
 	}
 	parseArgs, err := t.Overflow.ParseArgumentsWithoutType(t.FileName, code, args)
 	if err != nil {
-		panic(err)
+		t.Error = err
+		return t
 	}
 	t.Arguments = parseArgs
 	return t
@@ -103,6 +105,10 @@ func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) 
 // RunReturns executes a read only script
 func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 
+	if t.Error != nil {
+		return nil, t.Error
+	}
+
 	f := t.Overflow
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	script, err := t.getScriptCode(scriptFilePath)
@@ -126,7 +132,7 @@ func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 	result, err := t.RunReturns()
 	if err != nil {
 		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
-		os.Exit(1)
+		panic(err)
 	}
 	return result
 

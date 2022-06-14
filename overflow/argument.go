@@ -19,6 +19,7 @@ import (
 type FlowArgumentsBuilder struct {
 	Overflow  *Overflow
 	Arguments []cadence.Value
+	Error     error
 }
 
 func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
@@ -66,10 +67,6 @@ func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, input
 		return nil, err
 	}
 
-	if len(parameterList) != len(args) {
-		return nil, fmt.Errorf("argument count is %d, expected %d", len(args), len(parameterList))
-	}
-
 	for index, argumentString := range args {
 		astType := parameterList[index].TypeAnnotation.Type
 		semaType := checker.ConvertType(astType)
@@ -112,6 +109,9 @@ func (f *Overflow) Arguments() *FlowArgumentsBuilder {
 }
 
 func (a *FlowArgumentsBuilder) Build() []cadence.Value {
+	if a.Error != nil {
+		panic(a.Error)
+	}
 	return a.Arguments
 }
 
@@ -254,34 +254,36 @@ func (a *FlowArgumentsBuilder) Word64(value uint64) *FlowArgumentsBuilder {
 func (a *FlowArgumentsBuilder) Fix64(value string) *FlowArgumentsBuilder {
 	amount, err := cadence.NewFix64(value)
 	if err != nil {
-		panic(err)
+		a.Error = err
+		return a
 	}
 	return a.Argument(amount)
 }
 
 // DateStringAsUnixTimestamp sends a dateString parsed in the timezone as a unix timeszone ufix
 func (a *FlowArgumentsBuilder) DateStringAsUnixTimestamp(dateString string, timezone string) *FlowArgumentsBuilder {
-	value := parseTime(dateString, timezone)
-	amount, err := cadence.NewUFix64(value)
+	value, err := parseTime(dateString, timezone)
 	if err != nil {
-		panic(err)
+		a.Error = err
+		return a
 	}
+
+	//swallow the error since it will never happen here, we control the input
+	amount, _ := cadence.NewUFix64(value)
 	return a.Argument(amount)
 }
 
-func parseTime(timeString string, location string) string {
+func parseTime(timeString string, location string) (string, error) {
 	loc, err := time.LoadLocation(location)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-
 	time.Local = loc
 	t, err := dateparse.ParseLocal(timeString)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-
-	return fmt.Sprintf("%d.0", t.Unix())
+	return fmt.Sprintf("%d.0", t.Unix()), nil
 }
 
 // UFix64 add a UFix64 Argument to the transaction
@@ -289,7 +291,8 @@ func (a *FlowArgumentsBuilder) UFix64(input float64) *FlowArgumentsBuilder {
 	value := fmt.Sprintf("%f", input)
 	amount, err := cadence.NewUFix64(value)
 	if err != nil {
-		panic(err)
+		a.Error = err
+		return a
 	}
 	return a.Argument(amount)
 }
@@ -324,11 +327,13 @@ func (a *FlowArgumentsBuilder) StringMap(input map[string]string) *FlowArguments
 	for key, val := range input {
 		stringVal, err := cadence.NewString(val)
 		if err != nil {
-			panic(err)
+			a.Error = err
+			return a
 		}
 		stringKey, err := cadence.NewString(key)
 		if err != nil {
-			panic(err)
+			a.Error = err
+			return a
 		}
 		array = append(array, cadence.KeyValuePair{Key: stringKey, Value: stringVal})
 	}
@@ -342,11 +347,13 @@ func (a *FlowArgumentsBuilder) ScalarMap(input map[string]string) *FlowArguments
 	for key, val := range input {
 		UFix64Val, err := cadence.NewUFix64(val)
 		if err != nil {
-			panic(err)
+			a.Error = err
+			return a
 		}
 		stringKey, err := cadence.NewString(key)
 		if err != nil {
-			panic(err)
+			a.Error = err
+			return a
 		}
 		array = append(array, cadence.KeyValuePair{Key: stringKey, Value: UFix64Val})
 	}
@@ -360,8 +367,8 @@ func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilde
 	for _, val := range value {
 		stringVal, err := cadence.NewString(val)
 		if err != nil {
-			//TODO: what to do with errors here? Accumulate in builder?
-			panic(err)
+			a.Error = err
+			return a
 		}
 		array = append(array, stringVal)
 	}
@@ -377,11 +384,13 @@ func (a *FlowArgumentsBuilder) StringMapArray(value ...map[string]string) *FlowA
 		for key, val := range vals {
 			StringVal, err := cadence.NewString(val)
 			if err != nil {
-				panic(err)
+				a.Error = err
+				return a
 			}
 			stringKey, err := cadence.NewString(key)
 			if err != nil {
-				panic(err)
+				a.Error = err
+				return a
 			}
 			dict = append(dict, cadence.KeyValuePair{Key: stringKey, Value: StringVal})
 		}
@@ -399,11 +408,13 @@ func (a *FlowArgumentsBuilder) ScalarMapArray(value ...map[string]string) *FlowA
 		for key, val := range vals {
 			UFix64Val, err := cadence.NewUFix64(val)
 			if err != nil {
-				panic(err)
+				a.Error = err
+				return a
 			}
 			stringKey, err := cadence.NewString(key)
 			if err != nil {
-				panic(err)
+				a.Error = err
+				return a
 			}
 			dict = append(dict, cadence.KeyValuePair{Key: stringKey, Value: UFix64Val})
 		}
@@ -466,7 +477,8 @@ func (a *FlowArgumentsBuilder) UFix64Array(value ...float64) *FlowArgumentsBuild
 		stringValue := fmt.Sprintf("%f", val)
 		amount, err := cadence.NewUFix64(stringValue)
 		if err != nil {
-			panic(err)
+			a.Error = err
+			return a
 		}
 		array = append(array, amount)
 	}

@@ -1,0 +1,7 @@
+[]cadence.Value{cadence.Array{
+	Values: []cadence.Value{
+		cadence.UFix64(1.00000000),
+		cadence.UFix64(2.00000000),
+		cadence.UFix64(3.00000000),
+	},
+}}

@@ -19,9 +19,9 @@ func TestTransactionArguments(t *testing.T) {
 		assert.Equal(t, uint64(100), builder.GasLimit)
 	})
 
-	t.Run("Signer", func(t *testing.T) {
+	t.Run("Signer error", func(t *testing.T) {
 		builder := g.Transaction("").SignProposeAndPayAs("asd")
-		assert.ErrorContains(t, builder.Error, "asd")
+		assert.ErrorContains(t, builder.Error, "could not find account with name emulator-asd")
 	})
 
 	t.Run("Argument test builder", func(t *testing.T) {
