@@ -77,6 +77,23 @@ func TestScript(t *testing.T) {
 		assert.Contains(t, err.Error(), "json: cannot unmarshal array into Go value of type main.TestReturn")
 	})
 
+	t.Run("Named arguments", func(t *testing.T) {
+		value := g.ScriptFromFile("test").
+			NamedArguments(map[string]string{
+				"account": "first",
+			}).RunReturnsInterface()
+
+		assert.Equal(t, "0x01cf0e2f2f715450", value)
+	})
+
+	t.Run("Named arguments blank", func(t *testing.T) {
+		value := g.ScriptFromFile("block").
+			NamedArguments(map[string]string{}).
+			RunReturnsInterface()
+
+		assert.Equal(t, "4", value)
+	})
+
 }
 
 type TestReturn struct {

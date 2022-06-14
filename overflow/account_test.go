@@ -25,14 +25,18 @@ func TestGetAccount(t *testing.T) {
 		assert.Equal(t, "f8d6e0586b0a20c7", account.Address.String())
 	})
 
-	// TODO: test case for non-existent account
-	// For some reason, when fetching an account that doesnt exist,
-	// flowkit's Services.Accounts.Get() method throws an error & exits, rather than just returning an error.
+	t.Run("Should return an error if account doesn't exist", func(t *testing.T) {
+		g, _ := NewTestingEmulator().StartE()
+		_, err := g.GetAccount("doesnotexist")
+		assert.ErrorContains(t, err, "could not find account with name emulator-doesnotexist in the configuration")
 
-	// t.Run("Should return an error if account doesn't exist", func(t *testing.T) {
-	// 	g, _ := NewTestingEmulator().StartE()
-	// 	account, _ := g.GetAccount("doesnotexist")
+	})
 
-	// 	assert.Nil(t, account)
-	// })
+	t.Run("Should return an error if sa does not exist", func(t *testing.T) {
+		_, err := NewTestingEmulator().SetServiceSuffix("dummy").StartE()
+
+		assert.ErrorContains(t, err, "could not find account with name emulator-dummy in the configuration")
+
+	})
+
 }

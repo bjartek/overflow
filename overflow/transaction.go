@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"time"
 
@@ -50,11 +49,12 @@ func (t FlowTransactionBuilder) NamedArguments(args map[string]string) FlowTrans
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getContractCode(codeFileName)
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		t.Error = err
 	}
 	parseArgs, err := t.Overflow.ParseArgumentsWithoutType(t.FileName, code, args)
 	if err != nil {
-		panic(err)
+		t.Error = err
 	}
 	t.Arguments = parseArgs
 	return t
@@ -93,7 +93,11 @@ func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 
 // SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
-	t.MainSigner = t.Overflow.Account(signer)
+	account, err := t.Overflow.AccountE(signer)
+	if err != nil {
+		t.Error = err
+	}
+	t.MainSigner = account
 	return t
 }
 
@@ -102,7 +106,7 @@ func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuil
 	key := t.Overflow.ServiceAccountName()
 	account, err := t.Overflow.State.Accounts().ByName(key)
 	if err != nil {
-		log.Fatal(err)
+		t.Error = err
 	}
 	t.MainSigner = account
 	return t
@@ -142,27 +146,37 @@ func (t FlowTransactionBuilder) RunGetIdFromEventPrintAll(eventName string, fiel
 	}
 	PrintEvents(result, map[string][]string{})
 
-	return getUInt64FieldFromEvent(result, eventName, fieldName)
+	number, err := getUInt64FieldFromEvent(result, eventName, fieldName)
+	if err != nil {
+		panic(err)
+	}
+	return number
 }
 
-func getUInt64FieldFromEvent(result []flow.Event, eventName string, fieldName string) uint64 {
+func getUInt64FieldFromEvent(result []flow.Event, eventName string, fieldName string) (uint64, error) {
 	for _, event := range result {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		if ev.Name == eventName {
-			return ev.GetFieldAsUInt64(fieldName)
+			return ev.GetFieldAsUInt64(fieldName), nil
 		}
 	}
-	panic("did not find field")
+	return 0, fmt.Errorf("did not find field %s", fieldName)
 }
 
 func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
 
 	result, err := t.RunE()
 	if err != nil {
-		panic(err)
+		t.Error = err
+		return 0
 	}
 
-	return getUInt64FieldFromEvent(result, eventName, fieldName)
+	value, err := getUInt64FieldFromEvent(result, eventName, fieldName)
+	if err != nil {
+		t.Error = err
+		return 0
+	}
+	return value
 }
 
 func (t FlowTransactionBuilder) RunGetIds(eventName string, fieldName string) ([]uint64, error) {
@@ -215,15 +229,17 @@ func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []Formate
 
 // RunE runs returns events and error
 func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
-
 	result := t.Send()
 	return result.RawEvents, result.Err
 }
 
 // The new main way of running an overflow transaction
 func (t FlowTransactionBuilder) Send() *OverflowResult {
-
 	result := &OverflowResult{}
+	if t.Error != nil {
+		result.Err = t.Error
+		return result
+	}
 
 	if t.MainSigner == nil {
 		fmt.Println("err")
@@ -359,6 +375,7 @@ type FlowTransactionBuilder struct {
 	PayloadSigners []*flowkit.Account
 	GasLimit       uint64
 	BasePath       string
+	Error          error
 }
 
 type OverflowResult struct {
@@ -372,7 +389,11 @@ type OverflowResult struct {
 }
 
 func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
-	return getUInt64FieldFromEvent(o.RawEvents, eventName, fieldName)
+	number, err := getUInt64FieldFromEvent(o.RawEvents, eventName, fieldName)
+	if err != nil {
+		panic(err)
+	}
+	return number
 }
 
 func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {

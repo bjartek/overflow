@@ -39,18 +39,27 @@ func (o *Overflow) ServiceAccountName() string {
 }
 
 //Account fetch an account from flow.json, prefixing the name with network- as default (can be turned off)
-func (f *Overflow) Account(key string) *flowkit.Account {
+func (f *Overflow) AccountE(key string) (*flowkit.Account, error) {
 	if f.PrependNetworkToAccountNames {
 		key = fmt.Sprintf("%s-%s", f.Network, key)
 	}
 
 	account, err := f.State.Accounts().ByName(key)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return account
+	return account, nil
 
+}
+
+//Account fetch an account from flow.json, prefixing the name with network- as default (can be turned off)
+func (f *Overflow) Account(key string) *flowkit.Account {
+	a, err := f.AccountE(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return a
 }
 
 type OverflowBuilder struct {
@@ -85,15 +94,11 @@ func NewOverflow() *OverflowBuilder {
 }
 
 func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *OverflowBuilder {
-	if network == "" {
-		network = "embedded"
-	}
-
 	inMemory := false
 	deployContracts := newEmulator
 	initializeAccounts := newEmulator
 
-	if network == "embedded" {
+	if network == "embedded" || network == "" {
 		inMemory = true
 		network = "emulator"
 	}
@@ -126,6 +131,11 @@ func (o *OverflowBuilder) ExistingEmulator() *OverflowBuilder {
 
 func (o *OverflowBuilder) DoNotPrependNetworkToAccountNames() *OverflowBuilder {
 	o.PrependNetworkName = false
+	return o
+}
+
+func (o *OverflowBuilder) SetServiceSuffix(suffix string) *OverflowBuilder {
+	o.ServiceSuffix = suffix
 	return o
 }
 
