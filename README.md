@@ -31,7 +31,6 @@ to work correctly
 
 ## Resources
 
-- Run the demo example in this project with `cd example && make`. The emulator will be run in memory.
 - Check [other codebases](https://github.com/bjartek/overflow/network/dependents) that use this project
 - Feel free to ask questions to @bjartek in the Flow Discord.
 

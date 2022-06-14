@@ -2,7 +2,6 @@ package overflow
 
 import (
 	"fmt"
-	"log"
 	"sort"
 
 	"github.com/onflow/flow-go-sdk"
@@ -52,9 +51,8 @@ func (f *Overflow) CreateAccountsE() (*Overflow, error) {
 func (f *Overflow) InitializeContracts() *Overflow {
 	f.Logger.Info("Deploying contracts")
 	if _, err := f.Services.Project.Deploy(f.Network, false); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-
 	return f
 }
 

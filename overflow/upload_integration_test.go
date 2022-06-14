@@ -1,14 +1,13 @@
-package main
+package overflow
 
 import (
 	"testing"
 
-	"github.com/bjartek/overflow/overflow"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTransactionUpload(t *testing.T) {
-	g := overflow.NewTestingEmulator().Start()
+	g := NewTestingEmulator().Start()
 
 	t.Run("Upload image file invalid file", func(t *testing.T) {
 

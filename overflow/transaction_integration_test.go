@@ -1,4 +1,4 @@
-package main
+package overflow
 
 import (
 	"bytes"
@@ -7,15 +7,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/bjartek/overflow/overflow"
 )
 
 /*
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
-func TestTransaction(t *testing.T) {
-	g := overflow.NewTestingEmulator().Start()
+func TestTransactionIntegration(t *testing.T) {
+	g := NewTestingEmulator().Start()
 	t.Parallel()
 
 	t.Run("fail on missing signer", func(t *testing.T) {
@@ -43,27 +41,27 @@ func TestTransaction(t *testing.T) {
 	t.Run("Mint tokens assert events", func(t *testing.T) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			ArgsFn(func(args *overflow.FlowArgumentsBuilder) {
+			ArgsFn(func(args *FlowArgumentsBuilder) {
 				args.Account("first")
 				args.UFix64(100.0)
 			}).
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3).                                                                                                                                                                           //assert the number of events returned
-			AssertPartialEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                   //assert a given event, can also take multiple events if you like
+			AssertPartialEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                            //assert a given event, can also take multiple events if you like
 			AssertEmitEventNameShortForm("FlowToken.TokensMinted").                                                                                                                                        //assert the name of a single event
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated").                                //or assert more then one eventname in a go
-			AssertEmitEvent(overflow.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                         //assert a given event, can also take multiple events if you like
+			AssertEmitEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                                  //assert a given event, can also take multiple events if you like
 			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": \"100.00000000\"\n  }\n}") //assert a given event using json, can also take multiple events if you like
 
 	})
 
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
 		g.Transaction(`
-import Debug from "../contracts/Debug.cdc"
-transaction(message:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-	Debug.log(message) } }`).
+		import Debug from "../contracts/Debug.cdc"
+		transaction(message:String) {
+		  prepare(acct: AuthAccount, account2: AuthAccount) {
+			Debug.log(message) } }`).
 			SignProposeAndPayAs("first").
 			PayloadSigner("second").
 			Args(g.Arguments().String("foobar")).
@@ -77,12 +75,12 @@ transaction(message:String) {
 
 	t.Run("Raw account argument", func(t *testing.T) {
 		g.Transaction(`
-import Debug from "../contracts/Debug.cdc"
-transaction(user:Address) {
-  prepare(acct: AuthAccount) {
-	Debug.log(user.toString())
- }
-}`).
+		import Debug from "../contracts/Debug.cdc"
+		transaction(user:Address) {
+		  prepare(acct: AuthAccount) {
+			Debug.log(user.toString())
+		 }
+		}`).
 			SignProposeAndPayAsService().
 			Args(g.Arguments().RawAccount("0x01cf0e2f2f715450")).
 			Test(t).
@@ -93,12 +91,12 @@ transaction(user:Address) {
 
 	t.Run("transaction that should fail", func(t *testing.T) {
 		g.Transaction(`
-import Debug from "../contracts/Debug.cdc"
-transaction(user:Address) {
-  prepare(acct: AuthAccount) {
-	Debug.log(user.toStrig())
- }
-}`).
+		import Debug from "../contracts/Debug.cdc"
+		transaction(user:Address) {
+		  prepare(acct: AuthAccount) {
+			Debug.log(user.toStrig())
+		 }
+		}`).
 			SignProposeAndPayAsService().
 			Args(g.Arguments().
 				RawAccount("0x1cf0e2f2f715450")).

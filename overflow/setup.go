@@ -3,7 +3,6 @@ package overflow
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -57,7 +56,7 @@ func (f *Overflow) AccountE(key string) (*flowkit.Account, error) {
 func (f *Overflow) Account(key string) *flowkit.Account {
 	a, err := f.AccountE(key)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	return a
 }
@@ -163,7 +162,7 @@ func (o *OverflowBuilder) Config(files ...string) *OverflowBuilder {
 func (ob *OverflowBuilder) Start() *Overflow {
 	o, err := ob.StartE()
 	if err != nil {
-		log.Fatalf("%v error %+v", emoji.PileOfPoo, err)
+		panic(fmt.Sprintf("%v error %+v", emoji.PileOfPoo, err))
 	}
 	return o
 }

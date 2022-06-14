@@ -15,15 +15,30 @@ func TestSetup(t *testing.T) {
 		assert.Equal(t, output.InfoLog, o.LogLevel)
 	})
 
-	t.Run("default builder with loglevel fro env", func(t *testing.T) {
+	t.Run("default builder with loglevel from env", func(t *testing.T) {
 		t.Setenv("OVERFLOW_LOGGING", "2")
 		o := NewOverflow()
 		assert.Equal(t, output.DebugLog, o.LogLevel)
 	})
 
-	t.Run("new overflow builder for  network", func(t *testing.T) {
+	t.Run("panic on wrong logging level", func(t *testing.T) {
+		t.Setenv("OVERFLOW_LOGGING", "asd")
+		assert.Panics(t, func() { NewOverflow() })
+	})
+
+	t.Run("none log", func(t *testing.T) {
+		o := NewOverflow().NoneLog()
+		assert.Equal(t, output.NoneLog, o.LogLevel)
+	})
+
+	t.Run("new overflow builder for network", func(t *testing.T) {
 		o := NewOverflowForNetwork("testnet")
 		assert.Equal(t, "testnet", o.Network)
+	})
+
+	t.Run("new overflow in memory", func(t *testing.T) {
+		o := NewOverflowInMemoryEmulator()
+		assert.Equal(t, "emulator", o.Network)
 	})
 
 	t.Run("new overflow testnet", func(t *testing.T) {
@@ -51,9 +66,16 @@ func TestSetup(t *testing.T) {
 		assert.Equal(t, false, o.InitializeAccounts)
 	})
 
+	t.Run("should panic on getting invalid account", func(t *testing.T) {
+		o := NewOverflowInMemoryEmulator().ExistingEmulator().DoNotPrependNetworkToAccountNames()
+		assert.Panics(t, func() { o.Start().Account("foobar") })
+	})
+
 	t.Run("do not prepend network names", func(t *testing.T) {
-		o := NewOverflow().DoNotPrependNetworkToAccountNames()
+		o := NewOverflowInMemoryEmulator().ExistingEmulator().DoNotPrependNetworkToAccountNames()
 		assert.Equal(t, false, o.PrependNetworkName)
+		assert.Equal(t, "account", o.Start().ServiceAccountName())
+
 	})
 
 	t.Run("default gas", func(t *testing.T) {

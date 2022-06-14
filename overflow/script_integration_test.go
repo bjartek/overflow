@@ -1,14 +1,13 @@
-package main
+package overflow
 
 import (
 	"testing"
 
-	"github.com/bjartek/overflow/overflow"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestScript(t *testing.T) {
-	g := overflow.NewTestingEmulator().Start()
+func TestScriptIntegration(t *testing.T) {
+	g := NewTestingEmulator().Start()
 	t.Parallel()
 
 	t.Run("Raw account argument", func(t *testing.T) {
@@ -74,7 +73,7 @@ func TestScript(t *testing.T) {
 			 }
 		`).RunMarshalAs(&result)
 		assert.Error(t, err, "should return error")
-		assert.Contains(t, err.Error(), "json: cannot unmarshal array into Go value of type main.TestReturn")
+		assert.Contains(t, err.Error(), "json: cannot unmarshal array into Go value of type overflow.TestReturn")
 	})
 
 	t.Run("Named arguments", func(t *testing.T) {
