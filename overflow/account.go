@@ -60,6 +60,10 @@ func (f *Overflow) InitializeContracts() *Overflow {
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
 func (f *Overflow) GetAccount(key string) (*flow.Account, error) {
-	rawAddress := f.Account(key).Address()
+	account, err := f.AccountE(key)
+	if err != nil {
+		return nil, err
+	}
+	rawAddress := account.Address()
 	return f.Services.Accounts.Get(rawAddress)
 }
