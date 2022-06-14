@@ -7,7 +7,7 @@ cover: test
 	go tool cover -html=profile.cov
 
 install-gotestsum:
-	go get gotest.tools/gotestsum
+	go install gotest.tools/gotestsum@latest
 
 test-report: install-gotestsum
 	gotestsum -f testname --no-color --hide-summary failed --junitfile test-result.xml
