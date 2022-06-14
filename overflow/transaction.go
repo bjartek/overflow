@@ -49,11 +49,11 @@ func (t FlowTransactionBuilder) NamedArguments(args map[string]string) FlowTrans
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getContractCode(codeFileName)
 	if err != nil {
+		fmt.Println(err.Error())
 		t.Error = err
 	}
 	parseArgs, err := t.Overflow.ParseArgumentsWithoutType(t.FileName, code, args)
 	if err != nil {
-		fmt.Println(err.Error())
 		t.Error = err
 	}
 	t.Arguments = parseArgs
@@ -93,7 +93,11 @@ func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 
 // SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
-	t.MainSigner = t.Overflow.Account(signer)
+	account, err := t.Overflow.AccountE(signer)
+	if err != nil {
+		t.Error = err
+	}
+	t.MainSigner = account
 	return t
 }
 

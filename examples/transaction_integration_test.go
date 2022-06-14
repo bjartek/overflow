@@ -153,4 +153,13 @@ transaction(user:Address) {
 			Test(t).AssertFailure("the following arguments where not present [amount]")
 	})
 
+	t.Run("Named arguments error if file not correct", func(t *testing.T) {
+		g.TransactionFromFile("mint_tokens2").
+			SignProposeAndPayAsService().
+			NamedArguments(map[string]string{
+				"recipient": "first",
+			}).
+			Test(t).AssertFailure("Could not read transaction file from path=./transactions/mint_tokens2.cdc")
+	})
+
 }
