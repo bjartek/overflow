@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-go-sdk"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,6 +75,14 @@ func TestCadenceValueToJsonString(t *testing.T) {
 		assert.Equal(t, `{
     "foo": "bar"
 }`, value)
+	})
+
+	t.Run("Address", func(t *testing.T) {
+		account := flow.HexToAddress("0x1")
+		accountArg := cadence.BytesToAddress(account.Bytes())
+
+		value := CadenceValueToJsonString(accountArg)
+		assert.Equal(t, "\"0x0000000000000001\"", value)
 	})
 
 }
