@@ -82,6 +82,81 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	t.Run("run get id print all", func(t *testing.T) {
+		result := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetIdFromEventPrintAll(logNumName, "id")
+
+		assert.Equal(t, uint64(1), result)
+	})
+
+	t.Run("run get ids", func(t *testing.T) {
+		result, err := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetIds(logNumName, "id")
+
+		assert.NoError(t, err)
+		assert.Equal(t, []uint64{1}, result)
+	})
+
+	t.Run("run get ids fail", func(t *testing.T) {
+		_, err := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			RunGetIds(logNumName, "id")
+
+		assert.ErrorContains(t, err, "entry point parameter count mismatch: expected 1, got 0")
+	})
+
+	t.Run("run get id print all panic on failed", func(t *testing.T) {
+
+		assert.Panics(t, func() {
+			g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).SignProposeAndPayAs("first").RunGetIdFromEvent(logNumName, "id")
+		})
+
+	})
+
+	t.Run("run get id print all panic on wrong field name", func(t *testing.T) {
+
+		assert.Panics(t, func() {
+			g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).SignProposeAndPayAs("first").
+				Args(g.Arguments().UInt64(1)).
+				RunGetIdFromEvent(logNumName, "id2")
+		})
+
+	})
+
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
 		g.Transaction(`
 		import Debug from "../contracts/Debug.cdc"
