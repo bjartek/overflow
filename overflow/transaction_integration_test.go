@@ -36,7 +36,7 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertFailure("Could not read transaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
 	})
 
-	t.Run("Create NFT collection with differnt base path", func(t *testing.T) {
+	t.Run("Create NFT collection with different base path", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
 			SignProposeAndPayAs("first").
 			TransactionPath("./tx").
