@@ -127,6 +127,11 @@ func TestArguments(t *testing.T) {
 		assert.ErrorContains(t, builder.Error, "invalid negative integer part")
 	})
 
+	t.Run("UFix64Array error", func(t *testing.T) {
+		builder := g.Arguments().UFix64Array(-1.0)
+		assert.ErrorContains(t, builder.Error, "invalid negative integer part")
+	})
+
 	t.Run("DateTime wrong locale", func(t *testing.T) {
 		builder := g.Arguments().DateStringAsUnixTimestamp("asd", "asd")
 		assert.ErrorContains(t, builder.Error, "unknown time zone as")

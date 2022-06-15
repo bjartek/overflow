@@ -52,12 +52,7 @@ func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 func (t TransactionResult) AssertNoEvents() TransactionResult {
 	res := assert.Empty(t.Testing, t.Events)
 
-	if !res {
-		for _, ev := range t.Events {
-			t.Testing.Log(ev.String())
-		}
-	}
-
+	t.logFailure(res)
 	return t
 }
 
