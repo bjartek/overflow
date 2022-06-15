@@ -62,6 +62,7 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": \"100.00000000\"\n  }\n}") //assert a given event using json, can also take multiple events if you like
 
 		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
+		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
 
 	})
 
@@ -78,7 +79,9 @@ func TestTransactionIntegration(t *testing.T) {
 			Test(t).
 			AssertSuccess()
 
+		assert.Equal(t, uint64(1), result.GetIdFromEvent(logNumName, "id"))
 		assert.Equal(t, uint64(1), result.Result.GetIdFromEvent(logNumName, "id"))
+		assert.Equal(t, []uint64{1}, result.Result.GetIdsFromEvent(logNumName, "id"))
 
 	})
 
@@ -155,6 +158,37 @@ func TestTransactionIntegration(t *testing.T) {
 				RunGetIdFromEvent(logNumName, "id2")
 		})
 
+	})
+
+	t.Run("run get events with name", func(t *testing.T) {
+		result := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetEventsWithName(logNumName)
+
+		assert.Equal(t, 1, len(result))
+	})
+
+	t.Run("run get events with name or error", func(t *testing.T) {
+		result, err := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetEventsWithNameOrError(logNumName)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(result))
 	})
 
 	t.Run("Inline transaction with debug log", func(t *testing.T) {

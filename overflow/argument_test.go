@@ -116,6 +116,12 @@ func TestArguments(t *testing.T) {
 		assert.ErrorContains(t, builder.Error, "missing decimal point")
 	})
 
+	t.Run("Fix64 error build", func(t *testing.T) {
+		assert.Panics(t, func() {
+			g.Arguments().Fix64("first").Build()
+		})
+	})
+
 	t.Run("UFix64 error", func(t *testing.T) {
 		builder := g.Arguments().UFix64(-1.0)
 		assert.ErrorContains(t, builder.Error, "invalid negative integer part")
@@ -146,6 +152,11 @@ func TestArguments(t *testing.T) {
 		autogold.Equal(t, builder.Arguments)
 	})
 
+	t.Run("ScalarMapError", func(t *testing.T) {
+		builder := g.Arguments().ScalarMap(map[string]string{"foo": "foo"})
+		assert.ErrorContains(t, builder.Error, "missing decimal point")
+	})
+
 	t.Run("StringArray", func(t *testing.T) {
 		builder := g.Arguments().StringArray("foo", "bar")
 		autogold.Equal(t, builder.Arguments)
@@ -159,6 +170,11 @@ func TestArguments(t *testing.T) {
 	t.Run("ScalarMapArray", func(t *testing.T) {
 		builder := g.Arguments().ScalarMapArray(map[string]string{"Sith": "2.0"}, map[string]string{"Jedi": "1000.0"})
 		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("ScalarMapArray error", func(t *testing.T) {
+		builder := g.Arguments().ScalarMapArray(map[string]string{"Sith": "2.0"}, map[string]string{"Jedi": "asd"})
+		assert.ErrorContains(t, builder.Error, "missing decimal point")
 	})
 
 	t.Run("AccountArray", func(t *testing.T) {
