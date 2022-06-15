@@ -13,8 +13,15 @@ import (
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestTransactionIntegration(t *testing.T) {
+	logNumName := "A.f8d6e0586b0a20c7.Debug.LogNum"
 	g := NewTestingEmulator().Start()
 	t.Parallel()
+
+	t.Run("fail on missing signer with run method", func(t *testing.T) {
+		assert.PanicsWithError(t, "💩 You need to set the main signer", func() {
+			g.TransactionFromFile("create_nft_collection").Run()
+		})
+	})
 
 	t.Run("fail on missing signer", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
@@ -39,7 +46,7 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 
 	t.Run("Mint tokens assert events", func(t *testing.T) {
-		g.TransactionFromFile("mint_tokens").
+		result := g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			ArgsFn(func(args *FlowArgumentsBuilder) {
 				args.Account("first")
@@ -54,6 +61,134 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertEmitEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                                  //assert a given event, can also take multiple events if you like
 			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": \"100.00000000\"\n  }\n}") //assert a given event using json, can also take multiple events if you like
 
+		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
+		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
+
+	})
+
+	t.Run("Assert get id", func(t *testing.T) {
+		result := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			Test(t).
+			AssertSuccess()
+
+		assert.Equal(t, uint64(1), result.GetIdFromEvent(logNumName, "id"))
+		assert.Equal(t, uint64(1), result.Result.GetIdFromEvent(logNumName, "id"))
+		assert.Equal(t, []uint64{1}, result.Result.GetIdsFromEvent(logNumName, "id"))
+
+	})
+
+	t.Run("run get id print all", func(t *testing.T) {
+		result := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetIdFromEventPrintAll(logNumName, "id")
+
+		assert.Equal(t, uint64(1), result)
+	})
+
+	t.Run("run get ids", func(t *testing.T) {
+		result, err := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetIds(logNumName, "id")
+
+		assert.NoError(t, err)
+		assert.Equal(t, []uint64{1}, result)
+	})
+
+	t.Run("run get ids fail", func(t *testing.T) {
+		_, err := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			RunGetIds(logNumName, "id")
+
+		assert.ErrorContains(t, err, "entry point parameter count mismatch: expected 1, got 0")
+	})
+
+	t.Run("run get id print all panic on failed", func(t *testing.T) {
+
+		assert.Panics(t, func() {
+			g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).SignProposeAndPayAs("first").RunGetIdFromEvent(logNumName, "id")
+		})
+
+	})
+
+	t.Run("run get id print all panic on wrong field name", func(t *testing.T) {
+
+		assert.Panics(t, func() {
+			g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).SignProposeAndPayAs("first").
+				Args(g.Arguments().UInt64(1)).
+				RunGetIdFromEvent(logNumName, "id2")
+		})
+
+	})
+
+	t.Run("run get events with name", func(t *testing.T) {
+		result := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetEventsWithName(logNumName)
+
+		assert.Equal(t, 1, len(result))
+	})
+
+	t.Run("run get events with name or error", func(t *testing.T) {
+		result, err := g.Transaction(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(id:UInt64) {
+		  prepare(acct: AuthAccount) {
+			  Debug.id(id) 
+			} 
+		}`).
+			SignProposeAndPayAs("first").
+			Args(g.Arguments().UInt64(1)).
+			RunGetEventsWithNameOrError(logNumName)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(result))
 	})
 
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
@@ -109,13 +244,8 @@ func TestTransactionIntegration(t *testing.T) {
 		log.SetOutput(&str)
 		defer log.SetOutput(os.Stdout)
 
-		g.TransactionFromFile("mint_tokens").
-			SignProposeAndPayAsService().
-			ArgsV(g.Arguments().Account("first").UFix64(100.0).Build()).
-			RunPrintEventsFull()
-
+		g.SimpleTxArgs("mint_tokens", "account", g.Arguments().Account("first").UFix64(100.0))
 		assert.Contains(t, str.String(), "A.0ae53cb6e3f42a79.FlowToken.MinterCreated")
-
 	})
 
 	t.Run("Assert print events", func(t *testing.T) {
@@ -141,7 +271,28 @@ func TestTransactionIntegration(t *testing.T) {
 				"amount":    "100.0",
 			}).
 			Test(t).AssertSuccess()
+
 	})
+
+	t.Run("Named arguments wrong type", func(t *testing.T) {
+		g.TransactionFromFile("mint_tokens").
+			SignProposeAndPayAsService().
+			NamedArguments(map[string]string{
+				"recipient": "first",
+				"amount":    "asd",
+			}).
+			Test(t).AssertFailure("argument `amount` is not expected type `UFix64`")
+	})
+
+	t.Run("Named arguments with string", func(t *testing.T) {
+		g.TransactionFromFile("arguments").
+			SignProposeAndPayAsService().
+			NamedArguments(map[string]string{
+				"test": "first",
+			}).
+			Test(t).AssertSuccess()
+	})
+
 	t.Run("Named arguments error if not all arguments", func(t *testing.T) {
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
@@ -158,6 +309,15 @@ func TestTransactionIntegration(t *testing.T) {
 				"recipient": "first",
 			}).
 			Test(t).AssertFailure("Could not read transaction file from path=./transactions/mint_tokens2.cdc")
+	})
+
+	t.Run("Get free capacity", func(t *testing.T) {
+		result := g.GetFreeCapacity("second")
+		assert.Equal(t, 99104, result)
+		g.FillUpStorage("second")
+
+		result2 := g.GetFreeCapacity("second")
+		assert.Equal(t, 0, result2)
 	})
 
 }

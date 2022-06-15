@@ -1,0 +1,14 @@
+[]cadence.Value{cadence.Array{
+	Values: []cadence.Value{
+		cadence.Dictionary{
+			Pairs: []cadence.KeyValuePair{cadence.KeyValuePair{
+				Key:   cadence.String("Sith"),
+				Value: cadence.String("Darth Vader"),
+			}},
+		},
+		cadence.Dictionary{Pairs: []cadence.KeyValuePair{cadence.KeyValuePair{
+			Key:   cadence.String("Jedi"),
+			Value: cadence.String("Luke"),
+		}}},
+	},
+}}

@@ -1,0 +1,14 @@
+[]cadence.Value{
+	cadence.Path{
+		Domain:     "public",
+		Identifier: "foo",
+	},
+	cadence.Path{
+		Domain:     "storage",
+		Identifier: "foo",
+	},
+	cadence.Path{
+		Domain:     "private",
+		Identifier: "foo",
+	},
+}

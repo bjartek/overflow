@@ -3,6 +3,7 @@ package overflow
 import (
 	"testing"
 
+	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/stretchr/testify/assert"
@@ -99,4 +100,106 @@ func TestArguments(t *testing.T) {
 		assert.Contains(t, builder.Arguments, cadence.NewInt128(128))
 		assert.Contains(t, builder.Arguments, cadence.NewInt256(256))
 	})
+
+	t.Run("Raw address", func(t *testing.T) {
+		builder := g.Arguments().RawAddress("0x01cf0e2f2f715450")
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("Address", func(t *testing.T) {
+		builder := g.Arguments().Address("first")
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("Fix64 error", func(t *testing.T) {
+		builder := g.Arguments().Fix64("first")
+		assert.ErrorContains(t, builder.Error, "missing decimal point")
+	})
+
+	t.Run("Fix64 error build", func(t *testing.T) {
+		assert.Panics(t, func() {
+			g.Arguments().Fix64("first").Build()
+		})
+	})
+
+	t.Run("UFix64 error", func(t *testing.T) {
+		builder := g.Arguments().UFix64(-1.0)
+		assert.ErrorContains(t, builder.Error, "invalid negative integer part")
+	})
+
+	t.Run("UFix64Array error", func(t *testing.T) {
+		builder := g.Arguments().UFix64Array(-1.0)
+		assert.ErrorContains(t, builder.Error, "invalid negative integer part")
+	})
+
+	t.Run("DateTime wrong locale", func(t *testing.T) {
+		builder := g.Arguments().DateStringAsUnixTimestamp("asd", "asd")
+		assert.ErrorContains(t, builder.Error, "unknown time zone as")
+	})
+
+	t.Run("DateTime wrong string", func(t *testing.T) {
+		builder := g.Arguments().DateStringAsUnixTimestamp("asd", "Europe/Oslo")
+		assert.ErrorContains(t, builder.Error, "Could not find format for \"asd\"")
+	})
+
+	t.Run("Paths", func(t *testing.T) {
+		builder := g.Arguments().PublicPath("foo").StoragePath("foo").PrivatePath("foo")
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("StringMap", func(t *testing.T) {
+		builder := g.Arguments().StringMap(map[string]string{"foo": "bar"})
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("ScalarMap", func(t *testing.T) {
+		builder := g.Arguments().ScalarMap(map[string]string{"foo": "1.0"})
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("ScalarMapError", func(t *testing.T) {
+		builder := g.Arguments().ScalarMap(map[string]string{"foo": "foo"})
+		assert.ErrorContains(t, builder.Error, "missing decimal point")
+	})
+
+	t.Run("StringArray", func(t *testing.T) {
+		builder := g.Arguments().StringArray("foo", "bar")
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("StringMapArray", func(t *testing.T) {
+		builder := g.Arguments().StringMapArray(map[string]string{"Sith": "Darth Vader"}, map[string]string{"Jedi": "Luke"})
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("ScalarMapArray", func(t *testing.T) {
+		builder := g.Arguments().ScalarMapArray(map[string]string{"Sith": "2.0"}, map[string]string{"Jedi": "1000.0"})
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("ScalarMapArray error", func(t *testing.T) {
+		builder := g.Arguments().ScalarMapArray(map[string]string{"Sith": "2.0"}, map[string]string{"Jedi": "asd"})
+		assert.ErrorContains(t, builder.Error, "missing decimal point")
+	})
+
+	t.Run("AccountArray", func(t *testing.T) {
+		builder := g.Arguments().AccountArray("first", "second")
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("Uint64Array", func(t *testing.T) {
+		builder := g.Arguments().UInt64Array(1, 2, 3)
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("Uint8Array", func(t *testing.T) {
+		builder := g.Arguments().UInt8Array(1, 2, 3)
+		autogold.Equal(t, builder.Arguments)
+	})
+
+	t.Run("UFix64Array", func(t *testing.T) {
+		builder := g.Arguments().UFix64Array(1.0, 2.0, 3.0)
+		autogold.Equal(t, builder.Arguments)
+	})
+
 }

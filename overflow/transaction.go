@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"time"
 
 	"github.com/enescakir/emoji"
@@ -96,6 +95,7 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 	account, err := t.Overflow.AccountE(signer)
 	if err != nil {
 		t.Error = err
+		return t
 	}
 	t.MainSigner = account
 	return t
@@ -104,10 +104,8 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 // SignProposeAndPayAsService set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
 	key := t.Overflow.ServiceAccountName()
-	account, err := t.Overflow.State.Accounts().ByName(key)
-	if err != nil {
-		t.Error = err
-	}
+	//swallow error as you cannot start a overflow without a valid sa
+	account, _ := t.Overflow.State.Accounts().ByName(key)
 	t.MainSigner = account
 	return t
 }
@@ -134,7 +132,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	events, err := t.RunE()
 	if err != nil {
 		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
-		os.Exit(1)
+		panic(err)
 	}
 	return events
 }
@@ -167,14 +165,12 @@ func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName st
 
 	result, err := t.RunE()
 	if err != nil {
-		t.Error = err
-		return 0
+		panic(err)
 	}
 
 	value, err := getUInt64FieldFromEvent(result, eventName, fieldName)
 	if err != nil {
-		t.Error = err
-		return 0
+		panic(err)
 	}
 	return value
 }

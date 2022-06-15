@@ -9,7 +9,12 @@ import (
 
 func (f *Overflow) SignUserMessage(account string, message string) (string, error) {
 
-	signer, err := f.Account(account).Key().Signer(context.Background())
+	a, err := f.AccountE(account)
+	if err != nil {
+		return "", err
+	}
+
+	signer, err := a.Key().Signer(context.Background())
 	if err != nil {
 		return "", err
 	}

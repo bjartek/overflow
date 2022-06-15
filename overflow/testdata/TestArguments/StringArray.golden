@@ -1,0 +1,6 @@
+[]cadence.Value{cadence.Array{
+	Values: []cadence.Value{
+		cadence.String("foo"),
+		cadence.String("bar"),
+	},
+}}

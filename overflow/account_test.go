@@ -10,12 +10,12 @@ func TestErrorsInAccountCreation(t *testing.T) {
 
 	t.Run("Should give error on wrong contract name", func(t *testing.T) {
 		assert.Panics(t, func() {
-			NewTestingEmulator().Config("../testdata/non_existing_contract.json").Start()
+			NewTestingEmulator().Config("testdata/non_existing_contract.json").Start()
 		})
 	})
 
 	t.Run("Should give error on wrong account name", func(t *testing.T) {
-		_, err := NewTestingEmulator().Config("../testdata/invalid_account_in_deployment.json").StartE()
+		_, err := NewTestingEmulator().Config("testdata/invalid_account_in_deployment.json").StartE()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "deployment contains nonexisting account emulator-firs")
 	})

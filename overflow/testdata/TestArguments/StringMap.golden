@@ -1,0 +1,6 @@
+[]cadence.Value{cadence.Dictionary{
+	Pairs: []cadence.KeyValuePair{cadence.KeyValuePair{
+		Key:   cadence.String("foo"),
+		Value: cadence.String("bar"),
+	}},
+}}

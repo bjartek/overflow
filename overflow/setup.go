@@ -28,6 +28,7 @@ type Overflow struct {
 	Gas                          int
 	BasePath                     string
 	Log                          *bytes.Buffer
+	Error                        error
 }
 
 func (o *Overflow) ServiceAccountName() string {

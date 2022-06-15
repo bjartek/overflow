@@ -52,13 +52,16 @@ func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 func (t TransactionResult) AssertNoEvents() TransactionResult {
 	res := assert.Empty(t.Testing, t.Events)
 
+	t.logFailure(res)
+	return t
+}
+
+func (t TransactionResult) logFailure(res bool) {
 	if !res {
 		for _, ev := range t.Events {
 			t.Testing.Log(ev.String())
 		}
 	}
-
-	return t
 }
 
 func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) TransactionResult {
@@ -74,11 +77,7 @@ func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) Transac
 		}
 	}
 
-	if !res {
-		for _, ev := range t.Events {
-			t.Testing.Log(ev.String())
-		}
-	}
+	t.logFailure(res)
 
 	return t
 }
@@ -96,11 +95,7 @@ func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResul
 		}
 	}
 
-	if !res {
-		for _, ev := range t.Events {
-			t.Testing.Log(ev.String())
-		}
-	}
+	t.logFailure(res)
 
 	return t
 }
@@ -119,12 +114,7 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 		}
 	}
 
-	if !res {
-		for _, ev := range t.Events {
-			t.Testing.Log(ev.String())
-		}
-	}
-
+	t.logFailure(res)
 	return t
 }
 
@@ -145,11 +135,7 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 
 	result := assert.Contains(t.Testing, events, expected)
 
-	if !result {
-		for _, ev := range events {
-			t.Testing.Log(ev.String())
-		}
-	}
+	t.logFailure(result)
 
 	return t
 }
@@ -161,11 +147,7 @@ func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionR
 		}
 	}
 
-	if !res {
-		for _, ev := range t.Events {
-			t.Testing.Log(ev.String())
-		}
-	}
+	t.logFailure(res)
 
 	return t
 }
