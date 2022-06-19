@@ -13,6 +13,7 @@ import (
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/pkg/errors"
 )
 
 // FlowArgumentsBuilder used to create a builder pattern for a transaction
@@ -88,7 +89,7 @@ func (f *Overflow) ParseArguments(fileName string, code []byte, inputArgs map[st
 		switch semaType.(type) {
 		case *sema.AddressType:
 
-			account := f.Account(argumentString)
+			account, _ := f.AccountE(argumentString)
 
 			if account != nil {
 				argumentString = account.Address().String()
@@ -101,7 +102,7 @@ func (f *Overflow) ParseArguments(fileName string, code []byte, inputArgs map[st
 
 		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
 		if err != nil {
-			return nil, fmt.Errorf("argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
+			return nil, errors.Wrapf(err, "argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
 		}
 		resultArgs = append(resultArgs, value)
 	}
@@ -167,7 +168,7 @@ func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, input
 		switch semaType.(type) {
 		case *sema.AddressType:
 
-			account := f.Account(argumentString)
+			account, _ := f.AccountE(argumentString)
 
 			if account != nil {
 				argumentString = account.Address().String()
@@ -180,7 +181,7 @@ func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, input
 
 		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
 		if err != nil {
-			return nil, fmt.Errorf("argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
+			return nil, errors.Wrapf(err, "argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
 		}
 		resultArgs = append(resultArgs, value)
 	}
@@ -523,25 +524,16 @@ func (a *FlowArgumentsBuilder) UInt8Array(value ...uint8) *FlowArgumentsBuilder 
 
 // Argument add an argument to the transaction
 func (a *FlowArgumentsBuilder) UFix64Array(value ...float64) *FlowArgumentsBuilder {
-	array, err := UFix64Array(value...)
-	if err != nil {
-		a.Error = err
-		return a
-	}
-	a.Arguments = append(a.Arguments, *array)
-	return a
-}
-
-func UFix64Array(value ...float64) (*cadence.Array, error) {
 	array := []cadence.Value{}
 	for _, val := range value {
 		stringValue := fmt.Sprintf("%f", val)
 		amount, err := cadence.NewUFix64(stringValue)
 		if err != nil {
-			return nil, err
+			a.Error = err
+			return a
 		}
 		array = append(array, amount)
 	}
-	cArray := cadence.NewArray(array)
-	return &cArray, nil
+	a.Arguments = append(a.Arguments, cadence.NewArray(array))
+	return a
 }

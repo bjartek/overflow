@@ -202,4 +202,56 @@ func TestArguments(t *testing.T) {
 		autogold.Equal(t, builder.Arguments)
 	})
 
+	t.Run("Argument string array", func(t *testing.T) {
+		builder := g.Transaction(`
+transaction(names: [String]) {
+
+}
+`).NamedArguments(map[string]string{
+			"names": `["Bjarte", "Karlsen"]`,
+		})
+
+		arrayValues := []cadence.Value{
+			CadenceString("Bjarte"),
+			CadenceString("Karlsen"),
+		}
+		assert.Contains(t, builder.Arguments, cadence.NewArray(arrayValues))
+
+	})
+
+	t.Run("Argument ufix64 array", func(t *testing.T) {
+		builder := g.Transaction(`
+transaction(names: [UFix64]) {
+
+}
+`).NamedArguments(map[string]string{
+			"names": `[10.0]`,
+		})
+
+		fix, _ := cadence.NewUFix64("10.0")
+		arrayValues := []cadence.Value{fix}
+		assert.Contains(t, builder.Arguments, cadence.NewArray(arrayValues))
+
+	})
+
+	/*
+			how is byte array represented in cadence again?
+			t.Run("Argument byte array", func(t *testing.T) {
+				bytes := []byte("test")
+
+				builder := g.Transaction(`
+		transaction(arg: [UInt8]) {
+
+		}
+		`).NamedArguments(map[string]string{
+					"arg": string(bytes),
+				})
+				assert.NoError(t, builder.Error)
+
+				fmt.Printf("%+v", builder.Arguments)
+				expected := cadence.NewBytes(bytes)
+				assert.Contains(t, builder.Arguments, expected)
+
+			})
+	*/
 }
