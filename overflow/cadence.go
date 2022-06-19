@@ -60,13 +60,72 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		}
 		return result
 
-	case cadence.String:
+	default:
 		result, err := strconv.Unquote(field.String())
 		if err != nil {
 			return field.String()
 		}
 		return result
-	default:
-		return field.ToGoValue()
 	}
+}
+
+// CadenceValueToInterface convert a candence.Value into interface{}
+func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
+	if field == nil {
+		return nil
+	}
+
+	switch field := field.(type) {
+	case cadence.Optional:
+		return CadenceValueToInterfaceCompact(field.Value)
+	case cadence.Dictionary:
+		result := map[string]interface{}{}
+		for _, item := range field.Pairs {
+			value := CadenceValueToInterfaceCompact(item.Value)
+			key := getAndUnquoteStringAsPointer(item.Key)
+			if value != nil && key != nil {
+				result[*key] = value
+			}
+		}
+		return result
+	case cadence.Struct:
+		result := map[string]interface{}{}
+		subStructNames := field.StructType.Fields
+
+		for j, subField := range field.Fields {
+			value := CadenceValueToInterfaceCompact(subField)
+			if result != nil {
+				result[subStructNames[j].Identifier] = value
+			}
+		}
+		return result
+	case cadence.Array:
+		var result []interface{}
+		for _, item := range field.Values {
+			value := CadenceValueToInterfaceCompact(item)
+			if value != nil {
+				result = append(result, value)
+			}
+		}
+		return result
+
+	default:
+		value := getAndUnquoteStringAsPointer(field)
+		if value == nil {
+			return nil
+		}
+		return *value
+	}
+}
+
+func getAndUnquoteStringAsPointer(value cadence.Value) *string {
+	result, err := strconv.Unquote(value.String())
+	if err != nil {
+		result = value.String()
+	}
+
+	if result == "" {
+		return nil
+	}
+	return &result
 }
