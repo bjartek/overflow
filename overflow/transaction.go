@@ -385,6 +385,40 @@ type FlowTransactionBuilder struct {
 	Proposer        *flowkit.Account
 }
 
+type OverflowScriptResult struct {
+	Err    error
+	Result cadence.Value
+	Input  *FlowTransactionBuilder
+}
+
+func (osr *OverflowScriptResult) GetAsJson() string {
+	if osr.Err != nil {
+		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
+	}
+	return CadenceValueToJsonStringCompact(osr.Result)
+}
+
+func (osr *OverflowScriptResult) GetAsInterface() interface{} {
+	if osr.Err != nil {
+		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
+	}
+	return CadenceValueToInterfaceCompact(osr.Result)
+}
+
+func (osr *OverflowScriptResult) Print() {
+	json := osr.GetAsJson()
+	osr.Input.Overflow.Logger.Info(fmt.Sprintf("%v Script %s run from result: %v\n", emoji.Star, osr.Input.FileName, json))
+}
+
+func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
+	if osr.Err != nil {
+		return osr.Err
+	}
+	jsonResult := CadenceValueToJsonStringCompact(osr.Result)
+	err := json.Unmarshal([]byte(jsonResult), &value)
+	return err
+}
+
 type OverflowResult struct {
 	Err             error
 	Id              flow.Identifier
@@ -468,11 +502,11 @@ func (o *Overflow) Tx(filename string, opts ...TransactionOption) *OverflowResul
 	return o.BuildInteraction(filename, "transaction", opts...).Send()
 }
 
-func (o *Overflow) Script(filename string, opts ...TransactionOption) (cadence.Value, error) {
+func (o *Overflow) Script(filename string, opts ...TransactionOption) *OverflowScriptResult {
 	interaction := o.BuildInteraction(filename, "script", opts...)
 
 	if interaction.Error != nil {
-		return nil, interaction.Error
+		return &OverflowScriptResult{Err: interaction.Error, Input: interaction}
 	}
 
 	filePath := fmt.Sprintf("%s/%s.cdc", interaction.BasePath, interaction.FileName)
@@ -483,12 +517,11 @@ func (o *Overflow) Script(filename string, opts ...TransactionOption) (cadence.V
 		filePath,
 		o.Network)
 	if err != nil {
-		return nil, err
+		return &OverflowScriptResult{Result: result, Err: interaction.Error, Input: interaction}
 	}
 
 	o.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, filePath))
-	return result, nil
-
+	return &OverflowScriptResult{Result: result, Input: interaction}
 }
 
 //shouls this be private?
