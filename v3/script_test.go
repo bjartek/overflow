@@ -25,4 +25,17 @@ func TestScript(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
 	})
+
+	t.Run("compose a script", func(t *testing.T) {
+		accountScript := o.ScriptFN(Arg("account", "first"))
+		res := accountScript("test")
+		assert.NoError(t, res.Err)
+	})
+
+	t.Run("create script with name", func(t *testing.T) {
+		testScript := o.ScriptFileNameFN("test")
+		res := testScript(Arg("account", "first"))
+		assert.NoError(t, res.Err)
+	})
+
 }

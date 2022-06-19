@@ -468,9 +468,23 @@ type TransactionOption func(*FlowTransactionBuilder)
 type TransactionFunction func(filename string, opts ...TransactionOption) *OverflowResult
 type TransactionOptsFunction func(opts ...TransactionOption) *OverflowResult
 
+type ScriptFunction func(filename string, opts ...TransactionOption) *OverflowScriptResult
+type ScriptOptsFunction func(opts ...TransactionOption) *OverflowScriptResult
+
 func Arg(name, value string) func(ftb *FlowTransactionBuilder) {
 	return func(ftb *FlowTransactionBuilder) {
 		ftb.NamedArgs[name] = value
+	}
+}
+
+func (o *Overflow) ScriptFN(outerOpts ...TransactionOption) ScriptFunction {
+
+	return func(filename string, opts ...TransactionOption) *OverflowScriptResult {
+
+		for _, opt := range opts {
+			outerOpts = append(outerOpts, opt)
+		}
+		return o.Script(filename, outerOpts...)
 	}
 }
 
@@ -483,6 +497,17 @@ func (o *Overflow) TxFN(outerOpts ...TransactionOption) TransactionFunction {
 		}
 		return o.Tx(filename, outerOpts...)
 
+	}
+}
+
+func (o *Overflow) ScriptFileNameFN(filename string, outerOpts ...TransactionOption) ScriptOptsFunction {
+
+	return func(opts ...TransactionOption) *OverflowScriptResult {
+
+		for _, opt := range opts {
+			outerOpts = append(outerOpts, opt)
+		}
+		return o.Script(filename, outerOpts...)
 	}
 }
 
