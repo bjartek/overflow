@@ -523,16 +523,25 @@ func (a *FlowArgumentsBuilder) UInt8Array(value ...uint8) *FlowArgumentsBuilder 
 
 // Argument add an argument to the transaction
 func (a *FlowArgumentsBuilder) UFix64Array(value ...float64) *FlowArgumentsBuilder {
+	array, err := UFix64Array(value...)
+	if err != nil {
+		a.Error = err
+		return a
+	}
+	a.Arguments = append(a.Arguments, *array)
+	return a
+}
+
+func UFix64Array(value ...float64) (*cadence.Array, error) {
 	array := []cadence.Value{}
 	for _, val := range value {
 		stringValue := fmt.Sprintf("%f", val)
 		amount, err := cadence.NewUFix64(stringValue)
 		if err != nil {
-			a.Error = err
-			return a
+			return nil, err
 		}
 		array = append(array, amount)
 	}
-	a.Arguments = append(a.Arguments, cadence.NewArray(array))
-	return a
+	cArray := cadence.NewArray(array)
+	return &cArray, nil
 }

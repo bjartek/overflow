@@ -245,11 +245,14 @@ func (t FlowTransactionBuilder) Send() *OverflowResult {
 	}
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
-	code, err := t.getContractCode(codeFileName)
-	if err != nil {
-		fmt.Println("err")
-		result.Err = err
-		return result
+
+	if len(t.TransactionCode) == 0 {
+		code, err := t.getContractCode(codeFileName)
+		if err != nil {
+			result.Err = err
+			return result
+		}
+		t.TransactionCode = code
 	}
 
 	t.Overflow.Log.Reset()
@@ -269,7 +272,7 @@ func (t FlowTransactionBuilder) Send() *OverflowResult {
 		authorizers,
 		t.MainSigner.Address(),
 		signerKeyIndex,
-		code,
+		t.TransactionCode,
 		codeFileName,
 		t.GasLimit,
 		t.Arguments,
@@ -473,7 +476,10 @@ func (o *Overflow) Buildv3Transaction(filename string, opts ...TransactionOption
 		NamedArgs:      map[string]interface{}{},
 	}
 
-	if !strings.Contains("transaction (", filename) {
+	if strings.Contains(filename, "transaction(") || strings.Contains(filename, "transaction(") {
+		ftb.TransactionCode = []byte(filename)
+		ftb.FileName = "inline"
+	} else {
 		filePath := fmt.Sprintf("%s/%s.cdc", o.TransactionBasePath, filename)
 		code, err := ftb.getContractCode(filePath)
 		ftb.TransactionCode = code
@@ -482,13 +488,12 @@ func (o *Overflow) Buildv3Transaction(filename string, opts ...TransactionOption
 			ftb.Error = err
 			return ftb
 		}
-	} else {
-		ftb.TransactionCode = []byte(filename)
-		ftb.FileName = "inline"
 	}
-
 	for _, opt := range opts {
 		opt(ftb)
+	}
+	if ftb.Error != nil {
+		return ftb
 	}
 
 	parseArgs, err := o.ParseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)

@@ -43,12 +43,15 @@ func OverflowTesting(opts ...overflow.OverflowOption) (*overflow.Overflow, error
 func WithNetwork(network string) func(o *overflow.OverflowBuilder) {
 	return func(o *overflow.OverflowBuilder) {
 
+		o.InMemory = false
+		o.DeployContracts = false
+		o.InitializeAccounts = false
+
 		if network == "embedded" || network == "" {
 			o.Network = "emulator"
 			o.DeployContracts = true
 			o.InitializeAccounts = true
 			o.InMemory = true
-			o.LogLevel = output.InfoLog
 			return
 		}
 
@@ -60,7 +63,6 @@ func WithNetwork(network string) func(o *overflow.OverflowBuilder) {
 			o.InMemory = true
 			return
 		}
-
 		if network == "emulator" {
 			o.DeployContracts = true
 			o.InitializeAccounts = true
@@ -72,6 +74,9 @@ func WithNetwork(network string) func(o *overflow.OverflowBuilder) {
 func WithInMemory() func(o *overflow.OverflowBuilder) {
 	return func(o *overflow.OverflowBuilder) {
 		o.InMemory = true
+		o.DeployContracts = true
+		o.InitializeAccounts = true
+		o.Network = "emulator"
 	}
 }
 

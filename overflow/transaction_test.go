@@ -43,4 +43,22 @@ func TestTransactionArguments(t *testing.T) {
 		})
 		assert.Contains(t, builder.Arguments, ufix)
 	})
+
+	t.Run("Argument test function", func(t *testing.T) {
+		builder := g.Transaction(`
+transaction(names: [String]) {
+
+}
+`).NamedArguments(map[string]string{
+			"names": `["Bjarte", "Karlsen"]`,
+		})
+
+		arrayValues := []cadence.Value{
+			CadenceString("Bjarte"),
+			CadenceString("Karlsen"),
+		}
+		assert.Contains(t, builder.Arguments, cadence.NewArray(arrayValues))
+
+	})
+
 }
