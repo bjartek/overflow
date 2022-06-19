@@ -16,6 +16,21 @@ func TestTransaction(t *testing.T) {
 		assert.NoError(t, res.Err)
 	})
 
+	t.Run("Run simple tx with sa proposer", func(t *testing.T) {
+		res := o.Tx("arguments", Arg("test", "foo"), PayloadSigner("first"), ProposeAsServiceAccount())
+		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
+	})
+
+	t.Run("Run simple tx with custom proposer", func(t *testing.T) {
+		res := o.Tx("arguments", Arg("test", "foo"), PayloadSigner("first"), ProposeAs("account"))
+		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
+	})
+
+	t.Run("Fail when invalid proposer", func(t *testing.T) {
+		res := o.Tx("arguments", Arg("test", "foo"), PayloadSigner("first"), ProposeAs("account2"))
+		assert.ErrorContains(t, res.Err, "could not find account with name emulator-account2 in the configuration")
+	})
+
 	t.Run("Run linine tx", func(t *testing.T) {
 		res := o.Tx(`
 transaction(test:String) {
@@ -113,7 +128,7 @@ transaction(test:{String:UFix64}) {
 		assert.Equal(t, `{ "foo" : 1.0}`, fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
-	t.Run("Erorr when parsing invalid address", func(t *testing.T) {
+	t.Run("Error when parsing invalid address", func(t *testing.T) {
 		res := o.Buildv3Transaction(`
 transaction(test:Address) {
   prepare(acct: AuthAccount) {
@@ -125,4 +140,29 @@ transaction(test:Address) {
 
 	})
 
+	t.Run("Should set gas", func(t *testing.T) {
+		res := o.Buildv3Transaction(`
+transaction(test:Address) {
+  prepare(acct: AuthAccount) {
+
+ }
+}
+`, Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount(), Gas(100))
+
+		assert.Equal(t, uint64(100), res.GasLimit)
+
+	})
+
+	t.Run("Should report error if invalid payload signer", func(t *testing.T) {
+		res := o.Tx(`
+transaction{
+	prepare(acct: AuthAccount, user:AuthAccount) {
+
+ }
+}
+`, SignProposeAndPayAsServiceAccount(), PayloadSigner("bjartek"))
+
+		assert.Error(t, res.Err, "asd")
+
+	})
 }

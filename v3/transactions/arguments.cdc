@@ -4,6 +4,5 @@ transaction(test:String) {
   prepare(acct: AuthAccount) {
     log(acct)
     log(test)
-
  }
 }

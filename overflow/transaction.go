@@ -98,6 +98,7 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 		t.Error = err
 		return t
 	}
+	t.Proposer = account
 	t.MainSigner = account
 	return t
 }
@@ -108,6 +109,7 @@ func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuil
 	//swallow error as you cannot start a overflow without a valid sa
 	account, _ := t.Overflow.State.Accounts().ByName(key)
 	t.MainSigner = account
+	t.Proposer = account
 	return t
 }
 
@@ -238,7 +240,7 @@ func (t FlowTransactionBuilder) Send() *OverflowResult {
 		return result
 	}
 
-	if t.MainSigner == nil {
+	if t.Proposer == nil {
 		fmt.Println("err")
 		result.Err = fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
 		return result
@@ -258,20 +260,23 @@ func (t FlowTransactionBuilder) Send() *OverflowResult {
 	t.Overflow.Log.Reset()
 	// we append the mainSigners at the end here so that it signs last
 	signers := t.PayloadSigners
-	signers = append(signers, t.MainSigner)
-
-	signerKeyIndex := t.MainSigner.Key().Index()
+	if t.MainSigner != nil {
+		signers = append(signers, t.MainSigner)
+	}
 
 	var authorizers []flow.Address
 	for _, signer := range signers {
 		authorizers = append(authorizers, signer.Address())
 	}
+	if t.MainSigner == nil {
+		signers = append(signers, t.Proposer)
+	}
 
 	tx, err := t.Overflow.Services.Transactions.Build(
-		t.MainSigner.Address(),
+		t.Proposer.Address(),
 		authorizers,
-		t.MainSigner.Address(),
-		signerKeyIndex,
+		t.Proposer.Address(),
+		t.Proposer.Key().Index(),
 		t.TransactionCode,
 		codeFileName,
 		t.GasLimit,
@@ -300,9 +305,6 @@ func (t FlowTransactionBuilder) Send() *OverflowResult {
 	txId := tx.FlowTransaction().ID()
 	result.Id = txId
 
-	t.Overflow.Logger.Info(fmt.Sprintf("Transaction ID: %s", txId))
-	t.Overflow.Logger.StartProgress("Sending transaction...")
-	defer t.Overflow.Logger.StopProgress()
 	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
 	ftx, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes, true)
 	result.Transaction = ftx
@@ -380,6 +382,7 @@ type FlowTransactionBuilder struct {
 	//these are used for v3, but can still be here for v2
 	TransactionCode []byte
 	NamedArgs       map[string]interface{}
+	Proposer        *flowkit.Account
 }
 
 type OverflowResult struct {
@@ -476,7 +479,11 @@ func (o *Overflow) Buildv3Transaction(filename string, opts ...TransactionOption
 		NamedArgs:      map[string]interface{}{},
 	}
 
-	if strings.Contains(filename, "transaction(") || strings.Contains(filename, "transaction(") {
+	if strings.Contains(filename, "transaction (") ||
+		strings.Contains(filename, "transaction {") ||
+		strings.Contains(filename, "transaction{") ||
+		strings.Contains(filename, "transaction(") ||
+		strings.Contains(filename, "transaction ") {
 		ftb.TransactionCode = []byte(filename)
 		ftb.FileName = "inline"
 	} else {

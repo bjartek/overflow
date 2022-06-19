@@ -1,16 +1,12 @@
 package v3
 
 import (
-	"encoding/hex"
 	"fmt"
-	"strings"
 
 	"github.com/bjartek/overflow/overflow"
 	"github.com/onflow/cadence"
 	"github.com/pkg/errors"
 )
-
-type ArgsError func() (cadence.Value, error)
 
 func Args(args ...interface{}) func(ftb *overflow.FlowTransactionBuilder) {
 
@@ -76,19 +72,23 @@ func Addresses(name string, value ...string) func(ftb *overflow.FlowTransactionB
 	}
 }
 
-// HexToAddress converts a hex string to an Address.
-func HexToAddress(h string) (*cadence.Address, error) {
-	trimmed := strings.TrimPrefix(h, "0x")
-	if len(trimmed)%2 == 1 {
-		trimmed = "0" + trimmed
+func ProposeAs(proposer string) func(ftb *overflow.FlowTransactionBuilder) {
+	return func(ftb *overflow.FlowTransactionBuilder) {
+		account, err := ftb.Overflow.AccountE(proposer)
+		if err != nil {
+			ftb.Error = err
+			return
+		}
+		ftb.Proposer = account
 	}
-	b, err := hex.DecodeString(trimmed)
-	if err != nil {
-		return nil, err
+}
 
+func ProposeAsServiceAccount() func(ftb *overflow.FlowTransactionBuilder) {
+	return func(ftb *overflow.FlowTransactionBuilder) {
+		key := ftb.Overflow.ServiceAccountName()
+		account, _ := ftb.Overflow.State.Accounts().ByName(key)
+		ftb.Proposer = account
 	}
-	address := cadence.BytesToAddress(b)
-	return &address, nil
 }
 
 func SignProposeAndPayAs(signer string) func(ftb *overflow.FlowTransactionBuilder) {
@@ -99,6 +99,7 @@ func SignProposeAndPayAs(signer string) func(ftb *overflow.FlowTransactionBuilde
 			return
 		}
 		ftb.MainSigner = account
+		ftb.Proposer = account
 	}
 }
 
@@ -107,5 +108,25 @@ func SignProposeAndPayAsServiceAccount() func(ftb *overflow.FlowTransactionBuild
 		key := ftb.Overflow.ServiceAccountName()
 		account, _ := ftb.Overflow.State.Accounts().ByName(key)
 		ftb.MainSigner = account
+		ftb.Proposer = account
+	}
+}
+
+func Gas(gas uint64) func(ftb *overflow.FlowTransactionBuilder) {
+	return func(ftb *overflow.FlowTransactionBuilder) {
+		ftb.GasLimit = gas
+	}
+}
+
+func PayloadSigner(signer ...string) func(ftb *overflow.FlowTransactionBuilder) {
+	return func(ftb *overflow.FlowTransactionBuilder) {
+		for _, signer := range signer {
+			account, err := ftb.Overflow.AccountE(signer)
+			if err != nil {
+				ftb.Error = err
+				return
+			}
+			ftb.PayloadSigners = append(ftb.PayloadSigners, account)
+		}
 	}
 }
