@@ -24,6 +24,21 @@ func CadenceValueToJsonString(value cadence.Value) string {
 	return string(j)
 }
 
+// CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
+func CadenceValueToJsonStringCompact(value cadence.Value) string {
+	result := CadenceValueToInterfaceCompact(value)
+	if result == nil {
+		return ""
+	}
+	j, err := json.MarshalIndent(result, "", "  ")
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(j)
+}
+
 // CadenceValueToInterface convert a candence.Value into interface{}
 func CadenceValueToInterface(field cadence.Value) interface{} {
 	if field == nil {
@@ -87,6 +102,9 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 				result[*key] = value
 			}
 		}
+		if len(result) == 0 {
+			return nil
+		}
 		return result
 	case cadence.Struct:
 		result := map[string]interface{}{}
@@ -94,9 +112,12 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 
 		for j, subField := range field.Fields {
 			value := CadenceValueToInterfaceCompact(subField)
-			if result != nil {
+			if value != nil {
 				result[subStructNames[j].Identifier] = value
 			}
+		}
+		if len(result) == 0 {
+			return nil
 		}
 		return result
 	case cadence.Array:
@@ -107,14 +128,20 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 				result = append(result, value)
 			}
 		}
+		if len(result) == 0 {
+			return nil
+		}
 		return result
 
-	default:
+	case cadence.String:
 		value := getAndUnquoteStringAsPointer(field)
 		if value == nil {
 			return nil
 		}
 		return *value
+
+	default:
+		return field.ToGoValue()
 	}
 }
 
