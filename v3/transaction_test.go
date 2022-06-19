@@ -85,69 +85,69 @@ transaction(test:String) {
 	})
 
 	t.Run("Parse addresses should fail if not valid account name and hex", func(t *testing.T) {
-		res := o.Buildv3Transaction(`
+		res := o.BuildInteraction(`
 transaction(test:[Address]) {
   prepare(acct: AuthAccount) {
 
  }
 }
-`, Addresses("test", "bjartek"), SignProposeAndPayAsServiceAccount())
+`, "transaction", Addresses("test", "bjartek"), SignProposeAndPayAsServiceAccount())
 		assert.ErrorContains(t, res.Error, "bjartek is not an valid account name or an address")
 	})
 
 	t.Run("Parse array of addresses", func(t *testing.T) {
-		res := o.Buildv3Transaction(`
+		res := o.BuildInteraction(`
 transaction(test:[Address]) {
   prepare(acct: AuthAccount) {
 
  }
 }
-`, Addresses("test", "account", "45a1763c93006ca"), SignProposeAndPayAsServiceAccount())
+`, "transaction", Addresses("test", "account", "45a1763c93006ca"), SignProposeAndPayAsServiceAccount())
 		assert.Equal(t, "[0xf8d6e0586b0a20c7, 0x045a1763c93006ca]", fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
 	t.Run("Parse String to String map", func(t *testing.T) {
-		res := o.Buildv3Transaction(`
+		res := o.BuildInteraction(`
 transaction(test:{String:String}) {
   prepare(acct: AuthAccount) {
 
  }
 }
-`, Arg("test", `{ "foo" : "bar"}`), SignProposeAndPayAsServiceAccount())
+`, "transaction", Arg("test", `{ "foo" : "bar"}`), SignProposeAndPayAsServiceAccount())
 		assert.Equal(t, `{ "foo" : "bar"}`, fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
 	t.Run("Parse String to UFix64 map", func(t *testing.T) {
-		res := o.Buildv3Transaction(`
+		res := o.BuildInteraction(`
 transaction(test:{String:UFix64}) {
   prepare(acct: AuthAccount) {
 
  }
 }
-`, Arg("test", `{ "foo" : 1.0}`), SignProposeAndPayAsServiceAccount())
+`, "transaction", Arg("test", `{ "foo" : 1.0}`), SignProposeAndPayAsServiceAccount())
 		assert.Equal(t, `{ "foo" : 1.0}`, fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
 	t.Run("Error when parsing invalid address", func(t *testing.T) {
-		res := o.Buildv3Transaction(`
+		res := o.BuildInteraction(`
 transaction(test:Address) {
   prepare(acct: AuthAccount) {
 
  }
 }
-`, Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount())
+`, "transaction", Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount())
 		assert.ErrorContains(t, res.Error, "argument `test` is not expected type `Address`")
 
 	})
 
 	t.Run("Should set gas", func(t *testing.T) {
-		res := o.Buildv3Transaction(`
+		res := o.BuildInteraction(`
 transaction(test:Address) {
   prepare(acct: AuthAccount) {
 
  }
 }
-`, Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount(), Gas(100))
+`, "transaction", Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount(), Gas(100))
 
 		assert.Equal(t, uint64(100), res.GasLimit)
 

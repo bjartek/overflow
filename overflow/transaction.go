@@ -465,17 +465,46 @@ func (o *Overflow) TxFileNameFN(filename string, outerOpts ...TransactionOption)
 }
 
 func (o *Overflow) Tx(filename string, opts ...TransactionOption) *OverflowResult {
-	return o.Buildv3Transaction(filename, opts...).Send()
+	return o.BuildInteraction(filename, "transaction", opts...).Send()
 }
 
-func (o *Overflow) Buildv3Transaction(filename string, opts ...TransactionOption) *FlowTransactionBuilder {
+func (o *Overflow) Script(filename string, opts ...TransactionOption) (cadence.Value, error) {
+	interaction := o.BuildInteraction(filename, "script", opts...)
+
+	if interaction.Error != nil {
+		return nil, interaction.Error
+	}
+
+	filePath := fmt.Sprintf("%s/%s.cdc", interaction.BasePath, interaction.FileName)
+
+	result, err := o.Services.Scripts.Execute(
+		interaction.TransactionCode,
+		interaction.Arguments,
+		filePath,
+		o.Network)
+	if err != nil {
+		return nil, err
+	}
+
+	o.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, filePath))
+	return result, nil
+
+}
+
+//shouls this be private?
+func (o *Overflow) BuildInteraction(filename string, interactionType string, opts ...TransactionOption) *FlowTransactionBuilder {
+
+	path := o.TransactionBasePath
+	if interactionType == "script" {
+		path = o.ScriptBasePath
+	}
 	ftb := &FlowTransactionBuilder{
 		Overflow:       o,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       uint64(o.Gas),
-		BasePath:       o.TransactionBasePath,
+		BasePath:       path,
 		NamedArgs:      map[string]interface{}{},
 	}
 
@@ -483,11 +512,12 @@ func (o *Overflow) Buildv3Transaction(filename string, opts ...TransactionOption
 		strings.Contains(filename, "transaction {") ||
 		strings.Contains(filename, "transaction{") ||
 		strings.Contains(filename, "transaction(") ||
-		strings.Contains(filename, "transaction ") {
+		strings.Contains(filename, "transaction ") ||
+		strings.Contains(filename, "pub fun main(") {
 		ftb.TransactionCode = []byte(filename)
 		ftb.FileName = "inline"
 	} else {
-		filePath := fmt.Sprintf("%s/%s.cdc", o.TransactionBasePath, filename)
+		filePath := fmt.Sprintf("%s/%s.cdc", ftb.BasePath, filename)
 		code, err := ftb.getContractCode(filePath)
 		ftb.TransactionCode = code
 		ftb.FileName = filename

@@ -38,7 +38,7 @@ func TestScriptIntegration(t *testing.T) {
 	})
 
 	t.Run("Script should report failure", func(t *testing.T) {
-		value, err := g.Script("asdf").RunReturns()
+		value, err := g.InlineScript("asdf").RunReturns()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "Parsing failed")
 		assert.Nil(t, value)
@@ -47,7 +47,7 @@ func TestScriptIntegration(t *testing.T) {
 
 	t.Run("marshal test result into struct", func(t *testing.T) {
 		var result []TestReturn
-		err := g.Script(`
+		err := g.InlineScript(`
 pub struct Report{
 				 pub let name: String
 				 pub let test: String
@@ -69,7 +69,7 @@ pub struct Report{
 
 	t.Run("marshal test result into struct should fail if wrong type", func(t *testing.T) {
 		var result TestReturn
-		err := g.Script(`
+		err := g.InlineScript(`
 pub struct Report{
 				 pub let name: String
 				 pub let test: String

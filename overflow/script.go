@@ -19,7 +19,7 @@ type FlowScriptBuilder struct {
 }
 
 //Script start a script builder with the inline script as body
-func (f *Overflow) Script(content string) FlowScriptBuilder {
+func (f *Overflow) InlineScript(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
 		Overflow:       f,
 		FileName:       "inline",
