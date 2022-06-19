@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/enescakir/emoji"
@@ -372,6 +373,10 @@ type FlowTransactionBuilder struct {
 	GasLimit       uint64
 	BasePath       string
 	Error          error
+
+	//these are used for v3, but can still be here for v2
+	TransactionCode []byte
+	NamedArgs       map[string]interface{}
 }
 
 type OverflowResult struct {
@@ -413,4 +418,84 @@ func (o OverflowResult) GetEventsWithName(eventName string) []FormatedEvent {
 		}
 	}
 	return events
+}
+
+// v3
+
+//A function to customize the transaction builder
+type TransactionOption func(*FlowTransactionBuilder)
+
+type TransactionFunction func(filename string, opts ...TransactionOption) *OverflowResult
+type TransactionOptsFunction func(opts ...TransactionOption) *OverflowResult
+
+func Arg(name, value string) func(ftb *FlowTransactionBuilder) {
+	return func(ftb *FlowTransactionBuilder) {
+		ftb.NamedArgs[name] = value
+	}
+}
+
+func (o *Overflow) TxFN(outerOpts ...TransactionOption) TransactionFunction {
+
+	return func(filename string, opts ...TransactionOption) *OverflowResult {
+
+		for _, opt := range opts {
+			outerOpts = append(outerOpts, opt)
+		}
+		return o.Tx(filename, outerOpts...)
+
+	}
+}
+
+func (o *Overflow) TxFileNameFN(filename string, outerOpts ...TransactionOption) TransactionOptsFunction {
+
+	return func(opts ...TransactionOption) *OverflowResult {
+
+		for _, opt := range opts {
+			outerOpts = append(outerOpts, opt)
+		}
+		return o.Tx(filename, outerOpts...)
+
+	}
+}
+
+func (o *Overflow) Tx(filename string, opts ...TransactionOption) *OverflowResult {
+	return o.Buildv3Transaction(filename, opts...).Send()
+}
+
+func (o *Overflow) Buildv3Transaction(filename string, opts ...TransactionOption) *FlowTransactionBuilder {
+	ftb := &FlowTransactionBuilder{
+		Overflow:       o,
+		MainSigner:     nil,
+		Arguments:      []cadence.Value{},
+		PayloadSigners: []*flowkit.Account{},
+		GasLimit:       uint64(o.Gas),
+		BasePath:       o.TransactionBasePath,
+		NamedArgs:      map[string]interface{}{},
+	}
+
+	if !strings.Contains("transaction (", filename) {
+		filePath := fmt.Sprintf("%s/%s.cdc", o.TransactionBasePath, filename)
+		code, err := ftb.getContractCode(filePath)
+		ftb.TransactionCode = code
+		ftb.FileName = filename
+		if err != nil {
+			ftb.Error = err
+			return ftb
+		}
+	} else {
+		ftb.TransactionCode = []byte(filename)
+		ftb.FileName = "inline"
+	}
+
+	for _, opt := range opts {
+		opt(ftb)
+	}
+
+	parseArgs, err := o.ParseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
+	if err != nil {
+		ftb.Error = err
+		return ftb
+	}
+	ftb.Arguments = parseArgs
+	return ftb
 }

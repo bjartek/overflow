@@ -29,6 +29,8 @@ type Overflow struct {
 	BasePath                     string
 	Log                          *bytes.Buffer
 	Error                        error
+	TransactionBasePath          string
+	ScriptBasePath               string
 }
 
 func (o *Overflow) ServiceAccountName() string {
@@ -63,16 +65,18 @@ func (f *Overflow) Account(key string) *flowkit.Account {
 }
 
 type OverflowBuilder struct {
-	Network            string
-	InMemory           bool
-	DeployContracts    bool
-	GasLimit           int
-	Path               string
-	LogLevel           int
-	InitializeAccounts bool
-	PrependNetworkName bool
-	ServiceSuffix      string
-	ConfigFiles        []string
+	Network               string
+	InMemory              bool
+	DeployContracts       bool
+	GasLimit              int
+	Path                  string
+	LogLevel              int
+	InitializeAccounts    bool
+	PrependNetworkName    bool
+	ServiceSuffix         string
+	ConfigFiles           []string
+	TransactionFolderName string
+	ScriptFolderName      string
 }
 
 func NewOverflow() *OverflowBuilder {
@@ -109,16 +113,18 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 	}
 
 	return &OverflowBuilder{
-		Network:            network,
-		InMemory:           inMemory,
-		DeployContracts:    deployContracts,
-		GasLimit:           9999,
-		Path:               ".",
-		LogLevel:           logLevel,
-		InitializeAccounts: initializeAccounts,
-		PrependNetworkName: true,
-		ServiceSuffix:      "account",
-		ConfigFiles:        config.DefaultPaths(),
+		Network:               network,
+		InMemory:              inMemory,
+		DeployContracts:       deployContracts,
+		GasLimit:              9999,
+		Path:                  ".",
+		TransactionFolderName: "transactions",
+		ScriptFolderName:      "scripts",
+		LogLevel:              logLevel,
+		InitializeAccounts:    initializeAccounts,
+		PrependNetworkName:    true,
+		ServiceSuffix:         "account",
+		ConfigFiles:           config.DefaultPaths(),
 	}
 }
 
@@ -213,6 +219,8 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 		ServiceAccountSuffix:         o.ServiceSuffix,
 		Gas:                          o.GasLimit,
 		BasePath:                     o.Path,
+		TransactionBasePath:          fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
+		ScriptBasePath:               fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
 		Log:                          &memlog,
 	}
 
@@ -262,4 +270,14 @@ type LogrusMessage struct {
 	Msg             string    `json:"msg"`
 	Time            time.Time `json:"time"`
 	TxID            string    `json:"txID"`
+}
+
+type OverflowOption func(*OverflowBuilder)
+
+func (o *OverflowBuilder) ApplyOptions(opts []OverflowOption) *OverflowBuilder {
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	return o
 }
