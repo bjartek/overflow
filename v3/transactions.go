@@ -8,9 +8,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Args(args ...interface{}) func(ftb *overflow.FlowTransactionBuilder) {
+func Args(args ...interface{}) func(ftb *overflow.FlowInteractionBuilder) {
 
-	return func(ftb *overflow.FlowTransactionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		if len(args)%2 != 0 {
 			ftb.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
 			fmt.Println("foo")
@@ -29,28 +29,28 @@ func Args(args ...interface{}) func(ftb *overflow.FlowTransactionBuilder) {
 	}
 }
 
-func ArgsM(args map[string]interface{}) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func ArgsM(args map[string]interface{}) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		for key, value := range args {
 			ftb.NamedArgs[key] = value
 		}
 	}
 }
 
-func Arg(name, value string) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func Arg(name, value string) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value
 	}
 }
 
-func CArg(name string, value cadence.Value) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func CArg(name string, value cadence.Value) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value
 	}
 }
 
-func Addresses(name string, value ...string) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func Addresses(name string, value ...string) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		array := []cadence.Value{}
 
 		for _, val := range value {
@@ -72,8 +72,8 @@ func Addresses(name string, value ...string) func(ftb *overflow.FlowTransactionB
 	}
 }
 
-func ProposeAs(proposer string) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func ProposeAs(proposer string) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		account, err := ftb.Overflow.AccountE(proposer)
 		if err != nil {
 			ftb.Error = err
@@ -83,16 +83,16 @@ func ProposeAs(proposer string) func(ftb *overflow.FlowTransactionBuilder) {
 	}
 }
 
-func ProposeAsServiceAccount() func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func ProposeAsServiceAccount() func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		key := ftb.Overflow.ServiceAccountName()
 		account, _ := ftb.Overflow.State.Accounts().ByName(key)
 		ftb.Proposer = account
 	}
 }
 
-func SignProposeAndPayAs(signer string) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func SignProposeAndPayAs(signer string) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		account, err := ftb.Overflow.AccountE(signer)
 		if err != nil {
 			ftb.Error = err
@@ -103,8 +103,8 @@ func SignProposeAndPayAs(signer string) func(ftb *overflow.FlowTransactionBuilde
 	}
 }
 
-func SignProposeAndPayAsServiceAccount() func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func SignProposeAndPayAsServiceAccount() func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		key := ftb.Overflow.ServiceAccountName()
 		account, _ := ftb.Overflow.State.Accounts().ByName(key)
 		ftb.MainSigner = account
@@ -112,14 +112,14 @@ func SignProposeAndPayAsServiceAccount() func(ftb *overflow.FlowTransactionBuild
 	}
 }
 
-func Gas(gas uint64) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func Gas(gas uint64) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		ftb.GasLimit = gas
 	}
 }
 
-func PayloadSigner(signer ...string) func(ftb *overflow.FlowTransactionBuilder) {
-	return func(ftb *overflow.FlowTransactionBuilder) {
+func PayloadSigner(signer ...string) func(ftb *overflow.FlowInteractionBuilder) {
+	return func(ftb *overflow.FlowInteractionBuilder) {
 		for _, signer := range signer {
 			account, err := ftb.Overflow.AccountE(signer)
 			if err != nil {

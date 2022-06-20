@@ -18,8 +18,8 @@ func (f *Overflow) SimpleTxArgs(filename string, signer string, args *FlowArgume
 }
 
 // TransactionFromFile will start a flow transaction builder
-func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
-	return FlowTransactionBuilder{
+func (f *Overflow) TransactionFromFile(filename string) FlowInteractionBuilder {
+	return FlowInteractionBuilder{
 		Overflow:       f,
 		FileName:       filename,
 		MainSigner:     nil,
@@ -31,8 +31,8 @@ func (f *Overflow) TransactionFromFile(filename string) FlowTransactionBuilder {
 }
 
 // Transaction will start a flow transaction builder using the inline transaction
-func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
-	return FlowTransactionBuilder{
+func (f *Overflow) Transaction(content string) FlowInteractionBuilder {
+	return FlowInteractionBuilder{
 		Overflow:       f,
 		FileName:       "inline",
 		Content:        content,
@@ -44,7 +44,7 @@ func (f *Overflow) Transaction(content string) FlowTransactionBuilder {
 	}
 }
 
-func (t FlowTransactionBuilder) NamedArguments(args map[string]string) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) NamedArguments(args map[string]string) FlowInteractionBuilder {
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getContractCode(codeFileName)
@@ -61,38 +61,38 @@ func (t FlowTransactionBuilder) NamedArguments(args map[string]string) FlowTrans
 }
 
 // Specify arguments to send to transaction using a raw list of values
-func (t FlowTransactionBuilder) ArgsV(args []cadence.Value) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) ArgsV(args []cadence.Value) FlowInteractionBuilder {
 	t.Arguments = args
 	return t
 }
 
 // Specify arguments to send to transaction using a builder you send in
-func (t FlowTransactionBuilder) Args(args *FlowArgumentsBuilder) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) Args(args *FlowArgumentsBuilder) FlowInteractionBuilder {
 	t.Arguments = args.Build()
 	return t
 }
 
 // Specify arguments to send to transaction using a function that takes a builder where you call the builder
-func (t FlowTransactionBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowInteractionBuilder {
 	args := t.Overflow.Arguments()
 	fn(args)
 	t.Arguments = args.Build()
 	return t
 }
 
-func (t FlowTransactionBuilder) TransactionPath(path string) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) TransactionPath(path string) FlowInteractionBuilder {
 	t.BasePath = path
 	return t
 }
 
 // Gas sets the gas limit for this transaction
-func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) Gas(limit uint64) FlowInteractionBuilder {
 	t.GasLimit = limit
 	return t
 }
 
 // SignProposeAndPayAs set the payer, proposer and envelope signer
-func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) SignProposeAndPayAs(signer string) FlowInteractionBuilder {
 	account, err := t.Overflow.AccountE(signer)
 	if err != nil {
 		t.Error = err
@@ -104,7 +104,7 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 }
 
 // SignProposeAndPayAsService set the payer, proposer and envelope signer
-func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
+func (t FlowInteractionBuilder) SignProposeAndPayAsService() FlowInteractionBuilder {
 	key := t.Overflow.ServiceAccountName()
 	//swallow error as you cannot start a overflow without a valid sa
 	account, _ := t.Overflow.State.Accounts().ByName(key)
@@ -114,24 +114,24 @@ func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuil
 }
 
 // PayloadSigner set a signer for the payload
-func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
+func (t FlowInteractionBuilder) PayloadSigner(value string) FlowInteractionBuilder {
 	signer := t.Overflow.Account(value)
 	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }
 
 // RunPrintEventsFull will run a transaction and print all events
-func (t FlowTransactionBuilder) RunPrintEventsFull() {
+func (t FlowInteractionBuilder) RunPrintEventsFull() {
 	PrintEvents(t.Run(), map[string][]string{})
 }
 
 // RunPrintEvents will run a transaction and print all events ignoring some fields
-func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
+func (t FlowInteractionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
 	PrintEvents(t.Run(), ignoreFields)
 }
 
 // Run run the transaction
-func (t FlowTransactionBuilder) Run() []flow.Event {
+func (t FlowInteractionBuilder) Run() []flow.Event {
 	events, err := t.RunE()
 	if err != nil {
 		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
@@ -140,7 +140,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	return events
 }
 
-func (t FlowTransactionBuilder) RunGetIdFromEventPrintAll(eventName string, fieldName string) uint64 {
+func (t FlowInteractionBuilder) RunGetIdFromEventPrintAll(eventName string, fieldName string) uint64 {
 	result, err := t.RunE()
 	if err != nil {
 		panic(err)
@@ -164,7 +164,7 @@ func getUInt64FieldFromEvent(result []flow.Event, eventName string, fieldName st
 	return 0, fmt.Errorf("did not find field %s", fieldName)
 }
 
-func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
+func (t FlowInteractionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
 
 	result, err := t.RunE()
 	if err != nil {
@@ -178,7 +178,7 @@ func (t FlowTransactionBuilder) RunGetIdFromEvent(eventName string, fieldName st
 	return value
 }
 
-func (t FlowTransactionBuilder) RunGetIds(eventName string, fieldName string) ([]uint64, error) {
+func (t FlowInteractionBuilder) RunGetIds(eventName string, fieldName string) ([]uint64, error) {
 
 	result, err := t.RunE()
 	if err != nil {
@@ -194,7 +194,7 @@ func (t FlowTransactionBuilder) RunGetIds(eventName string, fieldName string) ([
 	return ids, nil
 }
 
-func (t FlowTransactionBuilder) RunGetEventsWithNameOrError(eventName string) ([]FormatedEvent, error) {
+func (t FlowInteractionBuilder) RunGetEventsWithNameOrError(eventName string) ([]FormatedEvent, error) {
 
 	result, err := t.RunE()
 	if err != nil {
@@ -210,7 +210,7 @@ func (t FlowTransactionBuilder) RunGetEventsWithNameOrError(eventName string) ([
 	return events, nil
 }
 
-func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []FormatedEvent {
+func (t FlowInteractionBuilder) RunGetEventsWithName(eventName string) []FormatedEvent {
 
 	result, err := t.RunE()
 	if err != nil {
@@ -227,13 +227,13 @@ func (t FlowTransactionBuilder) RunGetEventsWithName(eventName string) []Formate
 }
 
 // RunE runs returns events and error
-func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
+func (t FlowInteractionBuilder) RunE() ([]flow.Event, error) {
 	result := t.Send()
 	return result.RawEvents, result.Err
 }
 
 // The new main way of running an overflow transaction
-func (t FlowTransactionBuilder) Send() *OverflowResult {
+func (t FlowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{}
 	if t.Error != nil {
 		result.Err = t.Error
@@ -355,7 +355,7 @@ func (t FlowTransactionBuilder) Send() *OverflowResult {
 	return result
 }
 
-func (t FlowTransactionBuilder) getContractCode(codeFileName string) ([]byte, error) {
+func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, error) {
 	code := []byte(t.Content)
 	var err error
 	if t.Content == "" {
@@ -367,8 +367,8 @@ func (t FlowTransactionBuilder) getContractCode(codeFileName string) ([]byte, er
 	return code, nil
 }
 
-// FlowTransactionBuilder used to create a builder pattern for a transaction
-type FlowTransactionBuilder struct {
+// FlowInteractionBuilder used to create a builder pattern for a transaction
+type FlowInteractionBuilder struct {
 	Overflow       *Overflow
 	FileName       string
 	Content        string
@@ -388,7 +388,7 @@ type FlowTransactionBuilder struct {
 type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
-	Input  *FlowTransactionBuilder
+	Input  *FlowInteractionBuilder
 }
 
 func (osr *OverflowScriptResult) GetAsJson() string {
@@ -463,7 +463,7 @@ func (o OverflowResult) GetEventsWithName(eventName string) []FormatedEvent {
 // v3
 
 //A function to customize the transaction builder
-type TransactionOption func(*FlowTransactionBuilder)
+type TransactionOption func(*FlowInteractionBuilder)
 
 type TransactionFunction func(filename string, opts ...TransactionOption) *OverflowResult
 type TransactionOptsFunction func(opts ...TransactionOption) *OverflowResult
@@ -471,8 +471,8 @@ type TransactionOptsFunction func(opts ...TransactionOption) *OverflowResult
 type ScriptFunction func(filename string, opts ...TransactionOption) *OverflowScriptResult
 type ScriptOptsFunction func(opts ...TransactionOption) *OverflowScriptResult
 
-func Arg(name, value string) func(ftb *FlowTransactionBuilder) {
-	return func(ftb *FlowTransactionBuilder) {
+func Arg(name, value string) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value
 	}
 }
@@ -550,13 +550,13 @@ func (o *Overflow) Script(filename string, opts ...TransactionOption) *OverflowS
 }
 
 //shouls this be private?
-func (o *Overflow) BuildInteraction(filename string, interactionType string, opts ...TransactionOption) *FlowTransactionBuilder {
+func (o *Overflow) BuildInteraction(filename string, interactionType string, opts ...TransactionOption) *FlowInteractionBuilder {
 
 	path := o.TransactionBasePath
 	if interactionType == "script" {
 		path = o.ScriptBasePath
 	}
-	ftb := &FlowTransactionBuilder{
+	ftb := &FlowInteractionBuilder{
 		Overflow:       o,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},

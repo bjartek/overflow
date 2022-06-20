@@ -15,7 +15,7 @@ type TransactionResult struct {
 	Testing *testing.T
 }
 
-func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
+func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
 	result := f.Send()
