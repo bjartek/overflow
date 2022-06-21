@@ -288,7 +288,7 @@ func parseTime(timeString string, location string) (string, error) {
 
 // UFix64 add a UFix64 Argument to the transaction
 func (a *FlowArgumentsBuilder) UFix64(input float64) *FlowArgumentsBuilder {
-	value := fmt.Sprintf("%f", input)
+	value := fmt.Sprintf("%.8f", input)
 	amount, err := cadence.NewUFix64(value)
 	if err != nil {
 		a.Error = err
