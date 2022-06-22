@@ -36,13 +36,20 @@ func ArgsM(args map[string]interface{}) func(ftb *overflow.FlowInteractionBuilde
 	}
 }
 
-func Arg(name, value string) func(ftb *overflow.FlowInteractionBuilder) {
-	return func(ftb *overflow.FlowInteractionBuilder) {
-		ftb.NamedArgs[name] = value
-	}
-}
+/// Send an argument into a transaction
+/// @param name: string the name of the parameter
+/// @param value: the value of the argument, se below
+///
+/// The value is treated in the given way depending on type
+///  - cadence.Value is sent as straight argument
+///  - string argument are resolved into cadence.Value using flowkit
+///  - ofther values are converted to string with %v and resolved into cadence.Value using flowkit
+///  - if the type of the paramter is Address and the string you send in is a valid account in flow.json it will resolve
+///
+/// Examples:
+///  If you want to send the UFix64 number "42.0" into a transaciton you have to use it as a string since %v of fmt.Sprintf will make it 42
 
-func CArg(name string, value cadence.Value) func(ftb *overflow.FlowInteractionBuilder) {
+func Arg(name string, value interface{}) func(ftb *overflow.FlowInteractionBuilder) {
 	return func(ftb *overflow.FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value
 	}

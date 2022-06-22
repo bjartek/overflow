@@ -42,6 +42,17 @@ transaction(test:String) {
 		assert.NoError(t, res.Err)
 	})
 
+	t.Run("Run linine tx", func(t *testing.T) {
+		res := o.Tx(`
+transaction(test:UInt64) {
+  prepare(acct: AuthAccount) {
+    log(test)
+ }
+}
+`, Arg("test", 1), SignProposeAndPayAsServiceAccount())
+		assert.NoError(t, res.Err)
+	})
+
 	t.Run("Run simple tx with custom signer", func(t *testing.T) {
 		res := o.Tx("arguments", Arg("test", "foo"), SignProposeAndPayAs("account"))
 		assert.NoError(t, res.Err)
@@ -75,7 +86,7 @@ transaction(test:String) {
 	})
 
 	t.Run("Arg, with cadence raw value", func(t *testing.T) {
-		res := o.Tx("arguments", SignProposeAndPayAsServiceAccount(), CArg("test", overflow.CadenceString("test")))
+		res := o.Tx("arguments", SignProposeAndPayAsServiceAccount(), Arg("test", overflow.CadenceString("test")))
 		assert.NoError(t, res.Err)
 	})
 
@@ -136,7 +147,7 @@ transaction(test:Address) {
  }
 }
 `, "transaction", Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount())
-		assert.ErrorContains(t, res.Error, "argument `test` is not expected type `Address`")
+		assert.ErrorContains(t, res.Error, "argument `test` with value `0xbjartek` is not expected type `Address`")
 
 	})
 

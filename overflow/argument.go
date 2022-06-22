@@ -75,7 +75,11 @@ func (f *Overflow) ParseArguments(fileName string, code []byte, inputArgs map[st
 			resultArgs = append(resultArgs, cadenceVal)
 			continue
 		}
-		argumentString := argument.(string)
+
+		argumentString, okString := argument.(string)
+		if !okString {
+			argumentString = fmt.Sprintf("%v", argument)
+		}
 		astType := parameterList[index].TypeAnnotation.Type
 		semaType := checker.ConvertType(astType)
 
@@ -102,7 +106,7 @@ func (f *Overflow) ParseArguments(fileName string, code []byte, inputArgs map[st
 
 		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
 		if err != nil {
-			return nil, errors.Wrapf(err, "argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
+			return nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", parameterList[index].Identifier, argumentString, semaType)
 		}
 		resultArgs = append(resultArgs, value)
 	}
