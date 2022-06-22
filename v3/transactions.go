@@ -13,7 +13,6 @@ func Args(args ...interface{}) func(ftb *overflow.FlowInteractionBuilder) {
 	return func(ftb *overflow.FlowInteractionBuilder) {
 		if len(args)%2 != 0 {
 			ftb.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
-			fmt.Println("foo")
 			return
 		}
 		var i = 0
