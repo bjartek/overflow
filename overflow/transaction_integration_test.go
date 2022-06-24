@@ -263,14 +263,18 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.NotContains(t, str.String(), "0x1cf0e2f2f715450")
 	})
 
-	t.Run("Named arguments", func(t *testing.T) {
-		g.TransactionFromFile("mint_tokens").
+	t.Run("Named arguments 1", func(t *testing.T) {
+		res := g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			NamedArguments(map[string]string{
 				"recipient": "first",
 				"amount":    "100.0",
 			}).
 			Test(t).AssertSuccess()
+
+		assert.Equal(t, 0, res.Result.Meter.Loops())
+		assert.Equal(t, 15, res.Result.Meter.FunctionInvocations())
+		assert.Equal(t, 42, res.Result.ComputationUsed)
 
 	})
 

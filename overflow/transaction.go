@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -258,6 +259,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	t.Overflow.Log.Reset()
+	t.Overflow.EmulatorLog.Reset()
 	// we append the mainSigners at the end here so that it signs last
 	signers := t.PayloadSigners
 	if t.MainSigner != nil {
@@ -332,6 +334,18 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 		logMessage = append(logMessage, doc)
 	}
 
+	result.Meter = &Meter{}
+	var meter Meter
+	scanner := bufio.NewScanner(t.Overflow.EmulatorLog)
+	for scanner.Scan() {
+		txt := scanner.Text()
+		if strings.Contains(txt, "transaction execution data") {
+			err = json.Unmarshal([]byte(txt), &meter)
+			if err == nil {
+				result.Meter = &meter
+			}
+		}
+	}
 	var gas int
 	messages := []string{}
 	for _, msg := range logMessage {
@@ -350,6 +364,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	t.Overflow.Log.Reset()
+	t.Overflow.EmulatorLog.Reset()
 	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied using gas:%d\n", emoji.OkHand, t.FileName, gas))
 	result.RawEvents = res.Events
 	return result
@@ -423,6 +438,7 @@ type OverflowResult struct {
 	Err             error
 	Id              flow.Identifier
 	EmulatorLog     []string
+	Meter           *Meter
 	ComputationUsed int
 	RawEvents       []flow.Event
 	RawLog          []LogrusMessage

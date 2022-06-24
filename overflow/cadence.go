@@ -138,8 +138,11 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		if value == nil {
 			return nil
 		}
+		// TODO: empty string test
 		return *value
 
+		//TODO: address
+		//TODO: Type
 	default:
 		return field.ToGoValue()
 	}

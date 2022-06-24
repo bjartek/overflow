@@ -8,15 +8,15 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/enescakir/emoji v1.0.0
 	github.com/hexops/autogold v1.3.0
-	github.com/onflow/cadence v0.24.1
+	github.com/onflow/cadence v0.24.3
 	github.com/onflow/flow-cli v0.36.1
-	github.com/onflow/flow-go-sdk v0.26.1
+	github.com/onflow/flow-go-sdk v0.26.2
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
+	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.1
-	gotest.tools v2.2.0+incompatible
 )
 
 require (
@@ -136,3 +136,7 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
+
+replace github.com/onflow/flow-emulator => ../flow-emulator
+
+replace github.com/onflow/flow-cli => ../flow-cli

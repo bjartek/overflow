@@ -3,16 +3,19 @@ package overflow
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/enescakir/emoji"
+	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/config"
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/rs/zerolog"
 	logrus "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
@@ -31,6 +34,7 @@ type Overflow struct {
 	Error                        error
 	TransactionBasePath          string
 	ScriptBasePath               string
+	EmulatorLog                  *bytes.Buffer
 }
 
 func (o *Overflow) ServiceAccountName() string {
@@ -185,6 +189,8 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 	logger := output.NewStdoutLogger(o.LogLevel)
 	var service *services.Services
 	var memlog bytes.Buffer
+	var emulatorLog bytes.Buffer
+
 	if o.InMemory {
 		//YAY we can run it inline in memory!
 		acc, _ := state.EmulatorServiceAccount()
@@ -195,8 +201,11 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 			Out:       &memlog,
 		}
 
+		writer := io.Writer(&emulatorLog)
+		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
+
 		//YAY we can now get out embedded logs!
-		gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrusLogger))
+		gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrusLogger), gateway.WithEmulatorLogger(&emulatorLogger))
 		service = services.NewServices(gw, state, logger)
 	} else {
 		network, err := state.Networks().ByName(o.Network)
@@ -222,6 +231,10 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 		TransactionBasePath:          fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
 		ScriptBasePath:               fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
 		Log:                          &memlog,
+		EmulatorLog:                  &emulatorLog,
+		//TODO; what events do you want to skip by default
+		//TODO: remove fees
+		//TODO: remove empty deposit/withdraw events
 	}
 
 	if o.DeployContracts {
@@ -281,3 +294,26 @@ func (o *OverflowBuilder) ApplyOptions(opts []OverflowOption) *OverflowBuilder {
 
 	return o
 }
+
+type Meter struct {
+	LedgerInteractionUsed  int                           `json:"ledgerInteractionUsed"`
+	ComputationUsed        int                           `json:"computationUsed"`
+	MemoryUsed             int                           `json:"memoryUsed"`
+	ComputationIntensities MeteredComputationIntensities `json:"computationIntensities"`
+	MemoryIntensities      MeteredMemoryIntensities      `json:"memoryIntensities"`
+}
+
+func (m Meter) FunctionInvocations() int {
+	return int(m.ComputationIntensities[common.ComputationKindFunctionInvocation])
+}
+
+func (m Meter) Loops() int {
+	return int(m.ComputationIntensities[common.ComputationKindLoop])
+}
+
+func (m Meter) Statements() int {
+	return int(m.ComputationIntensities[common.ComputationKindStatement])
+}
+
+type MeteredComputationIntensities map[common.ComputationKind]uint
+type MeteredMemoryIntensities map[common.MemoryKind]uint
