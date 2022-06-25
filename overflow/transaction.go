@@ -12,6 +12,7 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/sanity-io/litter"
 )
 
 func (f *Overflow) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
@@ -407,6 +408,7 @@ type OverflowScriptResult struct {
 }
 
 func (osr *OverflowScriptResult) GetAsJson() string {
+	litter.Dump(osr.Result)
 	if osr.Err != nil {
 		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
 	}

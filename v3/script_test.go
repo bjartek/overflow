@@ -38,4 +38,17 @@ func TestScript(t *testing.T) {
 		assert.NoError(t, res.Err)
 	})
 
+	t.Run("Run script inline", func(t *testing.T) {
+		res := o.Script(`
+pub fun main(): String {
+	return "foo"
+}
+`).GetAsJson()
+		assert.Equal(t, `"foo"`, res)
+	})
+
+	t.Run("Run script return type", func(t *testing.T) {
+		res := o.Script("type").GetAsInterface()
+		assert.Equal(t, `A.0ae53cb6e3f42a79.FlowToken.Vault`, res)
+	})
 }
