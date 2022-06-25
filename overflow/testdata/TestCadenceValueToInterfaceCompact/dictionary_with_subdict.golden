@@ -1,1 +1,0 @@
-map[string]interface{}{"bar": map[string]interface{}{"foo": "bar"}}

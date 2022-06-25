@@ -133,16 +133,17 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		}
 		return result
 
+	case cadence.Address:
+		return field.String()
+	case cadence.TypeValue:
+		return field.StaticType.ID()
 	case cadence.String:
 		value := getAndUnquoteStringAsPointer(field)
 		if value == nil {
 			return nil
 		}
-		// TODO: empty string test
 		return *value
 
-		//TODO: address
-		//TODO: Type
 	default:
 		return field.ToGoValue()
 	}
