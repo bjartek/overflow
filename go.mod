@@ -13,7 +13,6 @@ require (
 	github.com/onflow/flow-go-sdk v0.26.2
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
-	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.1
@@ -137,6 +136,6 @@ require (
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
 
-replace github.com/onflow/flow-emulator => ../flow-emulator
+replace github.com/onflow/flow-emulator => github.com/findonflow/flow-emulator v0.33.3-0.20220624194319-acc8fb63179f
 
-replace github.com/onflow/flow-cli => ../flow-cli
+replace github.com/onflow/flow-cli => github.com/findonflow/flow-cli v0.36.3-0.20220624195009-abfe2c3cfa68
