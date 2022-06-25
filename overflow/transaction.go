@@ -12,7 +12,6 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-go-sdk"
-	"github.com/sanity-io/litter"
 )
 
 func (f *Overflow) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
@@ -405,10 +404,10 @@ type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
 	Input  *FlowInteractionBuilder
+	Log    []LogrusMessage
 }
 
 func (osr *OverflowScriptResult) GetAsJson() string {
-	litter.Dump(osr.Result)
 	if osr.Err != nil {
 		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
 	}
@@ -554,17 +553,43 @@ func (o *Overflow) Script(filename string, opts ...TransactionOption) *OverflowS
 
 	filePath := fmt.Sprintf("%s/%s.cdc", interaction.BasePath, interaction.FileName)
 
+	o.EmulatorLog.Reset()
+	o.Log.Reset()
+
 	result, err := o.Services.Scripts.Execute(
 		interaction.TransactionCode,
 		interaction.Arguments,
 		filePath,
 		o.Network)
+
+	var logMessage []LogrusMessage
+	dec := json.NewDecoder(o.Log)
+	for {
+		var doc LogrusMessage
+
+		err := dec.Decode(&doc)
+		if err == io.EOF {
+			// all done
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		logMessage = append(logMessage, doc)
+	}
+
+	o.EmulatorLog.Reset()
+	o.Log.Reset()
+
+	osc := &OverflowScriptResult{Result: result, Input: interaction, Log: logMessage}
 	if err != nil {
-		return &OverflowScriptResult{Result: result, Err: interaction.Error, Input: interaction}
+		osc.Err = interaction.Error
+		return osc
 	}
 
 	o.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, filePath))
-	return &OverflowScriptResult{Result: result, Input: interaction}
+	return osc
 }
 
 //shouls this be private?

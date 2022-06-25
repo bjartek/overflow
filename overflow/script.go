@@ -127,25 +127,6 @@ func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 		return nil, err
 	}
 
-	//TODO: add Meter here
-	/*
-		result.Meter = &Meter{}
-		var meter Meter
-		scanner := bufio.NewScanner(t.Overflow.EmulatorLog)
-		for scanner.Scan() {
-			txt := scanner.Text()
-			fmt.Println(txt)
-			if strings.Contains(txt, "transaction execution data") {
-				err = json.Unmarshal([]byte(txt), &meter)
-				if err != nil {
-					result.Err = err
-				} else {
-					result.Meter = &meter
-				}
-			}
-		}
-	*/
-
 	t.Overflow.EmulatorLog.Reset()
 	f.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, scriptFilePath))
 	return result, nil
