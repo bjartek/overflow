@@ -8,9 +8,9 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/enescakir/emoji v1.0.0
 	github.com/hexops/autogold v1.3.0
-	github.com/onflow/cadence v0.24.1
-	github.com/onflow/flow-cli v0.36.1
-	github.com/onflow/flow-go-sdk v0.26.1
+	github.com/onflow/cadence v0.24.3
+	github.com/onflow/flow-cli v0.37.0
+	github.com/onflow/flow-go-sdk v0.26.2
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
 	github.com/sirupsen/logrus v1.8.1
@@ -85,7 +85,7 @@ require (
 	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20220513155751-c4c1f8d59f83 // indirect
 	github.com/onflow/flow-emulator v0.33.2 // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
-	github.com/onflow/flow-go v0.26.3 // indirect
+	github.com/onflow/flow-go v0.26.12 // indirect
 	github.com/onflow/flow-go/crypto v0.24.3 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.3.1 // indirect
 	github.com/onflow/sdks v0.4.4 // indirect
