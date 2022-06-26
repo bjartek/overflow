@@ -9,6 +9,7 @@ import (
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
+//Deprecated use CadenceValueToJsonStringCompact
 func CadenceValueToJsonString(value cadence.Value) string {
 	if value == nil {
 		return "{}"
@@ -40,6 +41,7 @@ func CadenceValueToJsonStringCompact(value cadence.Value) string {
 }
 
 // CadenceValueToInterface convert a candence.Value into interface{}
+//Deprecated use CadenceValueToInterfaceCompact
 func CadenceValueToInterface(field cadence.Value) interface{} {
 	if field == nil {
 		return ""
@@ -147,16 +149,4 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 	default:
 		return field.ToGoValue()
 	}
-}
-
-func getAndUnquoteStringAsPointer(value cadence.Value) *string {
-	result, err := strconv.Unquote(value.String())
-	if err != nil {
-		result = value.String()
-	}
-
-	if result == "" {
-		return nil
-	}
-	return &result
 }

@@ -13,7 +13,6 @@ import (
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-cli/pkg/flowkit/contracts"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 type Solution struct {
@@ -176,8 +175,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			if err == nil {
 				scriptResult[name] = result
 			} else {
-				log.Printf("Could not create script %s for network %s", path, nw.Name)
-
+				o.Logger.Info(fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
 			}
 		}
 
@@ -189,7 +187,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			}
 			result, err := o.Parse(path, code, nw.Name)
 			if err != nil {
-				log.Printf("Could not create transaction %s for network %s", path, nw.Name)
+				o.Logger.Info(fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
 			} else {
 				txResult[name] = result
 			}

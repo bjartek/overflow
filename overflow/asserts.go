@@ -15,6 +15,7 @@ type TransactionResult struct {
 	Testing *testing.T
 }
 
+// Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale

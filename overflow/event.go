@@ -15,6 +15,8 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
+//TODO: create new With builder style
+
 // EventFetcherBuilder builder to hold info about eventhook context.
 type EventFetcherBuilder struct {
 	GoWithTheFlow         *OverflowState

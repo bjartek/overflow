@@ -46,6 +46,7 @@ func (o *OverflowState) Transaction(content string) FlowInteractionBuilder {
 	}
 }
 
+// Deprecated: Use ArgM
 func (t FlowInteractionBuilder) NamedArguments(args map[string]string) FlowInteractionBuilder {
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
@@ -63,18 +64,21 @@ func (t FlowInteractionBuilder) NamedArguments(args map[string]string) FlowInter
 }
 
 // Specify arguments to send to transaction using a raw list of values
+// Deprecated: Use Args
 func (t FlowInteractionBuilder) ArgsV(args []cadence.Value) FlowInteractionBuilder {
 	t.Arguments = args
 	return t
 }
 
 // Specify arguments to send to transaction using a builder you send in
+// Deprecated: Use Arg
 func (t FlowInteractionBuilder) Args(args *FlowArgumentsBuilder) FlowInteractionBuilder {
 	t.Arguments = args.Build()
 	return t
 }
 
 // Specify arguments to send to transaction using a function that takes a builder where you call the builder
+// Deprecated: Use Arg
 func (t FlowInteractionBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowInteractionBuilder {
 	args := t.Overflow.Arguments()
 	fn(args)
@@ -687,6 +691,21 @@ func ArgsM(args map[string]interface{}) func(ftb *FlowInteractionBuilder) {
 func Arg(name string, value interface{}) func(ftb *FlowInteractionBuilder) {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value
+	}
+}
+
+func DateTimeArg(name string, dateString string, timezone string) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		value, err := parseTime(dateString, timezone)
+		if err != nil {
+			ftb.Error = err
+			return
+		}
+
+		//swallow the error since it will never happen here, we control the input
+		amount, _ := cadence.NewUFix64(value)
+
+		ftb.NamedArgs[name] = amount
 	}
 }
 

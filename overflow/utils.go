@@ -2,8 +2,12 @@ package overflow
 
 import (
 	"encoding/hex"
+	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/onflow/cadence"
 )
 
@@ -28,4 +32,29 @@ func HexToAddress(h string) (*cadence.Address, error) {
 	}
 	address := cadence.BytesToAddress(b)
 	return &address, nil
+}
+
+func parseTime(timeString string, location string) (string, error) {
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		return "", err
+	}
+	time.Local = loc
+	t, err := dateparse.ParseLocal(timeString)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%d.0", t.Unix()), nil
+}
+
+func getAndUnquoteStringAsPointer(value cadence.Value) *string {
+	result, err := strconv.Unquote(value.String())
+	if err != nil {
+		result = value.String()
+	}
+
+	if result == "" {
+		return nil
+	}
+	return &result
 }
