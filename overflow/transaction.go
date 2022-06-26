@@ -687,7 +687,6 @@ func ArgsM(args map[string]interface{}) func(ftb *FlowInteractionBuilder) {
 ///
 /// Examples:
 ///  If you want to send the UFix64 number "42.0" into a transaciton you have to use it as a string since %v of fmt.Sprintf will make it 42
-
 func Arg(name string, value interface{}) func(ftb *FlowInteractionBuilder) {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value

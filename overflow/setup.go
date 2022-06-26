@@ -19,25 +19,39 @@ import (
 	"github.com/spf13/afero"
 )
 
-/// The main overflow struct that we add methods to to interact with overflow
+// OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {
-	State                        *flowkit.State
-	Services                     *services.Services
+
+	//State is the current state of the configured overflow instance
+	State *flowkit.State
+
+	//the services from flowkit to performed operations on
+	Services *services.Services
+
+	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
 	Network                      string
-	Logger                       output.Logger
 	PrependNetworkToAccountNames bool
 	ServiceAccountSuffix         string
 	Gas                          int
-	BasePath                     string
-	Log                          *bytes.Buffer
-	Error                        error
-	TransactionBasePath          string
-	ScriptBasePath               string
-	EmulatorLog                  *bytes.Buffer
+
+	//flowkit, emulator and emulator debug log uses three different logging technologies so we have them all stored here
+	Logger      output.Logger
+	Log         *bytes.Buffer
+	EmulatorLog *bytes.Buffer
+
+	//If there was an error starting overflow it is stored here
+	Error error
+
+	//Paths that points to where .cdc files are stored and the posibilty to specify something besides the standard `transactions`/`scripts`subdirectories
+	BasePath            string
+	TransactionBasePath string
+	ScriptBasePath      string
 
 	//TODO: add config on what events to skip, like skip fees or empty deposit/withdraw
 }
 
+// ServiceAccountName return the name of the current service account
+//Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
 func (o *OverflowState) ServiceAccountName() string {
 	if o.PrependNetworkToAccountNames {
 		return fmt.Sprintf("%s-%s", o.Network, o.ServiceAccountSuffix)
@@ -45,7 +59,8 @@ func (o *OverflowState) ServiceAccountName() string {
 	return o.ServiceAccountSuffix
 }
 
-//Account fetch an account from flow.json, prefixing the name with network- as default (can be turned off)
+//AccountE fetch an account from State
+//Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
 func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 	if f.PrependNetworkToAccountNames {
 		key = fmt.Sprintf("%s-%s", f.Network, key)
@@ -60,6 +75,7 @@ func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 
 }
 
+//OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
 	Network               string
 	InMemory              bool
@@ -75,6 +91,12 @@ type OverflowBuilder struct {
 	ScriptFolderName      string
 }
 
+//NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
+// - OVERFLOW_ENV : sets the environment to use, valid values here are emulator|testnet|mainnet|embedded
+// - OVERFLOW_CONTINUE : if set to `true` will not create accounts and deploy contracts even if on embeded/emulator
+// - OVERFLOW_LOGGING : set the logging level of flowkit and overflow itself, 0 = No Log, 1 = Errors only, 2 = Debug, 3(default) = Info
+
+//Deprecated use Overflow function with builder
 func NewOverflow() *OverflowBuilder {
 	network := os.Getenv("OVERFLOW_ENV")
 	existing := os.Getenv("OVERFLOW_CONTINUE")
@@ -93,6 +115,7 @@ func NewOverflow() *OverflowBuilder {
 
 }
 
+//Deprecated use Overflow function with builder
 func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *OverflowBuilder {
 	inMemory := false
 	deployContracts := newEmulator
@@ -124,44 +147,58 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 	}
 }
 
-//Set this if you are using an existing emulator and you do not want to create contracts or initializeAccounts
+//ExistingEmulator this if you are using an existing emulator and you do not want to create contracts or initializeAccounts
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) ExistingEmulator() *OverflowBuilder {
 	o.DeployContracts = false
 	o.InitializeAccounts = false
 	return o
 }
 
+//DoNotPrependNetworkToAccountNames sets that network names will not be prepends to account names
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) DoNotPrependNetworkToAccountNames() *OverflowBuilder {
 	o.PrependNetworkName = false
 	return o
 }
 
+//SetServiceSuffix will set the suffix to use for the service account. The default is `account`
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) SetServiceSuffix(suffix string) *OverflowBuilder {
 	o.ServiceSuffix = suffix
 	return o
 }
 
+//NoneLog will turn of logging, making the script work well in batch jobs
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) NoneLog() *OverflowBuilder {
 	o.LogLevel = output.NoneLog
 	return o
 }
 
+//DefaultGas sets the default gas limit to use
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) DefaultGas(gas int) *OverflowBuilder {
 	o.GasLimit = gas
 	return o
 }
 
+//BasePath set the base path for transactions/scripts/contracts
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) BasePath(path string) *OverflowBuilder {
 	o.Path = path
 	return o
 }
 
+//Config sets the file path to the flow.json config files to use
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) Config(files ...string) *OverflowBuilder {
 	o.ConfigFiles = files
 	return o
 }
 
-// NewOverflow with custom file panic on error
+//Start will start the overflow builder and return OverflowState, will panic if there are errors
+//Deprecated use Overflow function with builder
 func (ob *OverflowBuilder) Start() *OverflowState {
 	o, err := ob.StartE()
 	if err != nil {
@@ -170,6 +207,8 @@ func (ob *OverflowBuilder) Start() *OverflowState {
 	return o
 }
 
+//StartE will start Overflow and return State and error if any
+//Deprecated use Overflow function with builder
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
 	loader := &afero.Afero{Fs: afero.NewOsFs()}
@@ -241,34 +280,42 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 }
 
 //NewOverflowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts
+//Deprecated use Overflow function with builder
 func NewOverflowInMemoryEmulator() *OverflowBuilder {
 	return NewOverflowBuilder("embedded", true, output.InfoLog)
 }
 
 //NewOverflowForNetwork creates a new overflow client for the provided network
+//Deprecated use Overflow function with builder
 func NewOverflowForNetwork(network string) *OverflowBuilder {
 	return NewOverflowBuilder(network, false, output.InfoLog)
 }
 
 //NewOverflowEmulator create a new client
+//Deprecated use Overflow function with builder
 func NewOverflowEmulator() *OverflowBuilder {
 	return NewOverflowBuilder("emulator", false, output.InfoLog)
 }
 
+//NewTestingEmulator starts an embeded emulator with no log to be used most often in tests
+//Deprecated use Overflow function with builder
 func NewTestingEmulator() *OverflowBuilder {
 	return NewOverflowBuilder("embedded", true, 0)
 }
 
 //NewOverflowTestnet creates a new overflow client for devnet/testnet
+//Deprecated use Overflow function with builder
 func NewOverflowTestnet() *OverflowBuilder {
 	return NewOverflowBuilder("testnet", false, output.InfoLog)
 }
 
 //NewOverflowMainnet creates a new gwft client for mainnet
+//Deprecated use Overflow function with builder
 func NewOverflowMainnet() *OverflowBuilder {
 	return NewOverflowBuilder("mainnet", false, output.InfoLog)
 }
 
+//LogrusMessage a log message from the logrus implementation used in the flow emulator
 type LogrusMessage struct {
 	ComputationUsed int       `json:"computationUsed"`
 	Level           string    `json:"level"`
@@ -277,9 +324,11 @@ type LogrusMessage struct {
 	TxID            string    `json:"txID"`
 }
 
+//OverflowOption and option function that you can send in to configure Overflow
 type OverflowOption func(*OverflowBuilder)
 
-func (o *OverflowBuilder) ApplyOptions(opts []OverflowOption) *OverflowBuilder {
+//applyOptions will apply all options from the sent in slice to an overflow builder
+func (o *OverflowBuilder) applyOptions(opts []OverflowOption) *OverflowBuilder {
 	for _, opt := range opts {
 		opt(o)
 	}
@@ -288,12 +337,14 @@ func (o *OverflowBuilder) ApplyOptions(opts []OverflowOption) *OverflowBuilder {
 }
 
 /*
- Start a new Overflow instance that panics if there are initialization errors
+ Overflow will start an  Overflow instance that panics if there are initialization errors
 
  Will read the following ENV vars as default:
-  OVERFLOW_ENV : set to "mainnet|testnet|emulator|embedded"
-	OVERFLOW_LOGGING: set from 0-4 to get increasing amount of log output
-	OVERFLOW_CONTINUE: to continue this overflow on an already running emulator.
+  OVERFLOW_ENV : set to "mainnet|testnet|emulator|embedded", default embedded
+	OVERFLOW_LOGGING: set from 0-3 to get increasing amount of log output, default 3
+	OVERFLOW_CONTINUE: to continue this overflow on an already running emulator., default false
+
+ Starting overflow without env vars will make it start in embedded mode deploying all contracts creating accounts
 
  You can then chose to override this setting with the builder methods example
  `
@@ -304,24 +355,29 @@ func (o *OverflowBuilder) ApplyOptions(opts []OverflowOption) *OverflowBuilder {
 
 */
 func Overflow(opts ...OverflowOption) *OverflowState {
-	o, err := NewOverflow().ApplyOptions(opts).StartE()
+	o, err := NewOverflow().applyOptions(opts).StartE()
 	if err != nil {
 		panic(err)
 	}
 	return o
 }
 
+// OverfloewE will start overflow and return state or an error if there is one
+// See Overflow doc comment for an better docs
 func OverflowE(opts ...OverflowOption) (*OverflowState, error) {
-	return NewOverflow().ApplyOptions(opts).StartE()
+	return NewOverflow().applyOptions(opts).StartE()
 }
 
-/*
-	Can be used to start an overflow instance that can be used in tests
-*/
+//OverflowTesting starts an overflow emulator that is suitable for testing that will print no logs to stdout
 func OverflowTesting(opts ...OverflowOption) (*OverflowState, error) {
-	return NewOverflowBuilder("embedded", true, 0).ApplyOptions(opts).StartE()
+	return NewOverflowBuilder("embedded", true, 0).applyOptions(opts).StartE()
 }
 
+//WithNetwork will start overflow with the given network.
+//This function will also set up other options that are common for a given Network.
+// - embedded: starts in memory, will deploy contracts and create accounts, info log
+// - testing: starts in memory, will deploy contracts and create accounts, no log
+// - testnet|mainnet: will only set network, not deploy contracts or create accounts
 func WithNetwork(network string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 
@@ -353,6 +409,7 @@ func WithNetwork(network string) func(o *OverflowBuilder) {
 	}
 }
 
+//WithInMemory will set that this instance is an in memoy instance createing accounts/deploying contracts
 func WithInMemory() func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.InMemory = true
@@ -362,55 +419,67 @@ func WithInMemory() func(o *OverflowBuilder) {
 	}
 }
 
+//WithExistingEmulator will attach to an existing emulator, not deploying contracts and creating accounts
 func WithExistingEmulator() func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.DeployContracts = false
 		o.InitializeAccounts = false
+		o.InMemory = false
+		o.Network = "emulator"
 	}
 }
 
+//DoNotPrependNetworkToAccountNames will not prepend the name of the network to account names
 func DoNotPrependNetworkToAccountNames() func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.PrependNetworkName = false
 	}
 }
 
+//WithServiceAccountSuffix will set the suffix of the service account
 func WithServiceAccountSuffix(suffix string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.ServiceSuffix = suffix
 	}
 }
 
+//WithNoLog will start emulator with no output
 func WithNoLog() func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.LogLevel = output.NoneLog
 	}
 }
 
+//WithGas set the default gas limit, standard is 9999 (max)
 func WithGas(gas int) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.GasLimit = gas
 	}
 }
 
+//WithBasePath will change the standard basepath `.` to another folder
 func WithBasePath(path string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.Path = path
 	}
 }
 
+//WithFlowConfig will set the path to one or more flow.json config files
+//The default is ~/flow.json and ./flow.json.
 func WithFlowConfig(files ...string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.ConfigFiles = files
 	}
 }
 
+//WithScriptFolderName will overwite the default script subdir for scripts `scripts`
 func WithScriptFolderName(name string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.ScriptFolderName = name
 	}
 }
 
+//WithTransactionFolderName will overwite the default script subdir for transactions `transactions`
 func WithTransactionFolderName(name string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.TransactionFolderName = name
