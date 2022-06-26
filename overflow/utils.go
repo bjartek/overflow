@@ -3,6 +3,8 @@ package overflow
 import (
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -57,4 +59,39 @@ func getAndUnquoteStringAsPointer(value cadence.Value) *string {
 		return nil
 	}
 	return &result
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+
+	if err == nil {
+		return true, nil
+	}
+
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return true, err
+}
+
+func writeProgressToFile(fileName string, blockHeight uint64) error {
+
+	err := ioutil.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
+
+	if err != nil {
+		return fmt.Errorf("could not create initial progress file %v", err)
+	}
+	return nil
+}
+
+func readProgressFromFile(fileName string) (int64, error) {
+	dat, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return 0, fmt.Errorf("ProgressFile is not valid %v", err)
+	}
+
+	stringValue := strings.TrimSpace(string(dat))
+
+	return strconv.ParseInt(stringValue, 10, 64)
 }

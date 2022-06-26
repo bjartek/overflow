@@ -3,12 +3,9 @@ package overflow
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -19,7 +16,7 @@ import (
 
 // EventFetcherBuilder builder to hold info about eventhook context.
 type EventFetcherBuilder struct {
-	GoWithTheFlow         *OverflowState
+	OverflowState         *OverflowState
 	EventsAndIgnoreFields map[string][]string
 	FromIndex             int64
 	EndAtCurrentHeight    bool
@@ -30,9 +27,9 @@ type EventFetcherBuilder struct {
 }
 
 // EventFetcher create an event fetcher builder.
-func (f *OverflowState) EventFetcher() EventFetcherBuilder {
+func (o *OverflowState) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
-		GoWithTheFlow:         f,
+		OverflowState:         o,
 		EventsAndIgnoreFields: map[string][]string{},
 		EndAtCurrentHeight:    true,
 		FromIndex:             -10,
@@ -115,41 +112,6 @@ func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilde
 	return e
 }
 
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-
-	if err == nil {
-		return true, nil
-	}
-
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-
-	return true, err
-}
-
-func writeProgressToFile(fileName string, blockHeight uint64) error {
-
-	err := ioutil.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
-
-	if err != nil {
-		return fmt.Errorf("could not create initial progress file %v", err)
-	}
-	return nil
-}
-
-func readProgressFromFile(fileName string) (int64, error) {
-	dat, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		return 0, fmt.Errorf("ProgressFile is not valid %v", err)
-	}
-
-	stringValue := strings.TrimSpace(string(dat))
-
-	return strconv.ParseInt(stringValue, 10, 64)
-}
-
 //RunAndSendToWebhook runs the eventFetcher and sends the event to a webhook with the provided url
 func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error) {
 
@@ -194,7 +156,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	endIndex := e.EndIndex
 	if e.EndAtCurrentHeight {
-		blockHeight, err := e.GoWithTheFlow.Services.Blocks.GetLatestBlockHeight()
+		blockHeight, err := e.OverflowState.Services.Blocks.GetLatestBlockHeight()
 		if err != nil {
 			return nil, err
 		}
@@ -211,14 +173,14 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 		return nil, fmt.Errorf("FromIndex is negative")
 	}
 
-	e.GoWithTheFlow.Logger.Info(fmt.Sprintf("Fetching events from %d to %d", fromIndex, endIndex))
+	e.OverflowState.Logger.Info(fmt.Sprintf("Fetching events from %d to %d", fromIndex, endIndex))
 
 	var events []string
 	for key := range e.EventsAndIgnoreFields {
 		events = append(events, key)
 	}
 
-	blockEvents, err := e.GoWithTheFlow.Services.Events.Get(events, uint64(fromIndex), endIndex, e.EventBatchSize, e.NumberOfWorkers)
+	blockEvents, err := e.OverflowState.Services.Events.Get(events, uint64(fromIndex), endIndex, e.EventBatchSize, e.NumberOfWorkers)
 	if err != nil {
 		return nil, err
 	}

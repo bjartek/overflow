@@ -100,6 +100,17 @@ transaction(test:UFix64) {
 		assert.NoError(t, res.Error)
 	})
 
+	t.Run("date time arg error", func(t *testing.T) {
+		res := o.BuildInteraction(`
+transaction(test:UFix64) {
+  prepare(acct: AuthAccount) {
+
+ }
+}
+`, "transaction", DateTimeArg("test", "July 29021 08:00:00 AM", "America/New_York"), SignProposeAndPayAsServiceAccount())
+		assert.ErrorContains(t, res.Error, "cannot parse")
+	})
+
 	t.Run("Map args", func(t *testing.T) {
 		res := o.Tx("arguments", SignProposeAndPayAsServiceAccount(), ArgsM(map[string]interface{}{"test": "test"}))
 		assert.NoError(t, res.Err)
