@@ -456,6 +456,10 @@ type OverflowResult struct {
 	Transaction     *flow.Transaction
 }
 
+func (o OverflowResult) Print() {
+	PrintEvents(o.RawEvents, map[string][]string{})
+}
+
 func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
 	number, err := getUInt64FieldFromEvent(o.RawEvents, eventName, fieldName)
 	if err != nil {
