@@ -11,8 +11,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 func splitByWidthMake(str string, size int) []string {
@@ -74,13 +72,13 @@ func fileAsBase64(path string) (string, error) {
 }
 
 //UploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
-func (f *Overflow) UploadFile(filename string, accountName string) error {
+func (o *OverflowState) UploadFile(filename string, accountName string) error {
 	content, err := fileAsBase64(filename)
 	if err != nil {
 		return err
 	}
 
-	return f.UploadString(content, accountName)
+	return o.UploadString(content, accountName)
 }
 
 func getUrl(url string) ([]byte, error) {
@@ -95,41 +93,41 @@ func getUrl(url string) ([]byte, error) {
 }
 
 //DownloadAndUploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
-func (f *Overflow) DownloadAndUploadFile(url string, accountName string) error {
+func (o *OverflowState) DownloadAndUploadFile(url string, accountName string) error {
 	body, err := getUrl(url)
 	if err != nil {
 		return err
 	}
 
 	encoded := base64.StdEncoding.EncodeToString(body)
-	return f.UploadString(encoded, accountName)
+	return o.UploadString(encoded, accountName)
 }
 
 //DownloadImageAndUploadAsDataUrl download an image and upload as data url
-func (f *Overflow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
+func (o *OverflowState) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
 	body, err := getUrl(url)
 	if err != nil {
 		return err
 	}
 	content := contentAsImageDataUrl(body)
 
-	return f.UploadString(content, accountName)
+	return o.UploadString(content, accountName)
 }
 
 //UploadImageAsDataUrl will upload a image file from the filesystem into /storage/upload of the given account
-func (f *Overflow) UploadImageAsDataUrl(filename string, accountName string) error {
+func (o *OverflowState) UploadImageAsDataUrl(filename string, accountName string) error {
 	content, err := fileAsImageData(filename)
 	if err != nil {
 		return err
 	}
 
-	return f.UploadString(content, accountName)
+	return o.UploadString(content, accountName)
 }
 
 //UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
-func (f *Overflow) UploadString(content string, accountName string) error {
+func (o *OverflowState) UploadString(content string, accountName string) error {
 	//unload previous content if any.
-	if _, err := f.Transaction(`
+	if _, err := o.Transaction(`
 	transaction {
 		prepare(signer: AuthAccount) {
 			let path = /storage/upload
@@ -143,7 +141,7 @@ func (f *Overflow) UploadString(content string, accountName string) error {
 
 	parts := splitByWidthMake(content, 1_000_000)
 	for _, part := range parts {
-		if _, err := f.Transaction(`
+		if _, err := o.Transaction(`
 		transaction(part: String) {
 			prepare(signer: AuthAccount) {
 				let path = /storage/upload
@@ -153,7 +151,7 @@ func (f *Overflow) UploadString(content string, accountName string) error {
 				log(part)
 			}
 		}
-			`).SignProposeAndPayAs(accountName).Args(f.Arguments().String(part)).RunE(); err != nil {
+			`).SignProposeAndPayAs(accountName).Args(o.Arguments().String(part)).RunE(); err != nil {
 			return err
 		}
 	}
@@ -161,14 +159,14 @@ func (f *Overflow) UploadString(content string, accountName string) error {
 	return nil
 }
 
-func (f *Overflow) GetFreeCapacity(accountName string) int {
+func (o *OverflowState) GetFreeCapacity(accountName string) int {
 
-	result := f.InlineScript(`
+	result := o.InlineScript(`
 pub fun main(user:Address): UInt64{
 	let account=getAccount(user)
 	return account.storageCapacity - account.storageUsed
 }
-`).Args(f.Arguments().Account(accountName)).RunReturnsInterface().(string)
+`).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(string)
 
 	intVar, err := strconv.Atoi(result)
 	if err != nil {
@@ -179,12 +177,11 @@ pub fun main(user:Address): UInt64{
 
 }
 
-func (f *Overflow) FillUpStorage(accountName string) {
+func (o *OverflowState) FillUpStorage(accountName string) {
 
-	length := f.GetFreeCapacity(accountName) - 67 //some storage is made outside of the string so need to adjust
+	length := o.GetFreeCapacity(accountName) - 67 //some storage is made outside of the string so need to adjust
 
-	spew.Dump(length)
-	err := f.UploadString(randomString(length), accountName)
+	err := o.UploadString(randomString(length), accountName)
 	if err != nil {
 		panic(err)
 	}

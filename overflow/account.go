@@ -9,7 +9,7 @@ import (
 )
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
-func (f *Overflow) CreateAccountsE() (*Overflow, error) {
+func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 	p := f.State
 	signerAccount, err := p.Accounts().ByName(f.ServiceAccountName())
 	if err != nil {
@@ -48,7 +48,7 @@ func (f *Overflow) CreateAccountsE() (*Overflow, error) {
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
-func (f *Overflow) InitializeContracts() *Overflow {
+func (f *OverflowState) InitializeContracts() *OverflowState {
 	f.Logger.Info("Deploying contracts")
 	if _, err := f.Services.Project.Deploy(f.Network, false); err != nil {
 		panic(err)
@@ -57,7 +57,7 @@ func (f *Overflow) InitializeContracts() *Overflow {
 }
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
-func (f *Overflow) GetAccount(key string) (*flow.Account, error) {
+func (f *OverflowState) GetAccount(key string) (*flow.Account, error) {
 	account, err := f.AccountE(key)
 	if err != nil {
 		return nil, err

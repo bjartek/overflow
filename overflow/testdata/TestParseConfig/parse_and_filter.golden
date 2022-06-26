@@ -34,6 +34,12 @@ import NonFungibleToken from 0xf8d6e0586b0a20c7
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
+				"type": `// test script to ensure code is running
+import FlowToken from 0x0ae53cb6e3f42a79
+
+pub fun main(): Type {
+	return Type<@FlowToken.Vault>()
+}`,
 			},
 			Transactions: map[string]string{
 				"create_nft_collection": `import NonFungibleToken from 0xf8d6e0586b0a20c7
@@ -101,6 +107,12 @@ import NonFungibleToken from 0x1d7e57aa55817448
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
+				"type": `// test script to ensure code is running
+import FlowToken from 0x1654653399040a61
+
+pub fun main(): Type {
+	return Type<@FlowToken.Vault>()
+}`,
 			},
 			Transactions: map[string]string{
 				"create_nft_collection": `import NonFungibleToken from 0x1d7e57aa55817448
@@ -167,6 +179,12 @@ import NonFungibleToken from 0x631e88ae7f1d7c20
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
+}`,
+				"type": `// test script to ensure code is running
+import FlowToken from 0x7e60df042a9c0868
+
+pub fun main(): Type {
+	return Type<@FlowToken.Vault>()
 }`,
 			},
 			Transactions: map[string]string{

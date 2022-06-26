@@ -7,7 +7,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-func (f *Overflow) SignUserMessage(account string, message string) (string, error) {
+func (f *OverflowState) SignUserMessage(account string, message string) (string, error) {
 
 	a, err := f.AccountE(account)
 	if err != nil {

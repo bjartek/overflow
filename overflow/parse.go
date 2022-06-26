@@ -33,7 +33,7 @@ type DeclarationInfo struct {
 	Parameters     map[string]string `json:"parameters"`
 }
 
-func (o *Overflow) ParseAll() (*Solution, error) {
+func (o *OverflowState) ParseAll() (*Solution, error) {
 	return o.ParseAllWithConfig(false, []string{}, []string{})
 }
 
@@ -83,7 +83,7 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 	return &MergedSolution{Networks: networks}
 }
 
-func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
+func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
 
 	transactions := map[string]string{}
 	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
@@ -213,7 +213,7 @@ func (o *Overflow) ParseAllWithConfig(skipContracts bool, txSkip []string, scrip
 	}, nil
 }
 
-func (o *Overflow) contracts(network string) ([]*contracts.Contract, error) {
+func (o *OverflowState) contracts(network string) ([]*contracts.Contract, error) {
 	// check there are not multiple accounts with same contract
 	if o.State.ContractConflictExists(network) {
 		return nil, fmt.Errorf(
@@ -282,7 +282,7 @@ func declarationInfo(codeFileName string, code []byte) *DeclarationInfo {
 	}
 }
 
-func (o *Overflow) Parse(codeFileName string, code []byte, network string) (string, error) {
+func (o *OverflowState) Parse(codeFileName string, code []byte, network string) (string, error) {
 	resolver, err := contracts.NewResolver(code)
 	if err != nil {
 		return "", err

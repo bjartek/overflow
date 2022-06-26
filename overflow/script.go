@@ -10,7 +10,7 @@ import (
 
 //FlowScriptBuilder is a struct to hold information for running a script
 type FlowScriptBuilder struct {
-	Overflow       *Overflow
+	Overflow       *OverflowState
 	FileName       string
 	Arguments      []cadence.Value
 	ScriptAsString string
@@ -19,24 +19,24 @@ type FlowScriptBuilder struct {
 }
 
 //Script start a script builder with the inline script as body
-func (f *Overflow) InlineScript(content string) FlowScriptBuilder {
+func (o *OverflowState) InlineScript(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
-		Overflow:       f,
+		Overflow:       o,
 		FileName:       "inline",
 		Arguments:      []cadence.Value{},
 		ScriptAsString: content,
-		BasePath:       fmt.Sprintf("%s/scripts", f.BasePath),
+		BasePath:       fmt.Sprintf("%s/scripts", o.BasePath),
 	}
 }
 
 //ScriptFromFile will start a flow script builder
-func (f *Overflow) ScriptFromFile(filename string) FlowScriptBuilder {
+func (o *OverflowState) ScriptFromFile(filename string) FlowScriptBuilder {
 	return FlowScriptBuilder{
-		Overflow:       f,
+		Overflow:       o,
 		FileName:       filename,
 		Arguments:      []cadence.Value{},
 		ScriptAsString: "",
-		BasePath:       fmt.Sprintf("%s/scripts", f.BasePath),
+		BasePath:       fmt.Sprintf("%s/scripts", o.BasePath),
 	}
 }
 

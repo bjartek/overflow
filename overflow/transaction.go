@@ -12,36 +12,37 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/pkg/errors"
 )
 
-func (f *Overflow) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
-	f.TransactionFromFile(filename).SignProposeAndPayAs(signer).Args(args).RunPrintEventsFull()
+func (o *OverflowState) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
+	o.TransactionFromFile(filename).SignProposeAndPayAs(signer).Args(args).RunPrintEventsFull()
 }
 
 // TransactionFromFile will start a flow transaction builder
-func (f *Overflow) TransactionFromFile(filename string) FlowInteractionBuilder {
+func (o *OverflowState) TransactionFromFile(filename string) FlowInteractionBuilder {
 	return FlowInteractionBuilder{
-		Overflow:       f,
+		Overflow:       o,
 		FileName:       filename,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit:       uint64(f.Gas),
-		BasePath:       fmt.Sprintf("%s/transactions", f.BasePath),
+		GasLimit:       uint64(o.Gas),
+		BasePath:       fmt.Sprintf("%s/transactions", o.BasePath),
 	}
 }
 
 // Transaction will start a flow transaction builder using the inline transaction
-func (f *Overflow) Transaction(content string) FlowInteractionBuilder {
+func (o *OverflowState) Transaction(content string) FlowInteractionBuilder {
 	return FlowInteractionBuilder{
-		Overflow:       f,
+		Overflow:       o,
 		FileName:       "inline",
 		Content:        content,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit:       uint64(f.Gas),
-		BasePath:       fmt.Sprintf("%s/transactions", f.BasePath),
+		GasLimit:       uint64(o.Gas),
+		BasePath:       fmt.Sprintf("%s/transactions", o.BasePath),
 	}
 }
 
@@ -388,7 +389,7 @@ func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, er
 
 // FlowInteractionBuilder used to create a builder pattern for a transaction
 type FlowInteractionBuilder struct {
-	Overflow       *Overflow
+	Overflow       *OverflowState
 	FileName       string
 	Content        string
 	Arguments      []cadence.Value
@@ -493,13 +494,7 @@ type TransactionOptsFunction func(opts ...TransactionOption) *OverflowResult
 type ScriptFunction func(filename string, opts ...TransactionOption) *OverflowScriptResult
 type ScriptOptsFunction func(opts ...TransactionOption) *OverflowScriptResult
 
-func Arg(name, value string) func(ftb *FlowInteractionBuilder) {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.NamedArgs[name] = value
-	}
-}
-
-func (o *Overflow) ScriptFN(outerOpts ...TransactionOption) ScriptFunction {
+func (o *OverflowState) ScriptFN(outerOpts ...TransactionOption) ScriptFunction {
 
 	return func(filename string, opts ...TransactionOption) *OverflowScriptResult {
 
@@ -510,7 +505,7 @@ func (o *Overflow) ScriptFN(outerOpts ...TransactionOption) ScriptFunction {
 	}
 }
 
-func (o *Overflow) TxFN(outerOpts ...TransactionOption) TransactionFunction {
+func (o *OverflowState) TxFN(outerOpts ...TransactionOption) TransactionFunction {
 
 	return func(filename string, opts ...TransactionOption) *OverflowResult {
 
@@ -522,7 +517,7 @@ func (o *Overflow) TxFN(outerOpts ...TransactionOption) TransactionFunction {
 	}
 }
 
-func (o *Overflow) ScriptFileNameFN(filename string, outerOpts ...TransactionOption) ScriptOptsFunction {
+func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...TransactionOption) ScriptOptsFunction {
 
 	return func(opts ...TransactionOption) *OverflowScriptResult {
 
@@ -533,7 +528,7 @@ func (o *Overflow) ScriptFileNameFN(filename string, outerOpts ...TransactionOpt
 	}
 }
 
-func (o *Overflow) TxFileNameFN(filename string, outerOpts ...TransactionOption) TransactionOptsFunction {
+func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...TransactionOption) TransactionOptsFunction {
 
 	return func(opts ...TransactionOption) *OverflowResult {
 
@@ -545,11 +540,11 @@ func (o *Overflow) TxFileNameFN(filename string, outerOpts ...TransactionOption)
 	}
 }
 
-func (o *Overflow) Tx(filename string, opts ...TransactionOption) *OverflowResult {
+func (o *OverflowState) Tx(filename string, opts ...TransactionOption) *OverflowResult {
 	return o.BuildInteraction(filename, "transaction", opts...).Send()
 }
 
-func (o *Overflow) Script(filename string, opts ...TransactionOption) *OverflowScriptResult {
+func (o *OverflowState) Script(filename string, opts ...TransactionOption) *OverflowScriptResult {
 	interaction := o.BuildInteraction(filename, "script", opts...)
 
 	if interaction.Error != nil {
@@ -598,7 +593,7 @@ func (o *Overflow) Script(filename string, opts ...TransactionOption) *OverflowS
 }
 
 //shouls this be private?
-func (o *Overflow) BuildInteraction(filename string, interactionType string, opts ...TransactionOption) *FlowInteractionBuilder {
+func (o *OverflowState) BuildInteraction(filename string, interactionType string, opts ...TransactionOption) *FlowInteractionBuilder {
 
 	path := o.TransactionBasePath
 	if interactionType == "script" {
@@ -646,4 +641,133 @@ func (o *Overflow) BuildInteraction(filename string, interactionType string, opt
 	}
 	ftb.Arguments = parseArgs
 	return ftb
+}
+
+func Args(args ...interface{}) func(ftb *FlowInteractionBuilder) {
+
+	return func(ftb *FlowInteractionBuilder) {
+		if len(args)%2 != 0 {
+			ftb.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
+			return
+		}
+		var i = 0
+		for i < len(args) {
+			key := args[0]
+			value, labelOk := key.(string)
+			if !labelOk {
+				ftb.Error = fmt.Errorf("even parameters in Args needs to be strings")
+			}
+			ftb.NamedArgs[value] = args[1]
+			i = i + 2
+		}
+	}
+}
+
+func ArgsM(args map[string]interface{}) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		for key, value := range args {
+			ftb.NamedArgs[key] = value
+		}
+	}
+}
+
+/// Send an argument into a transaction
+/// @param name: string the name of the parameter
+/// @param value: the value of the argument, se below
+///
+/// The value is treated in the given way depending on type
+///  - cadence.Value is sent as straight argument
+///  - string argument are resolved into cadence.Value using flowkit
+///  - ofther values are converted to string with %v and resolved into cadence.Value using flowkit
+///  - if the type of the paramter is Address and the string you send in is a valid account in flow.json it will resolve
+///
+/// Examples:
+///  If you want to send the UFix64 number "42.0" into a transaciton you have to use it as a string since %v of fmt.Sprintf will make it 42
+
+func Arg(name string, value interface{}) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		ftb.NamedArgs[name] = value
+	}
+}
+
+func Addresses(name string, value ...string) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		array := []cadence.Value{}
+
+		for _, val := range value {
+			account, err := ftb.Overflow.AccountE(val)
+			if err != nil {
+				address, err := HexToAddress(val)
+				if err != nil {
+					ftb.Error = errors.Wrap(err, fmt.Sprintf("%s is not an valid account name or an address", val))
+					return
+				}
+				cadenceAddress := cadence.BytesToAddress(address.Bytes())
+				array = append(array, cadenceAddress)
+			} else {
+				cadenceAddress := cadence.BytesToAddress(account.Address().Bytes())
+				array = append(array, cadenceAddress)
+			}
+		}
+		ftb.NamedArgs[name] = cadence.NewArray(array)
+	}
+}
+
+func ProposeAs(proposer string) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		account, err := ftb.Overflow.AccountE(proposer)
+		if err != nil {
+			ftb.Error = err
+			return
+		}
+		ftb.Proposer = account
+	}
+}
+
+func ProposeAsServiceAccount() func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		key := ftb.Overflow.ServiceAccountName()
+		account, _ := ftb.Overflow.State.Accounts().ByName(key)
+		ftb.Proposer = account
+	}
+}
+
+func SignProposeAndPayAs(signer string) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		account, err := ftb.Overflow.AccountE(signer)
+		if err != nil {
+			ftb.Error = err
+			return
+		}
+		ftb.MainSigner = account
+		ftb.Proposer = account
+	}
+}
+
+func SignProposeAndPayAsServiceAccount() func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		key := ftb.Overflow.ServiceAccountName()
+		account, _ := ftb.Overflow.State.Accounts().ByName(key)
+		ftb.MainSigner = account
+		ftb.Proposer = account
+	}
+}
+
+func Gas(gas uint64) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		ftb.GasLimit = gas
+	}
+}
+
+func PayloadSigner(signer ...string) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		for _, signer := range signer {
+			account, err := ftb.Overflow.AccountE(signer)
+			if err != nil {
+				ftb.Error = err
+				return
+			}
+			ftb.PayloadSigners = append(ftb.PayloadSigners, account)
+		}
+	}
 }

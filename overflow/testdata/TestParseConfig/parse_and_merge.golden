@@ -21,6 +21,12 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
+			"type": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+import FlowToken from 0x0ae53cb6e3f42a79
+
+pub fun main(): Type {
+        return Type<@FlowToken.Vault>()
+}`},
 		},
 		Transactions: map[string]overflow.CodeWithSpec{
 			"arguments": overflow.CodeWithSpec{
@@ -179,6 +185,12 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
+			"type": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+import FlowToken from 0x1654653399040a61
+
+pub fun main(): Type {
+        return Type<@FlowToken.Vault>()
+}`},
 		},
 		Transactions: map[string]overflow.CodeWithSpec{
 			"arguments": overflow.CodeWithSpec{
@@ -334,6 +346,12 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
+			"type": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+import FlowToken from 0x7e60df042a9c0868
+
+pub fun main(): Type {
+        return Type<@FlowToken.Vault>()
+}`},
 		},
 		Transactions: map[string]overflow.CodeWithSpec{
 			"arguments": overflow.CodeWithSpec{

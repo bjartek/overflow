@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/enescakir/emoji"
-	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/config"
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
@@ -20,9 +19,8 @@ import (
 	"github.com/spf13/afero"
 )
 
-// Overflow Entire configuration to work with Go With the Flow
-//TODO rename this to OverflowState
-type Overflow struct {
+/// The main overflow struct that we add methods to to interact with overflow
+type OverflowState struct {
 	State                        *flowkit.State
 	Services                     *services.Services
 	Network                      string
@@ -40,7 +38,7 @@ type Overflow struct {
 	//TODO: add config on what events to skip, like skip fees or empty deposit/withdraw
 }
 
-func (o *Overflow) ServiceAccountName() string {
+func (o *OverflowState) ServiceAccountName() string {
 	if o.PrependNetworkToAccountNames {
 		return fmt.Sprintf("%s-%s", o.Network, o.ServiceAccountSuffix)
 	}
@@ -48,7 +46,7 @@ func (o *Overflow) ServiceAccountName() string {
 }
 
 //Account fetch an account from flow.json, prefixing the name with network- as default (can be turned off)
-func (f *Overflow) AccountE(key string) (*flowkit.Account, error) {
+func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 	if f.PrependNetworkToAccountNames {
 		key = fmt.Sprintf("%s-%s", f.Network, key)
 	}
@@ -164,7 +162,7 @@ func (o *OverflowBuilder) Config(files ...string) *OverflowBuilder {
 }
 
 // NewOverflow with custom file panic on error
-func (ob *OverflowBuilder) Start() *Overflow {
+func (ob *OverflowBuilder) Start() *OverflowState {
 	o, err := ob.StartE()
 	if err != nil {
 		panic(fmt.Sprintf("%v error %+v", emoji.PileOfPoo, err))
@@ -172,7 +170,7 @@ func (ob *OverflowBuilder) Start() *Overflow {
 	return o
 }
 
-func (o *OverflowBuilder) StartE() (*Overflow, error) {
+func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
 	loader := &afero.Afero{Fs: afero.NewOsFs()}
 	state, err := flowkit.Load(o.ConfigFiles, loader)
@@ -213,7 +211,7 @@ func (o *OverflowBuilder) StartE() (*Overflow, error) {
 		}
 		service = services.NewServices(gw, state, logger)
 	}
-	overflow := &Overflow{
+	overflow := &OverflowState{
 		State:                        state,
 		Services:                     service,
 		Network:                      o.Network,
@@ -289,25 +287,132 @@ func (o *OverflowBuilder) ApplyOptions(opts []OverflowOption) *OverflowBuilder {
 	return o
 }
 
-type Meter struct {
-	LedgerInteractionUsed  int                           `json:"ledgerInteractionUsed"`
-	ComputationUsed        int                           `json:"computationUsed"`
-	MemoryUsed             int                           `json:"memoryUsed"`
-	ComputationIntensities MeteredComputationIntensities `json:"computationIntensities"`
-	MemoryIntensities      MeteredMemoryIntensities      `json:"memoryIntensities"`
+/*
+ Start a new Overflow instance that panics if there are initialization errors
+
+ Will read the following ENV vars as default:
+  OVERFLOW_ENV : set to "mainnet|testnet|emulator|embedded"
+	OVERFLOW_LOGGING: set from 0-4 to get increasing amount of log output
+	OVERFLOW_CONTINUE: to continue this overflow on an already running emulator.
+
+ You can then chose to override this setting with the builder methods example
+ `
+  Overflow(WithNetwork("mainnet"))
+ `
+
+ Setting the network in this way will reset other builder methods if appropriate so use with care.
+
+*/
+func Overflow(opts ...OverflowOption) *OverflowState {
+	o, err := NewOverflow().ApplyOptions(opts).StartE()
+	if err != nil {
+		panic(err)
+	}
+	return o
 }
 
-func (m Meter) FunctionInvocations() int {
-	return int(m.ComputationIntensities[common.ComputationKindFunctionInvocation])
+func OverflowE(opts ...OverflowOption) (*OverflowState, error) {
+	return NewOverflow().ApplyOptions(opts).StartE()
 }
 
-func (m Meter) Loops() int {
-	return int(m.ComputationIntensities[common.ComputationKindLoop])
+/*
+	Can be used to start an overflow instance that can be used in tests
+*/
+func OverflowTesting(opts ...OverflowOption) (*OverflowState, error) {
+	return NewOverflowBuilder("embedded", true, 0).ApplyOptions(opts).StartE()
 }
 
-func (m Meter) Statements() int {
-	return int(m.ComputationIntensities[common.ComputationKindStatement])
+func WithNetwork(network string) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+
+		o.InMemory = false
+		o.DeployContracts = false
+		o.InitializeAccounts = false
+
+		if network == "embedded" || network == "" {
+			o.Network = "emulator"
+			o.DeployContracts = true
+			o.InitializeAccounts = true
+			o.InMemory = true
+			return
+		}
+
+		if network == "testing" {
+			o.Network = "emulator"
+			o.DeployContracts = true
+			o.InitializeAccounts = true
+			o.LogLevel = output.NoneLog
+			o.InMemory = true
+			return
+		}
+		if network == "emulator" {
+			o.DeployContracts = true
+			o.InitializeAccounts = true
+		}
+		o.Network = network
+	}
 }
 
-type MeteredComputationIntensities map[common.ComputationKind]uint
-type MeteredMemoryIntensities map[common.MemoryKind]uint
+func WithInMemory() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.InMemory = true
+		o.DeployContracts = true
+		o.InitializeAccounts = true
+		o.Network = "emulator"
+	}
+}
+
+func WithExistingEmulator() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.DeployContracts = false
+		o.InitializeAccounts = false
+	}
+}
+
+func DoNotPrependNetworkToAccountNames() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.PrependNetworkName = false
+	}
+}
+
+func WithServiceAccountSuffix(suffix string) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.ServiceSuffix = suffix
+	}
+}
+
+func WithNoLog() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.LogLevel = output.NoneLog
+	}
+}
+
+func WithGas(gas int) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.GasLimit = gas
+	}
+}
+
+func WithBasePath(path string) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.Path = path
+	}
+}
+
+func WithFlowConfig(files ...string) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.ConfigFiles = files
+	}
+}
+
+func WithScriptFolderName(name string) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.ScriptFolderName = name
+	}
+}
+
+func WithTransactionFolderName(name string) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.TransactionFolderName = name
+	}
+}

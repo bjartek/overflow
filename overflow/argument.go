@@ -18,12 +18,12 @@ import (
 
 // FlowArgumentsBuilder used to create a builder pattern for a transaction
 type FlowArgumentsBuilder struct {
-	Overflow  *Overflow
+	Overflow  *OverflowState
 	Arguments []cadence.Value
 	Error     error
 }
 
-func (f *Overflow) ParseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
+func (f *OverflowState) ParseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
 	codes := map[common.LocationID]string{}
@@ -113,7 +113,7 @@ func (f *Overflow) ParseArguments(fileName string, code []byte, inputArgs map[st
 	return resultArgs, nil
 }
 
-func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
+func (f *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
 	codes := map[common.LocationID]string{}
@@ -192,7 +192,7 @@ func (f *Overflow) ParseArgumentsWithoutType(fileName string, code []byte, input
 	return resultArgs, nil
 }
 
-func (f *Overflow) Arguments() *FlowArgumentsBuilder {
+func (f *OverflowState) Arguments() *FlowArgumentsBuilder {
 	return &FlowArgumentsBuilder{
 		Overflow:  f,
 		Arguments: []cadence.Value{},

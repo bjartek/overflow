@@ -17,7 +17,7 @@ import (
 
 // EventFetcherBuilder builder to hold info about eventhook context.
 type EventFetcherBuilder struct {
-	GoWithTheFlow         *Overflow
+	GoWithTheFlow         *OverflowState
 	EventsAndIgnoreFields map[string][]string
 	FromIndex             int64
 	EndAtCurrentHeight    bool
@@ -28,7 +28,7 @@ type EventFetcherBuilder struct {
 }
 
 // EventFetcher create an event fetcher builder.
-func (f *Overflow) EventFetcher() EventFetcherBuilder {
+func (f *OverflowState) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
 		GoWithTheFlow:         f,
 		EventsAndIgnoreFields: map[string][]string{},
