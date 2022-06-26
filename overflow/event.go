@@ -1,7 +1,6 @@
 package overflow
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -24,9 +23,8 @@ type EventFetcherBuilder struct {
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
 	ProgressFile          string
-	context.Context
-	NumberOfWorkers int
-	EventBatchSize  uint64
+	NumberOfWorkers       int
+	EventBatchSize        uint64
 }
 
 // EventFetcher create an event fetcher builder.

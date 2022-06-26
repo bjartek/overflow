@@ -116,7 +116,11 @@ func (t FlowInteractionBuilder) SignProposeAndPayAsService() FlowInteractionBuil
 
 // PayloadSigner set a signer for the payload
 func (t FlowInteractionBuilder) PayloadSigner(value string) FlowInteractionBuilder {
-	signer := t.Overflow.Account(value)
+	signer, err := t.Overflow.AccountE(value)
+	if err != nil {
+		t.Error = err
+		return t
+	}
 	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }
@@ -435,6 +439,7 @@ func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
 	return err
 }
 
+//TODO add Events map[<event name>][]Event
 type OverflowResult struct {
 	Err             error
 	Id              flow.Identifier

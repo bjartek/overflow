@@ -217,7 +217,11 @@ func (a *FlowArgumentsBuilder) RawAddress(address string) *FlowArgumentsBuilder 
 func (a *FlowArgumentsBuilder) Address(key string) *FlowArgumentsBuilder {
 	f := a.Overflow
 
-	account := f.Account(key)
+	account, err := f.AccountE(key)
+	if err != nil {
+		a.Error = err
+		return a
+	}
 	return a.Argument(cadence.BytesToAddress(account.Address().Bytes()))
 }
 
@@ -232,7 +236,11 @@ func (a *FlowArgumentsBuilder) RawAccount(address string) *FlowArgumentsBuilder 
 func (a *FlowArgumentsBuilder) Account(key string) *FlowArgumentsBuilder {
 	f := a.Overflow
 
-	account := f.Account(key)
+	account, err := f.AccountE(key)
+	if err != nil {
+		a.Error = err
+		return a
+	}
 	return a.Argument(cadence.BytesToAddress(account.Address().Bytes()))
 }
 
@@ -496,7 +504,11 @@ func (a *FlowArgumentsBuilder) RawAddressArray(value ...string) *FlowArgumentsBu
 func (a *FlowArgumentsBuilder) AccountArray(value ...string) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
 	for _, val := range value {
-		address := a.Overflow.Account(val)
+		address, err := a.Overflow.AccountE(val)
+		if err != nil {
+			a.Error = err
+			return a
+		}
 		cadenceAddress := cadence.BytesToAddress(address.Address().Bytes())
 		array = append(array, cadenceAddress)
 	}

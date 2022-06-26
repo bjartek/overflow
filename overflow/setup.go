@@ -21,6 +21,7 @@ import (
 )
 
 // Overflow Entire configuration to work with Go With the Flow
+//TODO rename this to OverflowState
 type Overflow struct {
 	State                        *flowkit.State
 	Services                     *services.Services
@@ -35,6 +36,8 @@ type Overflow struct {
 	TransactionBasePath          string
 	ScriptBasePath               string
 	EmulatorLog                  *bytes.Buffer
+
+	//TODO: add config on what events to skip, like skip fees or empty deposit/withdraw
 }
 
 func (o *Overflow) ServiceAccountName() string {
@@ -57,15 +60,6 @@ func (f *Overflow) AccountE(key string) (*flowkit.Account, error) {
 
 	return account, nil
 
-}
-
-//Account fetch an account from flow.json, prefixing the name with network- as default (can be turned off)
-func (f *Overflow) Account(key string) *flowkit.Account {
-	a, err := f.AccountE(key)
-	if err != nil {
-		panic(err)
-	}
-	return a
 }
 
 type OverflowBuilder struct {

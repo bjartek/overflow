@@ -66,9 +66,10 @@ func TestSetup(t *testing.T) {
 		assert.Equal(t, false, o.InitializeAccounts)
 	})
 
-	t.Run("should panic on getting invalid account", func(t *testing.T) {
+	t.Run("should error on getting invalid account", func(t *testing.T) {
 		o := NewOverflowInMemoryEmulator().ExistingEmulator().DoNotPrependNetworkToAccountNames()
-		assert.Panics(t, func() { o.Start().Account("foobar") })
+		_, err := o.Start().AccountE("foobar")
+		assert.ErrorContains(t, err, "could not find account with name foobar in the configuration")
 	})
 
 	t.Run("do not prepend network names", func(t *testing.T) {
