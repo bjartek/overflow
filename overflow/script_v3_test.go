@@ -51,4 +51,37 @@ pub fun main(): String {
 		res := o.Script("type").GetAsInterface()
 		assert.Equal(t, `A.0ae53cb6e3f42a79.FlowToken.Vault`, res)
 	})
+
+	t.Run("Run script with ufix64 array", func(t *testing.T) {
+		res := o.Script(`
+pub fun main(input: [UFix64]): [UFix64] {
+	return input
+}
+
+`, Arg("input", `[10.1, 20.2]`)).GetAsJson()
+		assert.JSONEq(t, `[10.1, 20.2]`, res)
+	})
+
+	t.Run("Run script with fix64 array", func(t *testing.T) {
+		res := o.Script(`
+pub fun main(input: [Fix64]): [Fix64] {
+	return input
+}
+
+`, Arg("input", `[10.1, -20.2]`)).GetAsJson()
+
+		assert.JSONEq(t, `[10.1, -20.2]`, res)
+	})
+
+	t.Run("Run script with uint64 array", func(t *testing.T) {
+		res := o.Script(`
+pub fun main(input: [UInt64]): [UInt64] {
+	return input
+}
+
+`, Arg("input", `[10, 20]`)).GetAsJson()
+
+		assert.JSONEq(t, `[10, 20]`, res)
+	})
+
 }

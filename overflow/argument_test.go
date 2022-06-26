@@ -225,11 +225,12 @@ transaction(names: [UFix64]) {
 
 }
 `).NamedArguments(map[string]string{
-			"names": `[10.0]`,
+			"names": `[10.0, 20.0]`,
 		})
 
 		fix, _ := cadence.NewUFix64("10.0")
-		arrayValues := []cadence.Value{fix}
+		fix1, _ := cadence.NewUFix64("20.0")
+		arrayValues := []cadence.Value{fix, fix1}
 		assert.Contains(t, builder.Arguments, cadence.NewArray(arrayValues))
 
 	})

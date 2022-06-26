@@ -146,6 +146,13 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		}
 		return *value
 
+	case cadence.UFix64:
+		float, _ := strconv.ParseFloat(field.String(), 64)
+		return float
+	case cadence.Fix64:
+		float, _ := strconv.ParseFloat(field.String(), 64)
+		return float
+
 	default:
 		return field.ToGoValue()
 	}

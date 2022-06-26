@@ -116,5 +116,5 @@ func TestOverflowv3(t *testing.T) {
 }
 
 func Apply(opt ...OverflowOption) *OverflowBuilder {
-	return NewOverflow().ApplyOptions(opt)
+	return NewOverflow().applyOptions(opt)
 }
