@@ -634,7 +634,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		return ftb
 	}
 
-	parseArgs, err := o.ParseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
+	parseArgs, err := o.parseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
 	if err != nil {
 		ftb.Error = err
 		return ftb

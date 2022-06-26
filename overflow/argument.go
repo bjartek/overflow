@@ -17,13 +17,14 @@ import (
 )
 
 // FlowArgumentsBuilder used to create a builder pattern for a transaction
+// Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 type FlowArgumentsBuilder struct {
 	Overflow  *OverflowState
 	Arguments []cadence.Value
 	Error     error
 }
 
-func (f *OverflowState) ParseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
+func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
 	codes := map[common.LocationID]string{}
@@ -113,6 +114,7 @@ func (f *OverflowState) ParseArguments(fileName string, code []byte, inputArgs m
 	return resultArgs, nil
 }
 
+// Deprecated: use the new Tx/Script method and the argument functions
 func (f *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
