@@ -6,10 +6,12 @@
 
 > Tooling to help develop application on the the Flow Blockchain
 
-Set of go scripts to make it easer to run a story consisting of creating accounts,
-deploying contracts, executing transactions and running scripts on the Flow Blockchain.
-These go scripts also make writing integration tests of your smart contracts much easier.
+A DSL written in golang to run a `story` of interactions against either an local emulator, testnet, mainnet or an in memory instance of the flow-emulator.
 
+Use case scenarios include:
+ - demo purposes
+ - integration testing of combinations of scripts/transactions
+ - batch jobs.
 
 ## Information
 
