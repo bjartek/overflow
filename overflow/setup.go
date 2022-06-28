@@ -14,8 +14,9 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/psiemens/graceland"
 	"github.com/rs/zerolog"
-	logrus "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
 
@@ -27,6 +28,10 @@ type OverflowState struct {
 
 	//the services from flowkit to performed operations on
 	Services *services.Services
+
+	//EmulatorServer holds the startup and shutdown functions
+	//if started using WithEmulatorServer **EmulatorServer MUST be gracefully shutdown**
+	Emulator *graceland.Group
 
 	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
 	Network                      string
@@ -79,6 +84,7 @@ func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 type OverflowBuilder struct {
 	Network               string
 	InMemory              bool
+	EmulatorServer        bool
 	DeployContracts       bool
 	GasLimit              int
 	Path                  string
@@ -221,6 +227,12 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 	var service *services.Services
 	var memlog bytes.Buffer
 	var emulatorLog bytes.Buffer
+	var emulatorGroup *graceland.Group
+
+	if o.EmulatorServer {
+		emulatorGroup := newEmulatorServer(state)
+		emulatorGroup.Start()
+	}
 
 	if o.InMemory {
 		//YAY we can run it inline in memory!
@@ -263,6 +275,7 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		ScriptBasePath:               fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
 		Log:                          &memlog,
 		EmulatorLog:                  &emulatorLog,
+		Emulator:                     emulatorGroup,
 		//TODO; what events do you want to skip by default
 		//TODO: remove fees
 		//TODO: remove empty deposit/withdraw events
@@ -382,6 +395,7 @@ func WithNetwork(network string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 
 		o.InMemory = false
+		o.EmulatorServer = false
 		o.DeployContracts = false
 		o.InitializeAccounts = false
 
@@ -413,6 +427,7 @@ func WithNetwork(network string) func(o *OverflowBuilder) {
 func WithInMemory() func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.InMemory = true
+		o.EmulatorServer = false
 		o.DeployContracts = true
 		o.InitializeAccounts = true
 		o.Network = "emulator"
@@ -423,6 +438,19 @@ func WithInMemory() func(o *OverflowBuilder) {
 func WithExistingEmulator() func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.DeployContracts = false
+		o.EmulatorServer = false
+		o.InitializeAccounts = false
+		o.InMemory = false
+		o.Network = "emulator"
+	}
+}
+
+//WithEmulatorServer will start the flow-emulator (with http server), deploy contracts, and create accounts
+//** EmulatorServer MUST be gracefully shutdown using o.Emulator.Stop() or signal.Notify(done, syscall.SIGINT, syscall.SIGTERM) **
+func WithEmulatorServer() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.DeployContracts = false
+		o.EmulatorServer = true
 		o.InitializeAccounts = false
 		o.InMemory = false
 		o.Network = "emulator"

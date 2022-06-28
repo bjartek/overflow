@@ -4,3 +4,4 @@ vendor
 .idea
 profile.cov
 test-result.xml
+.vscode
