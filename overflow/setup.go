@@ -16,7 +16,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/psiemens/graceland"
 	"github.com/rs/zerolog"
-	"github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
 
