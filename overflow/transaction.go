@@ -11,9 +11,16 @@ import (
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 )
+
+type OverFlowEventFilter map[string][]string
+
+type OverflowEvents map[string][]OverflowEvent
+
+type OverflowEvent map[string]interface{}
 
 func (o *OverflowState) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
 	o.TransactionFromFile(filename).SignProposeAndPayAs(signer).Args(args).RunPrintEventsFull()
@@ -131,103 +138,85 @@ func (t FlowInteractionBuilder) PayloadSigner(value string) FlowInteractionBuild
 }
 
 // RunPrintEventsFull will run a transaction and print all events
+//Deprecated use Send().PrintEvents()
 func (t FlowInteractionBuilder) RunPrintEventsFull() {
 	PrintEvents(t.Run(), map[string][]string{})
 }
 
 // RunPrintEvents will run a transaction and print all events ignoring some fields
+//Deprecated use Send().PrintEventsFiltered()
 func (t FlowInteractionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
 	PrintEvents(t.Run(), ignoreFields)
 }
 
 // Run run the transaction
+// deprecated: use Send and get entire result
 func (t FlowInteractionBuilder) Run() []flow.Event {
-	events, err := t.RunE()
-	if err != nil {
-		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
-		panic(err)
+	result := t.Send()
+	if result.Err != nil {
+		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, result.Err))
+		panic(result.Err)
 	}
-	return events
+	return result.RawEvents
 }
 
 func (t FlowInteractionBuilder) RunGetIdFromEventPrintAll(eventName string, fieldName string) uint64 {
-	result, err := t.RunE()
-	if err != nil {
-		panic(err)
+	result := t.Send()
+	if result.Err != nil {
+		panic(result.Err)
 	}
-	PrintEvents(result, map[string][]string{})
 
-	number, err := getUInt64FieldFromEvent(result, eventName, fieldName)
-	if err != nil {
-		panic(err)
-	}
-	return number
+	PrintEvents(result.RawEvents, map[string][]string{})
+
+	return result.GetIdFromEvent(eventName, fieldName)
 }
 
-func getUInt64FieldFromEvent(result []flow.Event, eventName string, fieldName string) (uint64, error) {
-	for _, event := range result {
-		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
-		if ev.Name == eventName {
-			return ev.GetFieldAsUInt64(fieldName), nil
-		}
-	}
-	return 0, fmt.Errorf("did not find field %s", fieldName)
-}
-
+// Deprecated, use Send().GetIdFromEvent
 func (t FlowInteractionBuilder) RunGetIdFromEvent(eventName string, fieldName string) uint64 {
 
-	result, err := t.RunE()
-	if err != nil {
-		panic(err)
+	result := t.Send()
+	if result.Err != nil {
+		panic(result.Err)
 	}
-
-	value, err := getUInt64FieldFromEvent(result, eventName, fieldName)
-	if err != nil {
-		panic(err)
-	}
-	return value
+	return result.GetIdFromEvent(eventName, fieldName)
 }
 
 func (t FlowInteractionBuilder) RunGetIds(eventName string, fieldName string) ([]uint64, error) {
 
-	result, err := t.RunE()
-	if err != nil {
-		return nil, err
+	result := t.Send()
+	if result.Err != nil {
+		return nil, result.Err
 	}
-	var ids []uint64
-	for _, event := range result {
-		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
-		if ev.Name == eventName {
-			ids = append(ids, ev.GetFieldAsUInt64(fieldName))
-		}
-	}
-	return ids, nil
+	return result.GetIdsFromEvent(eventName, fieldName), nil
 }
 
+/// Deprecated: use Send().GetEventsWithName
 func (t FlowInteractionBuilder) RunGetEventsWithNameOrError(eventName string) ([]FormatedEvent, error) {
 
-	result, err := t.RunE()
-	if err != nil {
-		return nil, err
+	result := t.Send()
+	if result.Err != nil {
+		return nil, result.Err
 	}
 	var events []FormatedEvent
-	for _, event := range result {
+	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		if ev.Name == eventName {
 			events = append(events, *ev)
 		}
 	}
 	return events, nil
+
 }
 
+// Deprecated: Use Send().GetEventsWithName()
 func (t FlowInteractionBuilder) RunGetEventsWithName(eventName string) []FormatedEvent {
 
-	result, err := t.RunE()
-	if err != nil {
-		panic(err)
+	result := t.Send()
+	if result.Err != nil {
+		panic(result.Err)
 	}
 	var events []FormatedEvent
-	for _, event := range result {
+	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		if ev.Name == eventName {
 			events = append(events, *ev)
@@ -237,6 +226,7 @@ func (t FlowInteractionBuilder) RunGetEventsWithName(eventName string) []Formate
 }
 
 // RunE runs returns events and error
+// Deprecated: use Send()
 func (t FlowInteractionBuilder) RunE() ([]flow.Event, error) {
 	result := t.Send()
 	return result.RawEvents, result.Err
@@ -355,27 +345,75 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 			}
 		}
 	}
-	var gas int
 	messages := []string{}
 	for _, msg := range logMessage {
 		if msg.ComputationUsed != 0 {
 			result.ComputationUsed = msg.ComputationUsed
-			gas = msg.ComputationUsed
 		}
 		messages = append(messages, msg.Msg)
 	}
 	result.RawLog = logMessage
+
 	result.EmulatorLog = messages
 
-	if res.Error != nil {
-		result.Err = res.Error
-		return result
+	result.RawEvents = res.Events
+
+	overflowEvents := OverflowEvents{}
+	for _, event := range result.RawEvents {
+
+		var fieldNames []string
+
+		for _, eventTypeFields := range event.Value.EventType.Fields {
+			fieldNames = append(fieldNames, eventTypeFields.Identifier)
+		}
+
+		finalFields := map[string]interface{}{}
+
+		for id, field := range event.Value.Fields {
+			name := fieldNames[id]
+			finalFields[name] = CadenceValueToInterfaceCompact(field)
+		}
+
+		if strings.HasSuffix(event.Type, "FlowFees.FeesDeducted") {
+			result.Fee = finalFields
+		}
+
+		events, ok := overflowEvents[event.Type]
+		if !ok {
+			events = []OverflowEvent{}
+		}
+		events = append(events, finalFields)
+		overflowEvents[event.Type] = events
 	}
 
+	if !t.IgnoreGlobalEventFilters {
+
+		fee := result.Fee["amount"]
+		if t.Overflow.FilterOutFeeEvents && fee != nil {
+			overflowEvents = overflowEvents.FilterFees(fee.(float64))
+		}
+
+		if t.Overflow.FilterOutEmptyWithDrawDepositEvents {
+			overflowEvents = overflowEvents.FilterTempWithdrawDeposit()
+		}
+
+		if len(t.Overflow.GlobalEventFilter) != 0 {
+			overflowEvents = overflowEvents.FilterEvents(t.Overflow.GlobalEventFilter)
+		}
+	}
+
+	if len(t.EventFilter) != 0 {
+		overflowEvents = overflowEvents.FilterEvents(t.EventFilter)
+	}
+
+	result.Events = overflowEvents
+
+	result.Logger = t.Overflow.Logger
+
+	result.Name = t.FileName
 	t.Overflow.Log.Reset()
 	t.Overflow.EmulatorLog.Reset()
-	t.Overflow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied using gas:%d\n", emoji.OkHand, t.FileName, gas))
-	result.RawEvents = res.Events
+	result.Err = res.Error
 	return result
 }
 
@@ -407,6 +445,9 @@ type FlowInteractionBuilder struct {
 	TransactionCode []byte
 	NamedArgs       map[string]interface{}
 	Proposer        *flowkit.Account
+
+	EventFilter              OverFlowEventFilter
+	IgnoreGlobalEventFilters bool
 }
 
 type OverflowScriptResult struct {
@@ -444,51 +485,237 @@ func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
 	return err
 }
 
-//TODO add Events map[<event name>][]Event
 type OverflowResult struct {
-	Err             error
-	Id              flow.Identifier
-	EmulatorLog     []string
-	Meter           *Meter
+	//The error if any
+	Err error
+
+	//The id of the transaction
+	Id flow.Identifier
+
+	//If running on an emulator
+	//the meter that contains useful debug information on memory and interactions
+	Meter *Meter
+	//The Raw log from the emulator
+	RawLog []LogrusMessage
+	// The log from the emulator
+	EmulatorLog []string
+
+	//The computation used
 	ComputationUsed int
-	RawEvents       []flow.Event
-	RawLog          []LogrusMessage
-	Transaction     *flow.Transaction
+
+	//The raw unfiltered events
+	RawEvents []flow.Event
+
+	//Events that are filtered and parsed into a terse format
+	Events OverflowEvents
+
+	//The underlying transaction if we need to look into that
+	Transaction *flow.Transaction
+
+	//The fee event if any
+	Fee map[string]interface{}
+
+	//The logger to log output to
+	Logger output.Logger
+
+	//The name of the Transaction
+	Name string
+}
+
+func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents {
+	filteredEvents := overflowEvents
+	for name, events := range overflowEvents {
+		if strings.HasSuffix(name, "TokensWithdrawn") {
+
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value["from"] != nil {
+					withDrawnEvents = append(withDrawnEvents, value)
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+
+		if strings.HasSuffix(name, "TokensDeposited") {
+			despoitEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value["to"] != nil {
+					despoitEvents = append(despoitEvents, value)
+				}
+			}
+			if len(despoitEvents) != 0 {
+				filteredEvents[name] = despoitEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+	}
+	return filteredEvents
+}
+
+func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
+
+	filteredEvents := overflowEvents
+	for name, events := range overflowEvents {
+		if strings.HasSuffix(name, "FlowFees.FeesDeducted") {
+			delete(filteredEvents, name)
+		}
+
+		if strings.HasSuffix(name, "FlowToken.TokensWithdrawn") {
+
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value["amount"].(float64) != fee {
+					withDrawnEvents = append(withDrawnEvents, value)
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+
+		if strings.HasSuffix(name, "FlowToken.TokensDeposited") {
+			despoitEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value["amount"].(float64) != fee {
+					despoitEvents = append(despoitEvents, value)
+				}
+			}
+			if len(despoitEvents) != 0 {
+				filteredEvents[name] = despoitEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+
+		}
+	}
+	return filteredEvents
+}
+func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverFlowEventFilter) OverflowEvents {
+	filteredEvents := OverflowEvents{}
+	for name, events := range overflowEvents {
+
+		//find if we should ignore fields
+		ignoreFieldNames := []string{}
+		for ignoreEvent, fields := range ignoreFields {
+			if strings.HasSuffix(name, ignoreEvent) {
+				ignoreFieldNames = fields
+			}
+		}
+
+		eventList := []OverflowEvent{}
+		for _, ev := range events {
+			event := OverflowEvent{}
+			for key, value := range ev {
+				valid := true
+				for _, ig := range ignoreFieldNames {
+					if strings.HasSuffix(key, ig) {
+						valid = false
+					}
+				}
+				if valid {
+					event[key] = value
+				}
+			}
+			if len(event) != 0 {
+				eventList = append(eventList, event)
+			}
+		}
+		if len(eventList) != 0 {
+			filteredEvents[name] = eventList
+		}
+	}
+	return filteredEvents
+}
+
+func (overflowEvents OverflowEvents) PrintEvents() {
+	fmt.Println("=== Events ===")
+	for name, events := range overflowEvents {
+		for _, event := range events {
+			fmt.Println(name)
+			for key, value := range event {
+				fmt.Println("  ", key, ":", value)
+			}
+		}
+	}
 }
 
 func (o OverflowResult) Print() {
-	PrintEvents(o.RawEvents, map[string][]string{})
+	if o.Err != nil {
+		panic(o.Err)
+	}
+
+	fmt.Println("=== Events ===")
+	for name, events := range o.Events {
+		for _, event := range events {
+			o.Logger.Info(name)
+			for key, value := range event {
+				o.Logger.Info(name)
+				fmt.Println("  ", key, ":", value)
+			}
+		}
+	}
+
+	//TODO: allow to control what to print in Overflow builder
+	if len(o.RawLog) > 0 {
+		fmt.Println("=== LOG ===")
+		for _, msg := range o.RawLog {
+			fmt.Println(msg.Msg)
+		}
+	}
+
+	if o.Meter != nil {
+		fmt.Println("=== METER ===")
+		fmt.Println("LedgerInteractionUsed:", o.Meter.LedgerInteractionUsed)
+		if o.Meter.MemoryUsed != 0 {
+			fmt.Println("Memory:", o.Meter.MemoryUsed)
+			memories := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.MemoryIntensities), "map[]"), " ", "\n  ")
+
+			fmt.Println("Memory Intensities")
+			fmt.Println(" ", memories)
+		}
+		fmt.Println("Computation:", o.Meter.ComputationUsed)
+		intensities := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.ComputationIntensities), "map[]"), " ", "\n  ")
+
+		fmt.Println("Computation Intensities:")
+		fmt.Println(" ", intensities)
+	}
 }
 
 func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
-	number, err := getUInt64FieldFromEvent(o.RawEvents, eventName, fieldName)
-	if err != nil {
-		panic(err)
+	for name, event := range o.Events {
+		if strings.HasSuffix(name, eventName) {
+			return event[0][fieldName].(uint64)
+		}
 	}
-	return number
+	panic(fmt.Sprintf("Could not find id field %s in event with suffix %s", fieldName, eventName))
 }
 
 func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {
 	var ids []uint64
-	for _, event := range o.RawEvents {
-		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
-		if ev.Name == eventName {
-			ids = append(ids, ev.GetFieldAsUInt64(fieldName))
+	for name, events := range o.Events {
+		if strings.HasSuffix(name, eventName) {
+			for _, event := range events {
+				ids = append(ids, event[fieldName].(uint64))
+			}
 		}
 	}
 	return ids
 }
 
-func (o OverflowResult) GetEventsWithName(eventName string) []FormatedEvent {
-
-	var events []FormatedEvent
-	for _, event := range o.RawEvents {
-		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
-		if ev.Name == eventName {
-			events = append(events, *ev)
+func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
+	for name, event := range o.Events {
+		if strings.HasSuffix(name, eventName) {
+			return event
 		}
 	}
-	return events
+	panic(fmt.Sprintf("Could not events with suffix %s", eventName))
 }
 
 // v3
@@ -555,8 +782,10 @@ func (o *OverflowState) Tx(filename string, opts ...TransactionOption) *Overflow
 func (o *OverflowState) Script(filename string, opts ...TransactionOption) *OverflowScriptResult {
 	interaction := o.BuildInteraction(filename, "script", opts...)
 
+	osc := &OverflowScriptResult{Input: interaction}
 	if interaction.Error != nil {
-		return &OverflowScriptResult{Err: interaction.Error, Input: interaction}
+		osc.Err = interaction.Error
+		return osc
 	}
 
 	filePath := fmt.Sprintf("%s/%s.cdc", interaction.BasePath, interaction.FileName)
@@ -569,6 +798,9 @@ func (o *OverflowState) Script(filename string, opts ...TransactionOption) *Over
 		interaction.Arguments,
 		filePath,
 		o.Network)
+
+	osc.Result = result
+	osc.Err = err
 
 	var logMessage []LogrusMessage
 	dec := json.NewDecoder(o.Log)
@@ -590,9 +822,8 @@ func (o *OverflowState) Script(filename string, opts ...TransactionOption) *Over
 	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
-	osc := &OverflowScriptResult{Result: result, Input: interaction, Log: logMessage}
-	if err != nil {
-		osc.Err = interaction.Error
+	osc.Log = logMessage
+	if osc.Err != nil {
 		return osc
 	}
 
@@ -778,6 +1009,18 @@ func SignProposeAndPayAsServiceAccount() func(ftb *FlowInteractionBuilder) {
 func Gas(gas uint64) func(ftb *FlowInteractionBuilder) {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.GasLimit = gas
+	}
+}
+
+func EventFilter(filter OverFlowEventFilter) func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		ftb.EventFilter = filter
+	}
+}
+
+func IgnoreGlobalEventFilters() func(ftb *FlowInteractionBuilder) {
+	return func(ftb *FlowInteractionBuilder) {
+		ftb.IgnoreGlobalEventFilters = true
 	}
 }
 

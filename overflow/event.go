@@ -202,6 +202,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 }
 
 //PrintEvents prints th events, ignoring fields specified for the given event typeID
+//Deprecated use PrintEvent on overflowResult
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	if len(events) > 0 {
 		log.Println("EVENTS")

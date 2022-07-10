@@ -15,6 +15,22 @@ type TransactionResult struct {
 	Testing *testing.T
 }
 
+func (o OverflowResult) Test(t *testing.T) TransactionResult {
+	locale, _ := time.LoadLocation("UTC")
+	time.Local = locale
+	var formattedEvents []*FormatedEvent
+	for _, event := range o.RawEvents {
+		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
+		formattedEvents = append(formattedEvents, ev)
+	}
+	return TransactionResult{
+		Err:     o.Err,
+		Events:  formattedEvents,
+		Result:  &o,
+		Testing: t,
+	}
+}
+
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")

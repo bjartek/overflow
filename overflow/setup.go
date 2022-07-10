@@ -47,7 +47,10 @@ type OverflowState struct {
 	TransactionBasePath string
 	ScriptBasePath      string
 
-	//TODO: add config on what events to skip, like skip fees or empty deposit/withdraw
+	//Filters to events to remove uneeded noise
+	FilterOutFeeEvents                  bool
+	FilterOutEmptyWithDrawDepositEvents bool
+	GlobalEventFilter                   OverFlowEventFilter
 }
 
 // ServiceAccountName return the name of the current service account
@@ -77,18 +80,21 @@ func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 
 //OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
-	Network               string
-	InMemory              bool
-	DeployContracts       bool
-	GasLimit              int
-	Path                  string
-	LogLevel              int
-	InitializeAccounts    bool
-	PrependNetworkName    bool
-	ServiceSuffix         string
-	ConfigFiles           []string
-	TransactionFolderName string
-	ScriptFolderName      string
+	Network                             string
+	InMemory                            bool
+	DeployContracts                     bool
+	GasLimit                            int
+	Path                                string
+	LogLevel                            int
+	InitializeAccounts                  bool
+	PrependNetworkName                  bool
+	ServiceSuffix                       string
+	ConfigFiles                         []string
+	TransactionFolderName               string
+	ScriptFolderName                    string
+	FilterOutFeeEvents                  bool
+	FilterOutEmptyWithDrawDepositEvents bool
+	GlobalEventFilter                   OverFlowEventFilter
 }
 
 //NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
@@ -132,18 +138,21 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 	}
 
 	return &OverflowBuilder{
-		Network:               network,
-		InMemory:              inMemory,
-		DeployContracts:       deployContracts,
-		GasLimit:              9999,
-		Path:                  ".",
-		TransactionFolderName: "transactions",
-		ScriptFolderName:      "scripts",
-		LogLevel:              logLevel,
-		InitializeAccounts:    initializeAccounts,
-		PrependNetworkName:    true,
-		ServiceSuffix:         "account",
-		ConfigFiles:           config.DefaultPaths(),
+		Network:                             network,
+		InMemory:                            inMemory,
+		DeployContracts:                     deployContracts,
+		GasLimit:                            9999,
+		Path:                                ".",
+		TransactionFolderName:               "transactions",
+		ScriptFolderName:                    "scripts",
+		LogLevel:                            logLevel,
+		InitializeAccounts:                  initializeAccounts,
+		PrependNetworkName:                  true,
+		ServiceSuffix:                       "account",
+		ConfigFiles:                         config.DefaultPaths(),
+		FilterOutEmptyWithDrawDepositEvents: true,
+		FilterOutFeeEvents:                  true,
+		GlobalEventFilter:                   OverFlowEventFilter{},
 	}
 }
 
@@ -251,21 +260,21 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		service = services.NewServices(gw, state, logger)
 	}
 	overflow := &OverflowState{
-		State:                        state,
-		Services:                     service,
-		Network:                      o.Network,
-		Logger:                       logger,
-		PrependNetworkToAccountNames: o.PrependNetworkName,
-		ServiceAccountSuffix:         o.ServiceSuffix,
-		Gas:                          o.GasLimit,
-		BasePath:                     o.Path,
-		TransactionBasePath:          fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
-		ScriptBasePath:               fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
-		Log:                          &memlog,
-		EmulatorLog:                  &emulatorLog,
-		//TODO; what events do you want to skip by default
-		//TODO: remove fees
-		//TODO: remove empty deposit/withdraw events
+		State:                               state,
+		Services:                            service,
+		Network:                             o.Network,
+		Logger:                              logger,
+		PrependNetworkToAccountNames:        o.PrependNetworkName,
+		ServiceAccountSuffix:                o.ServiceSuffix,
+		Gas:                                 o.GasLimit,
+		BasePath:                            o.Path,
+		TransactionBasePath:                 fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
+		ScriptBasePath:                      fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
+		Log:                                 &memlog,
+		EmulatorLog:                         &emulatorLog,
+		FilterOutFeeEvents:                  o.FilterOutFeeEvents,
+		FilterOutEmptyWithDrawDepositEvents: o.FilterOutEmptyWithDrawDepositEvents,
+		GlobalEventFilter:                   o.GlobalEventFilter,
 	}
 
 	if o.DeployContracts {
@@ -483,5 +492,24 @@ func WithScriptFolderName(name string) func(o *OverflowBuilder) {
 func WithTransactionFolderName(name string) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.TransactionFolderName = name
+	}
+}
+
+//WithTransactionFolderName will overwite the default script subdir for transactions `transactions`
+func WithFeesEvents() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.FilterOutFeeEvents = false
+	}
+}
+
+func WithEmptyDepoitWithdrawEvents() func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.FilterOutEmptyWithDrawDepositEvents = false
+	}
+}
+
+func WithGlobalEventTilter(filter OverFlowEventFilter) func(o *OverflowBuilder) {
+	return func(o *OverflowBuilder) {
+		o.GlobalEventFilter = filter
 	}
 }
