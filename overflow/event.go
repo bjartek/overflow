@@ -210,7 +210,6 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	}
 
 	for _, event := range events {
-		//TODO: does this change work on mainnet/testnet?
 		ignoreFieldsForType := ignoreFields[event.Type]
 		ev := ParseEvent(event, uint64(0), time.Now(), ignoreFieldsForType)
 		prettyJSON, err := json.MarshalIndent(ev, "", "    ")
