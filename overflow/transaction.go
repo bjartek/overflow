@@ -241,7 +241,6 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	if t.Proposer == nil {
-		fmt.Println("err")
 		result.Err = fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
 		return result
 	}
@@ -634,43 +633,100 @@ func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverFlowEventFilt
 	return filteredEvents
 }
 
-func (overflowEvents OverflowEvents) PrintEvents() {
-	fmt.Println("=== Events ===")
-	for name, events := range overflowEvents {
-		for _, event := range events {
-			fmt.Println(name)
-			for key, value := range event {
-				fmt.Println("  ", key, ":", value)
-			}
-		}
+type PrinterOption func(*PrintOptions)
+type PrintOptions struct {
+	Events      bool
+	EventFilter OverFlowEventFilter
+	Meter       bool
+	EmulatorLog bool
+}
+
+func WithMeter() func(opt *PrintOptions) {
+	return func(opt *PrintOptions) {
+		opt.Meter = true
 	}
 }
 
-func (o OverflowResult) Print() {
+func WithEmulatorLog() func(opt *PrintOptions) {
+	return func(opt *PrintOptions) {
+		opt.EmulatorLog = true
+	}
+}
+
+func WithEventFilter(filter OverFlowEventFilter) func(opt *PrintOptions) {
+	return func(opt *PrintOptions) {
+		opt.EventFilter = filter
+	}
+}
+
+func WithoutEvents() func(opt *PrintOptions) {
+	return func(opt *PrintOptions) {
+		opt.Events = false
+	}
+}
+
+func (o OverflowResult) Print(opts ...PrinterOption) {
+
+	printOpts := &PrintOptions{
+		Events:      true,
+		EventFilter: OverFlowEventFilter{},
+		Meter:       false,
+		EmulatorLog: false,
+	}
+
+	for _, opt := range opts {
+		opt(printOpts)
+	}
+
 	if o.Err != nil {
+		o.Logger.Error(fmt.Sprintf("%v Error executing transaction: %s", emoji.PileOfPoo, o.Name))
 		panic(o.Err)
 	}
 
-	fmt.Println("=== Events ===")
-	for name, events := range o.Events {
-		for _, event := range events {
-			o.Logger.Info(name)
-			for key, value := range event {
-				o.Logger.Info(name)
-				fmt.Println("  ", key, ":", value)
+	messages := []string{}
+
+	if o.ComputationUsed != 0 {
+		messages = append(messages, fmt.Sprintf("%d%v", o.ComputationUsed, emoji.HighVoltage))
+	}
+	nameMessage := fmt.Sprintf("Tx %s", o.Name)
+	if o.Name == "inline" {
+		nameMessage = "Inline TX"
+	}
+	messages = append(messages, nameMessage)
+
+	if len(o.Fee) != 0 {
+		messages = append(messages, fmt.Sprintf("%v:%f (%f/%f)", emoji.MoneyBag, o.Fee["amount"].(float64), o.Fee["inclusionEffort"].(float64), o.Fee["exclusionEffort"].(float64)))
+	}
+	messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
+
+	o.Logger.Info(fmt.Sprintf("%v %s", emoji.OkHand, strings.Join(messages, " ")))
+
+	if printOpts.Events {
+		events := o.Events
+		if len(printOpts.EventFilter) != 0 {
+			events = events.FilterEvents(printOpts.EventFilter)
+		}
+		if len(events) != 0 {
+			o.Logger.Info("=== Events ===")
+			for name, eventList := range events {
+				for _, event := range eventList {
+					o.Logger.Info(name)
+					for key, value := range event {
+						o.Logger.Info(fmt.Sprintf("   %s:%v", key, value))
+					}
+				}
 			}
 		}
 	}
 
-	//TODO: allow to control what to print in Overflow builder
-	if len(o.RawLog) > 0 {
-		fmt.Println("=== LOG ===")
+	if printOpts.EmulatorLog && len(o.RawLog) > 0 {
+		o.Logger.Info("=== LOG ===")
 		for _, msg := range o.RawLog {
-			fmt.Println(msg.Msg)
+			o.Logger.Info(msg.Msg)
 		}
 	}
 
-	if o.Meter != nil {
+	if printOpts.Meter && o.Meter != nil {
 		fmt.Println("=== METER ===")
 		fmt.Println("LedgerInteractionUsed:", o.Meter.LedgerInteractionUsed)
 		if o.Meter.MemoryUsed != 0 {
