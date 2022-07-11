@@ -7,6 +7,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+//TODO: look at updating the discord go dependency
+
 // DiscordWebhook stores information about a webhook
 type DiscordWebhook struct {
 	ID    string `json:"id"`

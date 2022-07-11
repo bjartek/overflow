@@ -8,6 +8,7 @@ import (
 	"github.com/onflow/cadence"
 )
 
+// TODO: consider submitting this to cadence
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
 //Deprecated use CadenceValueToJsonStringCompact
 func CadenceValueToJsonString(value cadence.Value) string {

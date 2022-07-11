@@ -3,10 +3,126 @@ package overflow
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 )
+
+//Composition functions for Scripts
+type ScriptFunction func(filename string, opts ...InteractionOption) *OverflowScriptResult
+type ScriptOptsFunction func(opts ...InteractionOption) *OverflowScriptResult
+
+func (o *OverflowState) ScriptFN(outerOpts ...InteractionOption) ScriptFunction {
+
+	return func(filename string, opts ...InteractionOption) *OverflowScriptResult {
+
+		for _, opt := range opts {
+			outerOpts = append(outerOpts, opt)
+		}
+		return o.Script(filename, outerOpts...)
+	}
+}
+
+func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...InteractionOption) ScriptOptsFunction {
+
+	return func(opts ...InteractionOption) *OverflowScriptResult {
+
+		for _, opt := range opts {
+			outerOpts = append(outerOpts, opt)
+		}
+		return o.Script(filename, outerOpts...)
+	}
+}
+
+func (o *OverflowState) Script(filename string, opts ...InteractionOption) *OverflowScriptResult {
+	interaction := o.BuildInteraction(filename, "script", opts...)
+
+	osc := &OverflowScriptResult{Input: interaction}
+	if interaction.Error != nil {
+		osc.Err = interaction.Error
+		return osc
+	}
+
+	filePath := fmt.Sprintf("%s/%s.cdc", interaction.BasePath, interaction.FileName)
+
+	o.EmulatorLog.Reset()
+	o.Log.Reset()
+
+	result, err := o.Services.Scripts.Execute(
+		interaction.TransactionCode,
+		interaction.Arguments,
+		filePath,
+		o.Network)
+
+	osc.Result = result
+	osc.Err = err
+
+	var logMessage []LogrusMessage
+	dec := json.NewDecoder(o.Log)
+	for {
+		var doc LogrusMessage
+
+		err := dec.Decode(&doc)
+		if err == io.EOF {
+			// all done
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		logMessage = append(logMessage, doc)
+	}
+
+	o.EmulatorLog.Reset()
+	o.Log.Reset()
+
+	osc.Log = logMessage
+	if osc.Err != nil {
+		return osc
+	}
+
+	o.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, filePath))
+	return osc
+}
+
+type OverflowScriptResult struct {
+	Err    error
+	Result cadence.Value
+	Input  *FlowInteractionBuilder
+	Log    []LogrusMessage
+}
+
+func (osr *OverflowScriptResult) GetAsJson() string {
+	if osr.Err != nil {
+		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
+	}
+	return CadenceValueToJsonStringCompact(osr.Result)
+}
+
+func (osr *OverflowScriptResult) GetAsInterface() interface{} {
+	if osr.Err != nil {
+		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
+	}
+	return CadenceValueToInterfaceCompact(osr.Result)
+}
+
+func (osr *OverflowScriptResult) Print() {
+	json := osr.GetAsJson()
+	osr.Input.Overflow.Logger.Info(fmt.Sprintf("%v Script %s run from result: %v\n", emoji.Star, osr.Input.FileName, json))
+}
+
+func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
+	if osr.Err != nil {
+		return osr.Err
+	}
+	jsonResult := CadenceValueToJsonStringCompact(osr.Result)
+	err := json.Unmarshal([]byte(jsonResult), &value)
+	return err
+}
+
+// everything below here is deprecated
 
 //FlowScriptBuilder is a struct to hold information for running a script
 //Deprecation use FlowInteractionBuilder and the Script method
@@ -97,6 +213,7 @@ func (t FlowScriptBuilder) Run() {
 	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result)))
 }
 
+// Deprecation use FlowInteractionBuilder
 func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) {
 
 	var err error

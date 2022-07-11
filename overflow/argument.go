@@ -14,102 +14,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+//Deprecated: This entire file is deprecated
+
 // FlowArgumentsBuilder used to create a builder pattern for a transaction
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 type FlowArgumentsBuilder struct {
 	Overflow  *OverflowState
 	Arguments []cadence.Value
 	Error     error
-}
-
-func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
-	var resultArgs []cadence.Value = make([]cadence.Value, 0)
-
-	codes := map[common.LocationID]string{}
-	location := common.StringLocation(fileName)
-	program, must := cmd.PrepareProgram(string(code), location, codes)
-	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
-
-	var parameterList []*ast.Parameter
-
-	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
-	if functionDeclaration != nil {
-		if functionDeclaration.ParameterList != nil {
-			parameterList = functionDeclaration.ParameterList.Parameters
-		}
-	}
-
-	transactionDeclaration := program.TransactionDeclarations()
-	if len(transactionDeclaration) == 1 {
-		if transactionDeclaration[0].ParameterList != nil {
-			parameterList = transactionDeclaration[0].ParameterList.Parameters
-		}
-	}
-
-	if parameterList == nil {
-		return resultArgs, nil
-	}
-
-	argumentNotPresent := []string{}
-	args := []interface{}{}
-	for _, parameter := range parameterList {
-		parameterName := parameter.Identifier.Identifier
-		value, ok := inputArgs[parameterName]
-		if !ok {
-			argumentNotPresent = append(argumentNotPresent, parameterName)
-		} else {
-			args = append(args, value)
-		}
-	}
-
-	if len(argumentNotPresent) > 0 {
-		err := fmt.Errorf("the following arguments where not present %v", argumentNotPresent)
-		return nil, err
-	}
-
-	for index, argument := range args {
-
-		cadenceVal, isCadenceValue := argument.(cadence.Value)
-		if isCadenceValue {
-			resultArgs = append(resultArgs, cadenceVal)
-			continue
-		}
-
-		argumentString, okString := argument.(string)
-		if !okString {
-			argumentString = fmt.Sprintf("%v", argument)
-		}
-		astType := parameterList[index].TypeAnnotation.Type
-		semaType := checker.ConvertType(astType)
-
-		switch semaType {
-		case sema.StringType:
-			if len(argumentString) > 0 && !strings.HasPrefix(argumentString, "\"") {
-				argumentString = "\"" + argumentString + "\""
-			}
-		}
-
-		switch semaType.(type) {
-		case *sema.AddressType:
-
-			account, _ := f.AccountE(argumentString)
-
-			if account != nil {
-				argumentString = account.Address().String()
-			}
-
-			if !strings.Contains(argumentString, "0x") {
-				argumentString = fmt.Sprintf("0x%s", argumentString)
-			}
-		}
-
-		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
-		if err != nil {
-			return nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", parameterList[index].Identifier, argumentString, semaType)
-		}
-		resultArgs = append(resultArgs, value)
-	}
-	return resultArgs, nil
 }
 
 // Deprecated: use the new Tx/Script method and the argument functions

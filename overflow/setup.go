@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/flow-cli/pkg/flowkit"
@@ -18,65 +17,6 @@ import (
 	logrus "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
-
-// OverflowState contains information about how to Overflow is confitured and the current runnig state
-type OverflowState struct {
-
-	//State is the current state of the configured overflow instance
-	State *flowkit.State
-
-	//the services from flowkit to performed operations on
-	Services *services.Services
-
-	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
-	Network                      string
-	PrependNetworkToAccountNames bool
-	ServiceAccountSuffix         string
-	Gas                          int
-
-	//flowkit, emulator and emulator debug log uses three different logging technologies so we have them all stored here
-	Logger      output.Logger
-	Log         *bytes.Buffer
-	EmulatorLog *bytes.Buffer
-
-	//If there was an error starting overflow it is stored here
-	Error error
-
-	//Paths that points to where .cdc files are stored and the posibilty to specify something besides the standard `transactions`/`scripts`subdirectories
-	BasePath            string
-	TransactionBasePath string
-	ScriptBasePath      string
-
-	//Filters to events to remove uneeded noise
-	FilterOutFeeEvents                  bool
-	FilterOutEmptyWithDrawDepositEvents bool
-	GlobalEventFilter                   OverFlowEventFilter
-}
-
-// ServiceAccountName return the name of the current service account
-//Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
-func (o *OverflowState) ServiceAccountName() string {
-	if o.PrependNetworkToAccountNames {
-		return fmt.Sprintf("%s-%s", o.Network, o.ServiceAccountSuffix)
-	}
-	return o.ServiceAccountSuffix
-}
-
-//AccountE fetch an account from State
-//Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
-func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
-	if f.PrependNetworkToAccountNames {
-		key = fmt.Sprintf("%s-%s", f.Network, key)
-	}
-
-	account, err := f.State.Accounts().ByName(key)
-	if err != nil {
-		return nil, err
-	}
-
-	return account, nil
-
-}
 
 //OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
@@ -322,15 +262,6 @@ func NewOverflowTestnet() *OverflowBuilder {
 //Deprecated use Overflow function with builder
 func NewOverflowMainnet() *OverflowBuilder {
 	return NewOverflowBuilder("mainnet", false, output.InfoLog)
-}
-
-//LogrusMessage a log message from the logrus implementation used in the flow emulator
-type LogrusMessage struct {
-	ComputationUsed int       `json:"computationUsed"`
-	Level           string    `json:"level"`
-	Msg             string    `json:"msg"`
-	Time            time.Time `json:"time"`
-	TxID            string    `json:"txID"`
 }
 
 //OverflowOption and option function that you can send in to configure Overflow

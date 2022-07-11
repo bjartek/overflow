@@ -57,6 +57,7 @@ func (f *OverflowState) InitializeContracts() *OverflowState {
 }
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
+//TODO: consider renamting this method as this is getting a remove account a flow account not a flowkit account
 func (f *OverflowState) GetAccount(key string) (*flow.Account, error) {
 	account, err := f.AccountE(key)
 	if err != nil {

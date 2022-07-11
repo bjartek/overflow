@@ -15,6 +15,7 @@ type TransactionResult struct {
 	Testing *testing.T
 }
 
+//TODO: rethink how to assert on OverFlowResult, there should not be a need to do this here
 func (o OverflowResult) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
@@ -30,6 +31,8 @@ func (o OverflowResult) Test(t *testing.T) TransactionResult {
 		Testing: t,
 	}
 }
+
+// Evertyhing from here down is deprecated
 
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
