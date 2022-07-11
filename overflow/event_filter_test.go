@@ -18,7 +18,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 
 	t.Run("Filter out all events should yield empty", func(t *testing.T) {
 
-		filter := OverFlowEventFilter{
+		filter := OverflowEventFilter{
 			"Deposit": []string{"id", "string"},
 		}
 		filtered := events.FilterEvents(filter)
@@ -27,7 +27,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 	})
 	t.Run("Filter out single field", func(t *testing.T) {
 
-		filter := OverFlowEventFilter{
+		filter := OverflowEventFilter{
 			"Deposit": []string{"id"},
 		}
 		filtered := events.FilterEvents(filter)

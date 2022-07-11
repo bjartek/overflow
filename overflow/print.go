@@ -10,7 +10,7 @@ import (
 type PrinterOption func(*PrintOptions)
 type PrintOptions struct {
 	Events      bool
-	EventFilter OverFlowEventFilter
+	EventFilter OverflowEventFilter
 	Meter       bool
 	EmulatorLog bool
 }
@@ -27,7 +27,7 @@ func WithEmulatorLog() func(opt *PrintOptions) {
 	}
 }
 
-func WithEventFilter(filter OverFlowEventFilter) func(opt *PrintOptions) {
+func WithEventFilter(filter OverflowEventFilter) func(opt *PrintOptions) {
 	return func(opt *PrintOptions) {
 		opt.EventFilter = filter
 	}
@@ -43,7 +43,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 
 	printOpts := &PrintOptions{
 		Events:      true,
-		EventFilter: OverFlowEventFilter{},
+		EventFilter: OverflowEventFilter{},
 		Meter:       false,
 		EmulatorLog: false,
 	}

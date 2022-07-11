@@ -27,7 +27,7 @@ type FlowInteractionBuilder struct {
 	NamedArgs       map[string]interface{}
 	Proposer        *flowkit.Account
 
-	EventFilter              OverFlowEventFilter
+	EventFilter              OverflowEventFilter
 	IgnoreGlobalEventFilters bool
 }
 
@@ -226,7 +226,7 @@ func Gas(gas uint64) func(ftb *FlowInteractionBuilder) {
 	}
 }
 
-func EventFilter(filter OverFlowEventFilter) func(ftb *FlowInteractionBuilder) {
+func EventFilter(filter OverflowEventFilter) func(ftb *FlowInteractionBuilder) {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.EventFilter = filter
 	}

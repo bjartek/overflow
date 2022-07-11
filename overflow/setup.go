@@ -34,7 +34,7 @@ type OverflowBuilder struct {
 	ScriptFolderName                    string
 	FilterOutFeeEvents                  bool
 	FilterOutEmptyWithDrawDepositEvents bool
-	GlobalEventFilter                   OverFlowEventFilter
+	GlobalEventFilter                   OverflowEventFilter
 }
 
 //NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
@@ -92,7 +92,7 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		ConfigFiles:                         config.DefaultPaths(),
 		FilterOutEmptyWithDrawDepositEvents: true,
 		FilterOutFeeEvents:                  true,
-		GlobalEventFilter:                   OverFlowEventFilter{},
+		GlobalEventFilter:                   OverflowEventFilter{},
 	}
 }
 
@@ -439,7 +439,7 @@ func WithEmptyDepoitWithdrawEvents() func(o *OverflowBuilder) {
 	}
 }
 
-func WithGlobalEventTilter(filter OverFlowEventFilter) func(o *OverflowBuilder) {
+func WithGlobalEventTilter(filter OverflowEventFilter) func(o *OverflowBuilder) {
 	return func(o *OverflowBuilder) {
 		o.GlobalEventFilter = filter
 	}

@@ -48,7 +48,7 @@ type OverflowState struct {
 	//Filters to events to remove uneeded noise
 	FilterOutFeeEvents                  bool
 	FilterOutEmptyWithDrawDepositEvents bool
-	GlobalEventFilter                   OverFlowEventFilter
+	GlobalEventFilter                   OverflowEventFilter
 }
 
 func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {

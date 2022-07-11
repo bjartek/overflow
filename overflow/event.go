@@ -7,7 +7,7 @@ import (
 )
 
 //A type alias to an OverflowEventFilter to filter out all events with a given suffix and the fields with given suffixes
-type OverFlowEventFilter map[string][]string
+type OverflowEventFilter map[string][]string
 
 //a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string][]OverflowEvent
@@ -123,7 +123,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 	}
 	return filteredEvents
 }
-func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverFlowEventFilter) OverflowEvents {
+func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverflowEventFilter) OverflowEvents {
 	filteredEvents := OverflowEvents{}
 	for name, events := range overflowEvents {
 

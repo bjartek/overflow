@@ -14,18 +14,6 @@ import (
 
 //TODO: create new With builder style
 
-// EventFetcherBuilder builder to hold info about eventhook context.
-type EventFetcherBuilder struct {
-	OverflowState         *OverflowState
-	EventsAndIgnoreFields map[string][]string
-	FromIndex             int64
-	EndAtCurrentHeight    bool
-	EndIndex              uint64
-	ProgressFile          string
-	NumberOfWorkers       int
-	EventBatchSize        uint64
-}
-
 // EventFetcher create an event fetcher builder.
 func (o *OverflowState) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
