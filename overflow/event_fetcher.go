@@ -28,9 +28,7 @@ type EventFetcherResult struct {
 	Events *OverflowEvents
 }
 
-// EventFetcher create an event fetcher builder.
-func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastEvent, error) {
-
+func (o *OverflowState) buildEventInteraction(opts ...EventFetcherOption) *EventFetcherBuilder {
 	e := &EventFetcherBuilder{
 		OverflowState:         o,
 		EventsAndIgnoreFields: OverflowEventFilter{},
@@ -44,7 +42,13 @@ func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastE
 	for _, opt := range opts {
 		opt(e)
 	}
+	return e
+}
 
+// EventFetcher create an event fetcher builder.
+func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastEvent, error) {
+
+	e := o.buildEventInteraction(opts...)
 	//if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
 
