@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-//TODO: create new With builder style
 //A function to customize the transaction builder
 type EventFetcherOption func(*EventFetcherBuilder)
 

@@ -12,8 +12,6 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-//TODO: create new With builder style
-
 // EventFetcher create an event fetcher builder.
 func (o *OverflowState) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
