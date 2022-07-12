@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//Deprecated use the new Tx() method and OverflowResult
 type TransactionResult struct {
 	Err     error
 	Events  []*FormatedEvent
@@ -77,6 +78,7 @@ func (o OverflowResult) AssertEventCont(t *testing.T, number int) OverflowResult
 	assert.Equal(t, num, number)
 	return o
 }
+
 func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
 	res := assert.Empty(t, o.Events)
 	o.logEventsFailure(t, res)
@@ -116,6 +118,30 @@ func (o OverflowResult) AssertEmitEventName(t *testing.T, event ...string) Overf
 	return o
 }
 
+func (o OverflowResult) AssertEmulatorLog(t *testing.T, message string) OverflowResult {
+
+	for _, log := range o.EmulatorLog {
+		if strings.Contains(log, message) {
+			return o
+		}
+	}
+
+	assert.Fail(t, "No emulator log contain message "+message, o.EmulatorLog)
+
+	return o
+}
+
+func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computation int) OverflowResult {
+	assert.LessOrEqual(t, o.ComputationUsed, computation)
+	return o
+}
+
+func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) OverflowResult {
+	assert.Equal(t, computation, o.ComputationUsed)
+	return o
+}
+
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 	assert.Error(t.Testing, t.Err)
 	if t.Err != nil {
@@ -124,16 +150,19 @@ func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertSuccess() TransactionResult {
 	assert.NoError(t.Testing, t.Err)
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 	assert.Equal(t.Testing, len(t.Events), number)
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertNoEvents() TransactionResult {
 	res := assert.Empty(t.Testing, t.Events)
 
@@ -141,6 +170,7 @@ func (t TransactionResult) AssertNoEvents() TransactionResult {
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) logFailure(res bool) {
 	if !res {
 		for _, ev := range t.Events {
@@ -149,6 +179,7 @@ func (t TransactionResult) logFailure(res bool) {
 	}
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) TransactionResult {
 	var eventNames []string
 	for _, fe := range t.Events {
@@ -167,6 +198,7 @@ func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) Transac
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResult {
 	var eventNames []string
 	for _, fe := range t.Events {
@@ -185,6 +217,7 @@ func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResul
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResult {
 
 	var jsonEvents []string
@@ -203,6 +236,7 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) TransactionResult {
 
 	events := t.Events
@@ -224,6 +258,8 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 
 	return t
 }
+
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionResult {
 	res := false
 	for _, ev := range event {
@@ -237,6 +273,7 @@ func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionR
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
 	var logMessages []interface{}
 	for _, fe := range t.Events {
@@ -251,6 +288,7 @@ func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
 
 	for _, log := range t.Result.EmulatorLog {
@@ -264,16 +302,19 @@ func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertComputationLessThenOrEqual(computation int) TransactionResult {
 	assert.LessOrEqual(t.Testing, t.Result.ComputationUsed, computation)
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertComputationUsed(computation int) TransactionResult {
 	assert.Equal(t.Testing, computation, t.Result.ComputationUsed)
 	return t
 }
 
+//Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
 
 	for _, ev := range t.Events {
