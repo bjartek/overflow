@@ -100,9 +100,9 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		result := map[string]interface{}{}
 		for _, item := range field.Pairs {
 			value := CadenceValueToInterfaceCompact(item.Value)
-			key := getAndUnquoteStringAsPointer(item.Key)
-			if value != nil && key != nil {
-				result[*key] = value
+			key := getAndUnquoteString(item.Key)
+			if value != nil && key != "" {
+				result[key] = value
 			}
 		}
 		if len(result) == 0 {
@@ -141,11 +141,11 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 	case cadence.TypeValue:
 		return field.StaticType.ID()
 	case cadence.String:
-		value := getAndUnquoteStringAsPointer(field)
-		if value == nil {
+		value := getAndUnquoteString(field)
+		if value == "" {
 			return nil
 		}
-		return *value
+		return value
 
 	case cadence.UFix64:
 		float, _ := strconv.ParseFloat(field.String(), 64)

@@ -46,6 +46,9 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 	}
 	dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: foo, Value: bar}})
 
+	emoji := CadenceString("😁")
+	emojiDict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: emoji, Value: emoji}})
+
 	cadenceAddress1 := cadence.BytesToAddress(address1.Bytes())
 
 	structTypeValue := cadence.NewTypeValue(&structType)
@@ -70,6 +73,8 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 		{autogold.Want("address", "0xf8d6e0586b0a20c7"), cadenceAddress1},
 		{autogold.Want("string type", "String"), stringTypeValue},
 		{autogold.Want("struct type", "A.f8d6e0586b0a20c7.Contract.Bar"), structTypeValue},
+		{autogold.Want("Emoji", "😁"), emoji},
+		{autogold.Want("EmojiDict", map[string]interface{}{"😁": "😁"}), emojiDict},
 	}
 
 	for _, tc := range testCases {
