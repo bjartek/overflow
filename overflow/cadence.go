@@ -2,10 +2,10 @@ package overflow
 
 import (
 	"encoding/json"
+	"github.com/onflow/cadence"
 	"log"
 	"strconv"
-
-	"github.com/onflow/cadence"
+	"strings"
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
@@ -62,6 +62,10 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 	default:
 		result, err := strconv.Unquote(field.String())
 		if err != nil {
+			if strings.Contains(field.String(), "\\u") || strings.Contains(field.String(), "\\U") {
+				return field.ToGoValue()
+			}
+
 			return field.String()
 		}
 		return result
