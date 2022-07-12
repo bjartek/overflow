@@ -53,8 +53,8 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if o.Err != nil {
-		o.Logger.Error(fmt.Sprintf("%v Error executing transaction: %s", emoji.PileOfPoo, o.Name))
 		panic(o.Err)
+		o.Logger.Error(fmt.Sprintf("%v Error executing transaction: %s ", emoji.PileOfPoo, o.Name))
 	}
 
 	messages := []string{}
@@ -85,8 +85,17 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 			for name, eventList := range events {
 				for _, event := range eventList {
 					o.Logger.Info(name)
+					length := 0
+					for key, _ := range event {
+						keyLength := len(key)
+						if keyLength > length {
+							length = keyLength
+						}
+					}
+
+					format := fmt.Sprintf("%%%ds:%%v", length+2)
 					for key, value := range event {
-						o.Logger.Info(fmt.Sprintf("   %s:%v", key, value))
+						o.Logger.Info(fmt.Sprintf(format, key, value))
 					}
 				}
 			}

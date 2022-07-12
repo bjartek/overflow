@@ -15,6 +15,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/pkg/errors"
+	"golang.org/x/exp/slices"
 )
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
@@ -80,6 +81,7 @@ func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	}
 
 	argumentNotPresent := []string{}
+	argumentNames := []string{}
 	args := []interface{}{}
 	for _, parameter := range parameterList {
 		parameterName := parameter.Identifier.Identifier
@@ -87,12 +89,25 @@ func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		if !ok {
 			argumentNotPresent = append(argumentNotPresent, parameterName)
 		} else {
+			argumentNames = append(argumentNames, parameterName)
 			args = append(args, value)
 		}
 	}
 
 	if len(argumentNotPresent) > 0 {
-		err := fmt.Errorf("the following arguments where not present %v", argumentNotPresent)
+		err := fmt.Errorf("the transaction '%s' is missing %v", fileName, argumentNotPresent)
+		return nil, err
+	}
+
+	redundantArgument := []string{}
+	for inputKey, _ := range inputArgs {
+		if !slices.Contains(argumentNames, inputKey) {
+			redundantArgument = append(redundantArgument, inputKey)
+		}
+	}
+
+	if len(redundantArgument) > 0 {
+		err := fmt.Errorf("the transaction '%s' has the following extra arguments %v", fileName, redundantArgument)
 		return nil, err
 	}
 
