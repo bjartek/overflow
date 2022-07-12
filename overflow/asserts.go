@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -52,6 +53,69 @@ func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
 	}
 }
 
+func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
+	t.Helper()
+	assert.Error(t, o.Err)
+	if o.Err != nil {
+		assert.Contains(t, o.Err.Error(), msg)
+	}
+	return o
+}
+
+func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
+	t.Helper()
+	assert.NoError(t, o.Err)
+	return o
+}
+
+func (o OverflowResult) AssertEventCont(t *testing.T, number int) OverflowResult {
+	t.Helper()
+	num := 0
+	for _, ev := range o.Events {
+		num = num + len(ev)
+	}
+	assert.Equal(t, num, number)
+	return o
+}
+func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
+	res := assert.Empty(t, o.Events)
+	o.logEventsFailure(t, res)
+	return o
+}
+
+func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
+	t.Helper()
+	if !res {
+		events := o.Events
+		for name, eventList := range events {
+			for _, event := range eventList {
+				t.Log(name)
+				for key, value := range event {
+					t.Log(fmt.Sprintf("   %s:%v", key, value))
+				}
+			}
+		}
+	}
+}
+
+func (o OverflowResult) AssertEmitEventName(t *testing.T, event ...string) OverflowResult {
+	var eventNames []string
+	for name, _ := range o.Events {
+		eventNames = append(eventNames, name)
+	}
+
+	res := false
+	for _, ev := range event {
+		if assert.Contains(t, eventNames, ev) {
+			res = true
+		}
+	}
+
+	o.logEventsFailure(t, res)
+
+	return o
+}
+
 func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 	assert.Error(t.Testing, t.Err)
 	if t.Err != nil {
@@ -59,6 +123,7 @@ func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 	}
 	return t
 }
+
 func (t TransactionResult) AssertSuccess() TransactionResult {
 	assert.NoError(t.Testing, t.Err)
 	return t
