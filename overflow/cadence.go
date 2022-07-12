@@ -2,6 +2,7 @@ package overflow
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -136,9 +137,12 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		}
 		return result
 
+	case cadence.Int:
+		return field.Int()
 	case cadence.Address:
 		return field.String()
 	case cadence.TypeValue:
+		fmt.Println("is type ", field.ToGoValue(), " ", field.String())
 		return field.StaticType.ID()
 	case cadence.String:
 		value := getAndUnquoteString(field)
@@ -155,6 +159,12 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		return float
 
 	default:
-		return field.ToGoValue()
+		//		fmt.Println("is fallthrough ", field.ToGoValue(), " ", field.String())
+
+		goValue := field.ToGoValue()
+		if goValue != nil {
+			return goValue
+		}
+		return field.String()
 	}
 }

@@ -55,6 +55,8 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 	stringType := cadence.NewStringType()
 	stringTypeValue := cadence.NewTypeValue(&stringType)
 
+	path := cadence.Path{Domain: "storage", Identifier: "foo"}
+
 	testCases := []Cadencetest{
 		{autogold.Want("EmptyString", nil), CadenceString("")},
 		{autogold.Want("nil", nil), nil},
@@ -62,6 +64,7 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 		{autogold.Want("Some(string)", "foo"), cadence.NewOptional(foo)},
 		{autogold.Want("Some(uint64)", uint64(42)), cadence.NewOptional(cadence.NewUInt64(42))},
 		{autogold.Want("uint64", uint64(42)), cadence.NewUInt64(42)},
+		{autogold.Want("int", 42), cadence.NewInt(42)},
 		{autogold.Want("string array", []interface{}{"foo", "bar"}), cadence.NewArray([]cadence.Value{foo, bar})},
 		{autogold.Want("empty array", nil), cadence.NewArray([]cadence.Value{emptyString})},
 		{autogold.Want("string array ignore empty", []interface{}{"foo", "bar"}), cadence.NewArray([]cadence.Value{foo, emptyString, bar})},
@@ -75,6 +78,7 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 		{autogold.Want("struct type", "A.f8d6e0586b0a20c7.Contract.Bar"), structTypeValue},
 		{autogold.Want("Emoji", "😁"), emoji},
 		{autogold.Want("EmojiDict", map[string]interface{}{"😁": "😁"}), emojiDict},
+		{autogold.Want("StoragePath", "/storage/foo"), path},
 	}
 
 	for _, tc := range testCases {

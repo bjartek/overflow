@@ -52,6 +52,35 @@ func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 	return o
 }
 
+func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEvent) OverflowResult {
+	t.Helper()
+	for eventName, events := range o.Events {
+		if strings.HasSuffix(eventName, name) {
+
+			newEvents := []OverflowEvent{}
+			for _, event := range events {
+				oe := OverflowEvent{}
+				valid := false
+				for key, value := range event {
+					_, exist := fields[key]
+					if exist {
+						oe[key] = value
+						valid = true
+					}
+				}
+				if valid {
+					newEvents = append(newEvents, oe)
+				}
+			}
+
+			result := assert.Contains(t, newEvents, fields)
+			o.logEventsFailure(t, result)
+
+		}
+	}
+	return o
+}
+
 func (o OverflowResult) AssertEventCont(t *testing.T, number int) OverflowResult {
 	t.Helper()
 	num := 0
@@ -63,6 +92,7 @@ func (o OverflowResult) AssertEventCont(t *testing.T, number int) OverflowResult
 }
 
 func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
+	t.Helper()
 	res := assert.Empty(t, o.Events)
 	o.logEventsFailure(t, res)
 	return o
@@ -71,6 +101,8 @@ func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
 func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
 	t.Helper()
 	if !res {
+		t.Log("EXISTING EVENTS")
+		t.Log("===============")
 		events := o.Events
 		for name, eventList := range events {
 			for _, event := range eventList {
