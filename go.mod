@@ -13,7 +13,6 @@ require (
 	github.com/onflow/flow-go-sdk v0.26.4
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
-	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.1

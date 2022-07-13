@@ -346,7 +346,7 @@ func (e FormatedEvent) String() string {
 
 func (e FormatedEvent) GetFieldAsUInt64(field string) uint64 {
 	id := e.Fields[field]
-	fieldAsString := fmt.Sprintf("%s", id)
+	fieldAsString := fmt.Sprintf("%v", id)
 	if fieldAsString == "" {
 		panic("field is empty")
 	}

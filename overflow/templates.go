@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -168,14 +167,8 @@ pub fun main(user:Address): UInt64{
 	let account=getAccount(user)
 	return account.storageCapacity - account.storageUsed
 }
-`).Args(f.Arguments().Account(accountName)).RunReturnsInterface().(string)
-
-	intVar, err := strconv.Atoi(result)
-	if err != nil {
-		panic(err)
-	}
-
-	return intVar
+`).Args(f.Arguments().Account(accountName)).RunReturnsInterface().(uint64)
+	return int(result)
 
 }
 

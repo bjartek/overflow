@@ -21,13 +21,12 @@ func CadenceValueToGoValue(input cadence.Value) (output interface{}) {
 	switch input.(type) {
 	// TODO: can these be handled together?
 	case cadence.UFix64:
-		output = float64(val.(uint64)) / fixedPointrecisionMultiple
-		break
+		return float64(val.(uint64)) / fixedPointrecisionMultiple
 	case cadence.Fix64:
-		output = float64(val.(int64)) / fixedPointrecisionMultiple
-		break
+		return float64(val.(int64)) / fixedPointrecisionMultiple
+	case cadence.Address:
+		return input.String()
 	default:
-		output = val
+		return val
 	}
-	return
 }
