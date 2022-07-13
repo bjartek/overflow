@@ -1,6 +1,8 @@
 package overflow
 
-import "github.com/onflow/cadence"
+import (
+	"github.com/onflow/cadence"
+)
 
 const (
 	fixedPointrecisionMultiple = 100000000
@@ -25,7 +27,7 @@ func CadenceValueToGoValue(input cadence.Value) (output interface{}) {
 		output = float64(val.(int64)) / fixedPointrecisionMultiple
 		break
 	default:
-		output = input.ToGoValue()
+		output = val
 	}
 	return
 }

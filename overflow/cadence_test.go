@@ -46,19 +46,64 @@ func TestCadenceValueToJsonString(t *testing.T) {
 	})
 
 	t.Run("Dictionary with numbers", func(t *testing.T) {
+		// fixed point numbers
 		fix64, err := cadence.NewFix64("1.12345678")
 		assert.Nil(t, err)
 		ufix64, err := cadence.NewUFix64("2.12345678")
 		assert.Nil(t, err)
 
+		// unsigned integers
+		uint256Val := cadence.NewUInt256(256)
+		uint128Val := cadence.NewUInt128(128)
+		uint64Val := cadence.NewUInt64(64)
+		uint32Val := cadence.NewUInt32(32)
+		uint16Val := cadence.NewUInt16(16)
+		uint8Val := cadence.NewUInt8(8)
+
+		// integers
+		int256Val := cadence.NewInt256(256)
+		int128Val := cadence.NewInt256(128)
+		int64Val := cadence.NewInt64(64)
+		int32Val := cadence.NewInt32(32)
+		int16Val := cadence.NewInt16(16)
+		int8Val := cadence.NewInt8(16)
+
+		boolVal := cadence.NewBool(false)
+
 		dict := cadence.NewDictionary([]cadence.KeyValuePair{
 			{Key: CadenceString("fix64"), Value: fix64},
 			{Key: CadenceString("ufix64"), Value: ufix64},
+			{Key: CadenceString("uint256"), Value: uint256Val},
+			{Key: CadenceString("uint128"), Value: uint128Val},
+			{Key: CadenceString("uint64"), Value: uint64Val},
+			{Key: CadenceString("uint32"), Value: uint32Val},
+			{Key: CadenceString("uint16"), Value: uint16Val},
+			{Key: CadenceString("uint8"), Value: uint8Val},
+			{Key: CadenceString("int256"), Value: int256Val},
+			{Key: CadenceString("int128"), Value: int128Val},
+			{Key: CadenceString("int64"), Value: int64Val},
+			{Key: CadenceString("int32"), Value: int32Val},
+			{Key: CadenceString("int16"), Value: int16Val},
+			{Key: CadenceString("int8"), Value: int8Val},
+			{Key: CadenceString("bool"), Value: boolVal},
 		})
 		value := CadenceValueToJsonString(dict)
 		assert.Equal(t, `{
+    "bool": false,
     "fix64": 1.12345678,
-    "ufix64": 2.12345678
+    "int128": 128,
+    "int16": 16,
+    "int256": 256,
+    "int32": 32,
+    "int64": 64,
+    "int8": 16,
+    "ufix64": 2.12345678,
+    "uint128": 128,
+    "uint16": 16,
+    "uint256": 256,
+    "uint32": 32,
+    "uint64": 64,
+    "uint8": 8
 }`, value)
 	})
 
