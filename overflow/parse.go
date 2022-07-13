@@ -310,7 +310,7 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network string) 
 
 func params(fileName string, code []byte) *ast.ParameterList {
 
-	codes := map[common.LocationID]string{}
+	codes := map[common.Location]string{}
 	location := common.StringLocation(fileName)
 	program, _ := cmd.PrepareProgram(string(code), location, codes)
 

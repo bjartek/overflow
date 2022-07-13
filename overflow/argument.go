@@ -28,7 +28,7 @@ type FlowArgumentsBuilder struct {
 func (f *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
-	codes := map[common.LocationID]string{}
+	codes := map[common.Location]string{}
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(string(code), location, codes)
 	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)

@@ -34,8 +34,11 @@ type OverflowState struct {
 	Gas                          int
 
 	//flowkit, emulator and emulator debug log uses three different logging technologies so we have them all stored here
-	Logger      output.Logger
-	Log         *bytes.Buffer
+	Logger output.Logger
+	Log    *bytes.Buffer
+
+	//https://github.com/bjartek/overflow/issues/45
+	//This is not populated with anything yet since the emulator version that has this change is not in mainline yet
 	EmulatorLog *bytes.Buffer
 
 	//If there was an error starting overflow it is stored here
@@ -55,7 +58,7 @@ type OverflowState struct {
 func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
-	codes := map[common.LocationID]string{}
+	codes := map[common.Location]string{}
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(string(code), location, codes)
 	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
@@ -101,6 +104,7 @@ func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 	redundantArgument := []string{}
 	for inputKey, _ := range inputArgs {
+		//If your IDE complains about this it is wrong, this is 1.18 generics not suported anywhere
 		if !slices.Contains(argumentNames, inputKey) {
 			redundantArgument = append(redundantArgument, inputKey)
 		}

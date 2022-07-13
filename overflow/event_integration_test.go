@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEvents(t *testing.T) {
+func TestIntegrationEvents(t *testing.T) {
 
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
 		g := NewTestingEmulator().Start()
@@ -116,5 +116,4 @@ func TestEvents(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(ev))
 	})
-
 }
