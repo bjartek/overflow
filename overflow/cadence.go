@@ -8,8 +8,8 @@ import (
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
-func CadenceValueToJsonStringCompact(value cadence.Value) string {
-	result := CadenceValueToInterfaceCompact(value)
+func CadenceValueToJsonString(value cadence.Value) string {
+	result := CadenceValueToInterface(value)
 	if result == nil {
 		return ""
 	}
@@ -23,19 +23,19 @@ func CadenceValueToJsonStringCompact(value cadence.Value) string {
 }
 
 // CadenceValueToInterface convert a candence.Value into interface{}
-func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
+func CadenceValueToInterface(field cadence.Value) interface{} {
 	if field == nil {
 		return nil
 	}
 
 	switch field := field.(type) {
 	case cadence.Optional:
-		return CadenceValueToInterfaceCompact(field.Value)
+		return CadenceValueToInterface(field.Value)
 	case cadence.Dictionary:
 		//fmt.Println("is dict ", field.ToGoValue(), " ", field.String())
 		result := map[string]interface{}{}
 		for _, item := range field.Pairs {
-			value := CadenceValueToInterfaceCompact(item.Value)
+			value := CadenceValueToInterface(item.Value)
 			key := getAndUnquoteString(item.Key)
 
 			if value != nil && key != "" {
@@ -52,7 +52,7 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		subStructNames := field.StructType.Fields
 
 		for j, subField := range field.Fields {
-			value := CadenceValueToInterfaceCompact(subField)
+			value := CadenceValueToInterface(subField)
 			key := subStructNames[j].Identifier
 
 			//	fmt.Println("struct ", key, "value", value)
@@ -68,7 +68,7 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		//fmt.Println("is array ", field.ToGoValue(), " ", field.String())
 		var result []interface{}
 		for _, item := range field.Values {
-			value := CadenceValueToInterfaceCompact(item)
+			value := CadenceValueToInterface(item)
 			//	fmt.Printf("%+v\n", value)
 			if value != nil {
 				result = append(result, value)

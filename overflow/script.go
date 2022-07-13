@@ -99,14 +99,14 @@ func (osr *OverflowScriptResult) GetAsJson() string {
 	if osr.Err != nil {
 		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
 	}
-	return CadenceValueToJsonStringCompact(osr.Result)
+	return CadenceValueToJsonString(osr.Result)
 }
 
 func (osr *OverflowScriptResult) GetAsInterface() interface{} {
 	if osr.Err != nil {
 		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
 	}
-	return CadenceValueToInterfaceCompact(osr.Result)
+	return CadenceValueToInterface(osr.Result)
 }
 
 func (osr *OverflowScriptResult) Print() {
@@ -118,7 +118,7 @@ func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
 	if osr.Err != nil {
 		return osr.Err
 	}
-	jsonResult := CadenceValueToJsonStringCompact(osr.Result)
+	jsonResult := CadenceValueToJsonString(osr.Result)
 	err := json.Unmarshal([]byte(jsonResult), &value)
 	return err
 }
@@ -211,7 +211,7 @@ func (t FlowScriptBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowScriptBuil
 //Deprecation use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) Run() {
 	result := t.RunFailOnError()
-	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonStringCompact(result)))
+	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result)))
 }
 
 // Deprecation use FlowInteractionBuilder
@@ -277,7 +277,7 @@ func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	jsonResult := CadenceValueToJsonStringCompact(result)
+	jsonResult := CadenceValueToJsonString(result)
 	err = json.Unmarshal([]byte(jsonResult), &value)
 	return err
 }
@@ -285,11 +285,11 @@ func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 // RunReturnsJsonString runs the script and returns pretty printed json string
 // Deprecation use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
-	return CadenceValueToJsonStringCompact(t.RunFailOnError())
+	return CadenceValueToJsonString(t.RunFailOnError())
 }
 
 //RunReturnsInterface runs the script and returns interface{}
 // Deprecation use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
-	return CadenceValueToInterfaceCompact(t.RunFailOnError())
+	return CadenceValueToInterface(t.RunFailOnError())
 }

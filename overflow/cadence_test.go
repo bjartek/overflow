@@ -14,7 +14,7 @@ type Cadencetest struct {
 	input cadence.Value
 }
 
-func TestCadenceValueToInterfaceCompact(t *testing.T) {
+func TestCadenceValueToInterface(t *testing.T) {
 
 	foo := CadenceString("foo")
 	bar := CadenceString("bar")
@@ -85,7 +85,7 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.want.Name(), func(t *testing.T) {
-			value := CadenceValueToInterfaceCompact(tc.input)
+			value := CadenceValueToInterface(tc.input)
 			tc.want.Equal(t, value)
 		})
 	}

@@ -249,7 +249,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 		if skip {
 			continue
 		}
-		value := CadenceValueToInterfaceCompact(field)
+		value := CadenceValueToInterface(field)
 		if value != nil {
 			finalFields[name] = value
 		}
