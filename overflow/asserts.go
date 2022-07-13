@@ -51,7 +51,6 @@ func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 	t.Helper()
 	assert.NoError(t, o.Err)
-	//TODO: fix error see Other success test
 	return o
 }
 
