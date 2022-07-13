@@ -66,7 +66,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 				return field.ToGoValue()
 			}
 
-			return field.String()
+			return CadenceValueToGoValue(field)
 		}
 		return result
 	}

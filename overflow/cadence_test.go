@@ -45,6 +45,23 @@ func TestCadenceValueToJsonString(t *testing.T) {
 }`, value)
 	})
 
+	t.Run("Dictionary with numbers", func(t *testing.T) {
+		fix64, err := cadence.NewFix64("1.12345678")
+		assert.Nil(t, err)
+		ufix64, err := cadence.NewUFix64("2.12345678")
+		assert.Nil(t, err)
+
+		dict := cadence.NewDictionary([]cadence.KeyValuePair{
+			{Key: CadenceString("fix64"), Value: fix64},
+			{Key: CadenceString("ufix64"), Value: ufix64},
+		})
+		value := CadenceValueToJsonString(dict)
+		assert.Equal(t, `{
+    "fix64": 1.12345678,
+    "ufix64": 2.12345678
+}`, value)
+	})
+
 	t.Run("Dictionary nested", func(t *testing.T) {
 		subDict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: CadenceString("foo"), Value: CadenceString("bar")}})
 		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: CadenceString("foo"), Value: CadenceString("bar")}, {Key: CadenceString("subdict"), Value: subDict}})
