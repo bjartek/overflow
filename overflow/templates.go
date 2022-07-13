@@ -2,7 +2,6 @@ package overflow
 
 import (
 	"encoding/base64"
-	"strconv"
 )
 
 //TODO: rewrite to use new api
@@ -92,14 +91,9 @@ pub fun main(user:Address): UInt64{
 	let account=getAccount(user)
 	return account.storageCapacity - account.storageUsed
 }
-`).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(string)
+`).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(uint64)
 
-	intVar, err := strconv.Atoi(result)
-	if err != nil {
-		panic(err)
-	}
-
-	return intVar
+	return int(result)
 
 }
 
