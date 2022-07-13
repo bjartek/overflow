@@ -91,6 +91,7 @@ require (
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
 	github.com/rs/zerolog v1.26.1 // indirect
+	github.com/sanity-io/litter v1.5.5 // indirect
 	github.com/sethvargo/go-retry v0.2.3 // indirect
 	github.com/shurcooL/go-goon v0.0.0-20210110234559-7585751d9a17 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect

@@ -6,7 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slices"
 )
 
 //Deprecated use the new Tx() method and OverflowResult
@@ -49,6 +51,7 @@ func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 	t.Helper()
 	assert.NoError(t, o.Err)
+	//TODO: fix error see Other success test
 	return o
 }
 
@@ -73,9 +76,10 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 				}
 			}
 
-			result := assert.Contains(t, newEvents, fields)
-			o.logEventsFailure(t, result)
-
+			if !fields.ExistIn(newEvents) {
+				assert.Fail(t, fmt.Sprintf("event not found %s", litter.Sdump(fields)))
+				o.logEventsFailure(t, true)
+			}
 		}
 	}
 	return o
@@ -167,7 +171,11 @@ func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 
 //Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertSuccess() TransactionResult {
-	assert.NoError(t.Testing, t.Err)
+	t.Testing.Helper()
+
+	if t.Err != nil {
+		assert.Fail(t.Testing, fmt.Sprintf("Received unexpected error:\n%+v", t.Err), fmt.Sprintf("transactionName:%s", t.Result.Name))
+	}
 	return t
 }
 
@@ -189,7 +197,7 @@ func (t TransactionResult) AssertNoEvents() TransactionResult {
 func (t TransactionResult) logFailure(res bool) {
 	if !res {
 		for _, ev := range t.Events {
-			t.Testing.Log(ev.String())
+			t.Testing.Log(litter.Sdump(ev))
 		}
 	}
 }
@@ -242,7 +250,9 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 
 	res := false
 	for _, ev := range event {
-		if assert.Contains(t.Testing, jsonEvents, ev) {
+		//TODO: keep as before if this fails
+		if !slices.Contains(jsonEvents, ev) {
+			assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(ev)))
 			res = true
 		}
 	}
@@ -267,9 +277,10 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 		}
 	}
 
-	result := assert.Contains(t.Testing, events, expected)
-
-	t.logFailure(result)
+	if !expected.ExistIn(events) {
+		assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(expected)))
+		t.logFailure(true)
+	}
 
 	return t
 }
@@ -278,7 +289,10 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionResult {
 	res := false
 	for _, ev := range event {
-		if assert.Contains(t.Testing, t.Events, ev) {
+		//This is not a compile error
+
+		if !ev.ExistIn(t.Events) {
+			assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(ev)))
 			res = true
 		}
 	}

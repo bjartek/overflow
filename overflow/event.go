@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"reflect"
 	"strings"
 
 	"github.com/onflow/flow-go-sdk"
@@ -14,6 +15,16 @@ type OverflowEvents map[string][]OverflowEvent
 
 //a type representing the terse output of an raw Flow Event
 type OverflowEvent map[string]interface{}
+
+func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
+	for _, ev := range events {
+		result := reflect.DeepEqual(o, ev)
+		if result {
+			return true
+		}
+	}
+	return false
+}
 
 func ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}

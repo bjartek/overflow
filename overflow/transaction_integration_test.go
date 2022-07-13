@@ -50,16 +50,17 @@ func TestTransactionIntegration(t *testing.T) {
 			SignProposeAndPayAsService().
 			ArgsFn(func(args *FlowArgumentsBuilder) {
 				args.Account("first")
-				args.UFix64(100.0)
+				args.UFix64(100.1)
 			}).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3).                                                                                                                                                                           //assert the number of events returned
-			AssertPartialEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                            //assert a given event, can also take multiple events if you like
-			AssertEmitEventNameShortForm("FlowToken.TokensMinted").                                                                                                                                        //assert the name of a single event
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated").                                //or assert more then one eventname in a go
-			AssertEmitEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                                  //assert a given event, can also take multiple events if you like
-			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": \"100.00000000\"\n  }\n}") //assert a given event using json, can also take multiple events if you like
+			AssertEventCount(3).                                                                                                                                            //assert the number of events returned
+			AssertPartialEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": float64(100.1)})).                             //assert a given event, can also take multiple events if you like
+			AssertEmitEventNameShortForm("FlowToken.TokensMinted").                                                                                                         //assert the name of a single event
+			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated"). //or assert more then one eventname in a go
+			AssertEmitEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": float64(100.1)})).
+			//assert a given event, can also take multiple events if you like
+			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": 100.1\n  }\n}") //assert a given event using json, can also take multiple events if you like
 
 		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
 		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))

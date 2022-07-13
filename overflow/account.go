@@ -48,16 +48,28 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
-func (f *OverflowState) InitializeContracts() *OverflowState {
-	f.Logger.Info("Deploying contracts")
-	if _, err := f.Services.Project.Deploy(f.Network, false); err != nil {
+func (o *OverflowState) InitializeContracts() *OverflowState {
+	o.Logger.Info("Deploying contracts")
+
+	o.Log.Reset()
+	if _, err := o.Services.Project.Deploy(o.Network, false); err != nil {
+		log, _ := o.readLog()
+		if len(log) != 0 {
+			fmt.Println("=== LOG ===")
+			for _, msg := range log {
+				if msg.Level == "warning" || msg.Level == "error" {
+					fmt.Println(msg.Msg)
+				}
+			}
+		}
 		panic(err)
 	}
-	return f
+	o.Log.Reset()
+	return o
 }
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
-//TODO: consider renamting this method as this is getting a remove account a flow account not a flowkit account
+//TODO: consider renaming this method as this is getting a remove account a flow account not a flowkit account
 func (f *OverflowState) GetAccount(key string) (*flow.Account, error) {
 	account, err := f.AccountE(key)
 	if err != nil {

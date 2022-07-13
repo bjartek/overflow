@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strconv"
 	"time"
@@ -249,7 +250,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 			continue
 		}
 
-		finalFields[name] = CadenceValueToInterface(field)
+		finalFields[name] = CadenceValueToInterfaceCompact(field)
 	}
 	return &FormatedEvent{
 		Name:        event.Type,
@@ -265,6 +266,16 @@ type FormatedEvent struct {
 	BlockHeight uint64                 `json:"blockHeight,omitempty"`
 	Time        time.Time              `json:"time,omitempty"`
 	Fields      map[string]interface{} `json:"fields"`
+}
+
+func (o *FormatedEvent) ExistIn(events []*FormatedEvent) bool {
+	for _, ev := range events {
+		result := reflect.DeepEqual(o, ev)
+		if result {
+			return true
+		}
+	}
+	return false
 }
 
 func (fe FormatedEvent) ShortName() string {
@@ -294,7 +305,7 @@ func (e FormatedEvent) String() string {
 
 func (e FormatedEvent) GetFieldAsUInt64(field string) uint64 {
 	id := e.Fields[field]
-	fieldAsString := fmt.Sprintf("%s", id)
+	fieldAsString := fmt.Sprintf("%v", id)
 	if fieldAsString == "" {
 		panic("field is empty")
 	}

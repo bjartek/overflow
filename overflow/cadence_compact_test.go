@@ -54,7 +54,7 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 	structTypeValue := cadence.NewTypeValue(&structType)
 	stringType := cadence.NewStringType()
 	stringTypeValue := cadence.NewTypeValue(&stringType)
-
+	ufix, _ := cadence.NewUFix64("42.0")
 	path := cadence.Path{Domain: "storage", Identifier: "foo"}
 
 	testCases := []Cadencetest{
@@ -64,6 +64,8 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 		{autogold.Want("Some(string)", "foo"), cadence.NewOptional(foo)},
 		{autogold.Want("Some(uint64)", uint64(42)), cadence.NewOptional(cadence.NewUInt64(42))},
 		{autogold.Want("uint64", uint64(42)), cadence.NewUInt64(42)},
+		{autogold.Want("ufix64", float64(42.0)), ufix},
+		{autogold.Want("uint32", uint32(42)), cadence.NewUInt32(42)},
 		{autogold.Want("int", 42), cadence.NewInt(42)},
 		{autogold.Want("string array", []interface{}{"foo", "bar"}), cadence.NewArray([]cadence.Value{foo, bar})},
 		{autogold.Want("empty array", nil), cadence.NewArray([]cadence.Value{emptyString})},
@@ -82,8 +84,6 @@ func TestCadenceValueToInterfaceCompact(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		//		t.Parallel()
-
 		t.Run(tc.want.Name(), func(t *testing.T) {
 			value := CadenceValueToInterfaceCompact(tc.input)
 			tc.want.Equal(t, value)

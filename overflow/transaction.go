@@ -112,6 +112,30 @@ func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
 	panic(fmt.Sprintf("Could not events with suffix %s", eventName))
 }
 
+func (o OverflowState) readLog() ([]LogrusMessage, error) {
+
+	var logMessage []LogrusMessage
+	dec := json.NewDecoder(o.Log)
+	for {
+		var doc LogrusMessage
+
+		err := dec.Decode(&doc)
+		if err == io.EOF {
+			// all done
+			break
+		}
+		if err != nil {
+			return []LogrusMessage{}, err
+		}
+
+		logMessage = append(logMessage, doc)
+	}
+
+	o.Log.Reset()
+	return logMessage, nil
+
+}
+
 // Send a intereaction builder as a Transaction returning an overflow result
 func (t FlowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{}
@@ -194,23 +218,11 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 		return result
 	}
 
-	var logMessage []LogrusMessage
-	dec := json.NewDecoder(t.Overflow.Log)
-	for {
-		var doc LogrusMessage
-
-		err := dec.Decode(&doc)
-		if err == io.EOF {
-			// all done
-			break
-		}
-		if err != nil {
-			result.Err = err
-			return result
-		}
-
-		logMessage = append(logMessage, doc)
+	logMessage, err := t.Overflow.readLog()
+	if err != nil {
+		result.Err = err
 	}
+	result.RawLog = logMessage
 
 	result.Meter = &Meter{}
 	var meter Meter
@@ -231,7 +243,6 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 		}
 		messages = append(messages, msg.Msg)
 	}
-	result.RawLog = logMessage
 
 	result.EmulatorLog = messages
 

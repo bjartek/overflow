@@ -7,6 +7,7 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
+	"github.com/pkg/errors"
 )
 
 //Composition functions for Scripts
@@ -56,7 +57,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 		o.Network)
 
 	osc.Result = result
-	osc.Err = err
+	osc.Err = errors.Wrapf(err, "scriptFileName:%s", interaction.FileName)
 
 	var logMessage []LogrusMessage
 	dec := json.NewDecoder(o.Log)
@@ -263,8 +264,7 @@ func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 	result, err := t.RunReturns()
 	if err != nil {
-		t.Overflow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
-		panic(err)
+		panic(errors.Wrapf(err, "scriptName:%s", t.FileName))
 	}
 	return result
 
