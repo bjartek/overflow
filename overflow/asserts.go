@@ -264,19 +264,23 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) TransactionResult {
 
 	events := t.Events
+	newEvents := []*FormatedEvent{}
 	for index, ev := range events {
 		//todo do we need more then just name here?
 		if ev.Name == expected.Name {
 			for key := range ev.Fields {
 				_, exist := expected.Fields[key]
-				if !exist {
-					delete(events[index].Fields, key)
+				// if !exist {
+				// 	delete(events[index].Fields, key)
+				// }
+				if exist {
+					newEvents = append(newEvents, events[index])
 				}
 			}
 		}
 	}
 
-	if !expected.ExistIn(events) {
+	if !expected.ExistIn(newEvents) {
 		assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(expected)))
 		t.logFailure(true)
 	}
