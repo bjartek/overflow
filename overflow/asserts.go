@@ -247,12 +247,12 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 		jsonEvents = append(jsonEvents, fe.String())
 	}
 
-	res := false
+	res := true
 	for _, ev := range event {
 		//TODO: keep as before if this fails
 		if !slices.Contains(jsonEvents, ev) {
 			assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(ev)))
-			res = true
+			res = false
 		}
 	}
 
@@ -265,24 +265,30 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 
 	events := t.Events
 	newEvents := []*FormatedEvent{}
-	for index, ev := range events {
+	for _, ev := range events {
 		//todo do we need more then just name here?
 		if ev.Name == expected.Name {
-			for key := range ev.Fields {
+			fields := map[string]interface{}{}
+			for key, value := range ev.Fields {
 				_, exist := expected.Fields[key]
-				// if !exist {
-				// 	delete(events[index].Fields, key)
-				// }
 				if exist {
-					newEvents = append(newEvents, events[index])
+					fields[key] = value
 				}
+			}
+
+			if len(fields) > 0 {
+				newEvents = append(newEvents, &FormatedEvent{
+					Name:        ev.Name,
+					Time:        ev.Time,
+					BlockHeight: ev.BlockHeight,
+					Fields:      fields,
+				})
 			}
 		}
 	}
-
 	if !expected.ExistIn(newEvents) {
 		assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(expected)))
-		t.logFailure(true)
+		t.logFailure(false)
 	}
 
 	return t
@@ -290,13 +296,13 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 
 //Deprecated use the new Tx() method and Asserts on the result
 func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionResult {
-	res := false
+	res := true
 	for _, ev := range event {
 		//This is not a compile error
 
 		if !ev.ExistIn(t.Events) {
 			assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(ev)))
-			res = true
+			res = false
 		}
 	}
 

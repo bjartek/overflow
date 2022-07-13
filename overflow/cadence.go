@@ -2,7 +2,6 @@ package overflow
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -98,10 +97,12 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 	case cadence.Optional:
 		return CadenceValueToInterfaceCompact(field.Value)
 	case cadence.Dictionary:
+		//fmt.Println("is dict ", field.ToGoValue(), " ", field.String())
 		result := map[string]interface{}{}
 		for _, item := range field.Pairs {
 			value := CadenceValueToInterfaceCompact(item.Value)
 			key := getAndUnquoteString(item.Key)
+
 			if value != nil && key != "" {
 				result[key] = value
 			}
@@ -111,13 +112,17 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		}
 		return result
 	case cadence.Struct:
+		//fmt.Println("is struct ", field.ToGoValue(), " ", field.String())
 		result := map[string]interface{}{}
 		subStructNames := field.StructType.Fields
 
 		for j, subField := range field.Fields {
 			value := CadenceValueToInterfaceCompact(subField)
+			key := subStructNames[j].Identifier
+
+			//	fmt.Println("struct ", key, "value", value)
 			if value != nil {
-				result[subStructNames[j].Identifier] = value
+				result[key] = value
 			}
 		}
 		if len(result) == 0 {
@@ -125,9 +130,11 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		}
 		return result
 	case cadence.Array:
+		//fmt.Println("is array ", field.ToGoValue(), " ", field.String())
 		var result []interface{}
 		for _, item := range field.Values {
 			value := CadenceValueToInterfaceCompact(item)
+			//	fmt.Printf("%+v\n", value)
 			if value != nil {
 				result = append(result, value)
 			}
@@ -142,9 +149,10 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 	case cadence.Address:
 		return field.String()
 	case cadence.TypeValue:
-		fmt.Println("is type ", field.ToGoValue(), " ", field.String())
+		//fmt.Println("is type ", field.ToGoValue(), " ", field.String())
 		return field.StaticType.ID()
 	case cadence.String:
+		//fmt.Println("is string ", field.ToGoValue(), " ", field.String())
 		value := getAndUnquoteString(field)
 		if value == "" {
 			return nil
@@ -159,7 +167,7 @@ func CadenceValueToInterfaceCompact(field cadence.Value) interface{} {
 		return float
 
 	default:
-		//		fmt.Println("is fallthrough ", field.ToGoValue(), " ", field.String())
+		//fmt.Println("is fallthrough ", field.ToGoValue(), " ", field.String())
 
 		goValue := field.ToGoValue()
 		if goValue != nil {

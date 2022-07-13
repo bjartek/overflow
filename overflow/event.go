@@ -41,7 +41,10 @@ func ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
-			finalFields[name] = CadenceValueToInterfaceCompact(field)
+			value := CadenceValueToInterfaceCompact(field)
+			if value != nil {
+				finalFields[name] = value
+			}
 		}
 
 		events, ok := overflowEvents[event.Type]

@@ -249,8 +249,10 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 		if skip {
 			continue
 		}
-
-		finalFields[name] = CadenceValueToInterfaceCompact(field)
+		value := CadenceValueToInterfaceCompact(field)
+		if value != nil {
+			finalFields[name] = value
+		}
 	}
 	return &FormatedEvent{
 		Name:        event.Type,
@@ -268,9 +270,9 @@ type FormatedEvent struct {
 	Fields      map[string]interface{} `json:"fields"`
 }
 
-func (o *FormatedEvent) ExistIn(events []*FormatedEvent) bool {
+func (o FormatedEvent) ExistIn(events []*FormatedEvent) bool {
 	for _, ev := range events {
-		result := reflect.DeepEqual(o, ev)
+		result := reflect.DeepEqual(o, *ev)
 		if result {
 			return true
 		}
