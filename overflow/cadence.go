@@ -13,7 +13,7 @@ func CadenceValueToJsonString(value cadence.Value) string {
 	if result == nil {
 		return ""
 	}
-	j, err := json.MarshalIndent(result, "", "  ")
+	j, err := json.MarshalIndent(result, "", "    ")
 
 	if err != nil {
 		panic(err)
