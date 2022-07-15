@@ -122,7 +122,24 @@ func (osr *OverflowScriptResult) GetAsInterface() interface{} {
 	return osr.Output
 }
 
-func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
+func (osr *OverflowScriptResult) AssertWithPointerError(t *testing.T, pointer string, message string) *OverflowScriptResult {
+	_, err := osr.GetWithPointer(pointer)
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, message, "output", litter.Sdump(osr.Output))
+
+	return osr
+}
+
+func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string, value interface{}) *OverflowScriptResult {
+	result, err := osr.GetWithPointer(pointer)
+	assert.NoError(t, err)
+
+	assert.Equal(t, value, result, "output", litter.Sdump(osr.Output))
+
+	return osr
+}
+
+func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
 
@@ -142,11 +159,27 @@ func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer s
 	switch res := result.(type) {
 	case []interface{}:
 	case map[interface{}]interface{}:
-		assert.Equal(t, length, len(res), "result", result)
+		assert.Equal(t, length, len(res), "result", osr.Output)
 	default:
-		assert.Equal(t, length, len(fmt.Sprintf("%v", res)), "result", result)
+		assert.Equal(t, length, len(fmt.Sprintf("%v", res)), "result", osr.Output)
 	}
 	return osr
+}
+
+func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo interface{}) error {
+	ptr, err := gojsonpointer.NewJsonPointer(pointer)
+	if err != nil {
+		return err
+	}
+	result, _, err := ptr.Get(osr.Output)
+
+	bytes, err := json.Marshal(result)
+	if err != nil {
+		return err
+	}
+
+	json.Unmarshal(bytes, marshalTo)
+	return nil
 }
 
 func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, error) {
