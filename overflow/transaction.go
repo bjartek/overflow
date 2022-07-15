@@ -21,6 +21,7 @@ func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *Overflow
 type TransactionFunction func(filename string, opts ...InteractionOption) *OverflowResult
 type TransactionOptsFunction func(opts ...InteractionOption) *OverflowResult
 
+// If you store this in a struct and add arguments to it it will not reset between calls
 func (o *OverflowState) TxFN(outerOpts ...InteractionOption) TransactionFunction {
 
 	return func(filename string, opts ...InteractionOption) *OverflowResult {

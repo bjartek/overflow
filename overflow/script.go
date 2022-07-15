@@ -4,10 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"testing"
 
 	"github.com/enescakir/emoji"
+	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
 	"github.com/pkg/errors"
+	"github.com/sanity-io/litter"
+	"github.com/stretchr/testify/assert"
+	"github.com/xeipuuv/gojsonpointer"
 )
 
 //Composition functions for Scripts
@@ -57,6 +62,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 		o.Network)
 
 	osc.Result = result
+	osc.Output = CadenceValueToInterface(result)
 	osc.Err = errors.Wrapf(err, "scriptFileName:%s", interaction.FileName)
 
 	var logMessage []LogrusMessage
@@ -93,20 +99,84 @@ type OverflowScriptResult struct {
 	Result cadence.Value
 	Input  *FlowInteractionBuilder
 	Log    []LogrusMessage
+	Output interface{}
 }
 
 func (osr *OverflowScriptResult) GetAsJson() string {
 	if osr.Err != nil {
 		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
 	}
-	return CadenceValueToJsonString(osr.Result)
+	j, err := json.MarshalIndent(osr.Output, "", "    ")
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(j)
 }
 
 func (osr *OverflowScriptResult) GetAsInterface() interface{} {
 	if osr.Err != nil {
 		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
 	}
-	return CadenceValueToInterface(osr.Result)
+	return osr.Output
+}
+
+func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
+	result, err := osr.GetWithPointer(pointer)
+	assert.NoError(t, err)
+
+	switch result.(type) {
+	case []interface{}:
+	case map[interface{}]interface{}:
+		want.Equal(t, litter.Sdump(result))
+	default:
+		want.Equal(t, result)
+	}
+	return osr
+}
+
+func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer string, length int) *OverflowScriptResult {
+	result, err := osr.GetWithPointer(pointer)
+	assert.NoError(t, err)
+	switch res := result.(type) {
+	case []interface{}:
+	case map[interface{}]interface{}:
+		assert.Equal(t, length, len(res), "result", result)
+	default:
+		assert.Equal(t, length, len(fmt.Sprintf("%v", res)), "result", result)
+	}
+	return osr
+}
+
+func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, error) {
+
+	ptr, err := gojsonpointer.NewJsonPointer(pointer)
+	if err != nil {
+		return nil, err
+	}
+	result, _, err := ptr.Get(osr.Output)
+	return result, err
+}
+
+func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *OverflowScriptResult {
+	assert.NoError(t, osr.Err)
+
+	switch osr.Output.(type) {
+	case []interface{}:
+	case map[interface{}]interface{}:
+		want.Equal(t, litter.Sdump(osr.Output))
+	default:
+		want.Equal(t, osr.Output)
+	}
+	/*
+		if osr.Output == nil {
+			want.Equal(t, osr.Output)
+		} else {
+			want.Equal(t, litter.Sdump(osr.Output))
+		}
+	*/
+	return osr
 }
 
 func (osr *OverflowScriptResult) Print() {
@@ -118,8 +188,7 @@ func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
 	if osr.Err != nil {
 		return osr.Err
 	}
-	jsonResult := CadenceValueToJsonString(osr.Result)
-	err := json.Unmarshal([]byte(jsonResult), &value)
+	err := json.Unmarshal([]byte(osr.GetAsJson()), &value)
 	return err
 }
 
