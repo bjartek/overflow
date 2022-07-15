@@ -4,13 +4,13 @@ go 1.18
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bwmarrin/discordgo v0.23.2
 	github.com/enescakir/emoji v1.0.0
 	github.com/hexops/autogold v1.3.0
 	github.com/onflow/cadence v0.24.2-0.20220627202951-5a06fec82b4a
 	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220708202053-3b2866146b5f
 	github.com/onflow/flow-go-sdk v0.26.6-0.20220712195924-6920f8f55b88
 	github.com/pkg/errors v0.9.1
+	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.5
@@ -44,7 +44,6 @@ require (
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -91,7 +90,6 @@ require (
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
 	github.com/rs/zerolog v1.26.1 // indirect
-	github.com/sanity-io/litter v1.5.5 // indirect
 	github.com/sethvargo/go-retry v0.2.3 // indirect
 	github.com/shurcooL/go-goon v0.0.0-20210110234559-7585751d9a17 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
