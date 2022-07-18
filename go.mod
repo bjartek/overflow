@@ -8,9 +8,11 @@ require (
 	github.com/enescakir/emoji v1.0.0
 	github.com/hexops/autogold v1.3.0
 	github.com/onflow/cadence v0.24.2-0.20220627202951-5a06fec82b4a
-	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220708202053-3b2866146b5f
-	github.com/onflow/flow-go-sdk v0.26.6-0.20220712195924-6920f8f55b88
+	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220712164905-e2e5f8372095
+	github.com/onflow/flow-go-sdk v0.26.5-0.20220629191626-900f9f91bffc
 	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.26.1
+	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.2
 	github.com/stretchr/testify v1.7.5
@@ -79,7 +81,7 @@ require (
 	github.com/onflow/atree v0.4.0 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20220620142725-49b5accb2a84 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20220513155751-c4c1f8d59f83 // indirect
-	github.com/onflow/flow-emulator v0.33.4-0.20220705151023-2cc6a4f25a20 // indirect
+	github.com/onflow/flow-emulator v0.33.4-0.20220708173546-d2a99600c3fa // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
 	github.com/onflow/flow-go v0.25.13-0.20220706165514-abf4535fe946 // indirect
 	github.com/onflow/flow-go/crypto v0.24.3 // indirect
@@ -90,8 +92,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
-	github.com/rs/zerolog v1.26.1 // indirect
-	github.com/sanity-io/litter v1.5.5 // indirect
 	github.com/sethvargo/go-retry v0.2.3 // indirect
 	github.com/shurcooL/go-goon v0.0.0-20210110234559-7585751d9a17 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
@@ -133,3 +133,7 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
+
+replace github.com/onflow/flow-cli => github.com/findonflow/flow-cli v0.37.1-0.20220718134737-1fe6aa4e9635
+
+replace github.com/onflow/flow-cli/pkg/flowkit => github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20220718134737-1fe6aa4e9635
