@@ -33,7 +33,7 @@ func TestParseConfig(t *testing.T) {
 		autogold.Equal(t, result)
 	})
 
-	t.Run("parse and merge strip network prefix", func(t *testing.T) {
+	t.Run("parse and merge strip network prefix scripts", func(t *testing.T) {
 		result, err := g.ParseAll()
 		assert.NoError(t, err)
 
@@ -44,6 +44,20 @@ func TestParseConfig(t *testing.T) {
 		mainnet := merged.Networks["mainnet"]
 		_, mainnetOk := mainnet.Scripts["Foo"]
 		assert.True(t, mainnetOk, litter.Sdump(mainnet.Scripts))
+
+	})
+
+	t.Run("parse and merge strip network prefix transaction", func(t *testing.T) {
+		result, err := g.ParseAll()
+		assert.NoError(t, err)
+
+		merged := result.MergeSpecAndCode()
+		emulator := merged.Networks["emulator"]
+		_, ok := emulator.Transactions["Foo"]
+		assert.True(t, ok, litter.Sdump(emulator.Transactions))
+		mainnet := merged.Networks["mainnet"]
+		_, mainnetOk := mainnet.Transactions["Foo"]
+		assert.True(t, mainnetOk, litter.Sdump(mainnet.Transactions))
 
 	})
 }

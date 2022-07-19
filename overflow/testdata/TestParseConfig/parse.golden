@@ -10,6 +10,14 @@
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "Address"},
 		},
+		"emulatorFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"test"},
+			Parameters:     map[string]string{"test": "String"},
+		},
+		"mainnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"test"},
+			Parameters:     map[string]string{"test": "String"},
+		},
 		"mint_tokens": &overflow.DeclarationInfo{
 			ParameterOrder: []string{
 				"recipient",
@@ -21,6 +29,10 @@
 			},
 		},
 		"signWithMultipleAccounts": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"test"},
+			Parameters:     map[string]string{"test": "String"},
+		},
+		"testnetFoo": &overflow.DeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
@@ -115,6 +127,22 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`,
+				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 				"mint_tokens": `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -148,6 +176,14 @@ transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
     log(acct)
     log(account2)
+ }
+}`,
+				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
  }
 }`,
 			},
@@ -253,6 +289,22 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`,
+				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 				"mint_tokens": `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -286,6 +338,14 @@ transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
     log(acct)
     log(account2)
+ }
+}`,
+				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
  }
 }`,
 			},
@@ -388,6 +448,22 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`,
+				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 				"mint_tokens": `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -421,6 +497,14 @@ transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
     log(acct)
     log(account2)
+ }
+}`,
+				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
  }
 }`,
 			},

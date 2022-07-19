@@ -67,18 +67,24 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 			scriptName := rawScriptName
 
+			valid := true
 			for _, networkName := range networkNames {
 				if strings.HasPrefix(scriptName, networkName) {
 					if networkName == name {
 						scriptName = strings.TrimPrefix(scriptName, networkName)
+						valid = true
+						break
 					} else {
-						continue
+						valid = false
+						break
 					}
 				}
 			}
-			scripts[scriptName] = CodeWithSpec{
-				Code: FormatCode(code),
-				Spec: s.Scripts[rawScriptName],
+			if valid {
+				scripts[scriptName] = CodeWithSpec{
+					Code: FormatCode(code),
+					Spec: s.Scripts[rawScriptName],
+				}
 			}
 		}
 
@@ -86,19 +92,25 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 		for rawTxName, code := range network.Transactions {
 
 			txName := rawTxName
+			txValid := true
 			for _, networkName := range networkNames {
 
 				if strings.HasPrefix(txName, networkName) {
 					if networkName == name {
 						txName = strings.TrimPrefix(txName, networkName)
+						txValid = true
+						break
 					} else {
-						continue
+						txValid = false
+						break
 					}
 				}
 			}
-			transactions[txName] = CodeWithSpec{
-				Code: FormatCode(code),
-				Spec: s.Transactions[rawTxName],
+			if txValid {
+				transactions[txName] = CodeWithSpec{
+					Code: FormatCode(code),
+					Spec: s.Transactions[rawTxName],
+				}
 			}
 		}
 
