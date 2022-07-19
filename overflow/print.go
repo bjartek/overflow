@@ -9,6 +9,7 @@ import (
 )
 
 type PrinterOption func(*PrintOptions)
+
 type PrintOptions struct {
 	Events      bool
 	EventFilter OverflowEventFilter

@@ -55,7 +55,11 @@ type OverflowState struct {
 	FilterOutEmptyWithDrawDepositEvents bool
 	GlobalEventFilter                   OverflowEventFilter
 
+	//Signal to overflow that if there is an error after running a single interaction we should panic
 	StopOnError bool
+
+	//Signal to overflow that if this is not nil we should print events on interaction completion
+	PrintOptions *[]PrinterOption
 }
 
 func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {

@@ -14,6 +14,11 @@ import (
 //The main function for running an transasction in overflow
 func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *OverflowResult {
 	result := o.BuildInteraction(filename, "transaction", opts...).Send()
+
+	if o.PrintOptions != nil {
+		po := *o.PrintOptions
+		result.Print(po...)
+	}
 	if o.StopOnError && result.Err != nil {
 		panic(result.Err)
 	}

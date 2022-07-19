@@ -47,6 +47,9 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 
 	result := interaction.runScript()
 
+	if o.PrintOptions != nil {
+		result.Print()
+	}
 	if o.StopOnError && result.Err != nil {
 		panic(result.Err)
 	}

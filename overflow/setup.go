@@ -37,6 +37,7 @@ type OverflowBuilder struct {
 	FilterOutEmptyWithDrawDepositEvents bool
 	GlobalEventFilter                   OverflowEventFilter
 	StopOnError                         bool
+	PrintOptions                        *[]PrinterOption
 }
 
 //NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
@@ -96,6 +97,7 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		FilterOutFeeEvents:                  true,
 		GlobalEventFilter:                   OverflowEventFilter{},
 		StopOnError:                         false,
+		PrintOptions:                        nil,
 	}
 }
 
@@ -219,6 +221,7 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		FilterOutEmptyWithDrawDepositEvents: o.FilterOutEmptyWithDrawDepositEvents,
 		GlobalEventFilter:                   o.GlobalEventFilter,
 		StopOnError:                         o.StopOnError,
+		PrintOptions:                        o.PrintOptions,
 	}
 
 	if o.DeployContracts {
@@ -456,5 +459,11 @@ func WithGlobalEventFilter(filter OverflowEventFilter) func(o *OverflowBuilder) 
 func StopOnError() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.StopOnError = true
+	}
+}
+
+func PrintInteractionResults(opts ...PrinterOption) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.PrintOptions = &opts
 	}
 }
