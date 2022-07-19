@@ -53,8 +53,8 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if o.Err != nil {
-		panic(o.Err)
-		o.Logger.Error(fmt.Sprintf("%v Error executing transaction: %s ", emoji.PileOfPoo, o.Name))
+		o.Logger.Error(fmt.Sprintf("%v Error executing transaction: %s error:%v", emoji.PileOfPoo, o.Name, o.Err))
+		return o //is it best to return here or not?
 	}
 
 	messages := []string{}
