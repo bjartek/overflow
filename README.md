@@ -6,13 +6,14 @@
 
 > Tooling to help develop application on the the Flow Blockchain
 
-
 A DSL written in golang to run a `story` of interactions against either an local emulator, testnet, mainnet or an in memory instance of the flow-emulator.
 
 Use case scenarios include:
  - demo purposes
  - integration testing of combinations of scripts/transactions
  - batch jobs.
+
+For a standalone example on how overflow can be used look at https://github.com/bjartek/flow-nft-overflow it has both an interactive demo and unit tests for an example NFT contract. 
 
 ## Information
 
