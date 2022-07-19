@@ -1,13 +1,55 @@
 &overflow.MergedSolution{Networks: map[string]overflow.MergedSolutionNetwork{
 	"emulator": overflow.MergedSolutionNetwork{
 		Scripts: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
 }`},
+			"mainnetFoo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"test": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
+			"testnetFoo": overflow.CodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
@@ -165,13 +207,55 @@ pub fun log(_ msg: String) : String {
 	},
 	"mainnet": overflow.MergedSolutionNetwork{
 		Scripts: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
 }`},
+			"emulatorFoo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"test": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
+			"testnetFoo": overflow.CodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
@@ -326,12 +410,54 @@ pub fun log(_ msg: String) : String {
 	},
 	"testnet": overflow.MergedSolutionNetwork{
 		Scripts: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
 }`},
+			"emulatorFoo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
+			"mainnetFoo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"test": overflow.CodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20

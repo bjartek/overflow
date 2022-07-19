@@ -25,10 +25,24 @@
 			Parameters:     map[string]string{"test": "String"},
 		},
 	},
-	Scripts: map[string]*overflow.DeclarationInfo{"test": &overflow.DeclarationInfo{
-		ParameterOrder: []string{"account"},
-		Parameters:     map[string]string{"account": "Address"},
-	}},
+	Scripts: map[string]*overflow.DeclarationInfo{
+		"emulatorFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+		"mainnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+		"test": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+		"testnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+	},
 	Networks: map[string]*overflow.SolutionNetwork{
 		"emulator": &overflow.SolutionNetwork{
 			Scripts: map[string]string{
@@ -38,7 +52,25 @@ pub fun main(): UInt64 {
     log(height)
     return height
 }`,
+				"emulatorFoo": `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"mainnetFoo": `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
 				"test": `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"testnetFoo": `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
 pub fun main(account: Address): String {
@@ -158,7 +190,25 @@ pub fun main(): UInt64 {
     log(height)
     return height
 }`,
+				"emulatorFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"mainnetFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
 				"test": `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"testnetFoo": `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
 pub fun main(account: Address): String {
@@ -275,7 +325,25 @@ pub fun main(): UInt64 {
     log(height)
     return height
 }`,
+				"emulatorFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"mainnetFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
 				"test": `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"testnetFoo": `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
 pub fun main(account: Address): String {

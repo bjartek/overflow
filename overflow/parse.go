@@ -54,21 +54,51 @@ type CodeWithSpec struct {
 func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 	networks := map[string]MergedSolutionNetwork{}
+
+	networkNames := []string{}
+	for name, _ := range s.Networks {
+		networkNames = append(networkNames, name)
+	}
+
 	for name, network := range s.Networks {
 
 		scripts := map[string]CodeWithSpec{}
-		for name, code := range network.Scripts {
-			scripts[name] = CodeWithSpec{
+		for rawScriptName, code := range network.Scripts {
+
+			scriptName := rawScriptName
+
+			for _, networkName := range networkNames {
+				if strings.HasPrefix(scriptName, networkName) {
+					if networkName == name {
+						scriptName = strings.TrimPrefix(scriptName, networkName)
+					} else {
+						continue
+					}
+				}
+			}
+			scripts[scriptName] = CodeWithSpec{
 				Code: FormatCode(code),
-				Spec: s.Scripts[name],
+				Spec: s.Scripts[rawScriptName],
 			}
 		}
 
 		transactions := map[string]CodeWithSpec{}
-		for name, code := range network.Transactions {
-			transactions[name] = CodeWithSpec{
+		for rawTxName, code := range network.Transactions {
+
+			txName := rawTxName
+			for _, networkName := range networkNames {
+
+				if strings.HasPrefix(txName, networkName) {
+					if networkName == name {
+						txName = strings.TrimPrefix(txName, networkName)
+					} else {
+						continue
+					}
+				}
+			}
+			transactions[txName] = CodeWithSpec{
 				Code: FormatCode(code),
-				Spec: s.Transactions[name],
+				Spec: s.Transactions[rawTxName],
 			}
 		}
 
