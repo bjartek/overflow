@@ -50,7 +50,6 @@ func (t FlowInteractionBuilder) NamedArguments(args map[string]string) FlowInter
 	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getContractCode(codeFileName)
 	if err != nil {
-		fmt.Println(err.Error())
 		t.Error = err
 	}
 	parseArgs, err := t.Overflow.ParseArgumentsWithoutType(t.FileName, code, args)

@@ -55,14 +55,14 @@ func (o *OverflowState) InitializeContracts() *OverflowState {
 	if _, err := o.Services.Project.Deploy(o.Network, false); err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
-			fmt.Println("=== LOG ===")
+			o.Logger.Info("=== LOG ===")
 			for _, msg := range log {
 				if msg.Level == "warning" || msg.Level == "error" {
-					fmt.Println(msg.Msg)
+					o.Logger.Info(msg.Msg)
 				}
 			}
 		}
-		panic(err)
+		o.Error = err
 	}
 	o.Log.Reset()
 	return o

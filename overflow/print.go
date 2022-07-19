@@ -110,20 +110,20 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if printOpts.Meter && o.Meter != nil {
-		fmt.Println("=== METER ===")
-		fmt.Println("LedgerInteractionUsed:", o.Meter.LedgerInteractionUsed)
+		o.Logger.Info("=== METER ===")
+		o.Logger.Info(fmt.Sprintf("LedgerInteractionUsed: %d", o.Meter.LedgerInteractionUsed))
 		if o.Meter.MemoryUsed != 0 {
-			fmt.Println("Memory:", o.Meter.MemoryUsed)
+			o.Logger.Info(fmt.Sprintf("Memory: %d", o.Meter.MemoryUsed))
 			memories := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.MemoryIntensities), "map[]"), " ", "\n  ")
 
-			fmt.Println("Memory Intensities")
-			fmt.Println(" ", memories)
+			o.Logger.Info("Memory Intensities")
+			o.Logger.Info(fmt.Sprintf(" %s", memories))
 		}
-		fmt.Println("Computation:", o.Meter.ComputationUsed)
+		o.Logger.Info(fmt.Sprintf("Computation: %d", o.Meter.ComputationUsed))
 		intensities := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.ComputationIntensities), "map[]"), " ", "\n  ")
 
-		fmt.Println("Computation Intensities:")
-		fmt.Println(" ", intensities)
+		o.Logger.Info("Computation Intensities:")
+		o.Logger.Info(fmt.Sprintf(" %s", intensities))
 	}
 	return o
 }
