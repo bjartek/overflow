@@ -5,19 +5,32 @@ import (
 	"strings"
 
 	"github.com/enescakir/emoji"
+	"github.com/fatih/color"
 )
 
 type PrinterOption func(*PrintOptions)
 type PrintOptions struct {
 	Events      bool
 	EventFilter OverflowEventFilter
-	Meter       bool
+	Meter       int
 	EmulatorLog bool
 }
 
-func WithMeter() func(opt *PrintOptions) {
+func WithFullMeter() func(opt *PrintOptions) {
 	return func(opt *PrintOptions) {
-		opt.Meter = true
+		opt.Meter = 2
+	}
+}
+
+func WithMeter(value int) func(opt *PrintOptions) {
+	return func(opt *PrintOptions) {
+		opt.Meter = 1
+	}
+}
+
+func WithoutMeter(value int) func(opt *PrintOptions) {
+	return func(opt *PrintOptions) {
+		opt.Meter = 0
 	}
 }
 
@@ -44,7 +57,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	printOpts := &PrintOptions{
 		Events:      true,
 		EventFilter: OverflowEventFilter{},
-		Meter:       false,
+		Meter:       1,
 		EmulatorLog: false,
 	}
 
@@ -53,7 +66,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if o.Err != nil {
-		o.Logger.Error(fmt.Sprintf("%v Error executing transaction: %s error:%v", emoji.PileOfPoo, o.Name, o.Err))
+		color.Red("%v Error executing transaction: %s error:%v", emoji.PileOfPoo, o.Name, o.Err)
 		return o //is it best to return here or not?
 	}
 
@@ -73,7 +86,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 	messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
 
-	o.Logger.Info(fmt.Sprintf("%v %s", emoji.OkHand, strings.Join(messages, " ")))
+	fmt.Printf("%v %s\n", emoji.OkHand, strings.Join(messages, " "))
 
 	if printOpts.Events {
 		events := o.Events
@@ -81,10 +94,10 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 			events = events.FilterEvents(printOpts.EventFilter)
 		}
 		if len(events) != 0 {
-			o.Logger.Info("=== Events ===")
+			fmt.Println("=== Events ===")
 			for name, eventList := range events {
 				for _, event := range eventList {
-					o.Logger.Info(name)
+					fmt.Println(name)
 					length := 0
 					for key, _ := range event {
 						keyLength := len(key)
@@ -93,9 +106,9 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 						}
 					}
 
-					format := fmt.Sprintf("%%%ds:%%v", length+2)
+					format := fmt.Sprintf("%%%ds:%%v\n", length+2)
 					for key, value := range event {
-						o.Logger.Info(fmt.Sprintf(format, key, value))
+						fmt.Printf(format, key, value)
 					}
 				}
 			}
@@ -103,27 +116,35 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if printOpts.EmulatorLog && len(o.RawLog) > 0 {
-		o.Logger.Info("=== LOG ===")
+		fmt.Println("=== LOG ===")
 		for _, msg := range o.RawLog {
-			o.Logger.Info(msg.Msg)
+			fmt.Println(msg.Msg)
 		}
 	}
 
-	if printOpts.Meter && o.Meter != nil {
-		o.Logger.Info("=== METER ===")
-		o.Logger.Info(fmt.Sprintf("LedgerInteractionUsed: %d", o.Meter.LedgerInteractionUsed))
-		if o.Meter.MemoryUsed != 0 {
-			o.Logger.Info(fmt.Sprintf("Memory: %d", o.Meter.MemoryUsed))
-			memories := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.MemoryIntensities), "map[]"), " ", "\n  ")
+	if printOpts.Meter != 0 && o.Meter != nil {
+		if printOpts.Meter == 1 {
+			fmt.Println("=== METER ===")
+			fmt.Println(fmt.Sprintf("Computation: %d", o.Meter.ComputationUsed))
+			fmt.Println(fmt.Sprintf("      loops: %d", o.Meter.Loops()))
+			fmt.Println(fmt.Sprintf(" statements: %d", o.Meter.Statements()))
+			fmt.Println(fmt.Sprintf("invocations: %d", o.Meter.FunctionInvocations()))
+		} else {
+			fmt.Println("=== METER ===")
+			fmt.Println(fmt.Sprintf("LedgerInteractionUsed: %d", o.Meter.LedgerInteractionUsed))
+			if o.Meter.MemoryUsed != 0 {
+				fmt.Println(fmt.Sprintf("Memory: %d", o.Meter.MemoryUsed))
+				memories := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.MemoryIntensities), "map[]"), " ", "\n  ")
 
-			o.Logger.Info("Memory Intensities")
-			o.Logger.Info(fmt.Sprintf(" %s", memories))
+				fmt.Println("Memory Intensities")
+				fmt.Println(fmt.Sprintf(" %s", memories))
+			}
+			fmt.Println(fmt.Sprintf("Computation: %d", o.Meter.ComputationUsed))
+			intensities := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.ComputationIntensities), "map[]"), " ", "\n  ")
+
+			fmt.Println("Computation Intensities:")
+			fmt.Println(fmt.Sprintf(" %s", intensities))
 		}
-		o.Logger.Info(fmt.Sprintf("Computation: %d", o.Meter.ComputationUsed))
-		intensities := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.ComputationIntensities), "map[]"), " ", "\n  ")
-
-		o.Logger.Info("Computation Intensities:")
-		o.Logger.Info(fmt.Sprintf(" %s", intensities))
 	}
 	return o
 }

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/enescakir/emoji"
-	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-go-sdk"
 )
 
@@ -75,9 +74,6 @@ type OverflowResult struct {
 	//TODO: consider marshalling this as a struct for convenience
 	//The fee event if any
 	Fee map[string]interface{}
-
-	//The logger to log output to
-	Logger output.Logger
 
 	//The name of the Transaction
 	Name string
@@ -272,8 +268,6 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	result.Events = overflowEvents
-
-	result.Logger = t.Overflow.Logger
 
 	result.Name = t.FileName
 	t.Overflow.Log.Reset()

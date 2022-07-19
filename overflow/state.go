@@ -34,6 +34,7 @@ type OverflowState struct {
 	Gas                          int
 
 	//flowkit, emulator and emulator debug log uses three different logging technologies so we have them all stored here
+	//this flowkit Logger can go away when we can remove deprecations!
 	Logger output.Logger
 	Log    *bytes.Buffer
 
