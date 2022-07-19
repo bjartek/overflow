@@ -54,6 +54,8 @@ type OverflowState struct {
 	FilterOutFeeEvents                  bool
 	FilterOutEmptyWithDrawDepositEvents bool
 	GlobalEventFilter                   OverflowEventFilter
+
+	StopOnError bool
 }
 
 func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {

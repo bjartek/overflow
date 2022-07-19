@@ -13,7 +13,12 @@ import (
 
 //The main function for running an transasction in overflow
 func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *OverflowResult {
-	return o.BuildInteraction(filename, "transaction", opts...).Send()
+	result := o.BuildInteraction(filename, "transaction", opts...).Send()
+	if o.StopOnError && result.Err != nil {
+		panic(result.Err)
+	}
+
+	return result
 }
 
 //Composition functions for Transactions

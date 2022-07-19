@@ -45,26 +45,40 @@ func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...Interacti
 func (o *OverflowState) Script(filename string, opts ...InteractionOption) *OverflowScriptResult {
 	interaction := o.BuildInteraction(filename, "script", opts...)
 
-	osc := &OverflowScriptResult{Input: interaction}
-	if interaction.Error != nil {
-		osc.Err = interaction.Error
+	result := interaction.runScript()
+
+	if o.StopOnError && result.Err != nil {
+		panic(result.Err)
+	}
+	return result
+
+}
+
+func (fbi *FlowInteractionBuilder) runScript() *OverflowScriptResult {
+
+	o := fbi.Overflow
+	osc := &OverflowScriptResult{Input: fbi}
+	if fbi.Error != nil {
+		osc.Err = fbi.Error
 		return osc
 	}
 
-	filePath := fmt.Sprintf("%s/%s.cdc", interaction.BasePath, interaction.FileName)
+	filePath := fmt.Sprintf("%s/%s.cdc", fbi.BasePath, fbi.FileName)
 
 	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
 	result, err := o.Services.Scripts.Execute(
-		interaction.TransactionCode,
-		interaction.Arguments,
+		fbi.TransactionCode,
+		fbi.Arguments,
 		filePath,
 		o.Network)
 
 	osc.Result = result
 	osc.Output = CadenceValueToInterface(result)
-	osc.Err = errors.Wrapf(err, "scriptFileName:%s", interaction.FileName)
+	if err != nil {
+		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+	}
 
 	var logMessage []LogrusMessage
 	dec := json.NewDecoder(o.Log)
@@ -87,6 +101,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 	o.Log.Reset()
 
 	osc.Log = logMessage
+
 	return osc
 }
 

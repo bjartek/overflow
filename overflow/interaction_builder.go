@@ -90,7 +90,7 @@ func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, er
 	if t.Content == "" {
 		code, err = t.Overflow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
-			return nil, fmt.Errorf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
+			return nil, fmt.Errorf("%v Could not read interaction file from path=%s", emoji.PileOfPoo, codeFileName)
 		}
 	}
 	return code, nil

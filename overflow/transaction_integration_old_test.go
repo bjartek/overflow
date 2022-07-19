@@ -33,7 +33,7 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 		g.TransactionFromFile("create_nf_collection").
 			SignProposeAndPayAs("first").
 			Test(t).                                                                                           //This method will return a TransactionResult that we can assert upon
-			AssertFailure("Could not read transaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
+			AssertFailure("Could not read interaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
 	})
 
 	t.Run("Create NFT collection with different base path", func(t *testing.T) {
@@ -319,7 +319,7 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			NamedArguments(map[string]string{
 				"recipient": "first",
 			}).
-			Test(t).AssertFailure("Could not read transaction file from path=./transactions/mint_tokens2.cdc")
+			Test(t).AssertFailure("Could not read interaction file from path=./transactions/mint_tokens2.cdc")
 	})
 
 	t.Run("Get free capacity", func(t *testing.T) {

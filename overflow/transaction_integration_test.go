@@ -9,6 +9,7 @@ import (
 /*
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
+
 func TestTransactionIntegration(t *testing.T) {
 	o, err := OverflowTesting()
 	assert.NoError(t, err)
@@ -20,7 +21,7 @@ func TestTransactionIntegration(t *testing.T) {
 
 	t.Run("fail on wrong transaction name", func(t *testing.T) {
 		o.Tx("create_nft_collectio", SignProposeAndPayAs("first")).
-			AssertFailure(t, "💩 Could not read transaction file from path=./transactions/create_nft_collectio.cdc")
+			AssertFailure(t, "💩 Could not read interaction file from path=./transactions/create_nft_collectio.cdc")
 	})
 
 	t.Run("Create NFT collection with different base path", func(t *testing.T) {
