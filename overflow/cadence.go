@@ -8,18 +8,18 @@ import (
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
-func CadenceValueToJsonString(value cadence.Value) string {
+func CadenceValueToJsonString(value cadence.Value) (string, error) {
 	result := CadenceValueToInterface(value)
 	if result == nil {
-		return ""
+		return "", nil
 	}
 	j, err := json.MarshalIndent(result, "", "    ")
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	return string(j)
+	return string(j), nil
 }
 
 // CadenceValueToInterface convert a candence.Value into interface{}

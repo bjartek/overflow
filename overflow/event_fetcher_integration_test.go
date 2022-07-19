@@ -11,8 +11,7 @@ import (
 func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	t.Helper()
 	o := NewTestingEmulator().Start()
-	//TODO: see if it is possible to send in this as float64 now?
-	result := o.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", "100.0"))
+	result := o.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", 100.0))
 	assert.NoError(t, result.Err)
 	return o
 

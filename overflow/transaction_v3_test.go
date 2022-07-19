@@ -197,4 +197,16 @@ transaction{
 		assert.Error(t, res.Err, "asd")
 
 	})
+
+	t.Run("ufix64", func(t *testing.T) {
+		res := o.BuildInteraction(`
+transaction(test:UFix64) {
+  prepare(acct: AuthAccount) {
+
+ }
+}
+`, "transaction", Arg("test", 1.0), SignProposeAndPayAsServiceAccount())
+		assert.NoError(t, res.Error)
+	})
+
 }

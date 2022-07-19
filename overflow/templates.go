@@ -98,12 +98,13 @@ pub fun main(user:Address): UInt64{
 }
 
 // A method to fill up a users storage, useful when testing
-func (o *OverflowState) FillUpStorage(accountName string) {
+func (o *OverflowState) FillUpStorage(accountName string) *OverflowState {
 
 	length := o.GetFreeCapacity(accountName) - 67 //some storage is made outside of the string so need to adjust
 
 	err := o.UploadString(randomString(length), accountName)
 	if err != nil {
-		panic(err)
+		o.Error = err
 	}
+	return o
 }

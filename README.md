@@ -13,6 +13,8 @@ Use case scenarios include:
  - integration testing of combinations of scripts/transactions
  - batch jobs.
 
+For a standalone example on how overflow can be used look at https://github.com/bjartek/flow-nft-overflow it has both an interactive demo and unit tests for an example NFT contract. 
+
 ## Information
 
 ### Main features
@@ -61,11 +63,12 @@ package main
 import (
     "fmt"
 
-    "github.com/bjartek/overflow/overflow"
+    //if you imports this with .  you do not have to repeat overflow everywhere 
+    . "github.com/bjartek/overflow/overflow"
 )
 
 func main() {
-    o := overflow.NewOverflow().Start()
+    o := Overflow()
     fmt.Printf("%v", o.State.Accounts())
 }
 ```
@@ -86,3 +89,4 @@ The following env vars are supported
 ## Credits
 
 This project is the successor of https://github.com/bjartek/go-with-the-flow
+The v0 version of the code with a set of apis that is now deprecated is in https://github.com/bjartek/overflow/tree/v0
