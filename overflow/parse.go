@@ -54,21 +54,63 @@ type CodeWithSpec struct {
 func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 	networks := map[string]MergedSolutionNetwork{}
+
+	networkNames := []string{}
+	for name, _ := range s.Networks {
+		networkNames = append(networkNames, name)
+	}
+
 	for name, network := range s.Networks {
 
 		scripts := map[string]CodeWithSpec{}
-		for name, code := range network.Scripts {
-			scripts[name] = CodeWithSpec{
-				Code: FormatCode(code),
-				Spec: s.Scripts[name],
+		for rawScriptName, code := range network.Scripts {
+
+			scriptName := rawScriptName
+
+			valid := true
+			for _, networkName := range networkNames {
+				if strings.HasPrefix(scriptName, networkName) {
+					if networkName == name {
+						scriptName = strings.TrimPrefix(scriptName, networkName)
+						valid = true
+						break
+					} else {
+						valid = false
+						break
+					}
+				}
+			}
+			if valid {
+				scripts[scriptName] = CodeWithSpec{
+					Code: FormatCode(code),
+					Spec: s.Scripts[rawScriptName],
+				}
 			}
 		}
 
 		transactions := map[string]CodeWithSpec{}
-		for name, code := range network.Transactions {
-			transactions[name] = CodeWithSpec{
-				Code: FormatCode(code),
-				Spec: s.Transactions[name],
+		for rawTxName, code := range network.Transactions {
+
+			txName := rawTxName
+			txValid := true
+			for _, networkName := range networkNames {
+
+				if strings.HasPrefix(txName, networkName) {
+					if networkName == name {
+						txName = strings.TrimPrefix(txName, networkName)
+						txValid = true
+						break
+					} else {
+						txValid = false
+						break
+					}
+				}
+			}
+			if txValid {
+				transactions[txName] = CodeWithSpec{
+					Code: FormatCode(code),
+					Spec: s.Transactions[rawTxName],
+				}
 			}
 		}
 
