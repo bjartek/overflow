@@ -91,8 +91,6 @@ func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastE
 		return nil, fmt.Errorf("FromIndex is negative")
 	}
 
-	e.OverflowState.Logger.Info(fmt.Sprintf("Fetching events from %d to %d", fromIndex, endIndex))
-
 	var events []string
 	for key := range e.EventsAndIgnoreFields {
 		events = append(events, key)
