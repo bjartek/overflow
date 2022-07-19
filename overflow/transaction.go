@@ -55,6 +55,7 @@ func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...InteractionOp
 
 //OverflowResult represents the state after running an transaction
 type OverflowResult struct {
+	StopOnError bool
 	//The error if any
 	Err error
 
@@ -95,7 +96,12 @@ func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) (uint
 			return event[0][fieldName].(uint64), nil
 		}
 	}
-	return 0, fmt.Errorf("Could not find id field %s in event with suffix %s", fieldName, eventName)
+	err := fmt.Errorf("Could not find id field %s in event with suffix %s", fieldName, eventName)
+	if o.StopOnError {
+		panic(err)
+
+	}
+	return 0, err
 }
 
 func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {
@@ -145,7 +151,7 @@ func (o OverflowState) readLog() ([]LogrusMessage, error) {
 
 // Send a intereaction builder as a Transaction returning an overflow result
 func (t FlowInteractionBuilder) Send() *OverflowResult {
-	result := &OverflowResult{}
+	result := &OverflowResult{StopOnError: t.Overflow.StopOnError}
 	if t.Error != nil {
 		result.Err = t.Error
 		return result
