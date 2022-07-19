@@ -86,11 +86,6 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 	o.Log.Reset()
 
 	osc.Log = logMessage
-	if osc.Err != nil {
-		return osc
-	}
-
-	o.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, filePath))
 	return osc
 }
 
@@ -109,7 +104,7 @@ func (osr *OverflowScriptResult) GetAsJson() (string, error) {
 	j, err := json.MarshalIndent(osr.Output, "", "    ")
 
 	if err != nil {
-		return "", errors.Wrapf(err, "script %s", osr.Input.FileName)
+		return "", errors.Wrapf(err, "script: %s", osr.Input.FileName)
 	}
 
 	return string(j), nil
@@ -182,6 +177,9 @@ func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo inte
 		return err
 	}
 	result, _, err := ptr.Get(osr.Output)
+	if err != nil {
+		return err
+	}
 
 	bytes, err := json.Marshal(result)
 	if err != nil {

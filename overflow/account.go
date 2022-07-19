@@ -1,11 +1,11 @@
 package overflow
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
+	"github.com/pkg/errors"
 )
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
@@ -19,20 +19,16 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 	accounts := p.AccountNamesForNetwork(f.Network)
 	sort.Strings(accounts)
 
-	f.Logger.Info(fmt.Sprintf("%v\n", accounts))
-
 	for _, accountName := range accounts {
-		f.Logger.Info(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
 
 		// this error can never happen here, there is a test for it.
 		account, _ := p.Accounts().ByName(accountName)
 
 		if _, err := f.Services.Accounts.Get(account.Address()); err == nil {
-			f.Logger.Info("Account is present")
 			continue
 		}
 
-		a, err := f.Services.Accounts.Create(
+		_, err := f.Services.Accounts.Create(
 			signerAccount,
 			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
 			[]int{1000},
@@ -42,27 +38,26 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		if err != nil {
 			return nil, err
 		}
-		f.Logger.Info("Account created " + a.Address.String())
 	}
 	return f, nil
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
 func (o *OverflowState) InitializeContracts() *OverflowState {
-	o.Logger.Info("Deploying contracts")
-
 	o.Log.Reset()
 	if _, err := o.Services.Project.Deploy(o.Network, false); err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
-			o.Logger.Info("=== LOG ===")
+			messages := []string{}
 			for _, msg := range log {
 				if msg.Level == "warning" || msg.Level == "error" {
-					o.Logger.Info(msg.Msg)
+					messages = append(messages, msg.Msg)
 				}
 			}
+			o.Error = errors.Wrapf(err, "errors : %v", messages)
+		} else {
+			o.Error = err
 		}
-		o.Error = err
 	}
 	o.Log.Reset()
 	return o

@@ -537,4 +537,5 @@ pub fun log(_ msg: String) : String {
 `},
 		},
 	},
+	Warnings: []string{},
 }
