@@ -121,19 +121,24 @@ func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
 }
 
 func (o OverflowResult) AssertEmitEventName(t *testing.T, event ...string) OverflowResult {
-	var eventNames []string
+
+	eventNames := []string{}
 	for name, _ := range o.Events {
 		eventNames = append(eventNames, name)
 	}
 
-	res := false
 	for _, ev := range event {
-		if assert.Contains(t, eventNames, ev) {
-			res = true
+		valid := false
+		for _, name := range eventNames {
+			if strings.HasSuffix(name, ev) {
+				valid = true
+			}
+		}
+
+		if !valid {
+			assert.Fail(t, fmt.Sprintf("event with suffix %s not present in %v", ev, eventNames))
 		}
 	}
-
-	o.logEventsFailure(t, res)
 
 	return o
 }
@@ -158,6 +163,22 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 
 func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) OverflowResult {
 	assert.Equal(t, computation, o.ComputationUsed)
+	return o
+}
+
+//Deprecated use the new Tx() method and Asserts on the result
+func (o OverflowResult) AssertDebugLog(t *testing.T, message ...string) OverflowResult {
+	var logMessages []interface{}
+	for name, fe := range o.Events {
+		if strings.HasSuffix(name, "Debug.Log") {
+			for _, ev := range fe {
+				logMessages = append(logMessages, ev["msg"])
+			}
+		}
+	}
+	for _, ev := range message {
+		assert.Contains(t, logMessages, ev)
+	}
 	return o
 }
 
