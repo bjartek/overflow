@@ -177,6 +177,9 @@ func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo inte
 		return err
 	}
 	result, _, err := ptr.Get(osr.Output)
+	if err != nil {
+		return err
+	}
 
 	bytes, err := json.Marshal(result)
 	if err != nil {
