@@ -58,7 +58,9 @@ func TestTransactionIntegration(t *testing.T) {
 			Arg("id", 1),
 		).AssertSuccess(t)
 
-		assert.Equal(t, uint64(1), result.GetIdFromEvent("LogNum", "id"))
+		res, err := result.GetIdFromEvent("LogNum", "id")
+		assert.NoError(t, err)
+		assert.Equal(t, uint64(1), res)
 		assert.Equal(t, []uint64{1}, result.GetIdsFromEvent("LogNum", "id"))
 
 	})

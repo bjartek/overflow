@@ -80,8 +80,11 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			Test(t).
 			AssertSuccess()
 
+		res, err := result.Result.GetIdFromEvent(logNumName, "id")
+		assert.NoError(t, err)
+
 		assert.Equal(t, uint64(1), result.GetIdFromEvent(logNumName, "id"))
-		assert.Equal(t, uint64(1), result.Result.GetIdFromEvent(logNumName, "id"))
+		assert.Equal(t, uint64(1), res)
 		assert.Equal(t, []uint64{1}, result.Result.GetIdsFromEvent(logNumName, "id"))
 
 	})

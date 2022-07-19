@@ -164,7 +164,11 @@ func (t FlowInteractionBuilder) RunGetIdFromEventPrintAll(eventName string, fiel
 
 	PrintEvents(result.RawEvents, map[string][]string{})
 
-	return result.GetIdFromEvent(eventName, fieldName)
+	res, err := result.GetIdFromEvent(eventName, fieldName)
+	if err != nil {
+		panic(err)
+	}
+	return res
 }
 
 // Deprecated, use Send().GetIdFromEvent
@@ -174,7 +178,11 @@ func (t FlowInteractionBuilder) RunGetIdFromEvent(eventName string, fieldName st
 	if result.Err != nil {
 		panic(result.Err)
 	}
-	return result.GetIdFromEvent(eventName, fieldName)
+	res, err := result.GetIdFromEvent(eventName, fieldName)
+	if err != nil {
+		panic(err)
+	}
+	return res
 }
 
 // Deprecated: Use Tx().Print().GetIdsFromEvent

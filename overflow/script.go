@@ -76,7 +76,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 			break
 		}
 		if err != nil {
-			panic(err)
+			osc.Err = err
 		}
 
 		logMessage = append(logMessage, doc)
