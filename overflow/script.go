@@ -159,11 +159,21 @@ func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer s
 	switch res := result.(type) {
 	case []interface{}:
 	case map[interface{}]interface{}:
-		assert.Equal(t, length, len(res), "result", osr.Output)
+		assert.Equal(t, length, len(res), litter.Sdump(osr.Output))
 	default:
-		assert.Equal(t, length, len(fmt.Sprintf("%v", res)), "result", osr.Output)
+		assert.Equal(t, length, len(fmt.Sprintf("%v", res)), litter.Sdump(osr.Output))
 	}
 	return osr
+}
+
+func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
+	bytes, err := json.Marshal(osr.Output)
+	if err != nil {
+		return err
+	}
+
+	json.Unmarshal(bytes, marshalTo)
+	return nil
 }
 
 func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo interface{}) error {
