@@ -316,7 +316,7 @@ func (a *FlowArgumentsBuilder) DateStringAsUnixTimestamp(dateString string, time
 // UFix64 add a UFix64 Argument to the transaction
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 func (a *FlowArgumentsBuilder) UFix64(input float64) *FlowArgumentsBuilder {
-	value := fmt.Sprintf("%f", input)
+	value := fmt.Sprintf("%.8f", input)
 	amount, err := cadence.NewUFix64(value)
 	if err != nil {
 		a.Error = err

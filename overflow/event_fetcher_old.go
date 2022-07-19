@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/onflow/flow-go-sdk"
 )
 
@@ -97,21 +96,6 @@ func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilde
 	e.FromIndex = 0
 	e.EndAtCurrentHeight = true
 	return e
-}
-
-//RunAndSendToWebhook runs the eventFetcher and sends the event to a webhook with the provided url
-func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error) {
-
-	events, err := e.Run()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(events) == 0 {
-		return nil, nil
-	}
-
-	return NewDiscordWebhook(url).SendEventsToWebhook(events)
 }
 
 //Run runs the eventfetcher returning events or an error

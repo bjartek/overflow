@@ -4,10 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"testing"
 
 	"github.com/enescakir/emoji"
+	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
 	"github.com/pkg/errors"
+	"github.com/sanity-io/litter"
+	"github.com/stretchr/testify/assert"
+	"github.com/xeipuuv/gojsonpointer"
 )
 
 //Composition functions for Scripts
@@ -57,6 +62,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 		o.Network)
 
 	osc.Result = result
+	osc.Output = CadenceValueToInterface(result)
 	osc.Err = errors.Wrapf(err, "scriptFileName:%s", interaction.FileName)
 
 	var logMessage []LogrusMessage
@@ -70,7 +76,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 			break
 		}
 		if err != nil {
-			panic(err)
+			osc.Err = err
 		}
 
 		logMessage = append(logMessage, doc)
@@ -80,11 +86,6 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 	o.Log.Reset()
 
 	osc.Log = logMessage
-	if osc.Err != nil {
-		return osc
-	}
-
-	o.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, filePath))
 	return osc
 }
 
@@ -93,24 +94,138 @@ type OverflowScriptResult struct {
 	Result cadence.Value
 	Input  *FlowInteractionBuilder
 	Log    []LogrusMessage
+	Output interface{}
 }
 
-func (osr *OverflowScriptResult) GetAsJson() string {
+func (osr *OverflowScriptResult) GetAsJson() (string, error) {
 	if osr.Err != nil {
-		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
+		return "", errors.Wrapf(osr.Err, "script: %s", osr.Input.FileName)
 	}
-	return CadenceValueToJsonString(osr.Result)
+	j, err := json.MarshalIndent(osr.Output, "", "    ")
+
+	if err != nil {
+		return "", errors.Wrapf(err, "script: %s", osr.Input.FileName)
+	}
+
+	return string(j), nil
 }
 
-func (osr *OverflowScriptResult) GetAsInterface() interface{} {
+func (osr *OverflowScriptResult) GetAsInterface() (interface{}, error) {
 	if osr.Err != nil {
-		panic(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, osr.Input.FileName, osr.Err))
+		return nil, errors.Wrapf(osr.Err, "script: %s", osr.Input.FileName)
 	}
-	return CadenceValueToInterface(osr.Result)
+	return osr.Output, nil
+}
+
+func (osr *OverflowScriptResult) AssertWithPointerError(t *testing.T, pointer string, message string) *OverflowScriptResult {
+	_, err := osr.GetWithPointer(pointer)
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, message, "output", litter.Sdump(osr.Output))
+
+	return osr
+}
+
+func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string, value interface{}) *OverflowScriptResult {
+	result, err := osr.GetWithPointer(pointer)
+	assert.NoError(t, err)
+
+	assert.Equal(t, value, result, "output", litter.Sdump(osr.Output))
+
+	return osr
+}
+
+func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
+	result, err := osr.GetWithPointer(pointer)
+	assert.NoError(t, err)
+
+	switch result.(type) {
+	case []interface{}:
+	case map[interface{}]interface{}:
+		want.Equal(t, litter.Sdump(result))
+	default:
+		want.Equal(t, result)
+	}
+	return osr
+}
+
+func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer string, length int) *OverflowScriptResult {
+	result, err := osr.GetWithPointer(pointer)
+	assert.NoError(t, err)
+	switch res := result.(type) {
+	case []interface{}:
+	case map[interface{}]interface{}:
+		assert.Equal(t, length, len(res), litter.Sdump(osr.Output))
+	default:
+		assert.Equal(t, length, len(fmt.Sprintf("%v", res)), litter.Sdump(osr.Output))
+	}
+	return osr
+}
+
+func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
+	bytes, err := json.Marshal(osr.Output)
+	if err != nil {
+		return err
+	}
+
+	json.Unmarshal(bytes, marshalTo)
+	return nil
+}
+
+func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo interface{}) error {
+	ptr, err := gojsonpointer.NewJsonPointer(pointer)
+	if err != nil {
+		return err
+	}
+	result, _, err := ptr.Get(osr.Output)
+	if err != nil {
+		return err
+	}
+
+	bytes, err := json.Marshal(result)
+	if err != nil {
+		return err
+	}
+
+	json.Unmarshal(bytes, marshalTo)
+	return nil
+}
+
+func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, error) {
+
+	ptr, err := gojsonpointer.NewJsonPointer(pointer)
+	if err != nil {
+		return nil, err
+	}
+	result, _, err := ptr.Get(osr.Output)
+	return result, err
+}
+
+func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *OverflowScriptResult {
+	assert.NoError(t, osr.Err)
+
+	switch osr.Output.(type) {
+	case []interface{}:
+	case map[interface{}]interface{}:
+		want.Equal(t, litter.Sdump(osr.Output))
+	default:
+		want.Equal(t, osr.Output)
+	}
+	/*
+		if osr.Output == nil {
+			want.Equal(t, osr.Output)
+		} else {
+			want.Equal(t, litter.Sdump(osr.Output))
+		}
+	*/
+	return osr
 }
 
 func (osr *OverflowScriptResult) Print() {
-	json := osr.GetAsJson()
+	json, err := osr.GetAsJson()
+	if err != nil {
+		osr.Input.Overflow.Logger.Error(err.Error())
+		return
+	}
 	osr.Input.Overflow.Logger.Info(fmt.Sprintf("%v Script %s run from result: %v\n", emoji.Star, osr.Input.FileName, json))
 }
 
@@ -118,8 +233,11 @@ func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
 	if osr.Err != nil {
 		return osr.Err
 	}
-	jsonResult := CadenceValueToJsonString(osr.Result)
-	err := json.Unmarshal([]byte(jsonResult), &value)
+	result, err := osr.GetAsJson()
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(result), &value)
 	return err
 }
 
@@ -211,7 +329,11 @@ func (t FlowScriptBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowScriptBuil
 //Deprecation use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) Run() {
 	result := t.RunFailOnError()
-	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result)))
+	res, err := CadenceValueToJsonString(result)
+	if err != nil {
+		panic(err)
+	}
+	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, res))
 }
 
 // Deprecation use FlowInteractionBuilder
@@ -277,7 +399,10 @@ func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	jsonResult := CadenceValueToJsonString(result)
+	jsonResult, err := CadenceValueToJsonString(result)
+	if err != nil {
+		return err
+	}
 	err = json.Unmarshal([]byte(jsonResult), &value)
 	return err
 }
@@ -285,7 +410,11 @@ func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 // RunReturnsJsonString runs the script and returns pretty printed json string
 // Deprecation use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
-	return CadenceValueToJsonString(t.RunFailOnError())
+	res, err := CadenceValueToJsonString(t.RunFailOnError())
+	if err != nil {
+		panic(err)
+	}
+	return res
 }
 
 //RunReturnsInterface runs the script and returns interface{}

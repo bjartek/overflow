@@ -1,6 +1,20 @@
 &overflow.MergedSolution{Networks: map[string]overflow.MergedSolutionNetwork{
 	"emulator": overflow.MergedSolutionNetwork{
 		Scripts: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
@@ -29,6 +43,22 @@ pub fun main(): Type {
 }`},
 		},
 		Transactions: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"test",
+					},
+					Parameters: map[string]string{"test": "String"},
+				},
+			},
 			"arguments": overflow.CodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
@@ -165,6 +195,20 @@ pub fun log(_ msg: String) : String {
 	},
 	"mainnet": overflow.MergedSolutionNetwork{
 		Scripts: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
@@ -193,6 +237,22 @@ pub fun main(): Type {
 }`},
 		},
 		Transactions: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"test",
+					},
+					Parameters: map[string]string{"test": "String"},
+				},
+			},
 			"arguments": overflow.CodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
@@ -326,6 +386,20 @@ pub fun log(_ msg: String) : String {
 	},
 	"testnet": overflow.MergedSolutionNetwork{
 		Scripts: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
@@ -354,6 +428,22 @@ pub fun main(): Type {
 }`},
 		},
 		Transactions: map[string]overflow.CodeWithSpec{
+			"Foo": overflow.CodeWithSpec{
+				Code: `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				Spec: &overflow.DeclarationInfo{
+					ParameterOrder: []string{
+						"test",
+					},
+					Parameters: map[string]string{"test": "String"},
+				},
+			},
 			"arguments": overflow.CodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {

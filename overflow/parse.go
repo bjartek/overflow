@@ -19,6 +19,7 @@ type Solution struct {
 	Transactions map[string]*DeclarationInfo `json:"transactions"`
 	Scripts      map[string]*DeclarationInfo `json:"scripts"`
 	Networks     map[string]*SolutionNetwork `json:"networks"`
+	Warnings     []string                    `json:"warnings"`
 }
 
 type SolutionNetwork struct {
@@ -54,21 +55,63 @@ type CodeWithSpec struct {
 func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 	networks := map[string]MergedSolutionNetwork{}
+
+	networkNames := []string{}
+	for name, _ := range s.Networks {
+		networkNames = append(networkNames, name)
+	}
+
 	for name, network := range s.Networks {
 
 		scripts := map[string]CodeWithSpec{}
-		for name, code := range network.Scripts {
-			scripts[name] = CodeWithSpec{
-				Code: FormatCode(code),
-				Spec: s.Scripts[name],
+		for rawScriptName, code := range network.Scripts {
+
+			scriptName := rawScriptName
+
+			valid := true
+			for _, networkName := range networkNames {
+				if strings.HasPrefix(scriptName, networkName) {
+					if networkName == name {
+						scriptName = strings.TrimPrefix(scriptName, networkName)
+						valid = true
+						break
+					} else {
+						valid = false
+						break
+					}
+				}
+			}
+			if valid {
+				scripts[scriptName] = CodeWithSpec{
+					Code: FormatCode(code),
+					Spec: s.Scripts[rawScriptName],
+				}
 			}
 		}
 
 		transactions := map[string]CodeWithSpec{}
-		for name, code := range network.Transactions {
-			transactions[name] = CodeWithSpec{
-				Code: FormatCode(code),
-				Spec: s.Transactions[name],
+		for rawTxName, code := range network.Transactions {
+
+			txName := rawTxName
+			txValid := true
+			for _, networkName := range networkNames {
+
+				if strings.HasPrefix(txName, networkName) {
+					if networkName == name {
+						txName = strings.TrimPrefix(txName, networkName)
+						txValid = true
+						break
+					} else {
+						txValid = false
+						break
+					}
+				}
+			}
+			if txValid {
+				transactions[txName] = CodeWithSpec{
+					Code: FormatCode(code),
+					Spec: s.Transactions[rawTxName],
+				}
 			}
 		}
 
@@ -84,6 +127,7 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
 
+	warnings := []string{}
 	transactions := map[string]string{}
 	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".cdc") {
@@ -175,7 +219,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			if err == nil {
 				scriptResult[name] = result
 			} else {
-				o.Logger.Info(fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
+				warnings = append(warnings, fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
 			}
 		}
 
@@ -187,7 +231,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			}
 			result, err := o.Parse(path, code, nw.Name)
 			if err != nil {
-				o.Logger.Info(fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
+				warnings = append(warnings, fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
 			} else {
 				txResult[name] = result
 			}
@@ -208,6 +252,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		Transactions: transactionDeclarations,
 		Scripts:      scriptDeclarations,
 		Networks:     solutionNetworks,
+		Warnings:     warnings,
 	}, nil
 }
 

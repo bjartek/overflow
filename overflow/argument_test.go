@@ -234,25 +234,4 @@ transaction(names: [UFix64]) {
 		assert.Contains(t, builder.Arguments, cadence.NewArray(arrayValues))
 
 	})
-
-	/*
-			how is byte array represented in cadence again?
-			t.Run("Argument byte array", func(t *testing.T) {
-				bytes := []byte("test")
-
-				builder := g.Transaction(`
-		transaction(arg: [UInt8]) {
-
-		}
-		`).NamedArguments(map[string]string{
-					"arg": string(bytes),
-				})
-				assert.NoError(t, builder.Error)
-
-				fmt.Printf("%+v", builder.Arguments)
-				expected := cadence.NewBytes(bytes)
-				assert.Contains(t, builder.Arguments, expected)
-
-			})
-	*/
 }

@@ -10,6 +10,14 @@
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "Address"},
 		},
+		"emulatorFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"test"},
+			Parameters:     map[string]string{"test": "String"},
+		},
+		"mainnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"test"},
+			Parameters:     map[string]string{"test": "String"},
+		},
 		"mint_tokens": &overflow.DeclarationInfo{
 			ParameterOrder: []string{
 				"recipient",
@@ -24,11 +32,29 @@
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
+		"testnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"test"},
+			Parameters:     map[string]string{"test": "String"},
+		},
 	},
-	Scripts: map[string]*overflow.DeclarationInfo{"test": &overflow.DeclarationInfo{
-		ParameterOrder: []string{"account"},
-		Parameters:     map[string]string{"account": "Address"},
-	}},
+	Scripts: map[string]*overflow.DeclarationInfo{
+		"emulatorFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+		"mainnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+		"test": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+		"testnetFoo": &overflow.DeclarationInfo{
+			ParameterOrder: []string{"account"},
+			Parameters:     map[string]string{"account": "Address"},
+		},
+	},
 	Networks: map[string]*overflow.SolutionNetwork{
 		"emulator": &overflow.SolutionNetwork{
 			Scripts: map[string]string{
@@ -38,7 +64,25 @@ pub fun main(): UInt64 {
     log(height)
     return height
 }`,
+				"emulatorFoo": `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"mainnetFoo": `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
 				"test": `// test script to ensure code is running
+import NonFungibleToken from 0xf8d6e0586b0a20c7
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"testnetFoo": `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
 pub fun main(account: Address): String {
@@ -83,6 +127,22 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`,
+				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 				"mint_tokens": `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -116,6 +176,14 @@ transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
     log(acct)
     log(account2)
+ }
+}`,
+				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
  }
 }`,
 			},
@@ -158,7 +226,25 @@ pub fun main(): UInt64 {
     log(height)
     return height
 }`,
+				"emulatorFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"mainnetFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
 				"test": `// test script to ensure code is running
+import NonFungibleToken from 0x1d7e57aa55817448
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"testnetFoo": `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
 pub fun main(account: Address): String {
@@ -203,6 +289,22 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`,
+				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 				"mint_tokens": `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -236,6 +338,14 @@ transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
     log(acct)
     log(account2)
+ }
+}`,
+				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
  }
 }`,
 			},
@@ -275,7 +385,25 @@ pub fun main(): UInt64 {
     log(height)
     return height
 }`,
+				"emulatorFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"mainnetFoo": `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
 				"test": `// test script to ensure code is running
+import NonFungibleToken from 0x631e88ae7f1d7c20
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				"testnetFoo": `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
 pub fun main(account: Address): String {
@@ -320,6 +448,22 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`,
+				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
+				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 				"mint_tokens": `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -355,6 +499,14 @@ transaction(test:String) {
     log(account2)
  }
 }`,
+				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
+transaction(test:String) {
+  prepare(acct: AuthAccount) {
+    log(acct)
+    log(test)
+
+ }
+}`,
 			},
 			Contracts: &map[string]string{"Debug": `import NonFungibleToken from 0x631e88ae7f1d7c20
 
@@ -385,4 +537,5 @@ pub fun log(_ msg: String) : String {
 `},
 		},
 	},
+	Warnings: []string{},
 }

@@ -123,9 +123,15 @@ func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			continue
 		}
 
-		argumentString, okString := argument.(string)
-		if !okString {
+		var argumentString string
+		switch a := argument.(type) {
+		case string:
+			argumentString = a
+		case float64:
+			argumentString = fmt.Sprintf("%f", a)
+		default:
 			argumentString = fmt.Sprintf("%v", argument)
+
 		}
 		astType := parameterList[index].TypeAnnotation.Type
 		semaType := checker.ConvertType(astType)

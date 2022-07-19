@@ -220,6 +220,9 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
 	if o.DeployContracts {
 		overflow = overflow.InitializeContracts()
+		if overflow.Error != nil {
+			return overflow, overflow.Error
+		}
 	}
 
 	if o.InitializeAccounts {

@@ -21,6 +21,7 @@ func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *Overflow
 type TransactionFunction func(filename string, opts ...InteractionOption) *OverflowResult
 type TransactionOptsFunction func(opts ...InteractionOption) *OverflowResult
 
+// If you store this in a struct and add arguments to it it will not reset between calls
 func (o *OverflowState) TxFN(outerOpts ...InteractionOption) TransactionFunction {
 
 	return func(filename string, opts ...InteractionOption) *OverflowResult {
@@ -82,13 +83,13 @@ type OverflowResult struct {
 	Name string
 }
 
-func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
+func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) (uint64, error) {
 	for name, event := range o.Events {
 		if strings.HasSuffix(name, eventName) {
-			return event[0][fieldName].(uint64)
+			return event[0][fieldName].(uint64), nil
 		}
 	}
-	panic(fmt.Sprintf("Could not find id field %s in event with suffix %s", fieldName, eventName))
+	return 0, fmt.Errorf("Could not find id field %s in event with suffix %s", fieldName, eventName)
 }
 
 func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {
@@ -109,7 +110,7 @@ func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
 			return event
 		}
 	}
-	panic(fmt.Sprintf("Could not events with suffix %s", eventName))
+	return []OverflowEvent{}
 }
 
 func (o OverflowState) readLog() ([]LogrusMessage, error) {
