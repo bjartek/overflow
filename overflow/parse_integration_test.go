@@ -41,5 +41,9 @@ func TestParseConfig(t *testing.T) {
 		emulator := merged.Networks["emulator"]
 		_, ok := emulator.Scripts["Foo"]
 		assert.True(t, ok, litter.Sdump(emulator.Scripts))
+		mainnet := merged.Networks["mainnet"]
+		_, mainnetOk := mainnet.Scripts["Foo"]
+		assert.True(t, mainnetOk, litter.Sdump(mainnet.Scripts))
+
 	})
 }
