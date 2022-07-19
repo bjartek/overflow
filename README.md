@@ -6,6 +6,9 @@
 
 > Tooling to help develop application on the the Flow Blockchain
 
+This is now the documentation for the RC of v1 of overflow, for the old documentation see the v0 branch.
+
+
 A DSL written in golang to run a `story` of interactions against either an local emulator, testnet, mainnet or an in memory instance of the flow-emulator.
 
 Use case scenarios include:
