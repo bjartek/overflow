@@ -19,6 +19,7 @@ type Solution struct {
 	Transactions map[string]*DeclarationInfo `json:"transactions"`
 	Scripts      map[string]*DeclarationInfo `json:"scripts"`
 	Networks     map[string]*SolutionNetwork `json:"networks"`
+	Warnings     []string                    `json:"warnings"`
 }
 
 type SolutionNetwork struct {
@@ -84,6 +85,7 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
 
+	warnings := []string{}
 	transactions := map[string]string{}
 	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
 		if strings.HasSuffix(path, ".cdc") {
@@ -175,7 +177,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			if err == nil {
 				scriptResult[name] = result
 			} else {
-				o.Logger.Info(fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
+				warnings = append(warnings, fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
 			}
 		}
 
@@ -187,7 +189,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			}
 			result, err := o.Parse(path, code, nw.Name)
 			if err != nil {
-				o.Logger.Info(fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
+				warnings = append(warnings, fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
 			} else {
 				txResult[name] = result
 			}
@@ -208,6 +210,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		Transactions: transactionDeclarations,
 		Scripts:      scriptDeclarations,
 		Networks:     solutionNetworks,
+		Warnings:     warnings,
 	}, nil
 }
 
