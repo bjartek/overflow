@@ -4,9 +4,11 @@ import (
 	"encoding/base64"
 )
 
-//TODO: rewrite to use new api
+// Templates
+//
+// A list of functions you can use to perform some common operations
 
-//UploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
+// UploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
 func (o *OverflowState) UploadFile(filename string, accountName string) error {
 	content, err := fileAsBase64(filename)
 	if err != nil {
@@ -16,7 +18,7 @@ func (o *OverflowState) UploadFile(filename string, accountName string) error {
 	return o.UploadString(content, accountName)
 }
 
-//DownloadAndUploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
+// DownloadAndUploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
 func (o *OverflowState) DownloadAndUploadFile(url string, accountName string) error {
 	body, err := getUrl(url)
 	if err != nil {
@@ -27,7 +29,7 @@ func (o *OverflowState) DownloadAndUploadFile(url string, accountName string) er
 	return o.UploadString(encoded, accountName)
 }
 
-//DownloadImageAndUploadAsDataUrl download an image and upload as data url
+// DownloadImageAndUploadAsDataUrl download an image and upload as data url
 func (o *OverflowState) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
 	body, err := getUrl(url)
 	if err != nil {
@@ -38,7 +40,7 @@ func (o *OverflowState) DownloadImageAndUploadAsDataUrl(url, accountName string)
 	return o.UploadString(content, accountName)
 }
 
-//UploadImageAsDataUrl will upload a image file from the filesystem into /storage/upload of the given account
+// UploadImageAsDataUrl will upload a image file from the filesystem into /storage/upload of the given account
 func (o *OverflowState) UploadImageAsDataUrl(filename string, accountName string) error {
 	content, err := fileAsImageData(filename)
 	if err != nil {
@@ -48,7 +50,7 @@ func (o *OverflowState) UploadImageAsDataUrl(filename string, accountName string
 	return o.UploadString(content, accountName)
 }
 
-//UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
+// UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
 func (o *OverflowState) UploadString(content string, accountName string) error {
 	//unload previous content if any.
 	if _, err := o.Transaction(`
@@ -83,7 +85,7 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 	return nil
 }
 
-//Get the free capacity in an account
+// Get the free capacity in an account
 func (o *OverflowState) GetFreeCapacity(accountName string) int {
 
 	result := o.InlineScript(`

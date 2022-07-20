@@ -34,7 +34,7 @@ func TestTransactionUpload(t *testing.T) {
 			Test(t).
 			AssertSuccess()
 
-		err := g.UploadFile("testFile.txt", "first")
+		err := g.UploadFile("testdata/testFile.txt", "first")
 		assert.NoError(t, err)
 		g.Transaction(`
 import Debug from "../contracts/Debug.cdc"
@@ -61,7 +61,7 @@ transaction {
 			Test(t).
 			AssertSuccess()
 
-		err := g.UploadImageAsDataUrl("pig.png", "first")
+		err := g.UploadImageAsDataUrl("testdata/pig.png", "first")
 		assert.NoError(t, err)
 		g.Transaction(`
 import Debug from "../contracts/Debug.cdc"

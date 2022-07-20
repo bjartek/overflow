@@ -1,293 +1,228 @@
 package overflow
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"io"
 	"strings"
+	"testing"
 
-	"github.com/enescakir/emoji"
-	"github.com/onflow/flow-go-sdk"
+	"github.com/sanity-io/litter"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/exp/slices"
 )
 
-//The main function for running an transasction in overflow
-func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *OverflowResult {
-	result := o.BuildInteraction(filename, "transaction", opts...).Send()
-
-	if o.PrintOptions != nil {
-		po := *o.PrintOptions
-		result.Print(po...)
-	}
-	if o.StopOnError && result.Err != nil {
-		panic(result.Err)
-	}
-
-	return result
+// TransactionResult
+//
+// The old result object from an transaction
+//
+// Deprecated: use the new Tx() method and OverflowResult
+type TransactionResult struct {
+	Err     error
+	Events  []*FormatedEvent
+	Result  *OverflowResult
+	Testing *testing.T
 }
 
-//Composition functions for Transactions
-type TransactionFunction func(filename string, opts ...InteractionOption) *OverflowResult
-type TransactionOptsFunction func(opts ...InteractionOption) *OverflowResult
-
-// If you store this in a struct and add arguments to it it will not reset between calls
-func (o *OverflowState) TxFN(outerOpts ...InteractionOption) TransactionFunction {
-
-	return func(filename string, opts ...InteractionOption) *OverflowResult {
-
-		for _, opt := range opts {
-			outerOpts = append(outerOpts, opt)
-		}
-		return o.Tx(filename, outerOpts...)
-
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertFailure(msg string) TransactionResult {
+	assert.Error(t.Testing, t.Err)
+	if t.Err != nil {
+		assert.Contains(t.Testing, t.Err.Error(), msg)
 	}
+	return t
 }
 
-func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...InteractionOption) TransactionOptsFunction {
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertSuccess() TransactionResult {
+	t.Testing.Helper()
 
-	return func(opts ...InteractionOption) *OverflowResult {
-		for _, opt := range opts {
-			outerOpts = append(outerOpts, opt)
-		}
-		return o.Tx(filename, outerOpts...)
+	if t.Err != nil {
+		assert.Fail(t.Testing, fmt.Sprintf("Received unexpected error:\n%+v", t.Err), fmt.Sprintf("transactionName:%s", t.Result.Name))
 	}
+	return t
 }
 
-//OverflowResult represents the state after running an transaction
-type OverflowResult struct {
-	StopOnError bool
-	//The error if any
-	Err error
-
-	//The id of the transaction
-	Id flow.Identifier
-
-	//If running on an emulator
-	//the meter that contains useful debug information on memory and interactions
-	Meter *Meter
-	//The Raw log from the emulator
-	RawLog []LogrusMessage
-	// The log from the emulator
-	EmulatorLog []string
-
-	//The computation used
-	ComputationUsed int
-
-	//The raw unfiltered events
-	RawEvents []flow.Event
-
-	//Events that are filtered and parsed into a terse format
-	Events OverflowEvents
-
-	//The underlying transaction if we need to look into that
-	Transaction *flow.Transaction
-
-	//TODO: consider marshalling this as a struct for convenience
-	//The fee event if any
-	Fee map[string]interface{}
-
-	//The name of the Transaction
-	Name string
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertEventCount(number int) TransactionResult {
+	assert.Equal(t.Testing, len(t.Events), number)
+	return t
 }
 
-func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) (uint64, error) {
-	for name, event := range o.Events {
-		if strings.HasSuffix(name, eventName) {
-			return event[0][fieldName].(uint64), nil
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertNoEvents() TransactionResult {
+	res := assert.Empty(t.Testing, t.Events)
+
+	t.logFailure(res)
+	return t
+}
+
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) logFailure(res bool) {
+	if !res {
+		for _, ev := range t.Events {
+			t.Testing.Log(litter.Sdump(ev))
 		}
 	}
-	err := fmt.Errorf("Could not find id field %s in event with suffix %s", fieldName, eventName)
-	if o.StopOnError {
-		panic(err)
-
-	}
-	return 0, err
 }
 
-func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {
-	var ids []uint64
-	for name, events := range o.Events {
-		if strings.HasSuffix(name, eventName) {
-			for _, event := range events {
-				ids = append(ids, event[fieldName].(uint64))
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) TransactionResult {
+	var eventNames []string
+	for _, fe := range t.Events {
+		eventNames = append(eventNames, fe.ShortName())
+	}
+
+	res := false
+	for _, ev := range event {
+		if assert.Contains(t.Testing, eventNames, ev) {
+			res = true
+		}
+	}
+
+	t.logFailure(res)
+
+	return t
+}
+
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResult {
+	var eventNames []string
+	for _, fe := range t.Events {
+		eventNames = append(eventNames, fe.Name)
+	}
+
+	res := false
+	for _, ev := range event {
+		if assert.Contains(t.Testing, eventNames, ev) {
+			res = true
+		}
+	}
+
+	t.logFailure(res)
+
+	return t
+}
+
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResult {
+
+	var jsonEvents []string
+	for _, fe := range t.Events {
+		jsonEvents = append(jsonEvents, fe.String())
+	}
+
+	res := true
+	for _, ev := range event {
+		//TODO: keep as before if this fails
+		if !slices.Contains(jsonEvents, ev) {
+			assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(ev)))
+			res = false
+		}
+	}
+
+	t.logFailure(res)
+	return t
+}
+
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) TransactionResult {
+
+	events := t.Events
+	newEvents := []*FormatedEvent{}
+	for _, ev := range events {
+		//todo do we need more then just name here?
+		if ev.Name == expected.Name {
+			fields := map[string]interface{}{}
+			for key, value := range ev.Fields {
+				_, exist := expected.Fields[key]
+				if exist {
+					fields[key] = value
+				}
+			}
+
+			if len(fields) > 0 {
+				newEvents = append(newEvents, &FormatedEvent{
+					Name:        ev.Name,
+					Time:        ev.Time,
+					BlockHeight: ev.BlockHeight,
+					Fields:      fields,
+				})
 			}
 		}
 	}
-	return ids
+	if !expected.ExistIn(newEvents) {
+		assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(expected)))
+		t.logFailure(false)
+	}
+
+	return t
 }
 
-func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
-	for name, event := range o.Events {
-		if strings.HasSuffix(name, eventName) {
-			return event
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionResult {
+	res := true
+	for _, ev := range event {
+		//This is not a compile error
+
+		if !ev.ExistIn(t.Events) {
+			assert.Fail(t.Testing, fmt.Sprintf("event not found %s", litter.Sdump(ev)))
+			res = false
 		}
 	}
-	return []OverflowEvent{}
+
+	t.logFailure(res)
+
+	return t
 }
 
-func (o OverflowState) readLog() ([]LogrusMessage, error) {
-
-	var logMessage []LogrusMessage
-	dec := json.NewDecoder(o.Log)
-	for {
-		var doc LogrusMessage
-
-		err := dec.Decode(&doc)
-		if err == io.EOF {
-			// all done
-			break
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
+	var logMessages []interface{}
+	for _, fe := range t.Events {
+		if strings.HasSuffix(fe.Name, "Debug.Log") {
+			logMessages = append(logMessages, fe.Fields["msg"])
 		}
-		if err != nil {
-			return []LogrusMessage{}, err
-		}
-
-		logMessage = append(logMessage, doc)
 	}
 
-	o.Log.Reset()
-	return logMessage, nil
-
+	for _, ev := range message {
+		assert.Contains(t.Testing, logMessages, ev)
+	}
+	return t
 }
 
-// Send a intereaction builder as a Transaction returning an overflow result
-func (t FlowInteractionBuilder) Send() *OverflowResult {
-	result := &OverflowResult{StopOnError: t.Overflow.StopOnError}
-	if t.Error != nil {
-		result.Err = t.Error
-		return result
-	}
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
 
-	if t.Proposer == nil {
-		result.Err = fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
-		return result
-	}
-
-	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
-
-	if len(t.TransactionCode) == 0 {
-		code, err := t.getContractCode(codeFileName)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-		t.TransactionCode = code
-	}
-
-	t.Overflow.Log.Reset()
-	t.Overflow.EmulatorLog.Reset()
-	// we append the mainSigners at the end here so that it signs last
-	signers := t.PayloadSigners
-	if t.MainSigner != nil {
-		signers = append(signers, t.MainSigner)
-	}
-
-	var authorizers []flow.Address
-	for _, signer := range signers {
-		authorizers = append(authorizers, signer.Address())
-	}
-	if t.MainSigner == nil {
-		signers = append(signers, t.Proposer)
-	}
-
-	tx, err := t.Overflow.Services.Transactions.Build(
-		t.Proposer.Address(),
-		authorizers,
-		t.Proposer.Address(),
-		t.Proposer.Key().Index(),
-		t.TransactionCode,
-		codeFileName,
-		t.GasLimit,
-		t.Arguments,
-		t.Overflow.Network,
-		true,
-	)
-	if err != nil {
-		result.Err = err
-		return result
-	}
-
-	for _, signer := range signers {
-		err = tx.SetSigner(signer)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-
-		tx, err = tx.Sign()
-		if err != nil {
-			result.Err = err
-			return result
-		}
-	}
-	txId := tx.FlowTransaction().ID()
-	result.Id = txId
-
-	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
-	ftx, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes, true)
-	result.Transaction = ftx
-
-	if err != nil {
-		result.Err = err
-		return result
-	}
-
-	logMessage, err := t.Overflow.readLog()
-	if err != nil {
-		result.Err = err
-	}
-	result.RawLog = logMessage
-
-	result.Meter = &Meter{}
-	var meter Meter
-	scanner := bufio.NewScanner(t.Overflow.EmulatorLog)
-	for scanner.Scan() {
-		txt := scanner.Text()
-		if strings.Contains(txt, "transaction execution data") {
-			err = json.Unmarshal([]byte(txt), &meter)
-			if err == nil {
-				result.Meter = &meter
-			}
-		}
-	}
-	messages := []string{}
-	for _, msg := range logMessage {
-		if msg.ComputationUsed != 0 {
-			result.ComputationUsed = msg.ComputationUsed
-		}
-		messages = append(messages, msg.Msg)
-	}
-
-	result.EmulatorLog = messages
-
-	result.RawEvents = res.Events
-
-	overflowEvents, fee := ParseEvents(result.RawEvents)
-	result.Fee = fee
-	if !t.IgnoreGlobalEventFilters {
-
-		fee := result.Fee["amount"]
-		if t.Overflow.FilterOutFeeEvents && fee != nil {
-			overflowEvents = overflowEvents.FilterFees(fee.(float64))
-		}
-
-		if t.Overflow.FilterOutEmptyWithDrawDepositEvents {
-			overflowEvents = overflowEvents.FilterTempWithdrawDeposit()
-		}
-
-		if len(t.Overflow.GlobalEventFilter) != 0 {
-			overflowEvents = overflowEvents.FilterEvents(t.Overflow.GlobalEventFilter)
+	for _, log := range t.Result.EmulatorLog {
+		if strings.Contains(log, message) {
+			return t
 		}
 	}
 
-	if len(t.EventFilter) != 0 {
-		overflowEvents = overflowEvents.FilterEvents(t.EventFilter)
+	assert.Fail(t.Testing, "No emulator log contain message "+message, t.Result.EmulatorLog)
+
+	return t
+}
+
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertComputationLessThenOrEqual(computation int) TransactionResult {
+	assert.LessOrEqual(t.Testing, t.Result.ComputationUsed, computation)
+	return t
+}
+
+// Deprecated: use the new Tx() method and Asserts on the result
+func (t TransactionResult) AssertComputationUsed(computation int) TransactionResult {
+	assert.Equal(t.Testing, computation, t.Result.ComputationUsed)
+	return t
+}
+
+// Deprecated use the new Tx() method and Asserts on the result
+func (t TransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
+
+	for _, ev := range t.Events {
+		if ev.Name == eventName {
+			return ev.GetFieldAsUInt64(fieldName)
+		}
 	}
+	panic("from event name of fieldname")
 
-	result.Events = overflowEvents
-
-	result.Name = t.FileName
-	t.Overflow.Log.Reset()
-	t.Overflow.EmulatorLog.Reset()
-	result.Err = res.Error
-	return result
 }

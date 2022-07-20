@@ -7,6 +7,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
+// Sign a user message
 func (f *OverflowState) SignUserMessage(account string, message string) (string, error) {
 
 	a, err := f.AccountE(account)

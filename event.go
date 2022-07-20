@@ -7,15 +7,18 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
-//A type alias to an OverflowEventFilter to filter out all events with a given suffix and the fields with given suffixes
+// Event parsing
+//
+// a type alias to an OverflowEventFilter to filter out all events with a given suffix and the fields with given suffixes
 type OverflowEventFilter map[string][]string
 
-//a type holding all events that are emitted from a Transaction
+// a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string][]OverflowEvent
 
-//a type representing the terse output of an raw Flow Event
+// a type representing the terse output of an raw Flow Event
 type OverflowEvent map[string]interface{}
 
+// Check if an event exist in the other events
 func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 	for _, ev := range events {
 		result := reflect.DeepEqual(o, ev)
@@ -26,6 +29,7 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 	return false
 }
 
+//Parse raw flow events into a list of events and a fee event
 func ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
@@ -62,6 +66,7 @@ func ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	return overflowEvents, fee
 }
 
+// Filter out temp withdraw deposit events
 func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents {
 	filteredEvents := overflowEvents
 	for name, events := range overflowEvents {
@@ -97,6 +102,7 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 	return filteredEvents
 }
 
+// Filtter out fee events
 func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 
 	filteredEvents := overflowEvents
@@ -137,6 +143,8 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 	}
 	return filteredEvents
 }
+
+// Filter out events given the sent in filter
 func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverflowEventFilter) OverflowEvents {
 	filteredEvents := OverflowEvents{}
 	for name, events := range overflowEvents {

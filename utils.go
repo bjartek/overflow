@@ -18,10 +18,7 @@ import (
 	"github.com/onflow/cadence"
 )
 
-/*
-Random utility functions
-*/
-
+// go string to cadence string panic if error
 func CadenceString(input string) cadence.String {
 	value, err := cadence.NewString(input)
 	if err != nil {

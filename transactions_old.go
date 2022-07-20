@@ -15,8 +15,9 @@ func (o *OverflowState) SimpleTxArgs(filename string, signer string, args *FlowA
 	o.TransactionFromFile(filename).SignProposeAndPayAs(signer).Args(args).RunPrintEventsFull()
 }
 
-// TransactionFromFile will start a flow transaction builder
 // Deprecated: Use Tx()
+//
+// TransactionFromFile will start a flow transaction builder
 func (o *OverflowState) TransactionFromFile(filename string) FlowInteractionBuilder {
 	return FlowInteractionBuilder{
 		Overflow:       o,
@@ -29,8 +30,9 @@ func (o *OverflowState) TransactionFromFile(filename string) FlowInteractionBuil
 	}
 }
 
-// Transaction will start a flow transaction builder using the inline transaction
 // Deprecated: Use Tx()
+//
+// Transaction will start a flow transaction builder using the inline transaction
 func (o *OverflowState) Transaction(content string) FlowInteractionBuilder {
 	return FlowInteractionBuilder{
 		Overflow:       o,
@@ -60,22 +62,25 @@ func (t FlowInteractionBuilder) NamedArguments(args map[string]string) FlowInter
 	return t
 }
 
-// Specify arguments to send to transaction using a raw list of values
 // Deprecated: Use Args
+//
+// Specify arguments to send to transaction using a raw list of values
 func (t FlowInteractionBuilder) ArgsV(args []cadence.Value) FlowInteractionBuilder {
 	t.Arguments = args
 	return t
 }
 
-// Specify arguments to send to transaction using a builder you send in
 // Deprecated: Use Arg
+//
+// Specify arguments to send to transaction using a builder you send in
 func (t FlowInteractionBuilder) Args(args *FlowArgumentsBuilder) FlowInteractionBuilder {
 	t.Arguments = args.Build()
 	return t
 }
 
-// Specify arguments to send to transaction using a function that takes a builder where you call the builder
 // Deprecated: Use Arg
+//
+// Specify arguments to send to transaction using a function that takes a builder where you call the builder
 func (t FlowInteractionBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowInteractionBuilder {
 	args := t.Overflow.Arguments()
 	fn(args)
@@ -90,6 +95,7 @@ func (t FlowInteractionBuilder) TransactionPath(path string) FlowInteractionBuil
 }
 
 // Deprecated: Use Tx function
+//
 // Gas sets the gas limit for this transaction
 func (t FlowInteractionBuilder) Gas(limit uint64) FlowInteractionBuilder {
 	t.GasLimit = limit
@@ -97,6 +103,7 @@ func (t FlowInteractionBuilder) Gas(limit uint64) FlowInteractionBuilder {
 }
 
 // Deprecated: Use Tx function
+//
 // SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowInteractionBuilder) SignProposeAndPayAs(signer string) FlowInteractionBuilder {
 	account, err := t.Overflow.AccountE(signer)
@@ -110,6 +117,7 @@ func (t FlowInteractionBuilder) SignProposeAndPayAs(signer string) FlowInteracti
 }
 
 // Deprecated: Use Tx function
+//
 // SignProposeAndPayAsService set the payer, proposer and envelope signer
 func (t FlowInteractionBuilder) SignProposeAndPayAsService() FlowInteractionBuilder {
 	key := t.Overflow.ServiceAccountName()
@@ -121,6 +129,7 @@ func (t FlowInteractionBuilder) SignProposeAndPayAsService() FlowInteractionBuil
 }
 
 // Deprecated: Use Tx function
+//
 // PayloadSigner set a signer for the payload
 func (t FlowInteractionBuilder) PayloadSigner(value string) FlowInteractionBuilder {
 	signer, err := t.Overflow.AccountE(value)
@@ -132,20 +141,23 @@ func (t FlowInteractionBuilder) PayloadSigner(value string) FlowInteractionBuild
 	return t
 }
 
+// Deprecated: use Send().PrintEvents()
+//
 // RunPrintEventsFull will run a transaction and print all events
-//Deprecated use Send().PrintEvents()
 func (t FlowInteractionBuilder) RunPrintEventsFull() {
 	PrintEvents(t.Run(), map[string][]string{})
 }
 
+// Deprecated: use Send().PrintEventsFiltered()
+//
 // RunPrintEvents will run a transaction and print all events ignoring some fields
-//Deprecated use Send().PrintEventsFiltered()
 func (t FlowInteractionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
 	PrintEvents(t.Run(), ignoreFields)
 }
 
+// Deprecated: use Send and get entire result
+//
 // Run run the transaction
-// deprecated: use Send and get entire result
 func (t FlowInteractionBuilder) Run() []flow.Event {
 	result := t.Send()
 	if result.Err != nil {
@@ -195,7 +207,7 @@ func (t FlowInteractionBuilder) RunGetIds(eventName string, fieldName string) ([
 	return result.GetIdsFromEvent(eventName, fieldName), nil
 }
 
-/// Deprecated: use Tx().GetEventsWithName
+// Deprecated: use Tx().GetEventsWithName
 func (t FlowInteractionBuilder) RunGetEventsWithNameOrError(eventName string) ([]FormatedEvent, error) {
 
 	result := t.Send()
@@ -230,8 +242,9 @@ func (t FlowInteractionBuilder) RunGetEventsWithName(eventName string) []Formate
 	return events
 }
 
-// RunE runs returns events and error
 // Deprecated: use Send()
+//
+// RunE runs returns events and error
 func (t FlowInteractionBuilder) RunE() ([]flow.Event, error) {
 	result := t.Send()
 	return result.RawEvents, result.Err

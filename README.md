@@ -1,10 +1,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/bjartek/overflow/badge.svg?branch=main)](https://coveralls.io/github/bjartek/overflow?branch=main) [![ci](https://github.com/bjartek/overflow/actions/workflows/ci.yaml/badge.svg)](https://github.com/bjartek/overflow/actions/workflows/ci.yaml)
 
-
-
 # Overflow
-
-> Tooling to help develop application on the the Flow Blockchain
 
 A DSL written in golang to be used in tests or to run a `story` of interactions against either an local emulator, testnet, mainnet or an in memory instance of the flow-emulator.
 

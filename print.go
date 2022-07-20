@@ -8,54 +8,65 @@ import (
 	"github.com/fatih/color"
 )
 
-type PrinterOption func(*PrintOptions)
+// a type represneting seting an option in the printer builder
+type PrinterOption func(*PrinterBuilder)
 
-type PrintOptions struct {
+// a type representing the accuumlated state in the builder
+//
+// the default setting is to print one line for each transaction with meter and all events
+type PrinterBuilder struct {
 	Events      bool
 	EventFilter OverflowEventFilter
 	Meter       int
 	EmulatorLog bool
 }
 
-func WithFullMeter() func(opt *PrintOptions) {
-	return func(opt *PrintOptions) {
+// print full meter verbose mode
+func WithFullMeter() func(opt *PrinterBuilder) {
+	return func(opt *PrinterBuilder) {
 		opt.Meter = 2
 	}
 }
 
-func WithMeter() func(opt *PrintOptions) {
-	return func(opt *PrintOptions) {
+// print meters as part of the transaction output line
+func WithMeter() func(opt *PrinterBuilder) {
+	return func(opt *PrinterBuilder) {
 		opt.Meter = 1
 	}
 }
 
-func WithoutMeter(value int) func(opt *PrintOptions) {
-	return func(opt *PrintOptions) {
+// do not print meter
+func WithoutMeter(value int) func(opt *PrinterBuilder) {
+	return func(opt *PrinterBuilder) {
 		opt.Meter = 0
 	}
 }
 
-func WithEmulatorLog() func(opt *PrintOptions) {
-	return func(opt *PrintOptions) {
+// print the emulator log. NB! Verbose
+func WithEmulatorLog() func(opt *PrinterBuilder) {
+	return func(opt *PrinterBuilder) {
 		opt.EmulatorLog = true
 	}
 }
 
-func WithEventFilter(filter OverflowEventFilter) func(opt *PrintOptions) {
-	return func(opt *PrintOptions) {
+// filter out events that are printed
+func WithEventFilter(filter OverflowEventFilter) func(opt *PrinterBuilder) {
+	return func(opt *PrinterBuilder) {
 		opt.EventFilter = filter
 	}
 }
 
-func WithoutEvents() func(opt *PrintOptions) {
-	return func(opt *PrintOptions) {
+// do not print events
+func WithoutEvents() func(opt *PrinterBuilder) {
+	return func(opt *PrinterBuilder) {
 		opt.Events = false
 	}
 }
 
+// print out an result
 func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 
-	printOpts := &PrintOptions{
+	printOpts := &PrinterBuilder{
 		Events:      true,
 		EventFilter: OverflowEventFilter{},
 		Meter:       1,

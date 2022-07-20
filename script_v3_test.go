@@ -23,7 +23,7 @@ func TestScript(t *testing.T) {
 
 	t.Run("Run simple script marshal", func(t *testing.T) {
 		var res string
-		err := o.Script("test", Arg("account", "first")).MarhalAs(&res)
+		err := o.Script("test", Arg("account", "first")).MarshalAs(&res)
 		assert.NoError(t, err)
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
 	})

@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+// Event fetching
+//
 //A function to customize the transaction builder
 type EventFetcherOption func(*EventFetcherBuilder)
 
@@ -22,11 +24,7 @@ type EventFetcherBuilder struct {
 	EventBatchSize        uint64
 }
 
-type EventFetcherResult struct {
-	Err    error
-	Events *OverflowEvents
-}
-
+// Build an event fetcher builder from the sent in options
 func (o *OverflowState) buildEventInteraction(opts ...EventFetcherOption) *EventFetcherBuilder {
 	e := &EventFetcherBuilder{
 		OverflowState:         o,
@@ -44,7 +42,7 @@ func (o *OverflowState) buildEventInteraction(opts ...EventFetcherOption) *Event
 	return e
 }
 
-// EventFetcher create an event fetcher builder.
+// FetchEvents using the given options
 func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastEvent, error) {
 
 	e := o.buildEventInteraction(opts...)
@@ -129,62 +127,81 @@ func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastE
 
 }
 
+// Set the Workers size for FetchEvents
 func WithWorkers(workers int) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.NumberOfWorkers = workers
 	}
 }
+
+// Set the batch sice for FetchEvents
 func WithBatchSize(size uint64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EventBatchSize = size
 	}
 }
+
+// set that we want to fetch an event and all its fields
 func WithEvent(eventName string) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EventsAndIgnoreFields[eventName] = []string{}
 	}
 }
+
+// set that we want the following events and ignoring the fields mentioned
 func WithEventIgnoringField(eventName string, ignoreFields []string) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EventsAndIgnoreFields[eventName] = ignoreFields
 	}
 }
 
+// set the start height to use
 func WithStartHeight(blockHeight int64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.FromIndex = blockHeight
 	}
 }
 
+// set the from index to use alias to WithStartHeight
 func WithFromIndex(blockHeight int64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.FromIndex = blockHeight
 	}
 }
+
+// set the end index to use
 func WithEndIndex(blockHeight uint64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EndIndex = blockHeight
 		e.EndAtCurrentHeight = false
 	}
 }
+
+// set the relative list of blocks to fetch events from
 func WithLastBlocks(number uint64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EndAtCurrentHeight = true
 		e.FromIndex = -int64(number)
 	}
 }
+
+// fetch events until theg given height alias to WithEndHeight
 func UntilBlock(blockHeight uint64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EndIndex = blockHeight
 		e.EndAtCurrentHeight = false
 	}
 }
+
+// set the end index to the current height
 func UntilCurrentBlock() EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EndAtCurrentHeight = true
 		e.EndIndex = 0
 	}
 }
+
+// track what block we have read since last run in a file
 func TrackProgressIn(fileName string) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.ProgressFile = fileName
@@ -194,6 +211,7 @@ func TrackProgressIn(fileName string) EventFetcherOption {
 	}
 }
 
+// a type to represent an event that we get from FetchEvents
 type OverflowPastEvent struct {
 	Name        string        `json:"name"`
 	BlockHeight uint64        `json:"blockHeight,omitempty"`
@@ -201,6 +219,7 @@ type OverflowPastEvent struct {
 	Fields      OverflowEvent `json:"fields"`
 }
 
+/*
 func NewTestPastEvent(name string, fields map[string]interface{}) *OverflowPastEvent {
 	loc, _ := time.LoadLocation("UTC")
 	// handle err
@@ -212,6 +231,7 @@ func NewTestPastEvent(name string, fields map[string]interface{}) *OverflowPastE
 		Fields:      fields,
 	}
 }
+*/
 
 //String pretty print an event as a String
 func (e OverflowPastEvent) String() string {
@@ -222,6 +242,7 @@ func (e OverflowPastEvent) String() string {
 	return string(j)
 }
 
+// get the given field as an uint64
 func (e OverflowPastEvent) GetFieldAsUInt64(field string) uint64 {
 	return e.Fields[field].(uint64)
 }

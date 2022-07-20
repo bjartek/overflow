@@ -12,6 +12,8 @@ import (
 	"github.com/onflow/flow-go-sdk"
 )
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 // EventFetcher create an event fetcher builder.
 func (o *OverflowState) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
@@ -25,42 +27,56 @@ func (o *OverflowState) EventFetcher() EventFetcherBuilder {
 	}
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 // Workers sets the number of workers.
 func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
 	e.NumberOfWorkers = workers
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 // BatchSize sets the size of a batch
 func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
 	e.EventBatchSize = batchSize
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 // Event fetches and Events and all its fields
 func (e EventFetcherBuilder) Event(eventName string) EventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = []string{}
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //EventIgnoringFields fetch event and ignore the specified fields
 func (e EventFetcherBuilder) EventIgnoringFields(eventName string, ignoreFields []string) EventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = ignoreFields
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //Start specify what blockHeight to fetch starting atm. This can be negative related to end/until
 func (e EventFetcherBuilder) Start(blockHeight int64) EventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //From specify what blockHeight to fetch from. This can be negative related to end.
 func (e EventFetcherBuilder) From(blockHeight int64) EventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //End specify what index to end at
 func (e EventFetcherBuilder) End(blockHeight uint64) EventFetcherBuilder {
 	e.EndIndex = blockHeight
@@ -68,6 +84,8 @@ func (e EventFetcherBuilder) End(blockHeight uint64) EventFetcherBuilder {
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //Last fetch events from the number last blocks
 func (e EventFetcherBuilder) Last(number uint64) EventFetcherBuilder {
 	e.EndAtCurrentHeight = true
@@ -75,6 +93,8 @@ func (e EventFetcherBuilder) Last(number uint64) EventFetcherBuilder {
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //Until specify what index to end at
 func (e EventFetcherBuilder) Until(blockHeight uint64) EventFetcherBuilder {
 	e.EndIndex = blockHeight
@@ -82,6 +102,8 @@ func (e EventFetcherBuilder) Until(blockHeight uint64) EventFetcherBuilder {
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //UntilCurrent Specify to fetch events until the current Block
 func (e EventFetcherBuilder) UntilCurrent() EventFetcherBuilder {
 	e.EndAtCurrentHeight = true
@@ -89,6 +111,8 @@ func (e EventFetcherBuilder) UntilCurrent() EventFetcherBuilder {
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //TrackProgressIn Specify a file to store progress in
 func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilder {
 	e.ProgressFile = fileName
@@ -98,6 +122,8 @@ func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilde
 	return e
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //Run runs the eventfetcher returning events or an error
 func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
@@ -172,8 +198,9 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 }
 
-//PrintEvents prints th events, ignoring fields specified for the given event typeID
-//Deprecated use PrintEvent on overflowResult
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
+// PrintEvents prints th events, ignoring fields specified for the given event typeID
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	if len(events) > 0 {
 		log.Println("EVENTS")
@@ -246,6 +273,8 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 	}
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 // FormatedEvent event in a more condensed formated form
 type FormatedEvent struct {
 	Name        string                 `json:"name"`
@@ -254,6 +283,7 @@ type FormatedEvent struct {
 	Fields      map[string]interface{} `json:"fields"`
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
 func (o FormatedEvent) ExistIn(events []*FormatedEvent) bool {
 	//	litter.Dump(o)
 	for _, ev := range events {
@@ -266,10 +296,12 @@ func (o FormatedEvent) ExistIn(events []*FormatedEvent) bool {
 	return false
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
 func (fe FormatedEvent) ShortName() string {
 	return fe.Name[19:]
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
 func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
 	loc, _ := time.LoadLocation("UTC")
 	// handle err
@@ -282,6 +314,8 @@ func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
 	}
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
+//
 //String pretty print an event as a String
 func (e FormatedEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
@@ -291,6 +325,7 @@ func (e FormatedEvent) String() string {
 	return string(j)
 }
 
+// Deprecated: Deprecated in favor of FetchEvent with builder
 func (e FormatedEvent) GetFieldAsUInt64(field string) uint64 {
 	id := e.Fields[field]
 	fieldAsString := fmt.Sprintf("%v", id)

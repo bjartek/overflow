@@ -9,10 +9,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// everything below here is deprecated
-
-//FlowScriptBuilder is a struct to hold information for running a script
-//Deprecation use FlowInteractionBuilder and the Script method
+// FlowScriptBuilder is a struct to hold information for running a script
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 type FlowScriptBuilder struct {
 	Overflow       *OverflowState
 	FileName       string
@@ -22,8 +21,9 @@ type FlowScriptBuilder struct {
 	Error          error
 }
 
-//Script start a script builder with the inline script as body
-//Deprecation use FlowInteractionBuilder and the Script method
+// Script start a script builder with the inline script as body
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (o *OverflowState) InlineScript(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
 		Overflow:       o,
@@ -34,8 +34,9 @@ func (o *OverflowState) InlineScript(content string) FlowScriptBuilder {
 	}
 }
 
-//ScriptFromFile will start a flow script builder
-//Deprecation use FlowInteractionBuilder and the Script method
+// ScriptFromFile will start a flow script builder
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (o *OverflowState) ScriptFromFile(filename string) FlowScriptBuilder {
 	return FlowScriptBuilder{
 		Overflow:       o,
@@ -46,13 +47,13 @@ func (o *OverflowState) ScriptFromFile(filename string) FlowScriptBuilder {
 	}
 }
 
-//Deprecation use FlowInteractionBuilder and the Script method
+//Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) ScriptPath(path string) FlowScriptBuilder {
 	t.BasePath = path
 	return t
 }
 
-//Deprecation use FlowInteractionBuilder and the Script method
+//Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) NamedArguments(args map[string]string) FlowScriptBuilder {
 
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
@@ -71,21 +72,24 @@ func (t FlowScriptBuilder) NamedArguments(args map[string]string) FlowScriptBuil
 }
 
 // Specify arguments to send to transaction using a raw list of values
-//Deprecation use FlowInteractionBuilder and the Script method
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) ArgsV(args []cadence.Value) FlowScriptBuilder {
 	t.Arguments = args
 	return t
 }
 
-//Specify arguments to send to transaction using a builder you send in
-//Deprecation use FlowInteractionBuilder and the Script method
+// Specify arguments to send to transaction using a builder you send in
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) Args(args *FlowArgumentsBuilder) FlowScriptBuilder {
 	t.Arguments = args.Build()
 	return t
 }
 
 // Specify arguments to send to transaction using a function that takes a builder where you call the builder
-//Deprecation use FlowInteractionBuilder and the Script method
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowScriptBuilder {
 	args := t.Overflow.Arguments()
 	fn(args)
@@ -94,7 +98,7 @@ func (t FlowScriptBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowScriptBuil
 }
 
 // Run executes a read only script
-//Deprecation use FlowInteractionBuilder and the Script method
+// Deprecation:  use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) Run() {
 	result := t.RunFailOnError()
 	res, err := CadenceValueToJsonString(result)
@@ -104,7 +108,7 @@ func (t FlowScriptBuilder) Run() {
 	t.Overflow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, res))
 }
 
-// Deprecation use FlowInteractionBuilder
+// Deprecation: use FlowInteractionBuilder
 func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) {
 
 	var err error
@@ -120,7 +124,8 @@ func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) 
 }
 
 // RunReturns executes a read only script
-// Deprecation use FlowInteractionBuilder and the Script method
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	if t.Error != nil {
@@ -150,7 +155,7 @@ func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 	return result, nil
 }
 
-// Deprecation use FlowInteractionBuilder and the Script method
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 	result, err := t.RunReturns()
 	if err != nil {
@@ -161,7 +166,8 @@ func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 }
 
 // RunMarshalAs runs the script and marshals the result into the provided value, returning an error if any
-// Deprecation use FlowInteractionBuilder and the Script method
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 	result, err := t.RunReturns()
 	if err != nil {
@@ -176,7 +182,8 @@ func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 }
 
 // RunReturnsJsonString runs the script and returns pretty printed json string
-// Deprecation use FlowInteractionBuilder and the Script method
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
 	res, err := CadenceValueToJsonString(t.RunFailOnError())
 	if err != nil {
@@ -185,8 +192,9 @@ func (t FlowScriptBuilder) RunReturnsJsonString() string {
 	return res
 }
 
-//RunReturnsInterface runs the script and returns interface{}
-// Deprecation use FlowInteractionBuilder and the Script method
+// RunReturnsInterface runs the script and returns interface{}
+//
+// Deprecation: use FlowInteractionBuilder and the Script method
 func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
 	return CadenceValueToInterface(t.RunFailOnError())
 }

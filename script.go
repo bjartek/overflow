@@ -16,10 +16,17 @@ import (
 	"github.com/xeipuuv/gojsonpointer"
 )
 
-//Composition functions for Scripts
+// Scripts
+//
+// A read only interaction against the flow blockcahin
+
+// a type used for composing scripts
 type ScriptFunction func(filename string, opts ...InteractionOption) *OverflowScriptResult
+
+// a type used for composing scripts
 type ScriptOptsFunction func(opts ...InteractionOption) *OverflowScriptResult
 
+// compose interactionOptions into a new Script function
 func (o *OverflowState) ScriptFN(outerOpts ...InteractionOption) ScriptFunction {
 
 	return func(filename string, opts ...InteractionOption) *OverflowScriptResult {
@@ -31,6 +38,7 @@ func (o *OverflowState) ScriptFN(outerOpts ...InteractionOption) ScriptFunction 
 	}
 }
 
+// compose fileName and interactionOptions into a new Script function
 func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...InteractionOption) ScriptOptsFunction {
 
 	return func(opts ...InteractionOption) *OverflowScriptResult {
@@ -42,6 +50,7 @@ func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...Interacti
 	}
 }
 
+// run a script with the given code/filanem an options
 func (o *OverflowState) Script(filename string, opts ...InteractionOption) *OverflowScriptResult {
 	interaction := o.BuildInteraction(filename, "script", opts...)
 
@@ -108,6 +117,7 @@ func (fbi *FlowInteractionBuilder) runScript() *OverflowScriptResult {
 	return osc
 }
 
+// result after running a script
 type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
@@ -116,6 +126,7 @@ type OverflowScriptResult struct {
 	Output interface{}
 }
 
+// get the script as json
 func (osr *OverflowScriptResult) GetAsJson() (string, error) {
 	if osr.Err != nil {
 		return "", errors.Wrapf(osr.Err, "script: %s", osr.Input.FileName)
@@ -129,6 +140,7 @@ func (osr *OverflowScriptResult) GetAsJson() (string, error) {
 	return string(j), nil
 }
 
+// get the script as interface{}
 func (osr *OverflowScriptResult) GetAsInterface() (interface{}, error) {
 	if osr.Err != nil {
 		return nil, errors.Wrapf(osr.Err, "script: %s", osr.Input.FileName)
@@ -136,6 +148,7 @@ func (osr *OverflowScriptResult) GetAsInterface() (interface{}, error) {
 	return osr.Output, nil
 }
 
+// Assert that a jsonPointer into the result is an error
 func (osr *OverflowScriptResult) AssertWithPointerError(t *testing.T, pointer string, message string) *OverflowScriptResult {
 	_, err := osr.GetWithPointer(pointer)
 	assert.Error(t, err)
@@ -144,6 +157,7 @@ func (osr *OverflowScriptResult) AssertWithPointerError(t *testing.T, pointer st
 	return osr
 }
 
+// Assert that a jsonPointer into the result is equal to the given value
 func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string, value interface{}) *OverflowScriptResult {
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
@@ -153,6 +167,7 @@ func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string,
 	return osr
 }
 
+//Assert that a jsonPointer into the result is equal to the given autogold Want
 func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
@@ -167,6 +182,7 @@ func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer str
 	return osr
 }
 
+// Assert that the length of a jsonPointer is equal to length
 func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer string, length int) *OverflowScriptResult {
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
@@ -180,6 +196,7 @@ func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer s
 	return osr
 }
 
+// Marshal the script output as the given sent in type
 func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
 	bytes, err := json.Marshal(osr.Output)
 	if err != nil {
@@ -190,6 +207,7 @@ func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
 	return nil
 }
 
+// Marshal the given jsonPointer as the given type
 func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo interface{}) error {
 	ptr, err := gojsonpointer.NewJsonPointer(pointer)
 	if err != nil {
@@ -209,6 +227,7 @@ func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo inte
 	return nil
 }
 
+// get the given jsonPointer as interface{}
 func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, error) {
 
 	ptr, err := gojsonpointer.NewJsonPointer(pointer)
@@ -219,6 +238,7 @@ func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, er
 	return result, err
 }
 
+// Assert that the result is equal to the given autogold.Want
 func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *OverflowScriptResult {
 	assert.NoError(t, osr.Err)
 
@@ -232,6 +252,7 @@ func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *
 	return osr
 }
 
+// Print the result
 func (osr *OverflowScriptResult) Print() {
 	json, err := osr.GetAsJson()
 	if err != nil {
@@ -239,16 +260,4 @@ func (osr *OverflowScriptResult) Print() {
 		return
 	}
 	fmt.Printf("%v Script %s run from result: %v\n", emoji.Star, osr.Input.FileName, json)
-}
-
-func (osr *OverflowScriptResult) MarhalAs(value interface{}) error {
-	if osr.Err != nil {
-		return osr.Err
-	}
-	result, err := osr.GetAsJson()
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal([]byte(result), &value)
-	return err
 }
