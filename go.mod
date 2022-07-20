@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/hexops/autogold v1.3.0
 	github.com/onflow/cadence v0.24.2-0.20220627202951-5a06fec82b4a
-	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220712164905-e2e5f8372095
+	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220718134737-1fe6aa4e9635
 	github.com/onflow/flow-go-sdk v0.26.5-0.20220629191626-900f9f91bffc
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
@@ -134,7 +134,3 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
-
-replace github.com/onflow/flow-cli => github.com/findonflow/flow-cli v0.37.1-0.20220718134737-1fe6aa4e9635
-
-replace github.com/onflow/flow-cli/pkg/flowkit => github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20220718134737-1fe6aa4e9635
