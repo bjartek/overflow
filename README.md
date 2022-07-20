@@ -72,15 +72,14 @@ import (
 
 func main() {
 
- 	  //start an in memory emulator by default
-    o := Overflow()
-		
-		//the Tx DSL runs an transaction
-		o.Tx("name_of_transaction", SignProposeAndPayAs("bob"), Arg("name", "bob")).Print()
-		
-		
-		//Run a script/get interaction against the same in memory chain
-		o.Script("name_of_script", Arg("name", "bob")).Print()
+	//start an in memory emulator by default
+	o := Overflow()
+	
+	//the Tx DSL runs an transaction
+	o.Tx("name_of_transaction", SignProposeAndPayAs("bob"), Arg("name", "bob")).Print()
+	
+	//Run a script/get interaction against the same in memory chain
+	o.Script("name_of_script", Arg("name", "bob")).Print()
 }
 ```
 

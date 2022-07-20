@@ -1,3 +1,10 @@
+// MIT licensed
+
+// Overflow is a DSL to help interact with the flow blockchain using go
+//
+// OverflowState
+//
+// By bjartek aka Bjarte Karlsen
 package overflow
 
 import (
