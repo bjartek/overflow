@@ -73,14 +73,21 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 
 	messages := []string{}
 
-	if o.ComputationUsed != 0 {
-		messages = append(messages, fmt.Sprintf("%d%v", o.ComputationUsed, emoji.HighVoltage))
-	}
-	nameMessage := fmt.Sprintf("Tx %s", o.Name)
+	nameMessage := fmt.Sprintf("Tx:%s", o.Name)
 	if o.Name == "inline" {
 		nameMessage = "Inline TX"
 	}
 	messages = append(messages, nameMessage)
+
+	if o.ComputationUsed != 0 {
+		messages = append(messages, fmt.Sprintf("computation:%d", o.ComputationUsed))
+	}
+
+	if printOpts.Meter == 1 && o.Meter != nil {
+		messages = append(messages, fmt.Sprintf("loops:%d", o.Meter.Loops()))
+		messages = append(messages, fmt.Sprintf("statements:%d", o.Meter.Statements()))
+		messages = append(messages, fmt.Sprintf("invocations:%d", o.Meter.FunctionInvocations()))
+	}
 
 	if len(o.Fee) != 0 {
 		messages = append(messages, fmt.Sprintf("%v:%f (%f/%f)", emoji.MoneyBag, o.Fee["amount"].(float64), o.Fee["inclusionEffort"].(float64), o.Fee["exclusionEffort"].(float64)))
@@ -124,13 +131,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if printOpts.Meter != 0 && o.Meter != nil {
-		if printOpts.Meter == 1 {
-			fmt.Println("=== METER ===")
-			fmt.Println(fmt.Sprintf("Computation: %d", o.Meter.ComputationUsed))
-			fmt.Println(fmt.Sprintf("      loops: %d", o.Meter.Loops()))
-			fmt.Println(fmt.Sprintf(" statements: %d", o.Meter.Statements()))
-			fmt.Println(fmt.Sprintf("invocations: %d", o.Meter.FunctionInvocations()))
-		} else {
+		if printOpts.Meter == 2 {
 			fmt.Println("=== METER ===")
 			fmt.Println(fmt.Sprintf("LedgerInteractionUsed: %d", o.Meter.LedgerInteractionUsed))
 			if o.Meter.MemoryUsed != 0 {
