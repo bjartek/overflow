@@ -23,7 +23,7 @@ func WithFullMeter() func(opt *PrintOptions) {
 	}
 }
 
-func WithMeter(value int) func(opt *PrintOptions) {
+func WithMeter() func(opt *PrintOptions) {
 	return func(opt *PrintOptions) {
 		opt.Meter = 1
 	}
