@@ -1,8 +1,8 @@
-package overflow_test
+package overflow
 
 import . "github.com/bjartek/overflow"
 
-func Overflow_Emulator() {
+func ExampleOverflow_Emulator() {
 
 	// create a new overflow emulator that will panic if scripts/transactions fail and print output
 	o := Overflow(
