@@ -45,7 +45,7 @@ First create a project directory, initialize the go module and install `overflow
 mkdir test-overflow && cd test-overflow
 flow init
 go mod init example.com/test-overflow
-go get github.com/bjartek/overflow/overflow
+go get github.com/bjartek/overflow
 ```
 
 Then create a task file:
@@ -63,7 +63,7 @@ import (
     "fmt"
 
     //if you imports this with .  you do not have to repeat overflow everywhere 
-    . "github.com/bjartek/overflow/overflow"
+    . "github.com/bjartek/overflow"
 )
 
 func main() {
