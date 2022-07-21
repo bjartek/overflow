@@ -249,7 +249,7 @@ func IgnoreGlobalEventFilters() InteractionOption {
 }
 
 // set an aditional authorizer that will sign the payload
-func PayloadSigner(signer ...string) func(ftb *FlowInteractionBuilder) {
+func PayloadSigner(signer ...string) InteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		for _, signer := range signer {
 			account, err := ftb.Overflow.AccountE(signer)

@@ -22,42 +22,42 @@ type PrinterBuilder struct {
 }
 
 // print full meter verbose mode
-func WithFullMeter() func(opt *PrinterBuilder) {
+func WithFullMeter() PrinterOption {
 	return func(opt *PrinterBuilder) {
 		opt.Meter = 2
 	}
 }
 
 // print meters as part of the transaction output line
-func WithMeter() func(opt *PrinterBuilder) {
+func WithMeter() PrinterOption {
 	return func(opt *PrinterBuilder) {
 		opt.Meter = 1
 	}
 }
 
 // do not print meter
-func WithoutMeter(value int) func(opt *PrinterBuilder) {
+func WithoutMeter(value int) PrinterOption {
 	return func(opt *PrinterBuilder) {
 		opt.Meter = 0
 	}
 }
 
 // print the emulator log. NB! Verbose
-func WithEmulatorLog() func(opt *PrinterBuilder) {
+func WithEmulatorLog() PrinterOption {
 	return func(opt *PrinterBuilder) {
 		opt.EmulatorLog = true
 	}
 }
 
 // filter out events that are printed
-func WithEventFilter(filter OverflowEventFilter) func(opt *PrinterBuilder) {
+func WithEventFilter(filter OverflowEventFilter) PrinterOption {
 	return func(opt *PrinterBuilder) {
 		opt.EventFilter = filter
 	}
 }
 
 // do not print events
-func WithoutEvents() func(opt *PrinterBuilder) {
+func WithoutEvents() PrinterOption {
 	return func(opt *PrinterBuilder) {
 		opt.Events = false
 	}
