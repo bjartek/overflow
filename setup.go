@@ -46,9 +46,9 @@ type OverflowBuilder struct {
 }
 
 // NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
-// - OVERFLOW_ENV : sets the environment to use, valid values here are emulator|testnet|mainnet|embedded
-// - OVERFLOW_CONTINUE : if set to `true` will not create accounts and deploy contracts even if on embeded/emulator
-// - OVERFLOW_LOGGING : set the logging level of flowkit and overflow itself, 0 = No Log, 1 = Errors only, 2 = Debug, 3(default) = Info
+// OVERFLOW_ENV : sets the environment to use, valid values here are emulator|testnet|mainnet|embedded
+// OVERFLOW_CONTINUE : if set to `true` will not create accounts and deploy contracts even if on embeded/emulator
+// OVERFLOW_LOGGING : set the logging level of flowkit and overflow itself, 0 = No Log, 1 = Errors only, 2 = Debug, 3(default) = Info
 //
 // Deprecated: use Overflow function with builder
 func NewOverflow() *OverflowBuilder {
