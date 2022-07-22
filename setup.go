@@ -13,12 +13,14 @@ import (
 	"strconv"
 
 	"github.com/enescakir/emoji"
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/config"
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	emulator "github.com/onflow/flow-emulator"
+	"github.com/onflow/flow-go/fvm"
 	"github.com/rs/zerolog"
 
 	logrus "github.com/sirupsen/logrus"
@@ -44,6 +46,7 @@ type OverflowBuilder struct {
 	GlobalEventFilter                   OverflowEventFilter
 	StopOnError                         bool
 	PrintOptions                        *[]PrinterOption
+	NewAccountFlowAmount                float64
 }
 
 // NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
@@ -86,6 +89,8 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		initializeAccounts = true
 	}
 
+	float, _ := strconv.ParseFloat(fvm.DefaultMinimumStorageReservation.String(), 64)
+
 	return &OverflowBuilder{
 		Network:                             network,
 		InMemory:                            inMemory,
@@ -104,6 +109,7 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		GlobalEventFilter:                   OverflowEventFilter{},
 		StopOnError:                         false,
 		PrintOptions:                        nil,
+		NewAccountFlowAmount:                float,
 	}
 }
 
@@ -200,11 +206,13 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 			Out:       &memlog,
 		}
 
+		newAccountFlowAmount, _ := cadence.NewUFix64(fmt.Sprintf("%.8f", o.NewAccountFlowAmount))
 		writer := io.Writer(&emulatorLog)
 		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
 		gw := gateway.NewEmulatorGatewayWithOpts(acc,
 			gateway.WithLogger(logrusLogger),
 			gateway.WithEmulatorOptions(
+				emulator.WithMinimumStorageReservation(newAccountFlowAmount),
 				emulator.WithTransactionFeesEnabled(true),
 				emulator.WithLogger(emulatorLogger),
 			))
@@ -488,5 +496,12 @@ func StopOnError() OverflowOption {
 func PrintInteractionResults(opts ...PrinterOption) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.PrintOptions = &opts
+	}
+}
+
+// Set the amount of flow for new account, default is 0.001
+func NewUserFlowAmount(amount float64) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.NewAccountFlowAmount = amount
 	}
 }
