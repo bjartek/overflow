@@ -472,7 +472,7 @@ func WithFeesEvents() OverflowOption {
 }
 
 // filter out empty deposit and withdraw events
-func WithEmptyDepoitWithdrawEvents() OverflowOption {
+func WithEmptyDepositWithdrawEvents() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.FilterOutEmptyWithDrawDepositEvents = false
 	}
