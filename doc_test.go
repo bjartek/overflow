@@ -1,11 +1,13 @@
 package overflow
 
-func ExampleOverflow_Emulator() {
+func Example() {
 
 	// create a new overflow emulator that will panic if scripts/transactions fail and print output
 	o := Overflow(
 		StopOnError(),
-		PrintInteractionResults())
+		PrintInteractionResults(),
+		// here you can send in more options to customize the way Overflow is started
+	)
 
 	// start the Tx DSL with the name of the transactions file, by default this is in the `transactions` folder in your root dit
 	o.Tx("arguments",
