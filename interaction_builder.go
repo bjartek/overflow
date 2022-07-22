@@ -25,6 +25,9 @@ type FlowInteractionBuilder struct {
 	//the name of the integration, for inline variants
 	Name string
 
+	//force that this interaction will not print log, even if overflow state has specified it
+	NoLog bool
+
 	//The underlying state of overflow used to fetch some global settings
 	Overflow *OverflowState
 
@@ -103,6 +106,13 @@ func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, er
 //A function to customize the transaction builder
 type InteractionOption func(*FlowInteractionBuilder)
 
+// force no printing for this interaction
+func NoLog() InteractionOption {
+	return func(ftb *FlowInteractionBuilder) {
+		ftb.NoLog = true
+	}
+}
+
 // set a list of args as key, value in an interaction, see Arg for options you can pass in
 func Args(args ...interface{}) InteractionOption {
 
@@ -133,6 +143,7 @@ func ArgsM(args map[string]interface{}) InteractionOption {
 	}
 }
 
+// set the name of this interaction, for inline interactions this will be the entire name for file interactions they will be combined
 func Name(name string) InteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.Name = name

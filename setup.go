@@ -243,6 +243,7 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		StopOnError:                         o.StopOnError,
 		PrintOptions:                        o.PrintOptions,
 		NewUserFlowAmount:                   o.NewAccountFlowAmount,
+		LogLevel:                            o.LogLevel,
 	}
 
 	if o.DeployContracts {

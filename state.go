@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/cadence/runtime/ast"
@@ -46,8 +47,9 @@ type OverflowState struct {
 
 	//flowkit, emulator and emulator debug log uses three different logging technologies so we have them all stored here
 	//this flowkit Logger can go away when we can remove deprecations!
-	Logger output.Logger
-	Log    *bytes.Buffer
+	Logger   output.Logger
+	Log      *bytes.Buffer
+	LogLevel int
 
 	//https://github.com/bjartek/overflow/issues/45
 	//This is not populated with anything yet since the emulator version that has this change is not in mainline yet
@@ -242,11 +244,23 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		if err != nil {
 			return nil, err
 		}
+		messages := []string{
+			fmt.Sprintf("%v", emoji.Person),
+			"Created account:",
+			account.Name(),
+			"with address:",
+			account.Address().String(),
+		}
+
 		if f.Network == "emulator" && f.NewUserFlowAmount != 0.0 {
 			f.MintFlowTokens(account.Address().String(), f.NewUserFlowAmount)
 			if f.Error != nil {
 				return nil, err
 			}
+			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", f.NewUserFlowAmount))
+		}
+		if f.PrintOptions != nil && f.LogLevel == output.NoneLog {
+			fmt.Println(strings.Join(messages, " "))
 		}
 	}
 	return f, nil
@@ -255,7 +269,8 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 // InitializeContracts installs all contracts in the deployment block for the configured network
 func (o *OverflowState) InitializeContracts() *OverflowState {
 	o.Log.Reset()
-	if _, err := o.Services.Project.Deploy(o.Network, false); err != nil {
+	contracts, err := o.Services.Project.Deploy(o.Network, false)
+	if err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
 			messages := []string{}
@@ -267,6 +282,15 @@ func (o *OverflowState) InitializeContracts() *OverflowState {
 			o.Error = errors.Wrapf(err, "errors : %v", messages)
 		} else {
 			o.Error = err
+		}
+	} else {
+		//we do not have log output from emulator but we want to print results
+		if o.LogLevel == output.NoneLog && o.PrintOptions != nil {
+			names := []string{}
+			for _, c := range contracts {
+				names = append(names, c.Name())
+			}
+			fmt.Printf("%v deploy contracts %s\n", emoji.Scroll, strings.Join(names, ", "))
 		}
 	}
 	o.Log.Reset()
@@ -420,9 +444,10 @@ func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...InteractionOp
 
 //The main function for running an transasction in overflow
 func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *OverflowResult {
-	result := o.BuildInteraction(filename, "transaction", opts...).Send()
+	ftb := o.BuildInteraction(filename, "transaction", opts...)
+	result := ftb.Send()
 
-	if o.PrintOptions != nil {
+	if o.PrintOptions != nil && !ftb.NoLog {
 		po := *o.PrintOptions
 		result.Print(po...)
 	}
@@ -466,6 +491,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		GasLimit:       uint64(o.Gas),
 		BasePath:       path,
 		NamedArgs:      map[string]interface{}{},
+		NoLog:          false,
 	}
 
 	for _, opt := range opts {

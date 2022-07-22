@@ -95,9 +95,7 @@ pub fun main(user:Address): UInt64{
 	return account.storageCapacity - account.storageUsed
 }
 `).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(uint64)
-
 	return int(result)
-
 }
 
 func (o *OverflowState) MintFlowTokens(accountName string, amount float64) *OverflowState {
@@ -138,6 +136,7 @@ transaction(recipient: Address, amount: UFix64) {
 		Arg("recipient", accountName),
 		Arg("amount", amount),
 		Name(fmt.Sprintf("Startup Mint tokens for %s", accountName)),
+		NoLog(),
 	)
 
 	if result.Err != nil {
