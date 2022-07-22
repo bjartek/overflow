@@ -487,6 +487,8 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		ftb.FileName = filename
 		if ftb.Name == "" {
 			ftb.Name = filename
+		} else {
+			ftb.Name = fmt.Sprintf("%s (%s)", ftb.Name, filename)
 		}
 		if err != nil {
 			ftb.Error = err
