@@ -207,14 +207,16 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		}
 
 		newAccountFlowAmount, _ := cadence.NewUFix64(fmt.Sprintf("%.8f", o.NewAccountFlowAmount))
+		fmt.Println("new ", newAccountFlowAmount.String())
+		fmt.Println("default ", fvm.DefaultMinimumStorageReservation)
 		writer := io.Writer(&emulatorLog)
 		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
 		gw := gateway.NewEmulatorGatewayWithOpts(acc,
 			gateway.WithLogger(logrusLogger),
 			gateway.WithEmulatorOptions(
-				emulator.WithMinimumStorageReservation(newAccountFlowAmount),
 				emulator.WithTransactionFeesEnabled(true),
 				emulator.WithLogger(emulatorLogger),
+				emulator.WithMinimumStorageReservation(newAccountFlowAmount),
 			))
 
 		service = services.NewServices(gw, state, logger)
