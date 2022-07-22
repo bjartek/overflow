@@ -259,5 +259,5 @@ func (osr *OverflowScriptResult) Print() {
 		color.Red(err.Error())
 		return
 	}
-	fmt.Printf("%v Script %s run result:%v\n", emoji.Star, osr.Input.FileName, json)
+	fmt.Printf("%v Script %s run result:%v\n", emoji.Star, osr.Input.Name, json)
 }
