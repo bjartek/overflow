@@ -6,7 +6,6 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/fatih/color"
-	"github.com/sanity-io/litter"
 )
 
 // a type represneting seting an option in the printer builder
@@ -92,21 +91,22 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	messages = append(messages, nameMessage)
 
 	if o.ComputationUsed != 0 {
-		messages = append(messages, fmt.Sprintf("computation:%d", o.ComputationUsed))
+		messages = append(messages, fmt.Sprintf("gas:%d", o.ComputationUsed))
 	}
-
-	if printOpts.Meter == 1 && o.Meter != nil {
-		messages = append(messages, fmt.Sprintf("loops:%d", o.Meter.Loops()))
-		messages = append(messages, fmt.Sprintf("statements:%d", o.Meter.Statements()))
-		messages = append(messages, fmt.Sprintf("invocations:%d", o.Meter.FunctionInvocations()))
-	}
+	/*
+		if printOpts.Meter == 1 && o.Meter != nil {
+			messages = append(messages, fmt.Sprintf("loops:%d", o.Meter.Loops()))
+			messages = append(messages, fmt.Sprintf("statements:%d", o.Meter.Statements()))
+			messages = append(messages, fmt.Sprintf("invocations:%d", o.Meter.FunctionInvocations()))
+		}
+	*/
 
 	if len(o.Fee) != 0 {
-		litter.Dump(o.Fee)
-		//messages = append(messages, fmt.Sprintf("%v:%f (%f/%f)", emoji.MoneyBag, o.Fee["amount"].(float64), o.Fee["inclusionEffort"].(float64), o.Fee["exclusionEffort"].(float64)))
+		messages = append(messages, fmt.Sprintf("fee:%.8f", o.Fee["amount"]))
 	}
 	messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
 
+	fmt.Println()
 	fmt.Printf("%v %s\n", emoji.OkHand, strings.Join(messages, " "))
 
 	if printOpts.Events {
@@ -127,7 +127,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 						}
 					}
 
-					format := fmt.Sprintf("%%%ds:%%v\n", length+2)
+					format := fmt.Sprintf("%%%ds -> %%v\n", length+2)
 					for key, value := range event {
 						fmt.Printf(format, key, value)
 					}

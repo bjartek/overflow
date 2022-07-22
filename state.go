@@ -71,6 +71,9 @@ type OverflowState struct {
 
 	//Signal to overflow that if this is not nil we should print events on interaction completion
 	PrintOptions *[]PrinterOption
+
+	//Mint this amount of flow to new accounts
+	NewUserFlowAmount float64
 }
 
 func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
@@ -238,6 +241,12 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			[]string{})
 		if err != nil {
 			return nil, err
+		}
+		if f.Network == "emulator" && f.NewUserFlowAmount != 0.0 {
+			f.MintFlowTokens(account.Address().String(), f.NewUserFlowAmount)
+			if f.Error != nil {
+				return nil, err
+			}
 		}
 	}
 	return f, nil
@@ -459,6 +468,10 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NamedArgs:      map[string]interface{}{},
 	}
 
+	for _, opt := range opts {
+		opt(ftb)
+	}
+
 	if strings.Contains(filename, "transaction (") ||
 		strings.Contains(filename, "transaction {") ||
 		strings.Contains(filename, "transaction{") ||
@@ -472,14 +485,15 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		code, err := ftb.getContractCode(filePath)
 		ftb.TransactionCode = code
 		ftb.FileName = filename
+		if ftb.Name == "" {
+			ftb.Name = filename
+		}
 		if err != nil {
 			ftb.Error = err
 			return ftb
 		}
 	}
-	for _, opt := range opts {
-		opt(ftb)
-	}
+
 	if ftb.Error != nil {
 		return ftb
 	}

@@ -22,6 +22,9 @@ import (
 // FlowInteractionBuilder used to create a builder pattern for an interaction
 type FlowInteractionBuilder struct {
 
+	//the name of the integration, for inline variants
+	Name string
+
 	//The underlying state of overflow used to fetch some global settings
 	Overflow *OverflowState
 
@@ -127,6 +130,12 @@ func ArgsM(args map[string]interface{}) InteractionOption {
 		for key, value := range args {
 			ftb.NamedArgs[key] = value
 		}
+	}
+}
+
+func Name(name string) InteractionOption {
+	return func(ftb *FlowInteractionBuilder) {
+		ftb.Name = name
 	}
 }
 
@@ -398,7 +407,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 
 	result.Events = overflowEvents
 
-	result.Name = t.FileName
+	result.Name = t.Name
 	t.Overflow.Log.Reset()
 	t.Overflow.EmulatorLog.Reset()
 	result.Err = res.Error

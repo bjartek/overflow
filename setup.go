@@ -13,14 +13,12 @@ import (
 	"strconv"
 
 	"github.com/enescakir/emoji"
-	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/config"
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	emulator "github.com/onflow/flow-emulator"
-	"github.com/onflow/flow-go/fvm"
 	"github.com/rs/zerolog"
 
 	logrus "github.com/sirupsen/logrus"
@@ -89,8 +87,6 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		initializeAccounts = true
 	}
 
-	float, _ := strconv.ParseFloat(fvm.DefaultMinimumStorageReservation.String(), 64)
-
 	return &OverflowBuilder{
 		Network:                             network,
 		InMemory:                            inMemory,
@@ -109,7 +105,7 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		GlobalEventFilter:                   OverflowEventFilter{},
 		StopOnError:                         false,
 		PrintOptions:                        nil,
-		NewAccountFlowAmount:                float,
+		NewAccountFlowAmount:                0.0,
 	}
 }
 
@@ -206,9 +202,6 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 			Out:       &memlog,
 		}
 
-		newAccountFlowAmount, _ := cadence.NewUFix64(fmt.Sprintf("%.8f", o.NewAccountFlowAmount))
-		fmt.Println("new ", newAccountFlowAmount.String())
-		fmt.Println("default ", fvm.DefaultMinimumStorageReservation)
 		writer := io.Writer(&emulatorLog)
 		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
 		gw := gateway.NewEmulatorGatewayWithOpts(acc,
@@ -216,7 +209,6 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 			gateway.WithEmulatorOptions(
 				emulator.WithTransactionFeesEnabled(true),
 				emulator.WithLogger(emulatorLogger),
-				emulator.WithMinimumStorageReservation(newAccountFlowAmount),
 			))
 
 		service = services.NewServices(gw, state, logger)
@@ -250,6 +242,7 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		GlobalEventFilter:                   o.GlobalEventFilter,
 		StopOnError:                         o.StopOnError,
 		PrintOptions:                        o.PrintOptions,
+		NewUserFlowAmount:                   o.NewAccountFlowAmount,
 	}
 
 	if o.DeployContracts {
