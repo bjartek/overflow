@@ -1,49 +1,49 @@
-&overflow.MergedSolution{Networks: map[string]overflow.MergedSolutionNetwork{
-	"emulator": overflow.MergedSolutionNetwork{
-		Scripts: map[string]overflow.CodeWithSpec{
-			"Foo": overflow.CodeWithSpec{
+&overflow.SolutionMerged{Networks: map[string]overflow.SolutionMergedNetwork{
+	"emulator": overflow.SolutionMergedNetwork{
+		Scripts: map[string]overflow.SolutionCodeWithSpec{
+			"Foo": overflow.SolutionCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"account",
 					},
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+			"block": overflow.SolutionCodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
 }`},
-			"test": overflow.CodeWithSpec{
+			"test": overflow.SolutionCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"account",
 					},
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"type": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+			"type": overflow.SolutionCodeWithSpec{Code: `// test script to ensure code is running
 import FlowToken from 0x0ae53cb6e3f42a79
 
 pub fun main(): Type {
         return Type<@FlowToken.Vault>()
 }`},
 		},
-		Transactions: map[string]overflow.CodeWithSpec{
-			"Foo": overflow.CodeWithSpec{
+		Transactions: map[string]overflow.SolutionCodeWithSpec{
+			"Foo": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount) {
@@ -52,14 +52,14 @@ transaction(test:String) {
 
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
 				},
 			},
-			"arguments": overflow.CodeWithSpec{
+			"arguments": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount) {
@@ -68,14 +68,14 @@ transaction(test:String) {
 
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
 				},
 			},
-			"argumentsWithAccount": overflow.CodeWithSpec{
+			"argumentsWithAccount": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:Address) {
   prepare(acct: AuthAccount) {
@@ -85,14 +85,14 @@ transaction(test:Address) {
     log(test)
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "Address"},
 				},
 			},
-			"create_nft_collection": overflow.CodeWithSpec{Code: `import NonFungibleToken from 0xf8d6e0586b0a20c7
+			"create_nft_collection": overflow.SolutionCodeWithSpec{Code: `import NonFungibleToken from 0xf8d6e0586b0a20c7
 
 // This transaction creates an empty NFT Collection in the signer's account
 transaction {
@@ -106,7 +106,7 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`},
-			"mint_tokens": overflow.CodeWithSpec{
+			"mint_tokens": overflow.SolutionCodeWithSpec{
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -135,7 +135,7 @@ transaction(recipient: Address, amount: UFix64) {
         destroy minter
     }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"recipient",
 						"amount",
@@ -146,7 +146,7 @@ transaction(recipient: Address, amount: UFix64) {
 					},
 				},
 			},
-			"signWithMultipleAccounts": overflow.CodeWithSpec{
+			"signWithMultipleAccounts": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
@@ -154,7 +154,7 @@ transaction(test:String) {
     log(account2)
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
@@ -193,51 +193,51 @@ pub fun log(_ msg: String) : String {
 			"NonFungibleToken": "// NFTv2.cdc\n//\n// This is a complete version of the NonFungibleToken contract\n// that includes withdraw and deposit functionality, as well as a\n// collection resource that can be used to bundle NFTs together.\n//\n// It also includes a definition for the Minter resource,\n// which can be used by admins to mint new NFTs.\n\npub contract NonFungibleToken {\n\n    pub event TestEvent(ufix:UFix64, uint: UInt64, test: String)\n  // Declare the NFT resource type\n  pub resource NFT {\n      // The unique ID that differentiates each NFT\n      pub let id: UInt64\n\n      // Initialize both fields in the init function\n      init(initID: UInt64) {\n          self.id = initID\n      }\n  }\n\n  // We define this interface purely as a way to allow users\n  // to create public, restricted references to their NFT Collection.\n  // They would use this to only expose the deposit, getIDs,\n  // and idExists fields in their Collection\n  pub resource interface NFTReceiver {\n\n      pub fun deposit(token: @NFT)\n\n      pub fun getIDs(): [UInt64]\n\n      pub fun idExists(id: UInt64): Bool\n  }\n\n  // The definition of the Collection resource that\n  // holds the NFTs that a user owns\n  pub resource Collection: NFTReceiver {\n      // dictionary of NFT conforming tokens\n      // NFT is a resource type with an `UInt64` ID field\n      pub var ownedNFTs: @{UInt64: NFT}\n\n      // Initialize the NFTs field to an empty collection\n      init () {\n          self.ownedNFTs <- {}\n      }\n\n      // withdraw\n      //\n      // Function that removes an NFT from the collection\n      // and moves it to the calling context\n      pub fun withdraw(withdrawID: UInt64): @NFT {\n          // If the NFT isn't found, the transaction panics and reverts\n          let token <- self.ownedNFTs.remove(key: withdrawID)!\n\n          return <-token\n      }\n\n      // deposit\n      //\n      // Function that takes a NFT as an argument and\n      // adds it to the collections dictionary\n      pub fun deposit(token: @NFT) {\n          // add the new token to the dictionary which removes the old one\n          let oldToken <- self.ownedNFTs[token.id] <- token\n          destroy oldToken\n      }\n\n      // idExists checks to see if a NFT\n      // with the given ID exists in the collection\n      pub fun idExists(id: UInt64): Bool {\n          return self.ownedNFTs[id] != nil\n      }\n\n      // getIDs returns an array of the IDs that are in the collection\n      pub fun getIDs(): [UInt64] {\n          return self.ownedNFTs.keys\n      }\n\n      // If a resource has member fields that are resources,\n      // it is required to define a `destroy` block to specify\n      // what should happen to those member fields\n      // if the top level object is destroyed\n      destroy() {\n          destroy self.ownedNFTs\n      }\n  }\n\n  // creates a new empty Collection resource and returns it\n  pub fun createEmptyCollection(): @Collection {\n      return <- create Collection()\n  }\n\n  // NFTMinter\n  //\n  // Resource that would be owned by an admin or by a smart contract\n  // that allows them to mint new NFTs when needed\n  pub resource NFTMinter {\n\n      // the ID that is used to mint NFTs\n      // it is onlt incremented so that NFT ids remain\n      // unique. It also keeps track of the total number of NFTs\n      // in existence\n      pub var idCount: UInt64\n\n      init() {\n          self.idCount = 1\n      }\n\n      // mintNFT\n      //\n      // Function that mints a new NFT with a new ID\n      // and deposits it in the recipients collection\n      // using their collection reference\n      pub fun mintNFT(recipient: &AnyResource{NFTReceiver}) {\n\n          // create a new NFT\n          var newNFT <- create NFT(initID: self.idCount)\n\n          // deposit it in the recipient's account using their reference\n          recipient.deposit(token: <-newNFT)\n\n          // change the id so that each ID is unique\n          self.idCount = self.idCount + UInt64(1)\n      }\n  }\n\n  init() {\n    // store an empty NFT Collection in account storage\n    self.account.save<@Collection>(<-self.createEmptyCollection(), to: /storage/NFTCollection)\n\n    // publish a reference to the Collection in storage\n    self.account.link<&{NFTReceiver}>(/public/NFTReceiver, target: /storage/NFTCollection)\n\n    // store a minter resource in account storage\n    self.account.save<@NFTMinter>(<-create NFTMinter(), to: /storage/NFTMinter)\n\n    emit TestEvent(ufix: 64.10, uint: 64, test: \"foobar\" )\n  }\n}\n",
 		},
 	},
-	"mainnet": overflow.MergedSolutionNetwork{
-		Scripts: map[string]overflow.CodeWithSpec{
-			"Foo": overflow.CodeWithSpec{
+	"mainnet": overflow.SolutionMergedNetwork{
+		Scripts: map[string]overflow.SolutionCodeWithSpec{
+			"Foo": overflow.SolutionCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"account",
 					},
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+			"block": overflow.SolutionCodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
 }`},
-			"test": overflow.CodeWithSpec{
+			"test": overflow.SolutionCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"account",
 					},
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"type": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+			"type": overflow.SolutionCodeWithSpec{Code: `// test script to ensure code is running
 import FlowToken from 0x1654653399040a61
 
 pub fun main(): Type {
         return Type<@FlowToken.Vault>()
 }`},
 		},
-		Transactions: map[string]overflow.CodeWithSpec{
-			"Foo": overflow.CodeWithSpec{
+		Transactions: map[string]overflow.SolutionCodeWithSpec{
+			"Foo": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount) {
@@ -246,14 +246,14 @@ transaction(test:String) {
 
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
 				},
 			},
-			"arguments": overflow.CodeWithSpec{
+			"arguments": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount) {
@@ -262,14 +262,14 @@ transaction(test:String) {
 
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
 				},
 			},
-			"argumentsWithAccount": overflow.CodeWithSpec{
+			"argumentsWithAccount": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:Address) {
   prepare(acct: AuthAccount) {
@@ -279,14 +279,14 @@ transaction(test:Address) {
     log(test)
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "Address"},
 				},
 			},
-			"create_nft_collection": overflow.CodeWithSpec{Code: `import NonFungibleToken from 0x1d7e57aa55817448
+			"create_nft_collection": overflow.SolutionCodeWithSpec{Code: `import NonFungibleToken from 0x1d7e57aa55817448
 
 // This transaction creates an empty NFT Collection in the signer's account
 transaction {
@@ -300,7 +300,7 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`},
-			"mint_tokens": overflow.CodeWithSpec{
+			"mint_tokens": overflow.SolutionCodeWithSpec{
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -329,7 +329,7 @@ transaction(recipient: Address, amount: UFix64) {
         destroy minter
     }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"recipient",
 						"amount",
@@ -340,7 +340,7 @@ transaction(recipient: Address, amount: UFix64) {
 					},
 				},
 			},
-			"signWithMultipleAccounts": overflow.CodeWithSpec{
+			"signWithMultipleAccounts": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
@@ -348,7 +348,7 @@ transaction(test:String) {
     log(account2)
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
@@ -384,51 +384,51 @@ pub fun log(_ msg: String) : String {
 }
 `},
 	},
-	"testnet": overflow.MergedSolutionNetwork{
-		Scripts: map[string]overflow.CodeWithSpec{
-			"Foo": overflow.CodeWithSpec{
+	"testnet": overflow.SolutionMergedNetwork{
+		Scripts: map[string]overflow.SolutionCodeWithSpec{
+			"Foo": overflow.SolutionCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"account",
 					},
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"block": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+			"block": overflow.SolutionCodeWithSpec{Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
 }`},
-			"test": overflow.CodeWithSpec{
+			"test": overflow.SolutionCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"account",
 					},
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"type": overflow.CodeWithSpec{Code: `// test script to ensure code is running
+			"type": overflow.SolutionCodeWithSpec{Code: `// test script to ensure code is running
 import FlowToken from 0x7e60df042a9c0868
 
 pub fun main(): Type {
         return Type<@FlowToken.Vault>()
 }`},
 		},
-		Transactions: map[string]overflow.CodeWithSpec{
-			"Foo": overflow.CodeWithSpec{
+		Transactions: map[string]overflow.SolutionCodeWithSpec{
+			"Foo": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount) {
@@ -437,14 +437,14 @@ transaction(test:String) {
 
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
 				},
 			},
-			"arguments": overflow.CodeWithSpec{
+			"arguments": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount) {
@@ -453,14 +453,14 @@ transaction(test:String) {
 
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
 				},
 			},
-			"argumentsWithAccount": overflow.CodeWithSpec{
+			"argumentsWithAccount": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:Address) {
   prepare(acct: AuthAccount) {
@@ -470,14 +470,14 @@ transaction(test:Address) {
     log(test)
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},
 					Parameters: map[string]string{"test": "Address"},
 				},
 			},
-			"create_nft_collection": overflow.CodeWithSpec{Code: `import NonFungibleToken from 0x631e88ae7f1d7c20
+			"create_nft_collection": overflow.SolutionCodeWithSpec{Code: `import NonFungibleToken from 0x631e88ae7f1d7c20
 
 // This transaction creates an empty NFT Collection in the signer's account
 transaction {
@@ -491,7 +491,7 @@ transaction {
     log("Created a new empty collection and published a reference")
   }
 }`},
-			"mint_tokens": overflow.CodeWithSpec{
+			"mint_tokens": overflow.SolutionCodeWithSpec{
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
 
@@ -520,7 +520,7 @@ transaction(recipient: Address, amount: UFix64) {
         destroy minter
     }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"recipient",
 						"amount",
@@ -531,7 +531,7 @@ transaction(recipient: Address, amount: UFix64) {
 					},
 				},
 			},
-			"signWithMultipleAccounts": overflow.CodeWithSpec{
+			"signWithMultipleAccounts": overflow.SolutionCodeWithSpec{
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
   prepare(acct: AuthAccount, account2: AuthAccount) {
@@ -539,7 +539,7 @@ transaction(test:String) {
     log(account2)
  }
 }`,
-				Spec: &overflow.DeclarationInfo{
+				Spec: &overflow.SolutionDeclarationInfo{
 					ParameterOrder: []string{
 						"test",
 					},

@@ -545,7 +545,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		return nil, err
 	}
 
-	transactionDeclarations := map[string]*DeclarationInfo{}
+	transactionDeclarations := map[string]*SolutionDeclarationInfo{}
 	for path, name := range transactions {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
@@ -557,7 +557,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		}
 	}
 
-	scriptDeclarations := map[string]*DeclarationInfo{}
+	scriptDeclarations := map[string]*SolutionDeclarationInfo{}
 	for path, name := range scripts {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {

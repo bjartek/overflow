@@ -17,10 +17,10 @@ import (
 type Solution struct {
 
 	//all transactions with name and what paremters they have
-	Transactions map[string]*DeclarationInfo `json:"transactions"`
+	Transactions map[string]*SolutionDeclarationInfo `json:"transactions"`
 
 	//all scripts with name and paramters they have
-	Scripts map[string]*DeclarationInfo `json:"scripts"`
+	Scripts map[string]*SolutionDeclarationInfo `json:"scripts"`
 
 	//all networks with associated scripts/tranasctions/contracts preresolved
 	Networks map[string]*SolutionNetwork `json:"networks"`
@@ -30,7 +30,7 @@ type Solution struct {
 }
 
 // a type containing information about paramter types and orders
-type DeclarationInfo struct {
+type SolutionDeclarationInfo struct {
 	ParameterOrder []string          `json:"order"`
 	Parameters     map[string]string `json:"parameters"`
 }
@@ -43,27 +43,27 @@ type SolutionNetwork struct {
 }
 
 // a type representing a merged solution that will be serialized as the json file for the npm module
-type MergedSolution struct {
-	Networks map[string]MergedSolutionNetwork `json:"networks"`
+type SolutionMerged struct {
+	Networks map[string]SolutionMergedNetwork `json:"networks"`
 }
 
 //a network in the merged solution
-type MergedSolutionNetwork struct {
-	Scripts      map[string]CodeWithSpec `json:"scripts"`
-	Transactions map[string]CodeWithSpec `json:"transactions,omitempty"`
-	Contracts    *map[string]string      `json:"contracts,omitempty"`
+type SolutionMergedNetwork struct {
+	Scripts      map[string]SolutionCodeWithSpec `json:"scripts"`
+	Transactions map[string]SolutionCodeWithSpec `json:"transactions,omitempty"`
+	Contracts    *map[string]string              `json:"contracts,omitempty"`
 }
 
 // representing code with specification if parameters
-type CodeWithSpec struct {
-	Code string           `json:"code"`
-	Spec *DeclarationInfo `json:"spec"`
+type SolutionCodeWithSpec struct {
+	Code string                   `json:"code"`
+	Spec *SolutionDeclarationInfo `json:"spec"`
 }
 
 // merge the given Solution into a MergedSolution that is suited for exposing as an NPM module
-func (s *Solution) MergeSpecAndCode() *MergedSolution {
+func (s *Solution) MergeSpecAndCode() *SolutionMerged {
 
-	networks := map[string]MergedSolutionNetwork{}
+	networks := map[string]SolutionMergedNetwork{}
 
 	networkNames := []string{}
 	for name, _ := range s.Networks {
@@ -72,7 +72,7 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 
 	for name, network := range s.Networks {
 
-		scripts := map[string]CodeWithSpec{}
+		scripts := map[string]SolutionCodeWithSpec{}
 		for rawScriptName, code := range network.Scripts {
 
 			scriptName := rawScriptName
@@ -91,14 +91,14 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 				}
 			}
 			if valid {
-				scripts[scriptName] = CodeWithSpec{
+				scripts[scriptName] = SolutionCodeWithSpec{
 					Code: formatCode(code),
 					Spec: s.Scripts[rawScriptName],
 				}
 			}
 		}
 
-		transactions := map[string]CodeWithSpec{}
+		transactions := map[string]SolutionCodeWithSpec{}
 		for rawTxName, code := range network.Transactions {
 
 			txName := rawTxName
@@ -117,24 +117,24 @@ func (s *Solution) MergeSpecAndCode() *MergedSolution {
 				}
 			}
 			if txValid {
-				transactions[txName] = CodeWithSpec{
+				transactions[txName] = SolutionCodeWithSpec{
 					Code: formatCode(code),
 					Spec: s.Transactions[rawTxName],
 				}
 			}
 		}
 
-		networks[name] = MergedSolutionNetwork{
+		networks[name] = SolutionMergedNetwork{
 			Contracts:    network.Contracts,
 			Scripts:      scripts,
 			Transactions: transactions,
 		}
 
 	}
-	return &MergedSolution{Networks: networks}
+	return &SolutionMerged{Networks: networks}
 }
 
-func declarationInfo(codeFileName string, code []byte) *DeclarationInfo {
+func declarationInfo(codeFileName string, code []byte) *SolutionDeclarationInfo {
 	params := params(codeFileName, code)
 	if params == nil {
 		return nil
@@ -148,7 +148,7 @@ func declarationInfo(codeFileName string, code []byte) *DeclarationInfo {
 	if len(parameterList) == 0 {
 		return nil
 	}
-	return &DeclarationInfo{
+	return &SolutionDeclarationInfo{
 		ParameterOrder: parameterList,
 		Parameters:     parametersMap,
 	}

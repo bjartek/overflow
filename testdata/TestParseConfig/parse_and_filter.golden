@@ -1,16 +1,16 @@
 &overflow.Solution{
-	Transactions: map[string]*overflow.DeclarationInfo{
-		"emulatorFoo": &overflow.DeclarationInfo{
+	Transactions: map[string]*overflow.SolutionDeclarationInfo{
+		"emulatorFoo": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{
 				"test",
 			},
 			Parameters: map[string]string{"test": "String"},
 		},
-		"mainnetFoo": &overflow.DeclarationInfo{
+		"mainnetFoo": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"mint_tokens": &overflow.DeclarationInfo{
+		"mint_tokens": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{
 				"recipient",
 				"amount",
@@ -20,29 +20,29 @@
 				"recipient": "Address",
 			},
 		},
-		"signWithMultipleAccounts": &overflow.DeclarationInfo{
+		"signWithMultipleAccounts": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"testnetFoo": &overflow.DeclarationInfo{
+		"testnetFoo": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
 	},
-	Scripts: map[string]*overflow.DeclarationInfo{
-		"emulatorFoo": &overflow.DeclarationInfo{
+	Scripts: map[string]*overflow.SolutionDeclarationInfo{
+		"emulatorFoo": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"mainnetFoo": &overflow.DeclarationInfo{
+		"mainnetFoo": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"test": &overflow.DeclarationInfo{
+		"test": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"testnetFoo": &overflow.DeclarationInfo{
+		"testnetFoo": &overflow.SolutionDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
