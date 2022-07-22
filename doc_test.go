@@ -1,4 +1,7 @@
-package overflow
+package overflow_test
+
+// importing overflow using "." will yield a cleaner DSL
+import . "github.com/bjartek/overflow"
 
 func Example() {
 
