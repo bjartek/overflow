@@ -6,6 +6,7 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/fatih/color"
+	"github.com/sanity-io/litter"
 )
 
 // a type represneting seting an option in the printer builder
@@ -101,7 +102,8 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 
 	if len(o.Fee) != 0 {
-		messages = append(messages, fmt.Sprintf("%v:%f (%f/%f)", emoji.MoneyBag, o.Fee["amount"].(float64), o.Fee["inclusionEffort"].(float64), o.Fee["exclusionEffort"].(float64)))
+		litter.Dump(o.Fee)
+		//messages = append(messages, fmt.Sprintf("%v:%f (%f/%f)", emoji.MoneyBag, o.Fee["amount"].(float64), o.Fee["inclusionEffort"].(float64), o.Fee["exclusionEffort"].(float64)))
 	}
 	messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
 

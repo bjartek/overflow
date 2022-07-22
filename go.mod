@@ -134,3 +134,5 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
+
+replace github.com/onflow/flow-cli/pkg/flowkit => github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20220721212942-1ba9ac43e741
