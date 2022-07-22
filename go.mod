@@ -135,4 +135,4 @@ require (
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
 
-replace github.com/onflow/flow-cli/pkg/flowkit => github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20220721212942-1ba9ac43e741
+replace github.com/onflow/flow-cli/pkg/flowkit => github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20220722140917-f1a85c8a966f

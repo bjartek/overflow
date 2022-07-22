@@ -19,7 +19,7 @@ func TestIntegrationEvents(t *testing.T) {
 				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3)
+			AssertEventCount(6)
 
 		_, err := g.EventFetcher().End(2).From(-10).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
 		assert.Error(t, err)
@@ -35,7 +35,7 @@ func TestIntegrationEvents(t *testing.T) {
 				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3)
+			AssertEventCount(6)
 
 		ev, err := g.EventFetcher().Last(2).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
 		assert.NoError(t, err)
@@ -51,7 +51,7 @@ func TestIntegrationEvents(t *testing.T) {
 				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3)
+			AssertEventCount(6)
 
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
@@ -60,7 +60,7 @@ func TestIntegrationEvents(t *testing.T) {
 				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3)
+			AssertEventCount(6)
 
 		ev, err := g.EventFetcher().Last(3).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
 		assert.NoError(t, err)
@@ -77,7 +77,7 @@ func TestIntegrationEvents(t *testing.T) {
 				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3)
+			AssertEventCount(6)
 
 		ev, err := g.EventFetcher().Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").TrackProgressIn("progress").Run()
 		defer os.Remove("progress")
@@ -109,7 +109,7 @@ func TestIntegrationEvents(t *testing.T) {
 				UFix64(100.0)).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3)
+			AssertEventCount(6)
 
 		ev, err := g.EventFetcher().Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").TrackProgressIn("progress").Run()
 		defer os.Remove("progress")

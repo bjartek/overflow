@@ -2,6 +2,7 @@ package overflow
 
 import (
 	"encoding/base64"
+	"fmt"
 )
 
 // Templates
@@ -100,9 +101,13 @@ pub fun main(user:Address): UInt64{
 }
 
 // A method to fill up a users storage, useful when testing
+// This has some issues with transaction fees
 func (o *OverflowState) FillUpStorage(accountName string) *OverflowState {
 
-	length := o.GetFreeCapacity(accountName) - 67 //some storage is made outside of the string so need to adjust
+	cap := o.GetFreeCapacity(accountName)
+	fmt.Println(cap)
+	length := cap - 99122 //some storage is made outside of the string so need to adjust
+	fmt.Println(length)
 
 	err := o.UploadString(randomString(length), accountName)
 	if err != nil {

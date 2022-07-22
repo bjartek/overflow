@@ -12,6 +12,8 @@ import (
 
 func TestTransactionIntegration(t *testing.T) {
 	o, err := OverflowTesting()
+	o.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", 1.0)).AssertSuccess(t)
+
 	assert.NoError(t, err)
 	t.Parallel()
 
@@ -76,8 +78,8 @@ func TestTransactionIntegration(t *testing.T) {
 			Arg("message", "foobar"),
 		).
 			AssertDebugLog(t, "foobar").
-			AssertComputationUsed(t, 5).
-			AssertComputationLessThenOrEqual(t, 10).
+			AssertComputationUsed(t, 37).
+			AssertComputationLessThenOrEqual(t, 40).
 			AssertEmulatorLog(t, "Transaction submitted")
 	})
 

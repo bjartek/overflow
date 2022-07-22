@@ -18,6 +18,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	emulator "github.com/onflow/flow-emulator"
 	"github.com/rs/zerolog"
 
 	logrus "github.com/sirupsen/logrus"
@@ -199,12 +200,15 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 			Out:       &memlog,
 		}
 
-		//https://github.com/bjartek/overflow/issues/45
 		writer := io.Writer(&emulatorLog)
 		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
-		gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrusLogger), gateway.WithEmulatorLogger(&emulatorLogger))
+		gw := gateway.NewEmulatorGatewayWithOpts(acc,
+			gateway.WithLogger(logrusLogger),
+			gateway.WithEmulatorOptions(
+				emulator.WithTransactionFeesEnabled(true),
+				emulator.WithLogger(emulatorLogger),
+			))
 
-		//gw := gateway.NewEmulatorGatewayWithOpts(acc, gateway.WithLogger(logrusLogger))
 		service = services.NewServices(gw, state, logger)
 	} else {
 		network, err := state.Networks().ByName(o.Network)
