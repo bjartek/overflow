@@ -1,17 +1,27 @@
 package overflow_test
 
 // importing overflow using "." will yield a cleaner DSL
-import . "github.com/bjartek/overflow"
+import (
+	"fmt"
+	"time"
+
+	. "github.com/bjartek/overflow"
+)
 
 func Example() {
 
-	// create a new overflow emulator that will panic if scripts/transactions
-	//fail and print output
+	//in order to start overflow use the Overflow function
+	//it can be customized with lots of OverflowOption
 	o := Overflow(
 		StopOnError(),
 		PrintInteractionResults(),
-		// here you can send in more options to customize the way Overflow is started
 	)
+	fmt.Println(o)
+	//the result of the Overflow function is an OverflowState object
+}
+
+func ExampleOverflowState_Tx() {
+	o := Overflow(StopOnError(), PrintInteractionResults())
 
 	// start the Tx DSL with the name of the transactions file, by default this
 	// is in the `transactions` folder in your root dit
@@ -22,9 +32,43 @@ func Example() {
 		//Arguments are always passed by name in the DSL builder, order does not matter
 		Arg("test", "overflow ftw!"),
 	)
-	// Output: 👌 Tx:arguments computation:?? loops:? statements:? invocations:? id:?
-	// the standard output if you print results continas the name of the transaction,
-	// id and computation information if run on emulator
+}
+
+func ExampleOverflowState_Tx_inline() {
+	o := Overflow(StopOnError(), PrintInteractionResults())
+
+	//The Tx dsl can also contain an inline transaction
+	o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(message:String) {
+		  prepare(acct: AuthAccount) {
+				Debug.log(message) 
+			} 
+		}`,
+		SignProposeAndPayAs("first"),
+		Arg("message", "overflow ftw!"),
+	)
+}
+
+func ExampleOverflowState_Tx_multisign() {
+	o := Overflow(StopOnError(), PrintInteractionResults())
+
+	//The Tx dsl can also contain an inline transaction
+	o.Tx(`
+		transaction {
+			prepare(acct: AuthAccount, acct2: AuthAccount) {
+			  //aact here is first
+				//acct2 here is second
+			} 
+		}`,
+		SignProposeAndPayAs("first"),
+		PayloadSigner("second"),
+	)
+
+}
+
+func ExampleOverflowState_Script() {
+	o := Overflow(StopOnError(), PrintInteractionResults())
 
 	// the other major interaction you can run on Flow is a script, it uses the script DSL.
 	// Start it by specifying the script name from `scripts` folder
@@ -36,8 +80,42 @@ func Example() {
 		// accordingly it will just work
 		Arg("account", "first"),
 	)
-	// Output: ⭐ Script test result:??
-	// will print out the name of the script and the result as json
+}
 
-	// This is just the simples example of an interaction using overflow but it has many hidden gems!
+func ExampleOverflowState_Script_inline() {
+	o := Overflow(StopOnError(), PrintInteractionResults())
+
+	//Script can be run inline
+	o.Script(`
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+		Arg("account", "first"),
+	)
+}
+
+func ExampleOverflowState_FetchEvents() {
+	o := Overflow(
+		StopOnError(),
+		PrintInteractionResults(),
+		// here you can send in more options to customize the way Overflow is started
+	)
+
+	for {
+		events, err := o.FetchEvents(
+			TrackProgressIn("minted_tokens"),
+			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		if len(events) == 0 {
+			//here you can specify how long you will wait between polls
+			time.Sleep(10 * time.Second)
+		}
+
+		// do something with events, like sending them to discord/twitter or index in a database
+		fmt.Println(events)
+	}
 }

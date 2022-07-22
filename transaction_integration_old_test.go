@@ -18,15 +18,15 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 	t.Parallel()
 
 	t.Run("fail on missing signer with run method", func(t *testing.T) {
-		assert.PanicsWithError(t, "💩 You need to set the main signer", func() {
+		assert.PanicsWithError(t, "💩 You need to set the proposer signer", func() {
 			g.TransactionFromFile("create_nft_collection").Run()
 		})
 	})
 
 	t.Run("fail on missing signer", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
-			Test(t).                                         //This method will return a TransactionResult that we can assert upon
-			AssertFailure("You need to set the main signer") //we assert that there is a failure
+			Test(t).                                             //This method will return a TransactionResult that we can assert upon
+			AssertFailure("You need to set the proposer signer") //we assert that there is a failure
 	})
 
 	t.Run("fail on wrong transaction name", func(t *testing.T) {

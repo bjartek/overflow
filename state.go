@@ -229,6 +229,7 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			continue
 		}
 
+		f.Logger.Info(fmt.Sprintf("Creating account %s", account.Name()))
 		_, err := f.Services.Accounts.Create(
 			signerAccount,
 			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
@@ -451,7 +452,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 	}
 	ftb := &FlowInteractionBuilder{
 		Overflow:       o,
-		MainSigner:     nil,
+		Payer:          nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       uint64(o.Gas),

@@ -58,6 +58,7 @@ pub struct Report{
 				 }
 			 }
 
+	//👌 Inline Tx computation:?? loops:? statements:? invocations:? id:?
 			 pub fun main() : [Report] {
 				 return [Report(name:"name1", test: "test1"), Report(name:"name2", test: "test2")]
 			 }
