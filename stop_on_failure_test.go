@@ -11,7 +11,7 @@ func TestPanicIfStopOnFailure(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("transaction", func(t *testing.T) {
-		assert.PanicsWithError(t, "💩 You need to set the main signer", func() {
+		assert.PanicsWithError(t, "💩 You need to set the proposer signer", func() {
 			o.Tx("create_nft_collection")
 		})
 	})

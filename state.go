@@ -234,6 +234,7 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			continue
 		}
 
+		f.Logger.Info(fmt.Sprintf("Creating account %s", account.Name()))
 		_, err := f.Services.Accounts.Create(
 			signerAccount,
 			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
@@ -485,7 +486,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 	}
 	ftb := &FlowInteractionBuilder{
 		Overflow:       o,
-		MainSigner:     nil,
+		Payer:          nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       uint64(o.Gas),
@@ -587,7 +588,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		return nil, err
 	}
 
-	transactionDeclarations := map[string]*DeclarationInfo{}
+	transactionDeclarations := map[string]*SolutionDeclarationInfo{}
 	for path, name := range transactions {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
@@ -599,7 +600,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		}
 	}
 
-	scriptDeclarations := map[string]*DeclarationInfo{}
+	scriptDeclarations := map[string]*SolutionDeclarationInfo{}
 	for path, name := range scripts {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {

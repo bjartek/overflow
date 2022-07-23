@@ -40,14 +40,16 @@ type FlowInteractionBuilder struct {
 	//The list of raw arguments
 	Arguments []cadence.Value
 
-	//TODO: Should this be payer?
 	//The main signer used to sign the transaction
-	MainSigner *flowkit.Account
+	// Payer: the account paying for the transaction fees.
+	Payer *flowkit.Account
 
 	//The propser account
+	//    Proposer: the account that specifies a proposal key.
 	Proposer *flowkit.Account
 
 	//The payload signers that will sign the payload
+	//Authorizers: zero or more accounts authorizing the transaction to mutate their state.
 	PayloadSigners []*flowkit.Account
 
 	//The gas limit to set for this given interaction
@@ -232,7 +234,7 @@ func SignProposeAndPayAs(signer string) InteractionOption {
 			ftb.Error = err
 			return
 		}
-		ftb.MainSigner = account
+		ftb.Payer = account
 		ftb.Proposer = account
 	}
 }
@@ -242,7 +244,7 @@ func SignProposeAndPayAsServiceAccount() InteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		key := ftb.Overflow.ServiceAccountName()
 		account, _ := ftb.Overflow.State.Accounts().ByName(key)
-		ftb.MainSigner = account
+		ftb.Payer = account
 		ftb.Proposer = account
 	}
 }
@@ -291,7 +293,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	if t.Proposer == nil {
-		result.Err = fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
+		result.Err = fmt.Errorf("%v You need to set the proposer signer", emoji.PileOfPoo)
 		return result
 	}
 
@@ -308,17 +310,21 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 
 	t.Overflow.Log.Reset()
 	t.Overflow.EmulatorLog.Reset()
-	// we append the mainSigners at the end here so that it signs last
+	/*
+		❗ Special case: if an account is both the payer and either a proposer or authorizer, it is only required to sign the envelope.
+	*/
+	// we append the payer at the end here so that it signs last
 	signers := t.PayloadSigners
-	if t.MainSigner != nil {
-		signers = append(signers, t.MainSigner)
+	if t.Payer != nil {
+		signers = append(signers, t.Payer)
 	}
 
 	var authorizers []flow.Address
 	for _, signer := range signers {
 		authorizers = append(authorizers, signer.Address())
 	}
-	if t.MainSigner == nil {
+
+	if t.Payer == nil {
 		signers = append(signers, t.Proposer)
 	}
 

@@ -22,7 +22,7 @@ func (o *OverflowState) TransactionFromFile(filename string) FlowInteractionBuil
 	return FlowInteractionBuilder{
 		Overflow:       o,
 		FileName:       filename,
-		MainSigner:     nil,
+		Payer:          nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       uint64(o.Gas),
@@ -38,7 +38,7 @@ func (o *OverflowState) Transaction(content string) FlowInteractionBuilder {
 		Overflow:       o,
 		FileName:       "inline",
 		Content:        content,
-		MainSigner:     nil,
+		Payer:          nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
 		GasLimit:       uint64(o.Gas),
@@ -112,7 +112,7 @@ func (t FlowInteractionBuilder) SignProposeAndPayAs(signer string) FlowInteracti
 		return t
 	}
 	t.Proposer = account
-	t.MainSigner = account
+	t.Payer = account
 	return t
 }
 
@@ -123,7 +123,7 @@ func (t FlowInteractionBuilder) SignProposeAndPayAsService() FlowInteractionBuil
 	key := t.Overflow.ServiceAccountName()
 	//swallow error as you cannot start a overflow without a valid sa
 	account, _ := t.Overflow.State.Accounts().ByName(key)
-	t.MainSigner = account
+	t.Payer = account
 	t.Proposer = account
 	return t
 }

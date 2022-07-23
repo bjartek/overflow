@@ -18,7 +18,7 @@ func TestTransactionIntegration(t *testing.T) {
 	t.Parallel()
 
 	t.Run("fail on missing signer", func(t *testing.T) {
-		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the main signer")
+		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the proposer signer")
 	})
 
 	t.Run("fail on wrong transaction name", func(t *testing.T) {
