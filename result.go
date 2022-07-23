@@ -47,7 +47,8 @@ type OverflowResult struct {
 
 	//TODO: consider marshalling this as a struct for convenience
 	//The fee event if any
-	Fee map[string]interface{}
+	Fee    map[string]interface{}
+	FeeGas int
 
 	//The name of the Transaction
 	Name string
@@ -218,12 +219,19 @@ func (o OverflowResult) AssertEmulatorLog(t *testing.T, message string) Overflow
 // Assert that this transaction did not use more then the given amount of computation
 func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computation int) OverflowResult {
 	assert.LessOrEqual(t, o.ComputationUsed, computation)
+	if o.FeeGas != 0 {
+		assert.Equal(t, o.ComputationUsed, o.FeeGas)
+	}
 	return o
 }
 
 // Assert that the transaction uses exactly the given computation amount
 func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) OverflowResult {
 	assert.Equal(t, computation, o.ComputationUsed)
+	if o.FeeGas != 0 {
+		assert.Equal(t, o.ComputationUsed, o.FeeGas)
+	}
+
 	return o
 }
 

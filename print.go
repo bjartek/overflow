@@ -90,9 +90,6 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 	messages = append(messages, nameMessage)
 
-	if o.ComputationUsed != 0 {
-		messages = append(messages, fmt.Sprintf("gas:%d", o.ComputationUsed))
-	}
 	/*
 		if printOpts.Meter == 1 && o.Meter != nil {
 			messages = append(messages, fmt.Sprintf("loops:%d", o.Meter.Loops()))
@@ -102,8 +99,13 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	*/
 
 	if len(o.Fee) != 0 {
-		messages = append(messages, fmt.Sprintf("fee:%.8f", o.Fee["amount"]))
+		messages = append(messages, fmt.Sprintf("fee:%.8f gas:%d", o.Fee["amount"], o.FeeGas))
+	} else {
+		if o.ComputationUsed != 0 {
+			messages = append(messages, fmt.Sprintf("gas:%d", o.ComputationUsed))
+		}
 	}
+
 	messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
 
 	fmt.Println()

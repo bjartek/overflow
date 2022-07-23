@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strings"
 	"testing"
 	"time"
@@ -402,6 +403,13 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 
 	overflowEvents, fee := ParseEvents(result.RawEvents)
 	result.Fee = fee
+	if len(result.Fee) != 0 {
+		executionEffort := result.Fee["executionEffort"].(float64)
+		factor := 100000000
+		gas := int(math.Round(executionEffort * float64(factor)))
+		result.FeeGas = gas
+	}
+
 	if !t.IgnoreGlobalEventFilters {
 
 		fee := result.Fee["amount"]
