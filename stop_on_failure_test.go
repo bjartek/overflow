@@ -1,6 +1,11 @@
 package overflow
 
-/*
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
 func TestPanicIfStopOnFailure(t *testing.T) {
 	o, err := OverflowTesting(WithPanicOnError())
 	assert.NoError(t, err)
@@ -18,4 +23,3 @@ func TestPanicIfStopOnFailure(t *testing.T) {
 		})
 	})
 }
-*/
