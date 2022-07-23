@@ -12,16 +12,15 @@ func Example() {
 
 	//in order to start overflow use the Overflow function
 	//it can be customized with lots of OverflowOption
-	o := Overflow(
-		StopOnError(),
-		PrintInteractionResults(),
-	)
-	fmt.Println(o)
-	//the result of the Overflow function is an OverflowState object
+	Overflow()
+	//Output:
+	//📜 deploy contracts NonFungibleToken, Debug
+	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
+	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
 }
 
 func ExampleOverflowState_Tx() {
-	o := Overflow(StopOnError(), PrintInteractionResults())
+	o := Overflow()
 
 	// start the Tx DSL with the name of the transactions file, by default this
 	// is in the `transactions` folder in your root dit
@@ -35,7 +34,7 @@ func ExampleOverflowState_Tx() {
 }
 
 func ExampleOverflowState_Tx_inline() {
-	o := Overflow(StopOnError(), PrintInteractionResults())
+	o := Overflow()
 
 	//The Tx dsl can also contain an inline transaction
 	o.Tx(`
@@ -51,7 +50,7 @@ func ExampleOverflowState_Tx_inline() {
 }
 
 func ExampleOverflowState_Tx_multisign() {
-	o := Overflow(StopOnError(), PrintInteractionResults())
+	o := Overflow()
 
 	//The Tx dsl can also contain an inline transaction
 	o.Tx(`
@@ -68,7 +67,7 @@ func ExampleOverflowState_Tx_multisign() {
 }
 
 func ExampleOverflowState_Script() {
-	o := Overflow(StopOnError(), PrintInteractionResults())
+	o := Overflow()
 
 	// the other major interaction you can run on Flow is a script, it uses the script DSL.
 	// Start it by specifying the script name from `scripts` folder
@@ -83,7 +82,7 @@ func ExampleOverflowState_Script() {
 }
 
 func ExampleOverflowState_Script_inline() {
-	o := Overflow(StopOnError(), PrintInteractionResults())
+	o := Overflow()
 
 	//Script can be run inline
 	o.Script(`
@@ -95,11 +94,7 @@ pub fun main(account: Address): String {
 }
 
 func ExampleOverflowState_FetchEvents() {
-	o := Overflow(
-		StopOnError(),
-		PrintInteractionResults(),
-		// here you can send in more options to customize the way Overflow is started
-	)
+	o := Overflow()
 
 	for {
 		events, err := o.FetchEvents(

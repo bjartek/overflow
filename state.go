@@ -78,7 +78,7 @@ type OverflowState struct {
 	NewUserFlowAmount float64
 }
 
-func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
+func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
 	codes := map[common.Location]string{}
@@ -169,7 +169,7 @@ func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		switch semaType.(type) {
 		case *sema.AddressType:
 
-			account, _ := f.AccountE(argumentString)
+			account, _ := o.AccountE(argumentString)
 
 			if account != nil {
 				argumentString = account.Address().String()
@@ -191,12 +191,12 @@ func (f *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 // AccountE fetch an account from State
 // Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
-func (f *OverflowState) AccountE(key string) (*flowkit.Account, error) {
-	if f.PrependNetworkToAccountNames {
-		key = fmt.Sprintf("%s-%s", f.Network, key)
+func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
+	if o.PrependNetworkToAccountNames {
+		key = fmt.Sprintf("%s-%s", o.Network, key)
 	}
 
-	account, err := f.State.Accounts().ByName(key)
+	account, err := o.State.Accounts().ByName(key)
 	if err != nil {
 		return nil, err
 	}
@@ -215,14 +215,14 @@ func (o *OverflowState) ServiceAccountName() string {
 }
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
-func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
-	p := f.State
-	signerAccount, err := p.Accounts().ByName(f.ServiceAccountName())
+func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
+	p := o.State
+	signerAccount, err := p.Accounts().ByName(o.ServiceAccountName())
 	if err != nil {
 		return nil, err
 	}
 
-	accounts := p.AccountNamesForNetwork(f.Network)
+	accounts := p.AccountNamesForNetwork(o.Network)
 	sort.Strings(accounts)
 
 	for _, accountName := range accounts {
@@ -230,12 +230,12 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		// this error can never happen here, there is a test for it.
 		account, _ := p.Accounts().ByName(accountName)
 
-		if _, err := f.Services.Accounts.Get(account.Address()); err == nil {
+		if _, err := o.Services.Accounts.Get(account.Address()); err == nil {
 			continue
 		}
 
-		f.Logger.Info(fmt.Sprintf("Creating account %s", account.Name()))
-		_, err := f.Services.Accounts.Create(
+		o.Logger.Info(fmt.Sprintf("Creating account %s", account.Name()))
+		_, err := o.Services.Accounts.Create(
 			signerAccount,
 			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
 			[]int{1000},
@@ -245,6 +245,7 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		messages := []string{
 			fmt.Sprintf("%v", emoji.Person),
 			"Created account:",
@@ -253,18 +254,19 @@ func (f *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			account.Address().String(),
 		}
 
-		if f.Network == "emulator" && f.NewUserFlowAmount != 0.0 {
-			f.MintFlowTokens(account.Address().String(), f.NewUserFlowAmount)
-			if f.Error != nil {
-				return nil, err
+		if o.Network == "emulator" && o.NewUserFlowAmount != 0.0 {
+			o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
+			if o.Error != nil {
+				return nil, errors.Wrap(err, "could not mint flow tokens")
 			}
-			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", f.NewUserFlowAmount))
+			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
 		}
-		if f.PrintOptions != nil && f.LogLevel == output.NoneLog {
+
+		if o.PrintOptions != nil && o.LogLevel == output.NoneLog {
 			fmt.Println(strings.Join(messages, " "))
 		}
 	}
-	return f, nil
+	return o, nil
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
@@ -299,17 +301,17 @@ func (o *OverflowState) InitializeContracts() *OverflowState {
 }
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
-func (f *OverflowState) GetAccount(key string) (*flow.Account, error) {
-	account, err := f.AccountE(key)
+func (o *OverflowState) GetAccount(key string) (*flow.Account, error) {
+	account, err := o.AccountE(key)
 	if err != nil {
 		return nil, err
 	}
 	rawAddress := account.Address()
-	return f.Services.Accounts.Get(rawAddress)
+	return o.Services.Accounts.Get(rawAddress)
 }
 
 // Deprecated: use the new Tx/Script method and the argument functions
-func (f *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
+func (o *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
 	codes := map[common.Location]string{}
@@ -368,7 +370,7 @@ func (f *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, 
 		switch semaType.(type) {
 		case *sema.AddressType:
 
-			account, _ := f.AccountE(argumentString)
+			account, _ := o.AccountE(argumentString)
 
 			if account != nil {
 				argumentString = account.Address().String()
@@ -389,9 +391,9 @@ func (f *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, 
 }
 
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
-func (f *OverflowState) Arguments() *FlowArgumentsBuilder {
+func (o *OverflowState) Arguments() *FlowArgumentsBuilder {
 	return &FlowArgumentsBuilder{
-		Overflow:  f,
+		Overflow:  o,
 		Arguments: []cadence.Value{},
 	}
 }
@@ -460,20 +462,20 @@ func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *Overflow
 }
 
 // get the latest block
-func (f *OverflowState) GetLatestBlock() (*flow.Block, error) {
-	block, _, _, err := f.Services.Blocks.GetBlock("latest", "", false)
+func (o *OverflowState) GetLatestBlock() (*flow.Block, error) {
+	block, _, _, err := o.Services.Blocks.GetBlock("latest", "", false)
 	return block, err
 }
 
 // get block at a given height
-func (f *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
-	block, _, _, err := f.Services.Blocks.GetBlock(fmt.Sprintf("%d", height), "", false)
+func (o *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
+	block, _, _, err := o.Services.Blocks.GetBlock(fmt.Sprintf("%d", height), "", false)
 	return block, err
 }
 
 // blockId should be a hexadecimal string
-func (f *OverflowState) GetBlockById(blockId string) (*flow.Block, error) {
-	block, _, _, err := f.Services.Blocks.GetBlock(blockId, "", false)
+func (o *OverflowState) GetBlockById(blockId string) (*flow.Block, error) {
+	block, _, _, err := o.Services.Blocks.GetBlock(blockId, "", false)
 	return block, err
 }
 

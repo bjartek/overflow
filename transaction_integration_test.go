@@ -11,7 +11,7 @@ import (
 */
 
 func TestTransactionIntegration(t *testing.T) {
-	o, err := OverflowTesting()
+	o, err := OverflowTesting(WithLogFull())
 	o.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", 1.0)).AssertSuccess(t)
 
 	assert.NoError(t, err)
