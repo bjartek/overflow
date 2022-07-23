@@ -324,19 +324,16 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 	})
 }
 
-/*
 func TestFillUpSpace(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	o, err := OverflowTesting(WithFlowForNewUsers(0.0003))
+	assert.NoError(t, err)
 
-	//g.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", 1.0))
+	result := o.GetFreeCapacity("first")
+	assert.Equal(t, 129123, result)
+	o.FillUpStorage("first")
+	assert.NoError(t, o.Error)
 
-	result := g.GetFreeCapacity("first")
-	assert.Equal(t, 99123, result)
-	g.FillUpStorage("first")
-	assert.NoError(t, g.Error)
-
-	result2 := g.GetFreeCapacity("first")
-	assert.Equal(t, 0, result2)
+	result2 := o.GetFreeCapacity("first")
+	assert.LessOrEqual(t, result2, 100)
 
 }
-*/

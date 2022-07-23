@@ -151,7 +151,7 @@ func (o *OverflowState) FillUpStorage(accountName string) *OverflowState {
 
 	cap := o.GetFreeCapacity(accountName)
 	fmt.Println(cap)
-	length := cap - 99122 //some storage is made outside of the string so need to adjust
+	length := cap - 7700 //we cannot fill up all of storage since we need flow to pay for the transaction that fills it up
 	fmt.Println(length)
 
 	err := o.UploadString(randomString(length), accountName)
