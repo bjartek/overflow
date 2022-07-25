@@ -2,8 +2,8 @@ package overflow
 
 import "time"
 
-//LogrusMessage a log message from the logrus implementation used in the flow emulator
-type LogrusMessage struct {
+//OverflowEmulatorLogMessage a log message from the logrus implementation used in the flow emulator
+type OverflowEmulatorLogMessage struct {
 	ComputationUsed int       `json:"computationUsed"`
 	Level           string    `json:"level"`
 	Msg             string    `json:"msg"`

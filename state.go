@@ -391,19 +391,19 @@ func (o *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, 
 }
 
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
-func (o *OverflowState) Arguments() *FlowArgumentsBuilder {
-	return &FlowArgumentsBuilder{
+func (o *OverflowState) Arguments() *OverflowArgumentsBuilder {
+	return &OverflowArgumentsBuilder{
 		Overflow:  o,
 		Arguments: []cadence.Value{},
 	}
 }
 
-func (o OverflowState) readLog() ([]LogrusMessage, error) {
+func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 
-	var logMessage []LogrusMessage
+	var logMessage []OverflowEmulatorLogMessage
 	dec := json.NewDecoder(o.Log)
 	for {
-		var doc LogrusMessage
+		var doc OverflowEmulatorLogMessage
 
 		err := dec.Decode(&doc)
 		if err == io.EOF {
@@ -411,7 +411,7 @@ func (o OverflowState) readLog() ([]LogrusMessage, error) {
 			break
 		}
 		if err != nil {
-			return []LogrusMessage{}, err
+			return []OverflowEmulatorLogMessage{}, err
 		}
 
 		logMessage = append(logMessage, doc)

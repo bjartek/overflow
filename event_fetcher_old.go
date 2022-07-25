@@ -125,7 +125,7 @@ func (e OverflowEventFetcherBuilder) TrackProgressIn(fileName string) OverflowEv
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //Run runs the eventfetcher returning events or an error
-func (e OverflowEventFetcherBuilder) Run() ([]*FormatedEvent, error) {
+func (e OverflowEventFetcherBuilder) Run() ([]*OverflowFormatedEvent, error) {
 
 	//if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
@@ -224,8 +224,8 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 }
 
 //FormatEvents
-func FormatEvents(blockEvents []flow.BlockEvents, ignoreFields map[string][]string) []*FormatedEvent {
-	var events []*FormatedEvent
+func FormatEvents(blockEvents []flow.BlockEvents, ignoreFields map[string][]string) []*OverflowFormatedEvent {
+	var events []*OverflowFormatedEvent
 
 	for _, blockEvent := range blockEvents {
 		for _, event := range blockEvent.Events {
@@ -237,7 +237,7 @@ func FormatEvents(blockEvents []flow.BlockEvents, ignoreFields map[string][]stri
 }
 
 //ParseEvent parses a flow event into a more terse representation
-func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFields []string) *FormatedEvent {
+func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFields []string) *OverflowFormatedEvent {
 
 	var fieldNames []string
 
@@ -265,7 +265,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 			finalFields[name] = value
 		}
 	}
-	return &FormatedEvent{
+	return &OverflowFormatedEvent{
 		Name:        event.Type,
 		Fields:      finalFields,
 		BlockHeight: blockHeight,
@@ -275,8 +275,8 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-// FormatedEvent event in a more condensed formated form
-type FormatedEvent struct {
+// OverflowFormatedEvent event in a more condensed formated form
+type OverflowFormatedEvent struct {
 	Name        string                 `json:"name"`
 	BlockHeight uint64                 `json:"blockHeight,omitempty"`
 	Time        time.Time              `json:"time,omitempty"`
@@ -284,7 +284,7 @@ type FormatedEvent struct {
 }
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
-func (o FormatedEvent) ExistIn(events []*FormatedEvent) bool {
+func (o OverflowFormatedEvent) ExistIn(events []*OverflowFormatedEvent) bool {
 	for _, ev := range events {
 		result := reflect.DeepEqual(o, *ev)
 		if result {
@@ -295,16 +295,16 @@ func (o FormatedEvent) ExistIn(events []*FormatedEvent) bool {
 }
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
-func (fe FormatedEvent) ShortName() string {
+func (fe OverflowFormatedEvent) ShortName() string {
 	return fe.Name[19:]
 }
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
-func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
+func NewTestEvent(name string, fields map[string]interface{}) *OverflowFormatedEvent {
 	loc, _ := time.LoadLocation("UTC")
 	// handle err
 	time.Local = loc // -> this is setting the global timezone
-	return &FormatedEvent{
+	return &OverflowFormatedEvent{
 		Name:        name,
 		BlockHeight: 0,
 		Time:        time.Unix(0, 0),
@@ -315,7 +315,7 @@ func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //String pretty print an event as a String
-func (e FormatedEvent) String() string {
+func (e OverflowFormatedEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
 	if err != nil {
 		panic(err)
@@ -324,7 +324,7 @@ func (e FormatedEvent) String() string {
 }
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
-func (e FormatedEvent) GetFieldAsUInt64(field string) uint64 {
+func (e OverflowFormatedEvent) GetFieldAsUInt64(field string) uint64 {
 	id := e.Fields[field]
 	fieldAsString := fmt.Sprintf("%v", id)
 	if fieldAsString == "" {

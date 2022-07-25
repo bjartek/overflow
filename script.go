@@ -92,10 +92,10 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
 	}
 
-	var logMessage []LogrusMessage
+	var logMessage []OverflowEmulatorLogMessage
 	dec := json.NewDecoder(o.Log)
 	for {
-		var doc LogrusMessage
+		var doc OverflowEmulatorLogMessage
 
 		err := dec.Decode(&doc)
 		if err == io.EOF {
@@ -122,7 +122,7 @@ type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
 	Input  *OverflowInteractionBuilder
-	Log    []LogrusMessage
+	Log    []OverflowEmulatorLogMessage
 	Output interface{}
 }
 

@@ -25,7 +25,7 @@ func TestScriptArguments(t *testing.T) {
 
 	t.Run("Argument test function", func(t *testing.T) {
 		ufix, _ := cadence.NewUFix64("1.0")
-		builder := g.InlineScript("").ArgsFn(func(a *FlowArgumentsBuilder) {
+		builder := g.InlineScript("").ArgsFn(func(a *OverflowArgumentsBuilder) {
 			a.UFix64(1.0)
 		})
 		assert.Contains(t, builder.Arguments, ufix)

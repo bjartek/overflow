@@ -79,16 +79,16 @@ type OverflowInteractionBuilder struct {
 }
 
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
-func (f OverflowInteractionBuilder) Test(t *testing.T) TransactionResult {
+func (f OverflowInteractionBuilder) Test(t *testing.T) OverflowTransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
 	result := f.Send()
-	var formattedEvents []*FormatedEvent
+	var formattedEvents []*OverflowFormatedEvent
 	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		formattedEvents = append(formattedEvents, ev)
 	}
-	return TransactionResult{
+	return OverflowTransactionResult{
 		Err:     result.Err,
 		Events:  formattedEvents,
 		Result:  result,

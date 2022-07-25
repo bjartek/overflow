@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-// FlowScriptBuilder is a struct to hold information for running a script
+// OverflowScriptBuilder is a struct to hold information for running a script
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-type FlowScriptBuilder struct {
+type OverflowScriptBuilder struct {
 	Overflow       *OverflowState
 	FileName       string
 	Arguments      []cadence.Value
@@ -24,8 +24,8 @@ type FlowScriptBuilder struct {
 // Script start a script builder with the inline script as body
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (o *OverflowState) InlineScript(content string) FlowScriptBuilder {
-	return FlowScriptBuilder{
+func (o *OverflowState) InlineScript(content string) OverflowScriptBuilder {
+	return OverflowScriptBuilder{
 		Overflow:       o,
 		FileName:       "inline",
 		Arguments:      []cadence.Value{},
@@ -37,8 +37,8 @@ func (o *OverflowState) InlineScript(content string) FlowScriptBuilder {
 // ScriptFromFile will start a flow script builder
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (o *OverflowState) ScriptFromFile(filename string) FlowScriptBuilder {
-	return FlowScriptBuilder{
+func (o *OverflowState) ScriptFromFile(filename string) OverflowScriptBuilder {
+	return OverflowScriptBuilder{
 		Overflow:       o,
 		FileName:       filename,
 		Arguments:      []cadence.Value{},
@@ -48,13 +48,13 @@ func (o *OverflowState) ScriptFromFile(filename string) FlowScriptBuilder {
 }
 
 //Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) ScriptPath(path string) FlowScriptBuilder {
+func (t OverflowScriptBuilder) ScriptPath(path string) OverflowScriptBuilder {
 	t.BasePath = path
 	return t
 }
 
 //Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) NamedArguments(args map[string]string) FlowScriptBuilder {
+func (t OverflowScriptBuilder) NamedArguments(args map[string]string) OverflowScriptBuilder {
 
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
 	code, err := t.getScriptCode(scriptFilePath)
@@ -74,7 +74,7 @@ func (t FlowScriptBuilder) NamedArguments(args map[string]string) FlowScriptBuil
 // Specify arguments to send to transaction using a raw list of values
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) ArgsV(args []cadence.Value) FlowScriptBuilder {
+func (t OverflowScriptBuilder) ArgsV(args []cadence.Value) OverflowScriptBuilder {
 	t.Arguments = args
 	return t
 }
@@ -82,7 +82,7 @@ func (t FlowScriptBuilder) ArgsV(args []cadence.Value) FlowScriptBuilder {
 // Specify arguments to send to transaction using a builder you send in
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) Args(args *FlowArgumentsBuilder) FlowScriptBuilder {
+func (t OverflowScriptBuilder) Args(args *OverflowArgumentsBuilder) OverflowScriptBuilder {
 	t.Arguments = args.Build()
 	return t
 }
@@ -90,7 +90,7 @@ func (t FlowScriptBuilder) Args(args *FlowArgumentsBuilder) FlowScriptBuilder {
 // Specify arguments to send to transaction using a function that takes a builder where you call the builder
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowScriptBuilder {
+func (t OverflowScriptBuilder) ArgsFn(fn func(*OverflowArgumentsBuilder)) OverflowScriptBuilder {
 	args := t.Overflow.Arguments()
 	fn(args)
 	t.Arguments = args.Build()
@@ -99,7 +99,7 @@ func (t FlowScriptBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) FlowScriptBuil
 
 // Run executes a read only script
 // Deprecated:  use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) Run() {
+func (t OverflowScriptBuilder) Run() {
 	result := t.RunFailOnError()
 	res, err := CadenceValueToJsonString(result)
 	if err != nil {
@@ -109,7 +109,7 @@ func (t FlowScriptBuilder) Run() {
 }
 
 // Deprecated: use FlowInteractionBuilder
-func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) {
+func (t OverflowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) {
 
 	var err error
 	script := []byte(t.ScriptAsString)
@@ -126,7 +126,7 @@ func (t FlowScriptBuilder) getScriptCode(scriptFilePath string) ([]byte, error) 
 // RunReturns executes a read only script
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
+func (t OverflowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	if t.Error != nil {
 		return nil, t.Error
@@ -156,7 +156,7 @@ func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 }
 
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
+func (t OverflowScriptBuilder) RunFailOnError() cadence.Value {
 	result, err := t.RunReturns()
 	if err != nil {
 		panic(errors.Wrapf(err, "scriptName:%s", t.FileName))
@@ -168,7 +168,7 @@ func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 // RunMarshalAs runs the script and marshals the result into the provided value, returning an error if any
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
+func (t OverflowScriptBuilder) RunMarshalAs(value interface{}) error {
 	result, err := t.RunReturns()
 	if err != nil {
 		return err
@@ -184,7 +184,7 @@ func (t FlowScriptBuilder) RunMarshalAs(value interface{}) error {
 // RunReturnsJsonString runs the script and returns pretty printed json string
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) RunReturnsJsonString() string {
+func (t OverflowScriptBuilder) RunReturnsJsonString() string {
 	res, err := CadenceValueToJsonString(t.RunFailOnError())
 	if err != nil {
 		panic(err)
@@ -195,6 +195,6 @@ func (t FlowScriptBuilder) RunReturnsJsonString() string {
 // RunReturnsInterface runs the script and returns interface{}
 //
 // Deprecated: use FlowInteractionBuilder and the Script method
-func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
+func (t OverflowScriptBuilder) RunReturnsInterface() interface{} {
 	return CadenceValueToInterface(t.RunFailOnError())
 }

@@ -10,20 +10,20 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// TransactionResult
+// OverflowTransactionResult
 //
 // The old result object from an transaction
 //
 // Deprecated: use the new Tx() method and OverflowResult
-type TransactionResult struct {
+type OverflowTransactionResult struct {
 	Err     error
-	Events  []*FormatedEvent
+	Events  []*OverflowFormatedEvent
 	Result  *OverflowResult
 	Testing *testing.T
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertFailure(msg string) TransactionResult {
+func (t OverflowTransactionResult) AssertFailure(msg string) OverflowTransactionResult {
 	assert.Error(t.Testing, t.Err)
 	if t.Err != nil {
 		assert.Contains(t.Testing, t.Err.Error(), msg)
@@ -32,7 +32,7 @@ func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertSuccess() TransactionResult {
+func (t OverflowTransactionResult) AssertSuccess() OverflowTransactionResult {
 	t.Testing.Helper()
 
 	if t.Err != nil {
@@ -42,13 +42,13 @@ func (t TransactionResult) AssertSuccess() TransactionResult {
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertEventCount(number int) TransactionResult {
+func (t OverflowTransactionResult) AssertEventCount(number int) OverflowTransactionResult {
 	assert.Equal(t.Testing, len(t.Events), number)
 	return t
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertNoEvents() TransactionResult {
+func (t OverflowTransactionResult) AssertNoEvents() OverflowTransactionResult {
 	res := assert.Empty(t.Testing, t.Events)
 
 	t.logFailure(res)
@@ -56,7 +56,7 @@ func (t TransactionResult) AssertNoEvents() TransactionResult {
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) logFailure(res bool) {
+func (t OverflowTransactionResult) logFailure(res bool) {
 	if !res {
 		for _, ev := range t.Events {
 			t.Testing.Log(litter.Sdump(ev))
@@ -65,7 +65,7 @@ func (t TransactionResult) logFailure(res bool) {
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) TransactionResult {
+func (t OverflowTransactionResult) AssertEmitEventNameShortForm(event ...string) OverflowTransactionResult {
 	var eventNames []string
 	for _, fe := range t.Events {
 		eventNames = append(eventNames, fe.ShortName())
@@ -84,7 +84,7 @@ func (t TransactionResult) AssertEmitEventNameShortForm(event ...string) Transac
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResult {
+func (t OverflowTransactionResult) AssertEmitEventName(event ...string) OverflowTransactionResult {
 	var eventNames []string
 	for _, fe := range t.Events {
 		eventNames = append(eventNames, fe.Name)
@@ -103,7 +103,7 @@ func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResul
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResult {
+func (t OverflowTransactionResult) AssertEmitEventJson(event ...string) OverflowTransactionResult {
 
 	var jsonEvents []string
 	for _, fe := range t.Events {
@@ -124,10 +124,10 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) TransactionResult {
+func (t OverflowTransactionResult) AssertPartialEvent(expected *OverflowFormatedEvent) OverflowTransactionResult {
 
 	events := t.Events
-	newEvents := []*FormatedEvent{}
+	newEvents := []*OverflowFormatedEvent{}
 	for _, ev := range events {
 		//todo do we need more then just name here?
 		if ev.Name == expected.Name {
@@ -140,7 +140,7 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 			}
 
 			if len(fields) > 0 {
-				newEvents = append(newEvents, &FormatedEvent{
+				newEvents = append(newEvents, &OverflowFormatedEvent{
 					Name:        ev.Name,
 					Time:        ev.Time,
 					BlockHeight: ev.BlockHeight,
@@ -158,7 +158,7 @@ func (t TransactionResult) AssertPartialEvent(expected *FormatedEvent) Transacti
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionResult {
+func (t OverflowTransactionResult) AssertEmitEvent(event ...*OverflowFormatedEvent) OverflowTransactionResult {
 	res := true
 	for _, ev := range event {
 		//This is not a compile error
@@ -175,7 +175,7 @@ func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionR
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
+func (t OverflowTransactionResult) AssertDebugLog(message ...string) OverflowTransactionResult {
 	var logMessages []interface{}
 	for _, fe := range t.Events {
 		if strings.HasSuffix(fe.Name, "Debug.Log") {
@@ -190,7 +190,7 @@ func (t TransactionResult) AssertDebugLog(message ...string) TransactionResult {
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
+func (t OverflowTransactionResult) AssertEmulatorLog(message string) OverflowTransactionResult {
 
 	for _, log := range t.Result.EmulatorLog {
 		if strings.Contains(log, message) {
@@ -204,19 +204,19 @@ func (t TransactionResult) AssertEmulatorLog(message string) TransactionResult {
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertComputationLessThenOrEqual(computation int) TransactionResult {
+func (t OverflowTransactionResult) AssertComputationLessThenOrEqual(computation int) OverflowTransactionResult {
 	assert.LessOrEqual(t.Testing, t.Result.ComputationUsed, computation)
 	return t
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) AssertComputationUsed(computation int) TransactionResult {
+func (t OverflowTransactionResult) AssertComputationUsed(computation int) OverflowTransactionResult {
 	assert.Equal(t.Testing, computation, t.Result.ComputationUsed)
 	return t
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
-func (t TransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
+func (t OverflowTransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
 
 	for _, ev := range t.Events {
 		if ev.Name == eventName {

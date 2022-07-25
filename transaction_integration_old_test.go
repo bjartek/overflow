@@ -49,7 +49,7 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 	t.Run("Mint tokens assert events", func(t *testing.T) {
 		result := g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
-			ArgsFn(func(args *FlowArgumentsBuilder) {
+			ArgsFn(func(args *OverflowArgumentsBuilder) {
 				args.Account("first")
 				args.UFix64(100.1)
 			}).

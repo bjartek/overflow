@@ -11,7 +11,7 @@ import (
 )
 
 // Deprecated: Use Tx()
-func (o *OverflowState) SimpleTxArgs(filename string, signer string, args *FlowArgumentsBuilder) {
+func (o *OverflowState) SimpleTxArgs(filename string, signer string, args *OverflowArgumentsBuilder) {
 	o.TransactionFromFile(filename).SignProposeAndPayAs(signer).Args(args).RunPrintEventsFull()
 }
 
@@ -73,7 +73,7 @@ func (t OverflowInteractionBuilder) ArgsV(args []cadence.Value) OverflowInteract
 // Deprecated: Use Arg
 //
 // Specify arguments to send to transaction using a builder you send in
-func (t OverflowInteractionBuilder) Args(args *FlowArgumentsBuilder) OverflowInteractionBuilder {
+func (t OverflowInteractionBuilder) Args(args *OverflowArgumentsBuilder) OverflowInteractionBuilder {
 	t.Arguments = args.Build()
 	return t
 }
@@ -81,7 +81,7 @@ func (t OverflowInteractionBuilder) Args(args *FlowArgumentsBuilder) OverflowInt
 // Deprecated: Use Arg
 //
 // Specify arguments to send to transaction using a function that takes a builder where you call the builder
-func (t OverflowInteractionBuilder) ArgsFn(fn func(*FlowArgumentsBuilder)) OverflowInteractionBuilder {
+func (t OverflowInteractionBuilder) ArgsFn(fn func(*OverflowArgumentsBuilder)) OverflowInteractionBuilder {
 	args := t.Overflow.Arguments()
 	fn(args)
 	t.Arguments = args.Build()
@@ -208,13 +208,13 @@ func (t OverflowInteractionBuilder) RunGetIds(eventName string, fieldName string
 }
 
 // Deprecated: use Tx().GetEventsWithName
-func (t OverflowInteractionBuilder) RunGetEventsWithNameOrError(eventName string) ([]FormatedEvent, error) {
+func (t OverflowInteractionBuilder) RunGetEventsWithNameOrError(eventName string) ([]OverflowFormatedEvent, error) {
 
 	result := t.Send()
 	if result.Err != nil {
 		return nil, result.Err
 	}
-	var events []FormatedEvent
+	var events []OverflowFormatedEvent
 	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		if ev.Name == eventName {
@@ -226,13 +226,13 @@ func (t OverflowInteractionBuilder) RunGetEventsWithNameOrError(eventName string
 }
 
 // Deprecated: Use Send().GetEventsWithName()
-func (t OverflowInteractionBuilder) RunGetEventsWithName(eventName string) []FormatedEvent {
+func (t OverflowInteractionBuilder) RunGetEventsWithName(eventName string) []OverflowFormatedEvent {
 
 	result := t.Send()
 	if result.Err != nil {
 		panic(result.Err)
 	}
-	var events []FormatedEvent
+	var events []OverflowFormatedEvent
 	for _, event := range result.RawEvents {
 		ev := ParseEvent(event, uint64(0), time.Unix(0, 0), []string{})
 		if ev.Name == eventName {
