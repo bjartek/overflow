@@ -15,7 +15,7 @@ func TestOverflowv3(t *testing.T) {
 		assert.True(t, b.DeployContracts)
 		assert.True(t, b.InitializeAccounts)
 		assert.True(t, b.InMemory)
-		assert.Equal(t, output.InfoLog, b.LogLevel)
+		assert.Equal(t, output.NoneLog, b.LogLevel)
 	})
 
 	t.Run("WithNetworkTesting", func(t *testing.T) {
@@ -35,7 +35,7 @@ func TestOverflowv3(t *testing.T) {
 		assert.False(t, b.InMemory)
 	})
 
-	t.Run("WithNetworkTesting", func(t *testing.T) {
+	t.Run("WithNetworkTestnet", func(t *testing.T) {
 		b := Apply(WithNetwork("testnet"))
 		assert.Equal(t, "testnet", b.Network)
 		assert.False(t, b.DeployContracts)
@@ -44,7 +44,7 @@ func TestOverflowv3(t *testing.T) {
 	})
 
 	t.Run("WithInMemory", func(t *testing.T) {
-		b := Apply(WithInMemory())
+		b := Apply()
 		assert.True(t, b.InMemory)
 		assert.True(t, b.InitializeAccounts)
 		assert.True(t, b.DeployContracts)
@@ -58,7 +58,7 @@ func TestOverflowv3(t *testing.T) {
 	})
 
 	t.Run("DoNotPrependNetworkToAccountNames", func(t *testing.T) {
-		b := Apply(DoNotPrependNetworkToAccountNames())
+		b := Apply(WithNoPrefixToAccountNames())
 		assert.False(t, b.PrependNetworkName)
 	})
 
@@ -73,7 +73,7 @@ func TestOverflowv3(t *testing.T) {
 	})
 
 	t.Run("WithNoLog", func(t *testing.T) {
-		b := Apply(WithNoLog())
+		b := Apply(WithLogNone())
 		assert.Equal(t, output.NoneLog, b.LogLevel)
 	})
 
@@ -97,20 +97,6 @@ func TestOverflowv3(t *testing.T) {
 		assert.Equal(t, "tx", b.TransactionFolderName)
 	})
 
-	/*
-		TODO: comment back in again
-			t.Run("OverflowE", func(t *testing.T) {
-				o, err := OverflowE(WithNoLog())
-				assert.NoError(t, err)
-				assert.NotNil(t, o.State)
-			})
-
-		t.Run("Overflow", func(t *testing.T) {
-			o := Overflow(WithNoLog())
-			assert.NotNil(t, o.State)
-		})
-	*/
-
 	t.Run("Overflow panics", func(t *testing.T) {
 		assert.Panics(t, func() {
 			Overflow(WithFlowConfig("nonexistant.json"))
@@ -119,5 +105,5 @@ func TestOverflowv3(t *testing.T) {
 }
 
 func Apply(opt ...OverflowOption) *OverflowBuilder {
-	return NewOverflow().applyOptions(opt)
+	return defaultOverflowBuilder.applyOptions(opt)
 }

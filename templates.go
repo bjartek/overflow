@@ -2,6 +2,7 @@ package overflow
 
 import (
 	"encoding/base64"
+	"fmt"
 )
 
 // Templates
@@ -94,15 +95,64 @@ pub fun main(user:Address): UInt64{
 	return account.storageCapacity - account.storageUsed
 }
 `).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(uint64)
-
 	return int(result)
+}
 
+func (o *OverflowState) MintFlowTokens(accountName string, amount float64) *OverflowState {
+	if o.Network != "emulator" {
+		o.Error = fmt.Errorf("Can only mint new flow on emulator")
+		return o
+	}
+	result := o.Tx(`
+import FungibleToken from 0xee82856bf20e2aa6
+import FlowToken from 0x0ae53cb6e3f42a79
+
+
+transaction(recipient: Address, amount: UFix64) {
+    let tokenAdmin: &FlowToken.Administrator
+    let tokenReceiver: &{FungibleToken.Receiver}
+
+    prepare(signer: AuthAccount) {
+        self.tokenAdmin = signer
+            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+            ?? panic("Signer is not the token admin")
+
+        self.tokenReceiver = getAccount(recipient)
+            .getCapability(/public/flowTokenReceiver)
+            .borrow<&{FungibleToken.Receiver}>()
+            ?? panic("Unable to borrow receiver reference")
+    }
+
+    execute {
+        let minter <- self.tokenAdmin.createNewMinter(allowedAmount: amount)
+        let mintedVault <- minter.mintTokens(amount: amount)
+
+        self.tokenReceiver.deposit(from: <-mintedVault)
+
+        destroy minter
+    }
+}
+`, WithSignerServiceAccount(),
+		WithArg("recipient", accountName),
+		WithArg("amount", amount),
+		WithName(fmt.Sprintf("Startup Mint tokens for %s", accountName)),
+		WithoutLog(),
+	)
+
+	if result.Err != nil {
+		o.Error = result.Err
+	}
+	return o
 }
 
 // A method to fill up a users storage, useful when testing
+// This has some issues with transaction fees
 func (o *OverflowState) FillUpStorage(accountName string) *OverflowState {
 
-	length := o.GetFreeCapacity(accountName) - 67 //some storage is made outside of the string so need to adjust
+	cap := o.GetFreeCapacity(accountName)
+	fmt.Println(cap)
+	length := cap - 7700 //we cannot fill up all of storage since we need flow to pay for the transaction that fills it up
+	fmt.Println(length)
 
 	err := o.UploadString(randomString(length), accountName)
 	if err != nil {

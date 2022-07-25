@@ -28,13 +28,13 @@ func TestEventFetcher(t *testing.T) {
 	})
 
 	t.Run("Until argument", func(t *testing.T) {
-		ef := g.buildEventInteraction(UntilBlock(100))
+		ef := g.buildEventInteraction(WithUntilBlock(100))
 		assert.Equal(t, ef.EndIndex, uint64(100))
 		assert.False(t, ef.EndAtCurrentHeight)
 	})
 
 	t.Run("Until current argument", func(t *testing.T) {
-		ef := g.buildEventInteraction(UntilCurrentBlock())
+		ef := g.buildEventInteraction(WithUntilCurrentBlock())
 		assert.Equal(t, ef.EndIndex, uint64(0))
 		assert.True(t, ef.EndAtCurrentHeight)
 	})

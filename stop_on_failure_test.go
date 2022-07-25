@@ -7,7 +7,7 @@ import (
 )
 
 func TestPanicIfStopOnFailure(t *testing.T) {
-	o, err := OverflowTesting(StopOnError())
+	o, err := OverflowTesting(WithPanicOnError())
 	assert.NoError(t, err)
 
 	t.Run("transaction", func(t *testing.T) {

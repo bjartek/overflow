@@ -15,10 +15,21 @@ type PrinterOption func(*PrinterBuilder)
 //
 // the default setting is to print one line for each transaction with meter and all events
 type PrinterBuilder struct {
-	Events      bool
+
+	//set to false to disable all events
+	Events bool
+
+	//filter out some events
 	EventFilter OverflowEventFilter
-	Meter       int
+
+	//0 to print no meter, 1 to print some, 2 to pritn all NB verbose
+	Meter int
+
+	//print the emulator log, NB! Verbose
 	EmulatorLog bool
+
+	//print transaction id, usefull to disable in tests
+	Id bool
 }
 
 // print full meter verbose mode
@@ -63,6 +74,12 @@ func WithoutEvents() PrinterOption {
 	}
 }
 
+func WithoutId() PrinterOption {
+	return func(opt *PrinterBuilder) {
+		opt.Id = false
+	}
+}
+
 // print out an result
 func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 
@@ -71,6 +88,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 		EventFilter: OverflowEventFilter{},
 		Meter:       1,
 		EmulatorLog: false,
+		Id:          true,
 	}
 
 	for _, opt := range opts {
@@ -90,20 +108,17 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 	}
 	messages = append(messages, nameMessage)
 
-	if o.ComputationUsed != 0 {
-		messages = append(messages, fmt.Sprintf("computation:%d", o.ComputationUsed))
-	}
-
-	if printOpts.Meter == 1 && o.Meter != nil {
-		messages = append(messages, fmt.Sprintf("loops:%d", o.Meter.Loops()))
-		messages = append(messages, fmt.Sprintf("statements:%d", o.Meter.Statements()))
-		messages = append(messages, fmt.Sprintf("invocations:%d", o.Meter.FunctionInvocations()))
-	}
-
 	if len(o.Fee) != 0 {
-		//		messages = append(messages, fmt.Sprintf("%v:%f (%f/%f)", emoji.MoneyBag, o.Fee["amount"].(float64), o.Fee["inclusionEffort"].(float64), o.Fee["exclusionEffort"].(float64)))
+		messages = append(messages, fmt.Sprintf("fee:%.8f gas:%d", o.Fee["amount"], o.FeeGas))
+	} else {
+		if o.ComputationUsed != 0 {
+			messages = append(messages, fmt.Sprintf("gas:%d", o.ComputationUsed))
+		}
 	}
-	messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
+
+	if printOpts.Id {
+		messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
+	}
 
 	fmt.Printf("%v %s\n", emoji.OkHand, strings.Join(messages, " "))
 
@@ -125,7 +140,7 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 						}
 					}
 
-					format := fmt.Sprintf("%%%ds:%%v\n", length+2)
+					format := fmt.Sprintf("%%%ds -> %%v\n", length+2)
 					for key, value := range event {
 						fmt.Printf(format, key, value)
 					}
@@ -140,6 +155,14 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 			fmt.Println(msg.Msg)
 		}
 	}
+	/*
+		//TODO: print how a meter is computed
+			if printOpts.Meter == 1 && o.Meter != nil {
+				messages = append(messages, fmt.Sprintf("loops:%d", o.Meter.Loops()))
+				messages = append(messages, fmt.Sprintf("statements:%d", o.Meter.Statements()))
+				messages = append(messages, fmt.Sprintf("invocations:%d", o.Meter.FunctionInvocations()))
+			}
+	*/
 
 	if printOpts.Meter != 0 && o.Meter != nil {
 		if printOpts.Meter == 2 {

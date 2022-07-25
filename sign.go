@@ -8,9 +8,9 @@ import (
 )
 
 // Sign a user message
-func (f *OverflowState) SignUserMessage(account string, message string) (string, error) {
+func (o *OverflowState) SignUserMessage(account string, message string) (string, error) {
 
-	a, err := f.AccountE(account)
+	a, err := o.AccountE(account)
 	if err != nil {
 		return "", err
 	}

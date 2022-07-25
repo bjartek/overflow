@@ -30,7 +30,7 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 }
 
 //Parse raw flow events into a list of events and a fee event
-func ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
+func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
 	for _, event := range events {

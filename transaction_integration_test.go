@@ -11,7 +11,9 @@ import (
 */
 
 func TestTransactionIntegration(t *testing.T) {
-	o, err := OverflowTesting()
+	o, err := OverflowTesting(WithLogFull())
+	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
+
 	assert.NoError(t, err)
 	t.Parallel()
 
@@ -20,22 +22,22 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 
 	t.Run("fail on wrong transaction name", func(t *testing.T) {
-		o.Tx("create_nft_collectio", SignProposeAndPayAs("first")).
+		o.Tx("create_nft_collectio", WithSigner("first")).
 			AssertFailure(t, "💩 Could not read interaction file from path=./transactions/create_nft_collectio.cdc")
 	})
 
 	t.Run("Create NFT collection with different base path", func(t *testing.T) {
 		o.Tx("../tx/create_nft_collection",
-			SignProposeAndPayAs("first")).
+			WithSigner("first")).
 			AssertSuccess(t).
 			AssertNoEvents(t)
 	})
 
 	t.Run("Mint tokens assert events", func(t *testing.T) {
 		result := o.Tx("mint_tokens",
-			SignProposeAndPayAsServiceAccount(),
-			Arg("recipient", "first"),
-			Arg("amount", 100.1)).
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1)).
 			AssertSuccess(t).
 			AssertEventCount(t, 3).
 			AssertEmitEventName(t, "FlowToken.TokensDeposited").
@@ -55,8 +57,8 @@ func TestTransactionIntegration(t *testing.T) {
 			  Debug.id(id) 
 			} 
 		}`,
-			SignProposeAndPayAs("first"),
-			Arg("id", 1),
+			WithSigner("first"),
+			WithArg("id", 1),
 		).AssertSuccess(t)
 
 		res, err := result.GetIdFromEvent("LogNum", "id")
@@ -72,12 +74,12 @@ func TestTransactionIntegration(t *testing.T) {
 		transaction(message:String) {
 		  prepare(acct: AuthAccount) {
 			Debug.log(message) } }`,
-			SignProposeAndPayAs("first"),
-			Arg("message", "foobar"),
+			WithSigner("first"),
+			WithArg("message", "foobar"),
 		).
 			AssertDebugLog(t, "foobar").
-			AssertComputationUsed(t, 5).
-			AssertComputationLessThenOrEqual(t, 10).
+			AssertComputationUsed(t, 37).
+			AssertComputationLessThenOrEqual(t, 40).
 			AssertEmulatorLog(t, "Transaction submitted")
 	})
 

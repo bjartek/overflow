@@ -13,7 +13,7 @@ type AwesomeStruct struct {
 	} `json:"first"`
 }
 
-func TestScriptIntegration(t *testing.T) {
+func TestScriptIntegrationNew(t *testing.T) {
 	o, err := OverflowTesting()
 	assert.NoError(t, err)
 	t.Parallel()

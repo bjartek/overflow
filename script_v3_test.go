@@ -10,33 +10,33 @@ func TestScript(t *testing.T) {
 	o, _ := OverflowTesting()
 
 	t.Run("Run simple script interface", func(t *testing.T) {
-		res, err := o.Script("test", Arg("account", "first")).GetAsInterface()
+		res, err := o.Script("test", WithArg("account", "first")).GetAsInterface()
 		assert.NoError(t, err)
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
 	})
 
 	t.Run("Run simple script json", func(t *testing.T) {
-		res, err := o.Script("test", Arg("account", "first")).GetAsJson()
+		res, err := o.Script("test", WithArg("account", "first")).GetAsJson()
 		assert.NoError(t, err)
 		assert.Equal(t, `"0x01cf0e2f2f715450"`, res)
 	})
 
 	t.Run("Run simple script marshal", func(t *testing.T) {
 		var res string
-		err := o.Script("test", Arg("account", "first")).MarshalAs(&res)
+		err := o.Script("test", WithArg("account", "first")).MarshalAs(&res)
 		assert.NoError(t, err)
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
 	})
 
 	t.Run("compose a script", func(t *testing.T) {
-		accountScript := o.ScriptFN(Arg("account", "first"))
+		accountScript := o.ScriptFN(WithArg("account", "first"))
 		res := accountScript("test")
 		assert.NoError(t, res.Err)
 	})
 
 	t.Run("create script with name", func(t *testing.T) {
 		testScript := o.ScriptFileNameFN("test")
-		res := testScript(Arg("account", "first"))
+		res := testScript(WithArg("account", "first"))
 		assert.NoError(t, res.Err)
 	})
 
@@ -62,7 +62,7 @@ pub fun main(input: [UFix64]): [UFix64] {
 	return input
 }
 
-`, Arg("input", `[10.1, 20.2]`)).GetAsJson()
+`, WithArg("input", `[10.1, 20.2]`)).GetAsJson()
 		assert.NoError(t, err)
 		assert.JSONEq(t, `[10.1, 20.2]`, res)
 	})
@@ -73,7 +73,7 @@ pub fun main(input: [Fix64]): [Fix64] {
 	return input
 }
 
-`, Arg("input", `[10.1, -20.2]`)).GetAsJson()
+`, WithArg("input", `[10.1, -20.2]`)).GetAsJson()
 		assert.NoError(t, err)
 
 		assert.JSONEq(t, `[10.1, -20.2]`, res)
@@ -85,7 +85,7 @@ pub fun main(input: [UInt64]): [UInt64] {
 	return input
 }
 
-`, Arg("input", `[10, 20]`)).GetAsJson()
+`, WithArg("input", `[10, 20]`)).GetAsJson()
 
 		assert.NoError(t, err)
 		assert.JSONEq(t, `[10, 20]`, res)

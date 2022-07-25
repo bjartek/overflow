@@ -101,7 +101,7 @@ func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastE
 
 	formatedEvents := []OverflowPastEvent{}
 	for _, blockEvent := range blockEvents {
-		events, _ := ParseEvents(blockEvent.Events)
+		events, _ := parseEvents(blockEvent.Events)
 		for name, eventList := range events {
 			for _, instance := range eventList {
 				formatedEvents = append(formatedEvents, OverflowPastEvent{
@@ -186,7 +186,7 @@ func WithLastBlocks(number uint64) EventFetcherOption {
 }
 
 // fetch events until theg given height alias to WithEndHeight
-func UntilBlock(blockHeight uint64) EventFetcherOption {
+func WithUntilBlock(blockHeight uint64) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EndIndex = blockHeight
 		e.EndAtCurrentHeight = false
@@ -194,7 +194,7 @@ func UntilBlock(blockHeight uint64) EventFetcherOption {
 }
 
 // set the end index to the current height
-func UntilCurrentBlock() EventFetcherOption {
+func WithUntilCurrentBlock() EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.EndAtCurrentHeight = true
 		e.EndIndex = 0
@@ -202,7 +202,7 @@ func UntilCurrentBlock() EventFetcherOption {
 }
 
 // track what block we have read since last run in a file
-func TrackProgressIn(fileName string) EventFetcherOption {
+func WithTrackProgressIn(fileName string) EventFetcherOption {
 	return func(e *EventFetcherBuilder) {
 		e.ProgressFile = fileName
 		e.EndIndex = 0

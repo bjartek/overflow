@@ -16,9 +16,9 @@ type Cadencetest struct {
 
 func TestCadenceValueToInterface(t *testing.T) {
 
-	foo := CadenceString("foo")
-	bar := CadenceString("bar")
-	emptyString := CadenceString("")
+	foo := cadenceString("foo")
+	bar := cadenceString("bar")
+	emptyString := cadenceString("")
 
 	emptyStrct := cadence.Struct{
 		Fields: []cadence.Value{emptyString},
@@ -46,7 +46,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 	}
 	dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: foo, Value: bar}})
 
-	emoji := CadenceString("😁")
+	emoji := cadenceString("😁")
 	emojiDict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: emoji, Value: emoji}})
 
 	cadenceAddress1 := cadence.BytesToAddress(address1.Bytes())
@@ -58,7 +58,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 	path := cadence.Path{Domain: "storage", Identifier: "foo"}
 
 	testCases := []Cadencetest{
-		{autogold.Want("EmptyString", nil), CadenceString("")},
+		{autogold.Want("EmptyString", nil), cadenceString("")},
 		{autogold.Want("nil", nil), nil},
 		{autogold.Want("None", nil), cadence.NewOptional(nil)},
 		{autogold.Want("Some(string)", "foo"), cadence.NewOptional(foo)},

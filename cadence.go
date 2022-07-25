@@ -95,6 +95,8 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return value
 
 	case cadence.UFix64:
+		//fmt.Println("is ufix64 ", field.ToGoValue(), " ", field.String())
+
 		float, _ := strconv.ParseFloat(field.String(), 64)
 		return float
 	case cadence.Fix64:

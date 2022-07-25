@@ -285,9 +285,7 @@ type FormatedEvent struct {
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 func (o FormatedEvent) ExistIn(events []*FormatedEvent) bool {
-	//	litter.Dump(o)
 	for _, ev := range events {
-		//;		litter.Dump(*ev)
 		result := reflect.DeepEqual(o, *ev)
 		if result {
 			return true

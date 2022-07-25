@@ -11,7 +11,7 @@ import (
 func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	t.Helper()
 	o := NewTestingEmulator().Start()
-	result := o.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", 100.0))
+	result := o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 100.0))
 	assert.NoError(t, result.Err)
 	return o
 
@@ -40,7 +40,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 
 	t.Run("Fetch last events and sort them ", func(t *testing.T) {
 		o := startOverflowAndMintTokens(t)
-		result := o.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", "100.0"))
+		result := o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", "100.0"))
 		assert.NoError(t, result.Err)
 		ev, err := o.FetchEvents(
 			WithLastBlocks(3),
@@ -54,7 +54,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 	t.Run("Fetch last write progress file", func(t *testing.T) {
 		ev, err := startOverflowAndMintTokens(t).FetchEvents(
 			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
-			TrackProgressIn("progress"),
+			WithTrackProgressIn("progress"),
 		)
 		defer os.Remove("progress")
 		assert.NoError(t, err)
@@ -67,7 +67,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 
 		_, err = startOverflowAndMintTokens(t).FetchEvents(
 			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
-			TrackProgressIn("progress"),
+			WithTrackProgressIn("progress"),
 		)
 		defer os.Remove("progress")
 		assert.Error(t, err)
@@ -81,7 +81,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 
 		ev, err := startOverflowAndMintTokens(t).FetchEvents(
 			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
-			TrackProgressIn("progress"),
+			WithTrackProgressIn("progress"),
 		)
 		defer os.Remove("progress")
 		assert.NoError(t, err)
