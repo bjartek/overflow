@@ -283,7 +283,7 @@ func (a *FlowArgumentsBuilder) Argument(value cadence.Value) *FlowArgumentsBuild
 func (a *FlowArgumentsBuilder) StringMap(input map[string]string) *FlowArgumentsBuilder {
 	array := []cadence.KeyValuePair{}
 	for key, val := range input {
-		array = append(array, cadence.KeyValuePair{Key: CadenceString(key), Value: CadenceString(val)})
+		array = append(array, cadence.KeyValuePair{Key: cadenceString(key), Value: cadenceString(val)})
 	}
 	a.Arguments = append(a.Arguments, cadence.NewDictionary(array))
 	return a
@@ -300,7 +300,7 @@ func (a *FlowArgumentsBuilder) ScalarMap(input map[string]string) *FlowArguments
 			a.Error = err
 			return a
 		}
-		array = append(array, cadence.KeyValuePair{Key: CadenceString(key), Value: UFix64Val})
+		array = append(array, cadence.KeyValuePair{Key: cadenceString(key), Value: UFix64Val})
 	}
 	a.Arguments = append(a.Arguments, cadence.NewDictionary(array))
 	return a
@@ -312,7 +312,7 @@ func (a *FlowArgumentsBuilder) ScalarMap(input map[string]string) *FlowArguments
 func (a *FlowArgumentsBuilder) StringArray(value ...string) *FlowArgumentsBuilder {
 	array := []cadence.Value{}
 	for _, val := range value {
-		array = append(array, CadenceString(val))
+		array = append(array, cadenceString(val))
 	}
 	a.Arguments = append(a.Arguments, cadence.NewArray(array))
 	return a
@@ -326,7 +326,7 @@ func (a *FlowArgumentsBuilder) StringMapArray(value ...map[string]string) *FlowA
 	for _, vals := range value {
 		dict := []cadence.KeyValuePair{}
 		for key, val := range vals {
-			dict = append(dict, cadence.KeyValuePair{Key: CadenceString(key), Value: CadenceString(val)})
+			dict = append(dict, cadence.KeyValuePair{Key: cadenceString(key), Value: cadenceString(val)})
 		}
 		array = append(array, cadence.NewDictionary(dict))
 	}
@@ -347,7 +347,7 @@ func (a *FlowArgumentsBuilder) ScalarMapArray(value ...map[string]string) *FlowA
 				a.Error = err
 				return a
 			}
-			dict = append(dict, cadence.KeyValuePair{Key: CadenceString(key), Value: UFix64Val})
+			dict = append(dict, cadence.KeyValuePair{Key: cadenceString(key), Value: UFix64Val})
 		}
 		array = append(array, cadence.NewDictionary(dict))
 	}

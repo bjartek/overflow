@@ -132,11 +132,11 @@ transaction(recipient: Address, amount: UFix64) {
         destroy minter
     }
 }
-`, SignProposeAndPayAsServiceAccount(),
-		Arg("recipient", accountName),
-		Arg("amount", amount),
-		Name(fmt.Sprintf("Startup Mint tokens for %s", accountName)),
-		NoLog(),
+`, WithSignerServiceAccount(),
+		WithArg("recipient", accountName),
+		WithArg("amount", amount),
+		WithName(fmt.Sprintf("Startup Mint tokens for %s", accountName)),
+		WithoutLog(),
 	)
 
 	if result.Err != nil {

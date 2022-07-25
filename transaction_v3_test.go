@@ -11,22 +11,22 @@ func TestTransaction(t *testing.T) {
 	o, _ := OverflowTesting()
 
 	t.Run("Run simple tx", func(t *testing.T) {
-		res := o.Tx("arguments", Arg("test", "foo"), SignProposeAndPayAsServiceAccount())
+		res := o.Tx("arguments", WithArg("test", "foo"), WithSignerServiceAccount())
 		assert.NoError(t, res.Err)
 	})
 
 	t.Run("Run simple tx with sa proposer", func(t *testing.T) {
-		res := o.Tx("arguments", Arg("test", "foo"), PayloadSigner("first"), ProposeAsServiceAccount())
+		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposerServiceAccount())
 		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
 	})
 
 	t.Run("Run simple tx with custom proposer", func(t *testing.T) {
-		res := o.Tx("arguments", Arg("test", "foo"), PayloadSigner("first"), ProposeAs("account"))
+		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposer("account"))
 		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
 	})
 
 	t.Run("Fail when invalid proposer", func(t *testing.T) {
-		res := o.Tx("arguments", Arg("test", "foo"), PayloadSigner("first"), ProposeAs("account2"))
+		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposer("account2"))
 		assert.ErrorContains(t, res.Err, "could not find account with name emulator-account2 in the configuration")
 	})
 
@@ -37,7 +37,7 @@ transaction(test:String) {
     log(test)
  }
 }
-`, Arg("test", "foo"), SignProposeAndPayAsServiceAccount())
+`, WithArg("test", "foo"), WithSignerServiceAccount())
 		assert.NoError(t, res.Err)
 	})
 
@@ -48,44 +48,44 @@ transaction(test:UInt64) {
     log(test)
  }
 }
-`, Arg("test", 1), SignProposeAndPayAsServiceAccount())
+`, WithArg("test", 1), WithSignerServiceAccount())
 		assert.NoError(t, res.Err)
 	})
 
 	t.Run("Run simple tx with custom signer", func(t *testing.T) {
-		res := o.Tx("arguments", Arg("test", "foo"), SignProposeAndPayAs("account"))
+		res := o.Tx("arguments", WithArg("test", "foo"), WithSigner("account"))
 		assert.NoError(t, res.Err)
 	})
 
 	t.Run("Error on wrong signer name", func(t *testing.T) {
-		res := o.Tx("arguments", Arg("test", "foo"), SignProposeAndPayAs("account2"))
+		res := o.Tx("arguments", WithArg("test", "foo"), WithSigner("account2"))
 		assert.ErrorContains(t, res.Err, "could not find account with name emulator-account2")
 	})
 
 	t.Run("compose a function", func(t *testing.T) {
-		serviceAccountTx := o.TxFN(SignProposeAndPayAsServiceAccount())
-		res := serviceAccountTx("arguments", Arg("test", "foo"))
+		serviceAccountTx := o.TxFN(WithSignerServiceAccount())
+		res := serviceAccountTx("arguments", WithArg("test", "foo"))
 		assert.NoError(t, res.Err)
 	})
 
 	t.Run("create function with name", func(t *testing.T) {
-		argumentTx := o.TxFileNameFN("arguments", SignProposeAndPayAsServiceAccount())
-		res := argumentTx(Arg("test", "foo"))
+		argumentTx := o.TxFileNameFN("arguments", WithSignerServiceAccount())
+		res := argumentTx(WithArg("test", "foo"))
 		assert.NoError(t, res.Err)
 	})
 
 	t.Run("Should not allow varags builder arg with single element", func(t *testing.T) {
-		res := o.Tx("arguments", Args("test"))
+		res := o.Tx("arguments", WithArgs("test"))
 		assert.ErrorContains(t, res.Err, "Please send in an even number of string : interface{} pairs")
 	})
 
 	t.Run("Should not allow varag with non string keys", func(t *testing.T) {
-		res := o.Tx("arguments", Args(1, "test"))
+		res := o.Tx("arguments", WithArgs(1, "test"))
 		assert.ErrorContains(t, res.Err, "even parameters in Args needs to be string")
 	})
 
 	t.Run("Arg, with cadence raw value", func(t *testing.T) {
-		res := o.Tx("arguments", SignProposeAndPayAsServiceAccount(), Arg("test", CadenceString("test")))
+		res := o.Tx("arguments", WithSignerServiceAccount(), WithArg("test", cadenceString("test")))
 		assert.NoError(t, res.Err)
 	})
 
@@ -96,7 +96,7 @@ transaction(test:UFix64) {
 
  }
 }
-`, "transaction", DateTimeArg("test", "July 29, 2021 08:00:00 AM", "America/New_York"), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithArgDateTime("test", "July 29, 2021 08:00:00 AM", "America/New_York"), WithSignerServiceAccount())
 		assert.NoError(t, res.Error)
 	})
 
@@ -107,12 +107,12 @@ transaction(test:UFix64) {
 
  }
 }
-`, "transaction", DateTimeArg("test", "July 29021 08:00:00 AM", "America/New_York"), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithArgDateTime("test", "July 29021 08:00:00 AM", "America/New_York"), WithSignerServiceAccount())
 		assert.ErrorContains(t, res.Error, "cannot parse")
 	})
 
 	t.Run("Map args", func(t *testing.T) {
-		res := o.Tx("arguments", SignProposeAndPayAsServiceAccount(), ArgsM(map[string]interface{}{"test": "test"}))
+		res := o.Tx("arguments", WithSignerServiceAccount(), WithArgsMap(map[string]interface{}{"test": "test"}))
 		assert.NoError(t, res.Err)
 	})
 
@@ -123,7 +123,7 @@ transaction(test:[Address]) {
 
  }
 }
-`, "transaction", Addresses("test", "bjartek"), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithAddresses("test", "bjartek"), WithSignerServiceAccount())
 		assert.ErrorContains(t, res.Error, "bjartek is not an valid account name or an address")
 	})
 
@@ -134,7 +134,7 @@ transaction(test:[Address]) {
 
  }
 }
-`, "transaction", Addresses("test", "account", "45a1763c93006ca"), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithAddresses("test", "account", "45a1763c93006ca"), WithSignerServiceAccount())
 		assert.Equal(t, "[0xf8d6e0586b0a20c7, 0x045a1763c93006ca]", fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
@@ -145,7 +145,7 @@ transaction(test:{String:String}) {
 
  }
 }
-`, "transaction", Arg("test", `{ "foo" : "bar"}`), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithArg("test", `{ "foo" : "bar"}`), WithSignerServiceAccount())
 		assert.Equal(t, `{ "foo" : "bar"}`, fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
@@ -156,7 +156,7 @@ transaction(test:{String:UFix64}) {
 
  }
 }
-`, "transaction", Arg("test", `{ "foo" : 1.0}`), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithArg("test", `{ "foo" : 1.0}`), WithSignerServiceAccount())
 		assert.Equal(t, `{ "foo" : 1.0}`, fmt.Sprintf("%v", res.NamedArgs["test"]))
 	})
 
@@ -167,7 +167,7 @@ transaction(test:Address) {
 
  }
 }
-`, "transaction", Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount())
 		assert.ErrorContains(t, res.Error, "argument `test` with value `0xbjartek` is not expected type `Address`")
 
 	})
@@ -179,7 +179,7 @@ transaction(test:Address) {
 
  }
 }
-`, "transaction", Arg("test", "bjartek"), SignProposeAndPayAsServiceAccount(), Gas(100))
+`, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount(), WithMaxGas(100))
 
 		assert.Equal(t, uint64(100), res.GasLimit)
 
@@ -192,7 +192,7 @@ transaction{
 
  }
 }
-`, SignProposeAndPayAsServiceAccount(), PayloadSigner("bjartek"))
+`, WithSignerServiceAccount(), WithPayloadSigner("bjartek"))
 
 		assert.Error(t, res.Err, "asd")
 
@@ -205,7 +205,7 @@ transaction(test:UFix64) {
 
  }
 }
-`, "transaction", Arg("test", 1.0), SignProposeAndPayAsServiceAccount())
+`, "transaction", WithArg("test", 1.0), WithSignerServiceAccount())
 		assert.NoError(t, res.Error)
 	})
 

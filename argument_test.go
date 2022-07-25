@@ -212,8 +212,8 @@ transaction(names: [String]) {
 		})
 
 		arrayValues := []cadence.Value{
-			CadenceString("Bjarte"),
-			CadenceString("Karlsen"),
+			cadenceString("Bjarte"),
+			cadenceString("Karlsen"),
 		}
 		assert.Contains(t, builder.Arguments, cadence.NewArray(arrayValues))
 

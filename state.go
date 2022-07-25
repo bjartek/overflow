@@ -450,8 +450,8 @@ func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *Overflow
 	ftb := o.BuildInteraction(filename, "transaction", opts...)
 	result := ftb.Send()
 
-	if o.PrintOptions != nil && !ftb.NoLog {
-		po := *o.PrintOptions
+	if ftb.PrintOptions != nil && !ftb.NoLog {
+		po := *ftb.PrintOptions
 		result.Print(po...)
 	}
 	if o.StopOnError && result.Err != nil {
@@ -495,6 +495,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		BasePath:       path,
 		NamedArgs:      map[string]interface{}{},
 		NoLog:          false,
+		PrintOptions:   o.PrintOptions,
 	}
 
 	for _, opt := range opts {

@@ -15,7 +15,7 @@ import (
 func TestTransactionIntegrationLegacy(t *testing.T) {
 	logNumName := "A.f8d6e0586b0a20c7.Debug.LogNum"
 	g := NewTestingEmulator().Start()
-	g.Tx("mint_tokens", SignProposeAndPayAsServiceAccount(), Arg("recipient", "first"), Arg("amount", 1.0))
+	g.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0))
 
 	t.Parallel()
 

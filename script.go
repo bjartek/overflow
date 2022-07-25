@@ -56,7 +56,7 @@ func (o *OverflowState) Script(filename string, opts ...InteractionOption) *Over
 
 	result := interaction.runScript()
 
-	if o.PrintOptions != nil && !interaction.NoLog {
+	if interaction.PrintOptions != nil && !interaction.NoLog {
 		result.Print()
 	}
 	if o.StopOnError && result.Err != nil {

@@ -375,7 +375,7 @@ func WithPanicOnError() OverflowOption {
 }
 
 // automatically print interactions using the following options
-func WithPrintOptions(opts ...PrinterOption) OverflowOption {
+func WithGlobalPrintOptions(opts ...PrinterOption) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.PrintOptions = &opts
 	}
