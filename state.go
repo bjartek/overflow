@@ -480,13 +480,13 @@ func (o *OverflowState) GetBlockById(blockId string) (*flow.Block, error) {
 }
 
 // create a flowInteractionBuilder from the sent in options
-func (o *OverflowState) BuildInteraction(filename string, interactionType string, opts ...OverflowInteractionOption) *FlowInteractionBuilder {
+func (o *OverflowState) BuildInteraction(filename string, interactionType string, opts ...OverflowInteractionOption) *OverflowInteractionBuilder {
 
 	path := o.TransactionBasePath
 	if interactionType == "script" {
 		path = o.ScriptBasePath
 	}
-	ftb := &FlowInteractionBuilder{
+	ftb := &OverflowInteractionBuilder{
 		Overflow:       o,
 		Payer:          nil,
 		Arguments:      []cadence.Value{},

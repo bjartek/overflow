@@ -20,8 +20,8 @@ import (
 //
 // An interaction in overflow is either a script or a transaction
 
-// FlowInteractionBuilder used to create a builder pattern for an interaction
-type FlowInteractionBuilder struct {
+// OverflowInteractionBuilder used to create a builder pattern for an interaction
+type OverflowInteractionBuilder struct {
 
 	//the name of the integration, for inline variants
 	Name string
@@ -79,7 +79,7 @@ type FlowInteractionBuilder struct {
 }
 
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
-func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
+func (f OverflowInteractionBuilder) Test(t *testing.T) TransactionResult {
 	locale, _ := time.LoadLocation("UTC")
 	time.Local = locale
 	result := f.Send()
@@ -97,11 +97,11 @@ func (f FlowInteractionBuilder) Test(t *testing.T) TransactionResult {
 }
 
 // get the contract code
-func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, error) {
-	code := []byte(t.Content)
+func (oib OverflowInteractionBuilder) getContractCode(codeFileName string) ([]byte, error) {
+	code := []byte(oib.Content)
 	var err error
-	if t.Content == "" {
-		code, err = t.Overflow.State.ReaderWriter().ReadFile(codeFileName)
+	if oib.Content == "" {
+		code, err = oib.Overflow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
 			return nil, fmt.Errorf("%v Could not read interaction file from path=%s", emoji.PileOfPoo, codeFileName)
 		}
@@ -110,21 +110,21 @@ func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, er
 }
 
 //A function to customize the transaction builder
-type OverflowInteractionOption func(*FlowInteractionBuilder)
+type OverflowInteractionOption func(*OverflowInteractionBuilder)
 
 // force no printing for this interaction
 func WithoutLog() OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.NoLog = true
+	return func(oib *OverflowInteractionBuilder) {
+		oib.NoLog = true
 	}
 }
 
 // set a list of args as key, value in an interaction, see Arg for options you can pass in
 func WithArgs(args ...interface{}) OverflowInteractionOption {
 
-	return func(ftb *FlowInteractionBuilder) {
+	return func(oib *OverflowInteractionBuilder) {
 		if len(args)%2 != 0 {
-			ftb.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
+			oib.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
 			return
 		}
 		var i = 0
@@ -132,9 +132,9 @@ func WithArgs(args ...interface{}) OverflowInteractionOption {
 			key := args[0]
 			value, labelOk := key.(string)
 			if !labelOk {
-				ftb.Error = fmt.Errorf("even parameters in Args needs to be strings")
+				oib.Error = fmt.Errorf("even parameters in Args needs to be strings")
 			}
-			ftb.NamedArgs[value] = args[1]
+			oib.NamedArgs[value] = args[1]
 			i = i + 2
 		}
 	}
@@ -142,17 +142,17 @@ func WithArgs(args ...interface{}) OverflowInteractionOption {
 
 // set arguments to the interaction from a map. See Arg for options on what you can pass in
 func WithArgsMap(args map[string]interface{}) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
+	return func(oib *OverflowInteractionBuilder) {
 		for key, value := range args {
-			ftb.NamedArgs[key] = value
+			oib.NamedArgs[key] = value
 		}
 	}
 }
 
 // set the name of this interaction, for inline interactions this will be the entire name for file interactions they will be combined
 func WithName(name string) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.Name = name
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Name = name
 	}
 }
 
@@ -164,38 +164,38 @@ func WithName(name string) OverflowInteractionOption {
 // - ofther values are converted to string with %v and resolved into cadence.Value using flowkit
 // - if the type of the paramter is Address and the string you send in is a valid account in flow.json it will resolve
 func WithArg(name string, value interface{}) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.NamedArgs[name] = value
+	return func(oib *OverflowInteractionBuilder) {
+		oib.NamedArgs[name] = value
 	}
 }
 
 // sending in a timestamp as an arg is quite complicated, use this method with the name of the arg, the datestring and the given timezone to parse it at
 func WithArgDateTime(name string, dateString string, timezone string) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
+	return func(oib *OverflowInteractionBuilder) {
 		value, err := parseTime(dateString, timezone)
 		if err != nil {
-			ftb.Error = err
+			oib.Error = err
 			return
 		}
 
 		//swallow the error since it will never happen here, we control the input
 		amount, _ := cadence.NewUFix64(value)
 
-		ftb.NamedArgs[name] = amount
+		oib.NamedArgs[name] = amount
 	}
 }
 
 // Send in an array of addresses as an argument
 func WithAddresses(name string, value ...string) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
+	return func(oib *OverflowInteractionBuilder) {
 		array := []cadence.Value{}
 
 		for _, val := range value {
-			account, err := ftb.Overflow.AccountE(val)
+			account, err := oib.Overflow.AccountE(val)
 			if err != nil {
 				address, err := hexToAddress(val)
 				if err != nil {
-					ftb.Error = errors.Wrap(err, fmt.Sprintf("%s is not an valid account name or an address", val))
+					oib.Error = errors.Wrap(err, fmt.Sprintf("%s is not an valid account name or an address", val))
 					return
 				}
 				cadenceAddress := cadence.BytesToAddress(address.Bytes())
@@ -205,135 +205,135 @@ func WithAddresses(name string, value ...string) OverflowInteractionOption {
 				array = append(array, cadenceAddress)
 			}
 		}
-		ftb.NamedArgs[name] = cadence.NewArray(array)
+		oib.NamedArgs[name] = cadence.NewArray(array)
 	}
 }
 
 // print interactions using the following options
 func WithPrintOptions(opts ...OverflowPrinterOption) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		if ftb.PrintOptions == nil {
-			ftb.PrintOptions = &opts
+	return func(oib *OverflowInteractionBuilder) {
+		if oib.PrintOptions == nil {
+			oib.PrintOptions = &opts
 		} else {
-			allOpts := *ftb.PrintOptions
+			allOpts := *oib.PrintOptions
 			allOpts = append(allOpts, opts...)
-			ftb.PrintOptions = &allOpts
+			oib.PrintOptions = &allOpts
 		}
 	}
 }
 
 // set the proposer
 func WithProposer(proposer string) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		account, err := ftb.Overflow.AccountE(proposer)
+	return func(oib *OverflowInteractionBuilder) {
+		account, err := oib.Overflow.AccountE(proposer)
 		if err != nil {
-			ftb.Error = err
+			oib.Error = err
 			return
 		}
-		ftb.Proposer = account
+		oib.Proposer = account
 	}
 }
 
 // set the propser to be the service account
 func WithProposerServiceAccount() OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		key := ftb.Overflow.ServiceAccountName()
-		account, _ := ftb.Overflow.State.Accounts().ByName(key)
-		ftb.Proposer = account
+	return func(oib *OverflowInteractionBuilder) {
+		key := oib.Overflow.ServiceAccountName()
+		account, _ := oib.Overflow.State.Accounts().ByName(key)
+		oib.Proposer = account
 	}
 }
 
 // set payer, proposer authorizer as the signer
 func WithSigner(signer string) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		account, err := ftb.Overflow.AccountE(signer)
+	return func(oib *OverflowInteractionBuilder) {
+		account, err := oib.Overflow.AccountE(signer)
 		if err != nil {
-			ftb.Error = err
+			oib.Error = err
 			return
 		}
-		ftb.Payer = account
-		ftb.Proposer = account
+		oib.Payer = account
+		oib.Proposer = account
 	}
 }
 
 // set service account as payer, proposer, authorizer
 func WithSignerServiceAccount() OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		key := ftb.Overflow.ServiceAccountName()
-		account, _ := ftb.Overflow.State.Accounts().ByName(key)
-		ftb.Payer = account
-		ftb.Proposer = account
+	return func(oib *OverflowInteractionBuilder) {
+		key := oib.Overflow.ServiceAccountName()
+		account, _ := oib.Overflow.State.Accounts().ByName(key)
+		oib.Payer = account
+		oib.Proposer = account
 	}
 }
 
 // set the gas limit
 func WithMaxGas(gas uint64) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.GasLimit = gas
+	return func(oib *OverflowInteractionBuilder) {
+		oib.GasLimit = gas
 	}
 }
 
 // set a filter for events
 func WithEvents(filter OverflowEventFilter) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.EventFilter = filter
+	return func(oib *OverflowInteractionBuilder) {
+		oib.EventFilter = filter
 	}
 }
 
 // ignore global events filters defined on OverflowState
 func WithoutGlobalEventFilter() OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
-		ftb.IgnoreGlobalEventFilters = true
+	return func(oib *OverflowInteractionBuilder) {
+		oib.IgnoreGlobalEventFilters = true
 	}
 }
 
 // set an aditional authorizer that will sign the payload
 func WithPayloadSigner(signer ...string) OverflowInteractionOption {
-	return func(ftb *FlowInteractionBuilder) {
+	return func(oib *OverflowInteractionBuilder) {
 		for _, signer := range signer {
-			account, err := ftb.Overflow.AccountE(signer)
+			account, err := oib.Overflow.AccountE(signer)
 			if err != nil {
-				ftb.Error = err
+				oib.Error = err
 				return
 			}
-			ftb.PayloadSigners = append(ftb.PayloadSigners, account)
+			oib.PayloadSigners = append(oib.PayloadSigners, account)
 		}
 	}
 }
 
 // Send a intereaction builder as a Transaction returning an overflow result
-func (t FlowInteractionBuilder) Send() *OverflowResult {
-	result := &OverflowResult{StopOnError: t.Overflow.StopOnError}
-	if t.Error != nil {
-		result.Err = t.Error
+func (oib OverflowInteractionBuilder) Send() *OverflowResult {
+	result := &OverflowResult{StopOnError: oib.Overflow.StopOnError}
+	if oib.Error != nil {
+		result.Err = oib.Error
 		return result
 	}
 
-	if t.Proposer == nil {
+	if oib.Proposer == nil {
 		result.Err = fmt.Errorf("%v You need to set the proposer signer", emoji.PileOfPoo)
 		return result
 	}
 
-	codeFileName := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
+	codeFileName := fmt.Sprintf("%s/%s.cdc", oib.BasePath, oib.FileName)
 
-	if len(t.TransactionCode) == 0 {
-		code, err := t.getContractCode(codeFileName)
+	if len(oib.TransactionCode) == 0 {
+		code, err := oib.getContractCode(codeFileName)
 		if err != nil {
 			result.Err = err
 			return result
 		}
-		t.TransactionCode = code
+		oib.TransactionCode = code
 	}
 
-	t.Overflow.Log.Reset()
-	t.Overflow.EmulatorLog.Reset()
+	oib.Overflow.Log.Reset()
+	oib.Overflow.EmulatorLog.Reset()
 	/*
 		❗ Special case: if an account is both the payer and either a proposer or authorizer, it is only required to sign the envelope.
 	*/
 	// we append the payer at the end here so that it signs last
-	signers := t.PayloadSigners
-	if t.Payer != nil {
-		signers = append(signers, t.Payer)
+	signers := oib.PayloadSigners
+	if oib.Payer != nil {
+		signers = append(signers, oib.Payer)
 	}
 
 	var authorizers []flow.Address
@@ -341,20 +341,20 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 		authorizers = append(authorizers, signer.Address())
 	}
 
-	if t.Payer == nil {
-		signers = append(signers, t.Proposer)
+	if oib.Payer == nil {
+		signers = append(signers, oib.Proposer)
 	}
 
-	tx, err := t.Overflow.Services.Transactions.Build(
-		t.Proposer.Address(),
+	tx, err := oib.Overflow.Services.Transactions.Build(
+		oib.Proposer.Address(),
 		authorizers,
-		t.Proposer.Address(),
-		t.Proposer.Key().Index(),
-		t.TransactionCode,
+		oib.Proposer.Address(),
+		oib.Proposer.Key().Index(),
+		oib.TransactionCode,
 		codeFileName,
-		t.GasLimit,
-		t.Arguments,
-		t.Overflow.Network,
+		oib.GasLimit,
+		oib.Arguments,
+		oib.Overflow.Network,
 		true,
 	)
 	if err != nil {
@@ -379,7 +379,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	result.Id = txId
 
 	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
-	ftx, res, err := t.Overflow.Services.Transactions.SendSigned(txBytes, true)
+	ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(txBytes, true)
 	result.Transaction = ftx
 
 	if err != nil {
@@ -387,7 +387,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 		return result
 	}
 
-	logMessage, err := t.Overflow.readLog()
+	logMessage, err := oib.Overflow.readLog()
 	if err != nil {
 		result.Err = err
 	}
@@ -395,7 +395,7 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 
 	result.Meter = &OverflowMeter{}
 	var meter OverflowMeter
-	scanner := bufio.NewScanner(t.Overflow.EmulatorLog)
+	scanner := bufio.NewScanner(oib.Overflow.EmulatorLog)
 	for scanner.Scan() {
 		txt := scanner.Text()
 		if strings.Contains(txt, "transaction execution data") {
@@ -426,31 +426,31 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 		result.FeeGas = gas
 	}
 
-	if !t.IgnoreGlobalEventFilters {
+	if !oib.IgnoreGlobalEventFilters {
 
 		fee := result.Fee["amount"]
-		if t.Overflow.FilterOutFeeEvents && fee != nil {
+		if oib.Overflow.FilterOutFeeEvents && fee != nil {
 			overflowEvents = overflowEvents.FilterFees(fee.(float64))
 		}
 
-		if t.Overflow.FilterOutEmptyWithDrawDepositEvents {
+		if oib.Overflow.FilterOutEmptyWithDrawDepositEvents {
 			overflowEvents = overflowEvents.FilterTempWithdrawDeposit()
 		}
 
-		if len(t.Overflow.GlobalEventFilter) != 0 {
-			overflowEvents = overflowEvents.FilterEvents(t.Overflow.GlobalEventFilter)
+		if len(oib.Overflow.GlobalEventFilter) != 0 {
+			overflowEvents = overflowEvents.FilterEvents(oib.Overflow.GlobalEventFilter)
 		}
 	}
 
-	if len(t.EventFilter) != 0 {
-		overflowEvents = overflowEvents.FilterEvents(t.EventFilter)
+	if len(oib.EventFilter) != 0 {
+		overflowEvents = overflowEvents.FilterEvents(oib.EventFilter)
 	}
 
 	result.Events = overflowEvents
 
-	result.Name = t.Name
-	t.Overflow.Log.Reset()
-	t.Overflow.EmulatorLog.Reset()
+	result.Name = oib.Name
+	oib.Overflow.Log.Reset()
+	oib.Overflow.EmulatorLog.Reset()
 	result.Err = res.Error
 	return result
 }

@@ -66,7 +66,7 @@ func (o *OverflowState) Script(filename string, opts ...OverflowInteractionOptio
 
 }
 
-func (fbi *FlowInteractionBuilder) runScript() *OverflowScriptResult {
+func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 
 	o := fbi.Overflow
 	osc := &OverflowScriptResult{Input: fbi}
@@ -121,7 +121,7 @@ func (fbi *FlowInteractionBuilder) runScript() *OverflowScriptResult {
 type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
-	Input  *FlowInteractionBuilder
+	Input  *OverflowInteractionBuilder
 	Log    []LogrusMessage
 	Output interface{}
 }
