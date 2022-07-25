@@ -4,11 +4,11 @@ import "github.com/onflow/cadence/runtime/common"
 
 // a type representing a meter that contains information about the inner workings of an interaction, only available on local emulator
 type OverflowMeter struct {
-	LedgerInteractionUsed  int                           `json:"ledgerInteractionUsed"`
-	ComputationUsed        int                           `json:"computationUsed"`
-	MemoryUsed             int                           `json:"memoryUsed"`
-	ComputationIntensities MeteredComputationIntensities `json:"computationIntensities"`
-	MemoryIntensities      MeteredMemoryIntensities      `json:"memoryIntensities"`
+	LedgerInteractionUsed  int                                   `json:"ledgerInteractionUsed"`
+	ComputationUsed        int                                   `json:"computationUsed"`
+	MemoryUsed             int                                   `json:"memoryUsed"`
+	ComputationIntensities OverflowMeteredComputationIntensities `json:"computationIntensities"`
+	MemoryIntensities      OverflowMeteredMemoryIntensities      `json:"memoryIntensities"`
 }
 
 //get the number of functions invocations
@@ -27,7 +27,7 @@ func (m OverflowMeter) Statements() int {
 }
 
 // type collecting computatationIntensities
-type MeteredComputationIntensities map[common.ComputationKind]uint
+type OverflowMeteredComputationIntensities map[common.ComputationKind]uint
 
 // type collecting memoryIntensities
-type MeteredMemoryIntensities map[common.MemoryKind]uint
+type OverflowMeteredMemoryIntensities map[common.MemoryKind]uint
