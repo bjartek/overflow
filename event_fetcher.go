@@ -10,10 +10,10 @@ import (
 // Event fetching
 //
 //A function to customize the transaction builder
-type EventFetcherOption func(*EventFetcherBuilder)
+type OverflowEventFetcherOption func(*OverflowEventFetcherBuilder)
 
-// EventFetcherBuilder builder to hold info about eventhook context.
-type EventFetcherBuilder struct {
+// OverflowEventFetcherBuilder builder to hold info about eventhook context.
+type OverflowEventFetcherBuilder struct {
 	OverflowState         *OverflowState
 	EventsAndIgnoreFields OverflowEventFilter
 	FromIndex             int64
@@ -25,8 +25,8 @@ type EventFetcherBuilder struct {
 }
 
 // Build an event fetcher builder from the sent in options
-func (o *OverflowState) buildEventInteraction(opts ...EventFetcherOption) *EventFetcherBuilder {
-	e := &EventFetcherBuilder{
+func (o *OverflowState) buildEventInteraction(opts ...OverflowEventFetcherOption) *OverflowEventFetcherBuilder {
+	e := &OverflowEventFetcherBuilder{
 		OverflowState:         o,
 		EventsAndIgnoreFields: OverflowEventFilter{},
 		EndAtCurrentHeight:    true,
@@ -43,7 +43,7 @@ func (o *OverflowState) buildEventInteraction(opts ...EventFetcherOption) *Event
 }
 
 // FetchEvents using the given options
-func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastEvent, error) {
+func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]OverflowPastEvent, error) {
 
 	e := o.buildEventInteraction(opts...)
 	//if we have a progress file read the value from it and set it as oldHeight
@@ -128,82 +128,82 @@ func (o *OverflowState) FetchEvents(opts ...EventFetcherOption) ([]OverflowPastE
 }
 
 // Set the Workers size for FetchEvents
-func WithWorkers(workers int) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithWorkers(workers int) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.NumberOfWorkers = workers
 	}
 }
 
 // Set the batch sice for FetchEvents
-func WithBatchSize(size uint64) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithBatchSize(size uint64) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EventBatchSize = size
 	}
 }
 
 // set that we want to fetch an event and all its fields
-func WithEvent(eventName string) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithEvent(eventName string) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EventsAndIgnoreFields[eventName] = []string{}
 	}
 }
 
 // set that we want the following events and ignoring the fields mentioned
-func WithEventIgnoringField(eventName string, ignoreFields []string) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithEventIgnoringField(eventName string, ignoreFields []string) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EventsAndIgnoreFields[eventName] = ignoreFields
 	}
 }
 
 // set the start height to use
-func WithStartHeight(blockHeight int64) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithStartHeight(blockHeight int64) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.FromIndex = blockHeight
 	}
 }
 
 // set the from index to use alias to WithStartHeight
-func WithFromIndex(blockHeight int64) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithFromIndex(blockHeight int64) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.FromIndex = blockHeight
 	}
 }
 
 // set the end index to use
-func WithEndIndex(blockHeight uint64) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithEndIndex(blockHeight uint64) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EndIndex = blockHeight
 		e.EndAtCurrentHeight = false
 	}
 }
 
 // set the relative list of blocks to fetch events from
-func WithLastBlocks(number uint64) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithLastBlocks(number uint64) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EndAtCurrentHeight = true
 		e.FromIndex = -int64(number)
 	}
 }
 
 // fetch events until theg given height alias to WithEndHeight
-func WithUntilBlock(blockHeight uint64) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithUntilBlock(blockHeight uint64) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EndIndex = blockHeight
 		e.EndAtCurrentHeight = false
 	}
 }
 
 // set the end index to the current height
-func WithUntilCurrentBlock() EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithUntilCurrentBlock() OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.EndAtCurrentHeight = true
 		e.EndIndex = 0
 	}
 }
 
 // track what block we have read since last run in a file
-func WithTrackProgressIn(fileName string) EventFetcherOption {
-	return func(e *EventFetcherBuilder) {
+func WithTrackProgressIn(fileName string) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
 		e.ProgressFile = fileName
 		e.EndIndex = 0
 		e.FromIndex = 0

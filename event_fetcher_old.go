@@ -15,8 +15,8 @@ import (
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 // EventFetcher create an event fetcher builder.
-func (o *OverflowState) EventFetcher() EventFetcherBuilder {
-	return EventFetcherBuilder{
+func (o *OverflowState) EventFetcher() OverflowEventFetcherBuilder {
+	return OverflowEventFetcherBuilder{
 		OverflowState:         o,
 		EventsAndIgnoreFields: map[string][]string{},
 		EndAtCurrentHeight:    true,
@@ -30,7 +30,7 @@ func (o *OverflowState) EventFetcher() EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 // Workers sets the number of workers.
-func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) Workers(workers int) OverflowEventFetcherBuilder {
 	e.NumberOfWorkers = workers
 	return e
 }
@@ -38,7 +38,7 @@ func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 // BatchSize sets the size of a batch
-func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) BatchSize(batchSize uint64) OverflowEventFetcherBuilder {
 	e.EventBatchSize = batchSize
 	return e
 }
@@ -46,7 +46,7 @@ func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 // Event fetches and Events and all its fields
-func (e EventFetcherBuilder) Event(eventName string) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) Event(eventName string) OverflowEventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = []string{}
 	return e
 }
@@ -54,7 +54,7 @@ func (e EventFetcherBuilder) Event(eventName string) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //EventIgnoringFields fetch event and ignore the specified fields
-func (e EventFetcherBuilder) EventIgnoringFields(eventName string, ignoreFields []string) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) EventIgnoringFields(eventName string, ignoreFields []string) OverflowEventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = ignoreFields
 	return e
 }
@@ -62,7 +62,7 @@ func (e EventFetcherBuilder) EventIgnoringFields(eventName string, ignoreFields 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //Start specify what blockHeight to fetch starting atm. This can be negative related to end/until
-func (e EventFetcherBuilder) Start(blockHeight int64) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) Start(blockHeight int64) OverflowEventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
 }
@@ -70,7 +70,7 @@ func (e EventFetcherBuilder) Start(blockHeight int64) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //From specify what blockHeight to fetch from. This can be negative related to end.
-func (e EventFetcherBuilder) From(blockHeight int64) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) From(blockHeight int64) OverflowEventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
 }
@@ -78,7 +78,7 @@ func (e EventFetcherBuilder) From(blockHeight int64) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //End specify what index to end at
-func (e EventFetcherBuilder) End(blockHeight uint64) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) End(blockHeight uint64) OverflowEventFetcherBuilder {
 	e.EndIndex = blockHeight
 	e.EndAtCurrentHeight = false
 	return e
@@ -87,7 +87,7 @@ func (e EventFetcherBuilder) End(blockHeight uint64) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //Last fetch events from the number last blocks
-func (e EventFetcherBuilder) Last(number uint64) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) Last(number uint64) OverflowEventFetcherBuilder {
 	e.EndAtCurrentHeight = true
 	e.FromIndex = -int64(number)
 	return e
@@ -96,7 +96,7 @@ func (e EventFetcherBuilder) Last(number uint64) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //Until specify what index to end at
-func (e EventFetcherBuilder) Until(blockHeight uint64) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) Until(blockHeight uint64) OverflowEventFetcherBuilder {
 	e.EndIndex = blockHeight
 	e.EndAtCurrentHeight = false
 	return e
@@ -105,7 +105,7 @@ func (e EventFetcherBuilder) Until(blockHeight uint64) EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //UntilCurrent Specify to fetch events until the current Block
-func (e EventFetcherBuilder) UntilCurrent() EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) UntilCurrent() OverflowEventFetcherBuilder {
 	e.EndAtCurrentHeight = true
 	e.EndIndex = 0
 	return e
@@ -114,7 +114,7 @@ func (e EventFetcherBuilder) UntilCurrent() EventFetcherBuilder {
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //TrackProgressIn Specify a file to store progress in
-func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilder {
+func (e OverflowEventFetcherBuilder) TrackProgressIn(fileName string) OverflowEventFetcherBuilder {
 	e.ProgressFile = fileName
 	e.EndIndex = 0
 	e.FromIndex = 0
@@ -125,7 +125,7 @@ func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilde
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
 //Run runs the eventfetcher returning events or an error
-func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
+func (e OverflowEventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	//if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
