@@ -75,7 +75,7 @@ type FlowInteractionBuilder struct {
 	IgnoreGlobalEventFilters bool
 
 	//Options to use when printing results
-	PrintOptions *[]PrinterOption
+	PrintOptions *[]OverflowPrinterOption
 }
 
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
@@ -210,7 +210,7 @@ func WithAddresses(name string, value ...string) InteractionOption {
 }
 
 // print interactions using the following options
-func WithPrintOptions(opts ...PrinterOption) InteractionOption {
+func WithPrintOptions(opts ...OverflowPrinterOption) InteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		if ftb.PrintOptions == nil {
 			ftb.PrintOptions = &opts

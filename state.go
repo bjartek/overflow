@@ -72,7 +72,7 @@ type OverflowState struct {
 	StopOnError bool
 
 	//Signal to overflow that if this is not nil we should print events on interaction completion
-	PrintOptions *[]PrinterOption
+	PrintOptions *[]OverflowPrinterOption
 
 	//Mint this amount of flow to new accounts
 	NewUserFlowAmount float64

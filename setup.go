@@ -72,7 +72,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	FilterOutFeeEvents:                  true,
 	GlobalEventFilter:                   OverflowEventFilter{},
 	StopOnError:                         true,
-	PrintOptions:                        &[]PrinterOption{},
+	PrintOptions:                        &[]OverflowPrinterOption{},
 	NewAccountFlowAmount:                10.0,
 }
 
@@ -94,7 +94,7 @@ type OverflowBuilder struct {
 	FilterOutEmptyWithDrawDepositEvents bool
 	GlobalEventFilter                   OverflowEventFilter
 	StopOnError                         bool
-	PrintOptions                        *[]PrinterOption
+	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 }
 
@@ -291,14 +291,14 @@ func WithServiceAccountSuffix(suffix string) OverflowOption {
 func WithLogInfo() OverflowOption {
 	return func(ob *OverflowBuilder) {
 		ob.LogLevel = output.InfoLog
-		ob.PrintOptions = &[]PrinterOption{}
+		ob.PrintOptions = &[]OverflowPrinterOption{}
 	}
 }
 
 func WithLogFull() OverflowOption {
 	return func(ob *OverflowBuilder) {
 		ob.LogLevel = output.InfoLog
-		ob.PrintOptions = &[]PrinterOption{WithFullMeter(), WithEmulatorLog()}
+		ob.PrintOptions = &[]OverflowPrinterOption{WithFullMeter(), WithEmulatorLog()}
 	}
 }
 
@@ -375,7 +375,7 @@ func WithPanicOnError() OverflowOption {
 }
 
 // automatically print interactions using the following options
-func WithGlobalPrintOptions(opts ...PrinterOption) OverflowOption {
+func WithGlobalPrintOptions(opts ...OverflowPrinterOption) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.PrintOptions = &opts
 	}

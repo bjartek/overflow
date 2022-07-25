@@ -8,13 +8,13 @@ import (
 	"github.com/fatih/color"
 )
 
-// a type represneting seting an option in the printer builder
-type PrinterOption func(*PrinterBuilder)
+// a type represneting seting an obtion in the printer builder
+type OverflowPrinterOption func(*OverflowPrinterBuilder)
 
 // a type representing the accuumlated state in the builder
 //
 // the default setting is to print one line for each transaction with meter and all events
-type PrinterBuilder struct {
+type OverflowPrinterBuilder struct {
 
 	//set to false to disable all events
 	Events bool
@@ -33,57 +33,57 @@ type PrinterBuilder struct {
 }
 
 // print full meter verbose mode
-func WithFullMeter() PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.Meter = 2
+func WithFullMeter() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.Meter = 2
 	}
 }
 
 // print meters as part of the transaction output line
-func WithMeter() PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.Meter = 1
+func WithMeter() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.Meter = 1
 	}
 }
 
 // do not print meter
-func WithoutMeter(value int) PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.Meter = 0
+func WithoutMeter(value int) OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.Meter = 0
 	}
 }
 
 // print the emulator log. NB! Verbose
-func WithEmulatorLog() PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.EmulatorLog = true
+func WithEmulatorLog() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.EmulatorLog = true
 	}
 }
 
 // filter out events that are printed
-func WithEventFilter(filter OverflowEventFilter) PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.EventFilter = filter
+func WithEventFilter(filter OverflowEventFilter) OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.EventFilter = filter
 	}
 }
 
 // do not print events
-func WithoutEvents() PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.Events = false
+func WithoutEvents() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.Events = false
 	}
 }
 
-func WithoutId() PrinterOption {
-	return func(opt *PrinterBuilder) {
-		opt.Id = false
+func WithoutId() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.Id = false
 	}
 }
 
 // print out an result
-func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
+func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 
-	printOpts := &PrinterBuilder{
+	printOpts := &OverflowPrinterBuilder{
 		Events:      true,
 		EventFilter: OverflowEventFilter{},
 		Meter:       1,
@@ -91,8 +91,8 @@ func (o OverflowResult) Print(opts ...PrinterOption) OverflowResult {
 		Id:          true,
 	}
 
-	for _, opt := range opts {
-		opt(printOpts)
+	for _, opb := range opbs {
+		opb(printOpts)
 	}
 
 	if o.Err != nil {
