@@ -3,7 +3,7 @@ package overflow
 import "github.com/onflow/cadence/runtime/common"
 
 // a type representing a meter that contains information about the inner workings of an interaction, only available on local emulator
-type Meter struct {
+type OverflowMeter struct {
 	LedgerInteractionUsed  int                           `json:"ledgerInteractionUsed"`
 	ComputationUsed        int                           `json:"computationUsed"`
 	MemoryUsed             int                           `json:"memoryUsed"`
@@ -12,17 +12,17 @@ type Meter struct {
 }
 
 //get the number of functions invocations
-func (m Meter) FunctionInvocations() int {
+func (m OverflowMeter) FunctionInvocations() int {
 	return int(m.ComputationIntensities[common.ComputationKindFunctionInvocation])
 }
 
 // get the number of loops
-func (m Meter) Loops() int {
+func (m OverflowMeter) Loops() int {
 	return int(m.ComputationIntensities[common.ComputationKindLoop])
 }
 
 //get the number of statements
-func (m Meter) Statements() int {
+func (m OverflowMeter) Statements() int {
 	return int(m.ComputationIntensities[common.ComputationKindStatement])
 }
 

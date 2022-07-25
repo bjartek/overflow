@@ -393,8 +393,8 @@ func (t FlowInteractionBuilder) Send() *OverflowResult {
 	}
 	result.RawLog = logMessage
 
-	result.Meter = &Meter{}
-	var meter Meter
+	result.Meter = &OverflowMeter{}
+	var meter OverflowMeter
 	scanner := bufio.NewScanner(t.Overflow.EmulatorLog)
 	for scanner.Scan() {
 		txt := scanner.Text()

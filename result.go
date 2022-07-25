@@ -27,7 +27,7 @@ type OverflowResult struct {
 
 	//If running on an emulator
 	//the meter that contains useful debug information on memory and interactions
-	Meter *Meter
+	Meter *OverflowMeter
 	//The Raw log from the emulator
 	RawLog []LogrusMessage
 	// The log from the emulator
