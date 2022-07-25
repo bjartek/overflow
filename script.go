@@ -21,13 +21,13 @@ import (
 // A read only interaction against the flow blockcahin
 
 // a type used for composing scripts
-type ScriptFunction func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
+type OverflowScriptFunction func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
 
 // a type used for composing scripts
-type ScriptOptsFunction func(opts ...OverflowInteractionOption) *OverflowScriptResult
+type OverflowScriptOptsFunction func(opts ...OverflowInteractionOption) *OverflowScriptResult
 
 // compose interactionOptions into a new Script function
-func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) ScriptFunction {
+func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) OverflowScriptFunction {
 
 	return func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult {
 
@@ -39,7 +39,7 @@ func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) ScriptF
 }
 
 // compose fileName and interactionOptions into a new Script function
-func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) ScriptOptsFunction {
+func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowScriptOptsFunction {
 
 	return func(opts ...OverflowInteractionOption) *OverflowScriptResult {
 
