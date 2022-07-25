@@ -110,17 +110,17 @@ func (t FlowInteractionBuilder) getContractCode(codeFileName string) ([]byte, er
 }
 
 //A function to customize the transaction builder
-type InteractionOption func(*FlowInteractionBuilder)
+type OverflowInteractionOption func(*FlowInteractionBuilder)
 
 // force no printing for this interaction
-func WithoutLog() InteractionOption {
+func WithoutLog() OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.NoLog = true
 	}
 }
 
 // set a list of args as key, value in an interaction, see Arg for options you can pass in
-func WithArgs(args ...interface{}) InteractionOption {
+func WithArgs(args ...interface{}) OverflowInteractionOption {
 
 	return func(ftb *FlowInteractionBuilder) {
 		if len(args)%2 != 0 {
@@ -141,7 +141,7 @@ func WithArgs(args ...interface{}) InteractionOption {
 }
 
 // set arguments to the interaction from a map. See Arg for options on what you can pass in
-func WithArgsMap(args map[string]interface{}) InteractionOption {
+func WithArgsMap(args map[string]interface{}) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		for key, value := range args {
 			ftb.NamedArgs[key] = value
@@ -150,7 +150,7 @@ func WithArgsMap(args map[string]interface{}) InteractionOption {
 }
 
 // set the name of this interaction, for inline interactions this will be the entire name for file interactions they will be combined
-func WithName(name string) InteractionOption {
+func WithName(name string) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.Name = name
 	}
@@ -163,14 +163,14 @@ func WithName(name string) InteractionOption {
 // - string argument are resolved into cadence.Value using flowkit
 // - ofther values are converted to string with %v and resolved into cadence.Value using flowkit
 // - if the type of the paramter is Address and the string you send in is a valid account in flow.json it will resolve
-func WithArg(name string, value interface{}) InteractionOption {
+func WithArg(name string, value interface{}) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.NamedArgs[name] = value
 	}
 }
 
 // sending in a timestamp as an arg is quite complicated, use this method with the name of the arg, the datestring and the given timezone to parse it at
-func WithArgDateTime(name string, dateString string, timezone string) InteractionOption {
+func WithArgDateTime(name string, dateString string, timezone string) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		value, err := parseTime(dateString, timezone)
 		if err != nil {
@@ -186,7 +186,7 @@ func WithArgDateTime(name string, dateString string, timezone string) Interactio
 }
 
 // Send in an array of addresses as an argument
-func WithAddresses(name string, value ...string) InteractionOption {
+func WithAddresses(name string, value ...string) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		array := []cadence.Value{}
 
@@ -210,7 +210,7 @@ func WithAddresses(name string, value ...string) InteractionOption {
 }
 
 // print interactions using the following options
-func WithPrintOptions(opts ...OverflowPrinterOption) InteractionOption {
+func WithPrintOptions(opts ...OverflowPrinterOption) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		if ftb.PrintOptions == nil {
 			ftb.PrintOptions = &opts
@@ -223,7 +223,7 @@ func WithPrintOptions(opts ...OverflowPrinterOption) InteractionOption {
 }
 
 // set the proposer
-func WithProposer(proposer string) InteractionOption {
+func WithProposer(proposer string) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		account, err := ftb.Overflow.AccountE(proposer)
 		if err != nil {
@@ -235,7 +235,7 @@ func WithProposer(proposer string) InteractionOption {
 }
 
 // set the propser to be the service account
-func WithProposerServiceAccount() InteractionOption {
+func WithProposerServiceAccount() OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		key := ftb.Overflow.ServiceAccountName()
 		account, _ := ftb.Overflow.State.Accounts().ByName(key)
@@ -244,7 +244,7 @@ func WithProposerServiceAccount() InteractionOption {
 }
 
 // set payer, proposer authorizer as the signer
-func WithSigner(signer string) InteractionOption {
+func WithSigner(signer string) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		account, err := ftb.Overflow.AccountE(signer)
 		if err != nil {
@@ -257,7 +257,7 @@ func WithSigner(signer string) InteractionOption {
 }
 
 // set service account as payer, proposer, authorizer
-func WithSignerServiceAccount() InteractionOption {
+func WithSignerServiceAccount() OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		key := ftb.Overflow.ServiceAccountName()
 		account, _ := ftb.Overflow.State.Accounts().ByName(key)
@@ -267,28 +267,28 @@ func WithSignerServiceAccount() InteractionOption {
 }
 
 // set the gas limit
-func WithMaxGas(gas uint64) InteractionOption {
+func WithMaxGas(gas uint64) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.GasLimit = gas
 	}
 }
 
 // set a filter for events
-func WithEvents(filter OverflowEventFilter) InteractionOption {
+func WithEvents(filter OverflowEventFilter) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.EventFilter = filter
 	}
 }
 
 // ignore global events filters defined on OverflowState
-func WithoutGlobalEventFilter() InteractionOption {
+func WithoutGlobalEventFilter() OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		ftb.IgnoreGlobalEventFilters = true
 	}
 }
 
 // set an aditional authorizer that will sign the payload
-func WithPayloadSigner(signer ...string) InteractionOption {
+func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 	return func(ftb *FlowInteractionBuilder) {
 		for _, signer := range signer {
 			account, err := ftb.Overflow.AccountE(signer)

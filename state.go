@@ -423,9 +423,9 @@ func (o OverflowState) readLog() ([]LogrusMessage, error) {
 }
 
 // If you store this in a struct and add arguments to it it will not reset between calls
-func (o *OverflowState) TxFN(outerOpts ...InteractionOption) TransactionFunction {
+func (o *OverflowState) TxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction {
 
-	return func(filename string, opts ...InteractionOption) *OverflowResult {
+	return func(filename string, opts ...OverflowInteractionOption) *OverflowResult {
 
 		for _, opt := range opts {
 			outerOpts = append(outerOpts, opt)
@@ -435,9 +435,9 @@ func (o *OverflowState) TxFN(outerOpts ...InteractionOption) TransactionFunction
 	}
 }
 
-func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...InteractionOption) TransactionOptsFunction {
+func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction {
 
-	return func(opts ...InteractionOption) *OverflowResult {
+	return func(opts ...OverflowInteractionOption) *OverflowResult {
 		for _, opt := range opts {
 			outerOpts = append(outerOpts, opt)
 		}
@@ -446,7 +446,7 @@ func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...InteractionOp
 }
 
 //The main function for running an transasction in overflow
-func (o *OverflowState) Tx(filename string, opts ...InteractionOption) *OverflowResult {
+func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *OverflowResult {
 	ftb := o.BuildInteraction(filename, "transaction", opts...)
 	result := ftb.Send()
 
@@ -480,7 +480,7 @@ func (o *OverflowState) GetBlockById(blockId string) (*flow.Block, error) {
 }
 
 // create a flowInteractionBuilder from the sent in options
-func (o *OverflowState) BuildInteraction(filename string, interactionType string, opts ...InteractionOption) *FlowInteractionBuilder {
+func (o *OverflowState) BuildInteraction(filename string, interactionType string, opts ...OverflowInteractionOption) *FlowInteractionBuilder {
 
 	path := o.TransactionBasePath
 	if interactionType == "script" {

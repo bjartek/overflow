@@ -11,10 +11,10 @@ import (
 )
 
 // a type to define a function used to compose Transaction interactions
-type TransactionFunction func(filename string, opts ...InteractionOption) *OverflowResult
+type OverflowTransactionFunction func(filename string, opts ...OverflowInteractionOption) *OverflowResult
 
 // a type to define a function used to compose Transaction interactions
-type TransactionOptsFunction func(opts ...InteractionOption) *OverflowResult
+type OverflowTransactionOptsFunction func(opts ...OverflowInteractionOption) *OverflowResult
 
 //OverflowResult represents the state after running an transaction
 type OverflowResult struct {

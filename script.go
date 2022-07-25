@@ -21,15 +21,15 @@ import (
 // A read only interaction against the flow blockcahin
 
 // a type used for composing scripts
-type ScriptFunction func(filename string, opts ...InteractionOption) *OverflowScriptResult
+type ScriptFunction func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
 
 // a type used for composing scripts
-type ScriptOptsFunction func(opts ...InteractionOption) *OverflowScriptResult
+type ScriptOptsFunction func(opts ...OverflowInteractionOption) *OverflowScriptResult
 
 // compose interactionOptions into a new Script function
-func (o *OverflowState) ScriptFN(outerOpts ...InteractionOption) ScriptFunction {
+func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) ScriptFunction {
 
-	return func(filename string, opts ...InteractionOption) *OverflowScriptResult {
+	return func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult {
 
 		for _, opt := range opts {
 			outerOpts = append(outerOpts, opt)
@@ -39,9 +39,9 @@ func (o *OverflowState) ScriptFN(outerOpts ...InteractionOption) ScriptFunction 
 }
 
 // compose fileName and interactionOptions into a new Script function
-func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...InteractionOption) ScriptOptsFunction {
+func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) ScriptOptsFunction {
 
-	return func(opts ...InteractionOption) *OverflowScriptResult {
+	return func(opts ...OverflowInteractionOption) *OverflowScriptResult {
 
 		for _, opt := range opts {
 			outerOpts = append(outerOpts, opt)
@@ -51,7 +51,7 @@ func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...Interacti
 }
 
 // run a script with the given code/filanem an options
-func (o *OverflowState) Script(filename string, opts ...InteractionOption) *OverflowScriptResult {
+func (o *OverflowState) Script(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult {
 	interaction := o.BuildInteraction(filename, "script", opts...)
 
 	result := interaction.runScript()
