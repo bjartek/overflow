@@ -215,7 +215,7 @@ func (t TransactionResult) AssertComputationUsed(computation int) TransactionRes
 	return t
 }
 
-// Deprecated use the new Tx() method and Asserts on the result
+// Deprecated: use the new Tx() method and Asserts on the result
 func (t TransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
 
 	for _, ev := range t.Events {
