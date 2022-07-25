@@ -540,12 +540,12 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 }
 
 // Parse the given overflow state into a solution/npm-module
-func (o *OverflowState) ParseAll() (*Solution, error) {
+func (o *OverflowState) ParseAll() (*OverflowSolution, error) {
 	return o.ParseAllWithConfig(false, []string{}, []string{})
 }
 
 // Parse the gieven overflow state with filters
-func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*Solution, error) {
+func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*OverflowSolution, error) {
 
 	warnings := []string{}
 	transactions := map[string]string{}
@@ -591,7 +591,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		return nil, err
 	}
 
-	transactionDeclarations := map[string]*SolutionDeclarationInfo{}
+	transactionDeclarations := map[string]*OverflowDeclarationInfo{}
 	for path, name := range transactions {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
@@ -603,7 +603,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		}
 	}
 
-	scriptDeclarations := map[string]*SolutionDeclarationInfo{}
+	scriptDeclarations := map[string]*OverflowDeclarationInfo{}
 	for path, name := range scripts {
 		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
@@ -616,7 +616,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	}
 
 	networks := o.State.Networks()
-	solutionNetworks := map[string]*SolutionNetwork{}
+	solutionNetworks := map[string]*OverflowSolutionNetwork{}
 	for _, nw := range *networks {
 
 		contracts, err := o.contracts(nw.Name)
@@ -661,14 +661,14 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if skipContracts {
 			contract = nil
 		}
-		solutionNetworks[nw.Name] = &SolutionNetwork{
+		solutionNetworks[nw.Name] = &OverflowSolutionNetwork{
 			Contracts:    contract,
 			Transactions: txResult,
 			Scripts:      scriptResult,
 		}
 	}
 
-	return &Solution{
+	return &OverflowSolution{
 		Transactions: transactionDeclarations,
 		Scripts:      scriptDeclarations,
 		Networks:     solutionNetworks,

@@ -14,56 +14,56 @@ import (
 // Overflow has support for generating an NPM module from a set of interactions
 
 // a type representing the raw solutions that contains all transactions, scripts, networks and warnings of any
-type Solution struct {
+type OverflowSolution struct {
 
 	//all transactions with name and what paremters they have
-	Transactions map[string]*SolutionDeclarationInfo `json:"transactions"`
+	Transactions map[string]*OverflowDeclarationInfo `json:"transactions"`
 
 	//all scripts with name and paramters they have
-	Scripts map[string]*SolutionDeclarationInfo `json:"scripts"`
+	Scripts map[string]*OverflowDeclarationInfo `json:"scripts"`
 
 	//all networks with associated scripts/tranasctions/contracts preresolved
-	Networks map[string]*SolutionNetwork `json:"networks"`
+	Networks map[string]*OverflowSolutionNetwork `json:"networks"`
 
 	//warnings accumulated during parsing
 	Warnings []string `json:"warnings"`
 }
 
 // a type containing information about paramter types and orders
-type SolutionDeclarationInfo struct {
+type OverflowDeclarationInfo struct {
 	ParameterOrder []string          `json:"order"`
 	Parameters     map[string]string `json:"parameters"`
 }
 
 // a type representing one network in a solution, so mainnet/testnet/emulator
-type SolutionNetwork struct {
+type OverflowSolutionNetwork struct {
 	Scripts      map[string]string  `json:"scripts"`
 	Transactions map[string]string  `json:"transactions,omitempty"`
 	Contracts    *map[string]string `json:"contracts,omitempty"`
 }
 
 // a type representing a merged solution that will be serialized as the json file for the npm module
-type SolutionMerged struct {
-	Networks map[string]SolutionMergedNetwork `json:"networks"`
+type OverflowSolutionMerged struct {
+	Networks map[string]OverflowSolutionMergedNetwork `json:"networks"`
 }
 
 //a network in the merged solution
-type SolutionMergedNetwork struct {
-	Scripts      map[string]SolutionCodeWithSpec `json:"scripts"`
-	Transactions map[string]SolutionCodeWithSpec `json:"transactions,omitempty"`
+type OverflowSolutionMergedNetwork struct {
+	Scripts      map[string]OverflowCodeWithSpec `json:"scripts"`
+	Transactions map[string]OverflowCodeWithSpec `json:"transactions,omitempty"`
 	Contracts    *map[string]string              `json:"contracts,omitempty"`
 }
 
 // representing code with specification if parameters
-type SolutionCodeWithSpec struct {
+type OverflowCodeWithSpec struct {
 	Code string                   `json:"code"`
-	Spec *SolutionDeclarationInfo `json:"spec"`
+	Spec *OverflowDeclarationInfo `json:"spec"`
 }
 
 // merge the given Solution into a MergedSolution that is suited for exposing as an NPM module
-func (s *Solution) MergeSpecAndCode() *SolutionMerged {
+func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 
-	networks := map[string]SolutionMergedNetwork{}
+	networks := map[string]OverflowSolutionMergedNetwork{}
 
 	networkNames := []string{}
 	for name, _ := range s.Networks {
@@ -72,7 +72,7 @@ func (s *Solution) MergeSpecAndCode() *SolutionMerged {
 
 	for name, network := range s.Networks {
 
-		scripts := map[string]SolutionCodeWithSpec{}
+		scripts := map[string]OverflowCodeWithSpec{}
 		for rawScriptName, code := range network.Scripts {
 
 			scriptName := rawScriptName
@@ -91,14 +91,14 @@ func (s *Solution) MergeSpecAndCode() *SolutionMerged {
 				}
 			}
 			if valid {
-				scripts[scriptName] = SolutionCodeWithSpec{
+				scripts[scriptName] = OverflowCodeWithSpec{
 					Code: formatCode(code),
 					Spec: s.Scripts[rawScriptName],
 				}
 			}
 		}
 
-		transactions := map[string]SolutionCodeWithSpec{}
+		transactions := map[string]OverflowCodeWithSpec{}
 		for rawTxName, code := range network.Transactions {
 
 			txName := rawTxName
@@ -117,24 +117,24 @@ func (s *Solution) MergeSpecAndCode() *SolutionMerged {
 				}
 			}
 			if txValid {
-				transactions[txName] = SolutionCodeWithSpec{
+				transactions[txName] = OverflowCodeWithSpec{
 					Code: formatCode(code),
 					Spec: s.Transactions[rawTxName],
 				}
 			}
 		}
 
-		networks[name] = SolutionMergedNetwork{
+		networks[name] = OverflowSolutionMergedNetwork{
 			Contracts:    network.Contracts,
 			Scripts:      scripts,
 			Transactions: transactions,
 		}
 
 	}
-	return &SolutionMerged{Networks: networks}
+	return &OverflowSolutionMerged{Networks: networks}
 }
 
-func declarationInfo(codeFileName string, code []byte) *SolutionDeclarationInfo {
+func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo {
 	params := params(codeFileName, code)
 	if params == nil {
 		return nil
@@ -148,7 +148,7 @@ func declarationInfo(codeFileName string, code []byte) *SolutionDeclarationInfo 
 	if len(parameterList) == 0 {
 		return nil
 	}
-	return &SolutionDeclarationInfo{
+	return &OverflowDeclarationInfo{
 		ParameterOrder: parameterList,
 		Parameters:     parametersMap,
 	}

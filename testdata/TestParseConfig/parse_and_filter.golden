@@ -1,16 +1,16 @@
-&overflow.Solution{
-	Transactions: map[string]*overflow.SolutionDeclarationInfo{
-		"emulatorFoo": &overflow.SolutionDeclarationInfo{
+&overflow.OverflowSolution{
+	Transactions: map[string]*overflow.OverflowDeclarationInfo{
+		"emulatorFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{
 				"test",
 			},
 			Parameters: map[string]string{"test": "String"},
 		},
-		"mainnetFoo": &overflow.SolutionDeclarationInfo{
+		"mainnetFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"mint_tokens": &overflow.SolutionDeclarationInfo{
+		"mint_tokens": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{
 				"recipient",
 				"amount",
@@ -20,35 +20,35 @@
 				"recipient": "Address",
 			},
 		},
-		"signWithMultipleAccounts": &overflow.SolutionDeclarationInfo{
+		"signWithMultipleAccounts": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"testnetFoo": &overflow.SolutionDeclarationInfo{
+		"testnetFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
 	},
-	Scripts: map[string]*overflow.SolutionDeclarationInfo{
-		"emulatorFoo": &overflow.SolutionDeclarationInfo{
+	Scripts: map[string]*overflow.OverflowDeclarationInfo{
+		"emulatorFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"mainnetFoo": &overflow.SolutionDeclarationInfo{
+		"mainnetFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"test": &overflow.SolutionDeclarationInfo{
+		"test": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"testnetFoo": &overflow.SolutionDeclarationInfo{
+		"testnetFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
 	},
-	Networks: map[string]*overflow.SolutionNetwork{
-		"emulator": &overflow.SolutionNetwork{
+	Networks: map[string]*overflow.OverflowSolutionNetwork{
+		"emulator": &overflow.OverflowSolutionNetwork{
 			Scripts: map[string]string{
 				"block": `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -163,7 +163,7 @@ transaction(test:String) {
 }`,
 			},
 		},
-		"mainnet": &overflow.SolutionNetwork{
+		"mainnet": &overflow.OverflowSolutionNetwork{
 			Scripts: map[string]string{
 				"block": `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -278,7 +278,7 @@ transaction(test:String) {
 }`,
 			},
 		},
-		"testnet": &overflow.SolutionNetwork{
+		"testnet": &overflow.OverflowSolutionNetwork{
 			Scripts: map[string]string{
 				"block": `// test script to ensure code is running
 pub fun main(): UInt64 {
