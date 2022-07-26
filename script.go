@@ -203,7 +203,10 @@ func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
 		return err
 	}
 
-	json.Unmarshal(bytes, marshalTo)
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -223,7 +226,10 @@ func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo inte
 		return err
 	}
 
-	json.Unmarshal(bytes, marshalTo)
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -253,11 +259,12 @@ func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *
 }
 
 // Print the result
-func (osr *OverflowScriptResult) Print() {
+func (osr *OverflowScriptResult) Print() *OverflowScriptResult {
 	json, err := osr.GetAsJson()
 	if err != nil {
 		color.Red(err.Error())
-		return
+		return osr
 	}
 	fmt.Printf("%v Script %s run result:%v\n", emoji.Star, osr.Input.Name, json)
+	return osr
 }

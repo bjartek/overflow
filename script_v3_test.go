@@ -56,13 +56,37 @@ pub fun main(): String {
 		assert.Equal(t, `A.0ae53cb6e3f42a79.FlowToken.Vault`, res)
 	})
 
-	t.Run("Run script with ufix64 array", func(t *testing.T) {
+	t.Run("Run script with string array", func(t *testing.T) {
+		input := []string{"test", "foo"}
+		res, err := o.Script(`
+pub fun main(input: [String]): [String] {
+	return input
+}
+
+`, WithArg("input", input)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `["test", "foo"]`, res)
+
+	})
+
+	t.Run("Run script with ufix64 array as string", func(t *testing.T) {
 		res, err := o.Script(`
 pub fun main(input: [UFix64]): [UFix64] {
 	return input
 }
 
 `, WithArg("input", `[10.1, 20.2]`)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `[10.1, 20.2]`, res)
+	})
+
+	t.Run("Run script with ufix64 array", func(t *testing.T) {
+		res, err := o.Script(`
+pub fun main(input: [UFix64]): [UFix64] {
+	return input
+}
+
+`, WithArg("input", []float64{10.1, 20.2})).GetAsJson()
 		assert.NoError(t, err)
 		assert.JSONEq(t, `[10.1, 20.2]`, res)
 	})
@@ -79,13 +103,25 @@ pub fun main(input: [Fix64]): [Fix64] {
 		assert.JSONEq(t, `[10.1, -20.2]`, res)
 	})
 
-	t.Run("Run script with uint64 array", func(t *testing.T) {
+	t.Run("Run script with uint64 array as string", func(t *testing.T) {
 		res, err := o.Script(`
 pub fun main(input: [UInt64]): [UInt64] {
 	return input
 }
 
 `, WithArg("input", `[10, 20]`)).GetAsJson()
+
+		assert.NoError(t, err)
+		assert.JSONEq(t, `[10, 20]`, res)
+	})
+
+	t.Run("Run script with uint64 array", func(t *testing.T) {
+		res, err := o.Script(`
+pub fun main(input: [UInt64]): [UInt64] {
+	return input
+}
+
+`, WithArg("input", []uint64{10, 20})).GetAsJson()
 
 		assert.NoError(t, err)
 		assert.JSONEq(t, `[10, 20]`, res)

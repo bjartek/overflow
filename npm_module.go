@@ -19,7 +19,7 @@ type OverflowSolution struct {
 	//all transactions with name and what paremters they have
 	Transactions map[string]*OverflowDeclarationInfo `json:"transactions"`
 
-	//all scripts with name and paramters they have
+	//all scripts with name and parameter they have
 	Scripts map[string]*OverflowDeclarationInfo `json:"scripts"`
 
 	//all networks with associated scripts/tranasctions/contracts preresolved
