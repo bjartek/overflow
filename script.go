@@ -203,7 +203,10 @@ func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
 		return err
 	}
 
-	json.Unmarshal(bytes, marshalTo)
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -223,7 +226,10 @@ func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo inte
 		return err
 	}
 
-	json.Unmarshal(bytes, marshalTo)
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
