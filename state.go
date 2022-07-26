@@ -121,7 +121,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	}
 
 	if len(argumentNotPresent) > 0 {
-		err := fmt.Errorf("the transaction '%s' is missing %v", fileName, argumentNotPresent)
+		err := fmt.Errorf("the interaction '%s' is missing %v", fileName, argumentNotPresent)
 		return nil, err
 	}
 
@@ -134,7 +134,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	}
 
 	if len(redundantArgument) > 0 {
-		err := fmt.Errorf("the transaction '%s' has the following extra arguments %v", fileName, redundantArgument)
+		err := fmt.Errorf("the interaction '%s' has the following extra arguments %v", fileName, redundantArgument)
 		return nil, err
 	}
 
