@@ -249,8 +249,7 @@ func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *
 	assert.NoError(t, osr.Err)
 
 	switch osr.Output.(type) {
-	case []interface{}:
-	case map[interface{}]interface{}:
+	case []interface{}, map[interface{}]interface{}:
 		want.Equal(t, litter.Sdump(osr.Output))
 	default:
 		want.Equal(t, osr.Output)
