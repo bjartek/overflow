@@ -32,7 +32,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 		}
 		filtered := events.FilterEvents(filter)
 		want := autogold.Want("string", OverflowEvents{"A.123.Test.Deposit": []OverflowEvent{
-			OverflowEvent{"string": "string"},
+			{"string": "string"},
 		}})
 		want.Equal(t, filtered)
 	})
@@ -58,7 +58,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 		}
 		filtered := eventsWithFees.FilterFees(0.00000918)
 		want := autogold.Want("fees filtered", OverflowEvents{"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
-			OverflowEvent{
+			{
 				"amount": 1,
 				"to":     "0xf919ee77447b7497",
 			},
@@ -83,7 +83,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 		}
 		filtered := eventsWithFees.FilterTempWithdrawDeposit()
 		want := autogold.Want("fees empty deposit withdraw", OverflowEvents{"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
-			OverflowEvent{
+			{
 				"amount": 1,
 				"to":     "0xf919ee77447b7497",
 			},

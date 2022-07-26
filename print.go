@@ -28,7 +28,7 @@ type OverflowPrinterBuilder struct {
 	//print the emulator log, NB! Verbose
 	EmulatorLog bool
 
-	//print transaction id, usefull to disable in tests
+	//print transaction id, useful to disable in tests
 	Id bool
 }
 
@@ -133,7 +133,7 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 				for _, event := range eventList {
 					fmt.Println(name)
 					length := 0
-					for key, _ := range event {
+					for key := range event {
 						keyLength := len(key)
 						if keyLength > length {
 							length = keyLength
@@ -167,19 +167,19 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 	if printOpts.Meter != 0 && o.Meter != nil {
 		if printOpts.Meter == 2 {
 			fmt.Println("=== METER ===")
-			fmt.Println(fmt.Sprintf("LedgerInteractionUsed: %d", o.Meter.LedgerInteractionUsed))
+			fmt.Printf("LedgerInteractionUsed: %d\n", o.Meter.LedgerInteractionUsed)
 			if o.Meter.MemoryUsed != 0 {
-				fmt.Println(fmt.Sprintf("Memory: %d", o.Meter.MemoryUsed))
+				fmt.Printf("Memory: %d\n", o.Meter.MemoryUsed)
 				memories := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.MemoryIntensities), "map[]"), " ", "\n  ")
 
 				fmt.Println("Memory Intensities")
-				fmt.Println(fmt.Sprintf(" %s", memories))
+				fmt.Printf(" %s\n", memories)
 			}
-			fmt.Println(fmt.Sprintf("Computation: %d", o.Meter.ComputationUsed))
+			fmt.Printf("Computation: %d\n", o.Meter.ComputationUsed)
 			intensities := strings.ReplaceAll(strings.Trim(fmt.Sprintf("%+v", o.Meter.ComputationIntensities), "map[]"), " ", "\n  ")
 
 			fmt.Println("Computation Intensities:")
-			fmt.Println(fmt.Sprintf(" %s", intensities))
+			fmt.Printf(" %s\n", intensities)
 		}
 	}
 	return o

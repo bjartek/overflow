@@ -29,7 +29,7 @@ type OverflowSolution struct {
 	Warnings []string `json:"warnings"`
 }
 
-// a type containing information about paramter types and orders
+// a type containing information about parameter types and orders
 type OverflowDeclarationInfo struct {
 	ParameterOrder []string          `json:"order"`
 	Parameters     map[string]string `json:"parameters"`
@@ -66,7 +66,7 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 	networks := map[string]OverflowSolutionMergedNetwork{}
 
 	networkNames := []string{}
-	for name, _ := range s.Networks {
+	for name := range s.Networks {
 		networkNames = append(networkNames, name)
 	}
 

@@ -25,6 +25,8 @@ import (
 	"github.com/spf13/afero"
 )
 
+const emulatorValue = "emulator"
+
 // OverflowOption and option function that you can send in to configure Overflow
 type OverflowOption func(*OverflowBuilder)
 
@@ -251,15 +253,15 @@ func WithNetwork(network string) OverflowOption {
 			o.DeployContracts = false
 			o.InitializeAccounts = false
 			o.InMemory = false
-		case "emulator":
+		case emulatorValue:
 			o.InMemory = false
 		case "testing":
 			o.LogLevel = 0
 			o.StopOnError = false
 			o.PrintOptions = nil
-			o.Network = "emulator"
+			o.Network = emulatorValue
 		default:
-			o.Network = "emulator"
+			o.Network = emulatorValue
 		}
 	}
 }
@@ -269,7 +271,7 @@ func WithExistingEmulator() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.DeployContracts = false
 		o.InitializeAccounts = false
-		o.Network = "emulator"
+		o.Network = emulatorValue
 		o.InMemory = false
 	}
 }

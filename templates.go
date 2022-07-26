@@ -89,12 +89,15 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 // Get the free capacity in an account
 func (o *OverflowState) GetFreeCapacity(accountName string) int {
 
-	result := o.InlineScript(`
+	result, ok := o.InlineScript(`
 pub fun main(user:Address): UInt64{
 	let account=getAccount(user)
 	return account.storageCapacity - account.storageUsed
 }
 `).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(uint64)
+	if !ok {
+		panic("Type conversion of free capacity failed")
+	}
 	return int(result)
 }
 
@@ -149,10 +152,8 @@ transaction(recipient: Address, amount: UFix64) {
 // This has some issues with transaction fees
 func (o *OverflowState) FillUpStorage(accountName string) *OverflowState {
 
-	cap := o.GetFreeCapacity(accountName)
-	fmt.Println(cap)
-	length := cap - 7700 //we cannot fill up all of storage since we need flow to pay for the transaction that fills it up
-	fmt.Println(length)
+	capacity := o.GetFreeCapacity(accountName)
+	length := capacity - 7700 //we cannot fill up all of storage since we need flow to pay for the transaction that fills it up
 
 	err := o.UploadString(randomString(length), accountName)
 	if err != nil {

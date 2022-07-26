@@ -126,7 +126,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	}
 
 	redundantArgument := []string{}
-	for inputKey, _ := range inputArgs {
+	for inputKey := range inputArgs {
 		//If your IDE complains about this it is wrong, this is 1.18 generics not suported anywhere
 		if !slices.Contains(argumentNames, inputKey) {
 			redundantArgument = append(redundantArgument, inputKey)
@@ -196,7 +196,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 }
 
 // AccountE fetch an account from State
-// Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
+// Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name across networks
 func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 	if o.PrependNetworkToAccountNames {
 		key = fmt.Sprintf("%s-%s", o.Network, key)
@@ -212,7 +212,7 @@ func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 }
 
 // ServiceAccountName return the name of the current service account
-// Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name accross networks
+// Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name across networks
 func (o *OverflowState) ServiceAccountName() string {
 	if o.PrependNetworkToAccountNames {
 		return fmt.Sprintf("%s-%s", o.Network, o.ServiceAccountSuffix)
@@ -432,10 +432,7 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 func (o *OverflowState) TxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction {
 
 	return func(filename string, opts ...OverflowInteractionOption) *OverflowResult {
-
-		for _, opt := range opts {
-			outerOpts = append(outerOpts, opt)
-		}
+		outerOpts = append(outerOpts, opts...)
 		return o.Tx(filename, outerOpts...)
 
 	}
@@ -444,9 +441,7 @@ func (o *OverflowState) TxFN(outerOpts ...OverflowInteractionOption) OverflowTra
 func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction {
 
 	return func(opts ...OverflowInteractionOption) *OverflowResult {
-		for _, opt := range opts {
-			outerOpts = append(outerOpts, opt)
-		}
+		outerOpts = append(outerOpts, opts...)
 		return o.Tx(filename, outerOpts...)
 	}
 }

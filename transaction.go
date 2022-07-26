@@ -211,12 +211,14 @@ func (t OverflowTransactionResult) AssertComputationLessThenOrEqual(computation 
 
 // Deprecated: use the new Tx() method and Asserts on the result
 func (t OverflowTransactionResult) AssertComputationUsed(computation int) OverflowTransactionResult {
+	t.Testing.Helper()
 	assert.Equal(t.Testing, computation, t.Result.ComputationUsed)
 	return t
 }
 
 // Deprecated: use the new Tx() method and Asserts on the result
 func (t OverflowTransactionResult) GetIdFromEvent(eventName string, fieldName string) uint64 {
+	t.Testing.Helper()
 
 	for _, ev := range t.Events {
 		if ev.Name == eventName {

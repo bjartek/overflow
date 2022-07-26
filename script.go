@@ -18,7 +18,7 @@ import (
 
 // Scripts
 //
-// A read only interaction against the flow blockcahin
+// A read only interaction against the flow blockchain
 
 // a type used for composing scripts
 type OverflowScriptFunction func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
@@ -30,10 +30,7 @@ type OverflowScriptOptsFunction func(opts ...OverflowInteractionOption) *Overflo
 func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) OverflowScriptFunction {
 
 	return func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult {
-
-		for _, opt := range opts {
-			outerOpts = append(outerOpts, opt)
-		}
+		outerOpts = append(outerOpts, opts...)
 		return o.Script(filename, outerOpts...)
 	}
 }
@@ -43,9 +40,7 @@ func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...OverflowI
 
 	return func(opts ...OverflowInteractionOption) *OverflowScriptResult {
 
-		for _, opt := range opts {
-			outerOpts = append(outerOpts, opt)
-		}
+		outerOpts = append(outerOpts, opts...)
 		return o.Script(filename, outerOpts...)
 	}
 }
@@ -150,6 +145,7 @@ func (osr *OverflowScriptResult) GetAsInterface() (interface{}, error) {
 
 // Assert that a jsonPointer into the result is an error
 func (osr *OverflowScriptResult) AssertWithPointerError(t *testing.T, pointer string, message string) *OverflowScriptResult {
+	t.Helper()
 	_, err := osr.GetWithPointer(pointer)
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, message, "output", litter.Sdump(osr.Output))
@@ -159,6 +155,7 @@ func (osr *OverflowScriptResult) AssertWithPointerError(t *testing.T, pointer st
 
 // Assert that a jsonPointer into the result is equal to the given value
 func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string, value interface{}) *OverflowScriptResult {
+	t.Helper()
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
 
@@ -169,6 +166,7 @@ func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string,
 
 //Assert that a jsonPointer into the result is equal to the given autogold Want
 func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
+	t.Helper()
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
 
@@ -184,6 +182,7 @@ func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer str
 
 // Assert that the length of a jsonPointer is equal to length
 func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer string, length int) *OverflowScriptResult {
+	t.Helper()
 	result, err := osr.GetWithPointer(pointer)
 	assert.NoError(t, err)
 	switch res := result.(type) {
@@ -246,6 +245,7 @@ func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, er
 
 // Assert that the result is equal to the given autogold.Want
 func (osr *OverflowScriptResult) AssertWant(t *testing.T, want autogold.Value) *OverflowScriptResult {
+	t.Helper()
 	assert.NoError(t, osr.Err)
 
 	switch osr.Output.(type) {

@@ -94,6 +94,7 @@ func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
 // Assert that this particular transaction was a failure that has a message that contains the sendt in assertion
 func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	t.Helper()
+
 	assert.Error(t, o.Err)
 	if o.Err != nil {
 		assert.Contains(t, o.Err.Error(), msg)
@@ -101,7 +102,7 @@ func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	return o
 }
 
-// Assert that this transation was an success
+// Assert that this transaction was an success
 func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 	t.Helper()
 	assert.NoError(t, o.Err)
@@ -171,7 +172,7 @@ func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
 			for _, event := range eventList {
 				t.Log(name)
 				for key, value := range event {
-					t.Log(fmt.Sprintf("   %s:%v", key, value))
+					t.Logf("   %s:%v", key, value)
 				}
 			}
 		}
@@ -180,9 +181,10 @@ func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
 
 // Assert that events with the given suffixes are present
 func (o OverflowResult) AssertEmitEventName(t *testing.T, event ...string) OverflowResult {
+	t.Helper()
 
 	eventNames := []string{}
-	for name, _ := range o.Events {
+	for name := range o.Events {
 		eventNames = append(eventNames, name)
 	}
 
@@ -204,6 +206,7 @@ func (o OverflowResult) AssertEmitEventName(t *testing.T, event ...string) Overf
 
 // Assert that the internal log of the emulator contains the given message
 func (o OverflowResult) AssertEmulatorLog(t *testing.T, message string) OverflowResult {
+	t.Helper()
 
 	for _, log := range o.EmulatorLog {
 		if strings.Contains(log, message) {
@@ -218,6 +221,8 @@ func (o OverflowResult) AssertEmulatorLog(t *testing.T, message string) Overflow
 
 // Assert that this transaction did not use more then the given amount of computation
 func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computation int) OverflowResult {
+	t.Helper()
+
 	assert.LessOrEqual(t, o.ComputationUsed, computation)
 	if o.FeeGas != 0 {
 		assert.Equal(t, o.ComputationUsed, o.FeeGas)
@@ -227,6 +232,7 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 
 // Assert that the transaction uses exactly the given computation amount
 func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) OverflowResult {
+	t.Helper()
 	assert.Equal(t, computation, o.ComputationUsed)
 	if o.FeeGas != 0 {
 		assert.Equal(t, o.ComputationUsed, o.FeeGas)
@@ -237,6 +243,8 @@ func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) Ove
 
 // Assert that a Debug.Log event was emitted that contains the given messages
 func (o OverflowResult) AssertDebugLog(t *testing.T, message ...string) OverflowResult {
+
+	t.Helper()
 	var logMessages []interface{}
 	for name, fe := range o.Events {
 		if strings.HasSuffix(name, "Debug.Log") {

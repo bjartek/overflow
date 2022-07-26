@@ -9,7 +9,7 @@ import (
 
 // OverflowArgumentsBuilder
 //
-// The old way of specifing arguments to interactions
+// The old way of specifying arguments to interactions
 //
 // Deprecated: This builder and all its methods are deprecated. Use the new Tx/Script methods and its argument method
 type OverflowArgumentsBuilder struct {

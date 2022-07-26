@@ -420,7 +420,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	overflowEvents, fee := parseEvents(result.RawEvents)
 	result.Fee = fee
 	if len(result.Fee) != 0 {
-		executionEffort := result.Fee["executionEffort"].(float64)
+		executionEffort, ok := result.Fee["executionEffort"].(float64)
+		if !ok {
+			result.Err = fmt.Errorf("Type conversion failed on execution effort of fee")
+		}
 		factor := 100000000
 		gas := int(math.Round(executionEffort * float64(factor)))
 		result.FeeGas = gas

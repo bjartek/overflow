@@ -12,7 +12,7 @@ import (
 
 // NewOverflow creates a new OverflowBuilder reading some confiuration from ENV var (
 // OVERFLOW_ENV : sets the environment to use, valid values here are emulator|testnet|mainnet|embedded
-// OVERFLOW_CONTINUE : if set to `true` will not create accounts and deploy contracts even if on embeded/emulator
+// OVERFLOW_CONTINUE : if set to `true` will not create accounts and deploy contracts even if on embedded/emulator
 // OVERFLOW_LOGGING : set the logging level of flowkit and overflow itself, 0 = No Log, 1 = Errors only, 2 = Debug, 3(default) = Info
 //
 // Deprecated: use Overflow function with builder
@@ -42,10 +42,10 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 
 	if network == "embedded" || network == "" {
 		inMemory = true
-		network = "emulator"
+		network = emulatorValue
 	}
 
-	if network == "emulator" {
+	if network == emulatorValue {
 		deployContracts = true
 		initializeAccounts = true
 	}
@@ -157,10 +157,10 @@ func NewOverflowForNetwork(network string) *OverflowBuilder {
 //
 // Deprecated: use Overflow function with builder
 func NewOverflowEmulator() *OverflowBuilder {
-	return NewOverflowBuilder("emulator", false, output.InfoLog)
+	return NewOverflowBuilder(emulatorValue, false, output.InfoLog)
 }
 
-// NewTestingEmulator starts an embeded emulator with no log to be used most often in tests
+// NewTestingEmulator starts an embedded emulator with no log to be used most often in tests
 //
 // Deprecated: use Overflow function with builder
 func NewTestingEmulator() *OverflowBuilder {
