@@ -56,6 +56,19 @@ pub fun main(): String {
 		assert.Equal(t, `A.0ae53cb6e3f42a79.FlowToken.Vault`, res)
 	})
 
+	t.Run("Run script with string array", func(t *testing.T) {
+		input := []string{"test", "foo"}
+		res, err := o.Script(`
+pub fun main(input: [String]): [String] {
+	return input
+}
+
+`, WithArg("input", input)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `["test", "foo"]`, res)
+
+	})
+
 	t.Run("Run script with ufix64 array", func(t *testing.T) {
 		res, err := o.Script(`
 pub fun main(input: [UFix64]): [UFix64] {

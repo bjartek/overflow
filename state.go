@@ -150,6 +150,8 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		switch a := argument.(type) {
 		case string:
 			argumentString = a
+		case []string:
+			argumentString = fmt.Sprintf("[\"%s\"]", strings.Join(a, "\", \""))
 		case float64:
 			argumentString = fmt.Sprintf("%f", a)
 		default:
