@@ -162,7 +162,7 @@ func WithName(name string) OverflowInteractionOption {
 // - cadence.Value is sent as straight argument
 // - string argument are resolved into cadence.Value using flowkit
 // - ofther values are converted to string with %v and resolved into cadence.Value using flowkit
-// - if the type of the paramter is Address and the string you send in is a valid account in flow.json it will resolve
+// - if the type of the parameter is Address and the string you send in is a valid account in flow.json it will resolve
 func WithArg(name string, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.NamedArgs[name] = value
@@ -301,7 +301,7 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 	}
 }
 
-// Send a intereaction builder as a Transaction returning an overflow result
+// Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{StopOnError: oib.Overflow.StopOnError}
 	if oib.Error != nil {
