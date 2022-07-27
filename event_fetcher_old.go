@@ -304,11 +304,17 @@ func NewTestEvent(name string, fields map[string]interface{}) *OverflowFormatedE
 	loc, _ := time.LoadLocation("UTC")
 	// handle err
 	time.Local = loc // -> this is setting the global timezone
+	newFields := map[string]interface{}{}
+	for key, value := range fields {
+		if value != nil {
+			newFields[key] = value
+		}
+	}
 	return &OverflowFormatedEvent{
 		Name:        name,
 		BlockHeight: 0,
 		Time:        time.Unix(0, 0),
-		Fields:      fields,
+		Fields:      newFields,
 	}
 }
 
