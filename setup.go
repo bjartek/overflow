@@ -76,10 +76,12 @@ var defaultOverflowBuilder = OverflowBuilder{
 	StopOnError:                         true,
 	PrintOptions:                        &[]OverflowPrinterOption{},
 	NewAccountFlowAmount:                10.0,
+	TransactionFees:                     true,
 }
 
 //OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
+	TransactionFees                     bool
 	Network                             string
 	InMemory                            bool
 	DeployContracts                     bool
@@ -122,15 +124,20 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 			Level:     logrus.TraceLevel,
 			Out:       &memlog,
 		}
-
 		writer := io.Writer(&emulatorLog)
 		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
+
+		emulatorOptions := []emulator.Option{
+			emulator.WithLogger(emulatorLogger),
+		}
+
+		if o.TransactionFees {
+			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true))
+		}
 		gw := gateway.NewEmulatorGatewayWithOpts(acc,
 			gateway.WithLogger(logrusLogger),
-			gateway.WithEmulatorOptions(
-				emulator.WithTransactionFeesEnabled(true),
-				emulator.WithLogger(emulatorLogger),
-			))
+			gateway.WithEmulatorOptions(emulatorOptions...),
+		)
 
 		service = services.NewServices(gw, state, logger)
 	} else {
@@ -387,5 +394,12 @@ func WithGlobalPrintOptions(opts ...OverflowPrinterOption) OverflowOption {
 func WithFlowForNewUsers(amount float64) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.NewAccountFlowAmount = amount
+	}
+}
+
+// Turn off storage fees
+func WithoutTransactionFees() OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.TransactionFees = false
 	}
 }

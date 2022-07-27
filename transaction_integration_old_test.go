@@ -55,7 +55,7 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			}).
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(6).                                                                                                                                            //assert the number of events returned
+			AssertEventCount(3).                                                                                                                                            //assert the number of events returned
 			AssertPartialEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": float64(100.1)})).                             //assert a given event, can also take multiple events if you like
 			AssertEmitEventNameShortForm("FlowToken.TokensMinted").                                                                                                         //assert the name of a single event
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated"). //or assert more then one eventname in a go
@@ -208,7 +208,7 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			Test(t).
 			AssertSuccess().
 			AssertDebugLog("foobar"). //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
-			AssertComputationUsed(37).
+			AssertComputationUsed(5).
 			AssertEmulatorLog("Transaction submitted")
 
 	})
