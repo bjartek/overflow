@@ -210,6 +210,18 @@ func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 	return account, nil
 
 }
+func (o *OverflowState) Account(key string) *flowkit.Account {
+	if o.PrependNetworkToAccountNames {
+		key = fmt.Sprintf("%s-%s", o.Network, key)
+	}
+
+	account, err := o.State.Accounts().ByName(key)
+	if err != nil {
+		panic(err)
+	}
+
+	return account
+}
 
 // ServiceAccountName return the name of the current service account
 // Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name across networks
