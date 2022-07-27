@@ -92,6 +92,18 @@ The following env vars are supported
  - OVEFFLOW_CONTINUE: if you do not want overflow to deploy contracts and accounts on emulator you can set this to true
  - OVERFLOW_LOGGING: Set this to 0-4 to get increasing log
 
+
+## Migrating from v0 api
+
+Please note the following if you migrate from an earlier version of overflow that was not tagged 
+ - "github.com/bjartek/overflow/overflow" ->  "github.com/bjartek/overflow"
+ - overflow.Overflow -> overflow.OverflowState
+ - on OverflowState Script -> InlineScript
+ - FlowTransationBuilder -> OverflowInteractionBuilder
+ - FlowArgumentsBuilder -> OverflowArgumentsBuilder
+ - Discord dependency is gone, if you need the code ask
+ - almost all of the v0 is deprecated in favor of the functional builders `Overflow` to set up the client and , `Tx`, `Script`, `FetchEvents` to interact with it
+ 
 ## Credits
 
 This project is the successor of https://github.com/bjartek/go-with-the-flow
