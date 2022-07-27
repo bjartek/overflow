@@ -112,6 +112,13 @@ func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 // Assert that the event with the given name suffix and fields are present
 func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEvent) OverflowResult {
 	t.Helper()
+	newFields := OverflowEvent{}
+
+	for key, value := range fields {
+		if value != nil {
+			newFields[key] = value
+		}
+	}
 	for eventName, events := range o.Events {
 		if strings.HasSuffix(eventName, name) {
 
@@ -120,7 +127,7 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 				oe := OverflowEvent{}
 				valid := false
 				for key, value := range event {
-					_, exist := fields[key]
+					_, exist := newFields[key]
 					if exist {
 						oe[key] = value
 						valid = true
@@ -131,8 +138,8 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 				}
 			}
 
-			if !fields.ExistIn(newEvents) {
-				assert.Fail(t, fmt.Sprintf("event not found %s", litter.Sdump(fields)))
+			if !newFields.ExistIn(newEvents) {
+				assert.Fail(t, fmt.Sprintf("event not found %s", litter.Sdump(newFields)))
 				o.logEventsFailure(t, false)
 			}
 		}
