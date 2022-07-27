@@ -128,24 +128,7 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 			events = events.FilterEvents(printOpts.EventFilter)
 		}
 		if len(events) != 0 {
-			fmt.Println("=== Events ===")
-			for name, eventList := range events {
-				for _, event := range eventList {
-					fmt.Println(name)
-					length := 0
-					for key := range event {
-						keyLength := len(key)
-						if keyLength > length {
-							length = keyLength
-						}
-					}
-
-					format := fmt.Sprintf("%%%ds -> %%v\n", length+2)
-					for key, value := range event {
-						fmt.Printf(format, key, value)
-					}
-				}
-			}
+			events.Print()
 		}
 	}
 

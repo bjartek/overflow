@@ -119,9 +119,10 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 			newFields[key] = value
 		}
 	}
+	hit := false
 	for eventName, events := range o.Events {
 		if strings.HasSuffix(eventName, name) {
-
+			hit = true
 			newEvents := []OverflowEvent{}
 			for _, event := range events {
 				oe := OverflowEvent{}
@@ -139,10 +140,15 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 			}
 
 			if !newFields.ExistIn(newEvents) {
-				assert.Fail(t, fmt.Sprintf("event not found %s", litter.Sdump(newFields)))
-				o.logEventsFailure(t, false)
+				assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
+				newEventsMap := OverflowEvents{name: newEvents}
+				newEventsMap.Print()
 			}
 		}
+	}
+	if !hit {
+		assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
+		o.Events.Print()
 	}
 	return o
 }
@@ -156,7 +162,7 @@ func (o OverflowResult) AssertEventCount(t *testing.T, number int) OverflowResul
 	}
 	assert.Equal(t, number, num)
 
-	o.logEventsFailure(t, false)
+	o.Events.Print()
 	return o
 }
 
@@ -164,26 +170,10 @@ func (o OverflowResult) AssertEventCount(t *testing.T, number int) OverflowResul
 func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
 	t.Helper()
 	res := assert.Empty(t, o.Events)
-	o.logEventsFailure(t, res)
-	return o
-}
-
-// internal method to log output to give good events output when an event asertion fails
-func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
-	t.Helper()
 	if !res {
-		t.Log("EXISTING EVENTS")
-		t.Log("===============")
-		events := o.Events
-		for name, eventList := range events {
-			for _, event := range eventList {
-				t.Log(name)
-				for key, value := range event {
-					t.Logf("   %s:%v", key, value)
-				}
-			}
-		}
+		o.Events.Print()
 	}
+	return o
 }
 
 // Assert that events with the given suffixes are present
