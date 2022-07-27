@@ -219,20 +219,6 @@ type OverflowPastEvent struct {
 	Fields      OverflowEvent `json:"fields"`
 }
 
-/*
-func NewTestPastEvent(name string, fields map[string]interface{}) *OverflowPastEvent {
-	loc, _ := time.LoadLocation("UTC")
-	// handle err
-	time.Local = loc // -> this is setting the global timezone
-	return &OverflowPastEvent{
-		Name:        name,
-		BlockHeight: 0,
-		Time:        time.Unix(0, 0),
-		Fields:      fields,
-	}
-}
-*/
-
 //String pretty print an event as a String
 func (e OverflowPastEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
