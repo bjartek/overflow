@@ -290,7 +290,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 // InitializeContracts installs all contracts in the deployment block for the configured network
 func (o *OverflowState) InitializeContracts() *OverflowState {
 	o.Log.Reset()
-	contracts, err := o.Services.Project.Deploy(o.Network, false)
+	contracts, err := o.Services.Project.Deploy(o.Network, true)
 	if err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
