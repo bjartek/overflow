@@ -1,10 +1,12 @@
 package overflow
 
 import (
-	"reflect"
+	"fmt"
 	"strings"
+	"testing"
 
 	"github.com/onflow/flow-go-sdk"
+	"github.com/sanity-io/litter"
 )
 
 // Event parsing
@@ -21,10 +23,13 @@ type OverflowEvent map[string]interface{}
 // Check if an event exist in the other events
 func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 	for _, ev := range events {
-		result := reflect.DeepEqual(o, ev)
-		if result {
+		if litter.Sdump(o) == litter.Sdump(ev) {
 			return true
 		}
+		/*jresult := reflect.DeepEqual(o, ev)
+		if result {
+			return true
+		}*/
 	}
 	return false
 }
@@ -142,6 +147,39 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 		}
 	}
 	return filteredEvents
+}
+
+func printOrLog(t *testing.T, s string) {
+	if t == nil {
+		fmt.Println(s)
+	} else {
+		t.Log(t)
+		t.Helper()
+	}
+}
+func (overflowEvents OverflowEvents) Print(t *testing.T) {
+	if t != nil {
+		t.Helper()
+	}
+
+	printOrLog(t, "=== Events ===")
+	for name, eventList := range overflowEvents {
+		for _, event := range eventList {
+			printOrLog(t, name)
+			length := 0
+			for key := range event {
+				keyLength := len(key)
+				if keyLength > length {
+					length = keyLength
+				}
+			}
+
+			format := fmt.Sprintf("%%%ds -> %%v", length+2)
+			for key, value := range event {
+				printOrLog(t, fmt.Sprintf(format, key, value))
+			}
+		}
+	}
 }
 
 // Filter out events given the sent in filter

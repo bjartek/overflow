@@ -43,7 +43,7 @@ func (t OverflowTransactionResult) AssertSuccess() OverflowTransactionResult {
 
 // Deprecated: use the new Tx() method and Asserts on the result
 func (t OverflowTransactionResult) AssertEventCount(number int) OverflowTransactionResult {
-	assert.Equal(t.Testing, len(t.Events), number)
+	assert.Equal(t.Testing, number, len(t.Events))
 	return t
 }
 

@@ -69,6 +69,7 @@ func NewOverflowBuilder(network string, newEmulator bool, logLevel int) *Overflo
 		StopOnError:                         false,
 		PrintOptions:                        nil,
 		NewAccountFlowAmount:                0.0,
+		TransactionFees:                     false,
 	}
 }
 

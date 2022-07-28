@@ -112,15 +112,23 @@ func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 // Assert that the event with the given name suffix and fields are present
 func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEvent) OverflowResult {
 	t.Helper()
+	newFields := OverflowEvent{}
+
+	for key, value := range fields {
+		if value != nil {
+			newFields[key] = value
+		}
+	}
+	hit := false
 	for eventName, events := range o.Events {
 		if strings.HasSuffix(eventName, name) {
-
+			hit = true
 			newEvents := []OverflowEvent{}
 			for _, event := range events {
 				oe := OverflowEvent{}
 				valid := false
 				for key, value := range event {
-					_, exist := fields[key]
+					_, exist := newFields[key]
 					if exist {
 						oe[key] = value
 						valid = true
@@ -131,11 +139,16 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 				}
 			}
 
-			if !fields.ExistIn(newEvents) {
-				assert.Fail(t, fmt.Sprintf("event not found %s", litter.Sdump(fields)))
-				o.logEventsFailure(t, false)
+			if !newFields.ExistIn(newEvents) {
+				assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
+				newEventsMap := OverflowEvents{name: newEvents}
+				newEventsMap.Print(t)
 			}
 		}
+	}
+	if !hit {
+		assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
+		o.Events.Print(t)
 	}
 	return o
 }
@@ -149,7 +162,7 @@ func (o OverflowResult) AssertEventCount(t *testing.T, number int) OverflowResul
 	}
 	assert.Equal(t, number, num)
 
-	o.logEventsFailure(t, false)
+	o.Events.Print(t)
 	return o
 }
 
@@ -157,26 +170,10 @@ func (o OverflowResult) AssertEventCount(t *testing.T, number int) OverflowResul
 func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
 	t.Helper()
 	res := assert.Empty(t, o.Events)
-	o.logEventsFailure(t, res)
-	return o
-}
-
-// internal method to log output to give good events output when an event asertion fails
-func (o OverflowResult) logEventsFailure(t *testing.T, res bool) {
-	t.Helper()
 	if !res {
-		t.Log("EXISTING EVENTS")
-		t.Log("===============")
-		events := o.Events
-		for name, eventList := range events {
-			for _, event := range eventList {
-				t.Log(name)
-				for key, value := range event {
-					t.Logf("   %s:%v", key, value)
-				}
-			}
-		}
+		o.Events.Print(t)
 	}
+	return o
 }
 
 // Assert that events with the given suffixes are present
