@@ -142,13 +142,13 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 			if !newFields.ExistIn(newEvents) {
 				assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
 				newEventsMap := OverflowEvents{name: newEvents}
-				newEventsMap.Print()
+				newEventsMap.Print(t)
 			}
 		}
 	}
 	if !hit {
 		assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
-		o.Events.Print()
+		o.Events.Print(t)
 	}
 	return o
 }
@@ -162,7 +162,7 @@ func (o OverflowResult) AssertEventCount(t *testing.T, number int) OverflowResul
 	}
 	assert.Equal(t, number, num)
 
-	o.Events.Print()
+	o.Events.Print(t)
 	return o
 }
 
@@ -171,7 +171,7 @@ func (o OverflowResult) AssertNoEvents(t *testing.T) OverflowResult {
 	t.Helper()
 	res := assert.Empty(t, o.Events)
 	if !res {
-		o.Events.Print()
+		o.Events.Print(t)
 	}
 	return o
 }

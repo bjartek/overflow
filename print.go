@@ -128,7 +128,7 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 			events = events.FilterEvents(printOpts.EventFilter)
 		}
 		if len(events) != 0 {
-			events.Print()
+			events.Print(nil)
 		}
 	}
 

@@ -3,6 +3,7 @@ package overflow
 import (
 	"fmt"
 	"strings"
+	"testing"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
@@ -148,12 +149,23 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 	return filteredEvents
 }
 
-func (overflowEvents OverflowEvents) Print() {
+func printOrLog(t *testing.T, s string) {
+	if t == nil {
+		fmt.Println(s)
+	} else {
+		t.Log(t)
+		t.Helper()
+	}
+}
+func (overflowEvents OverflowEvents) Print(t *testing.T) {
+	if t != nil {
+		t.Helper()
+	}
 
-	fmt.Println("== EVENTS ==")
+	printOrLog(t, "=== Events ===")
 	for name, eventList := range overflowEvents {
 		for _, event := range eventList {
-			fmt.Println(name)
+			printOrLog(t, name)
 			length := 0
 			for key := range event {
 				keyLength := len(key)
@@ -162,13 +174,12 @@ func (overflowEvents OverflowEvents) Print() {
 				}
 			}
 
-			format := fmt.Sprintf("%%%ds -> %%v\n", length+2)
+			format := fmt.Sprintf("%%%ds -> %%v", length+2)
 			for key, value := range event {
-				fmt.Printf(format, key, value)
+				printOrLog(t, fmt.Sprintf(format, key, value))
 			}
 		}
 	}
-	fmt.Println("")
 }
 
 // Filter out events given the sent in filter
