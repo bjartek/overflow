@@ -148,6 +148,8 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 		var argumentString string
 		switch a := argument.(type) {
+		case nil:
+			argumentString = "nil"
 		case string:
 			argumentString = a
 		case []float64:

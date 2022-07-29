@@ -127,4 +127,27 @@ pub fun main(input: [UInt64]): [UInt64] {
 		assert.JSONEq(t, `[10, 20]`, res)
 	})
 
+	t.Run("Run script with optional Address some", func(t *testing.T) {
+		res, err := o.Script(`
+pub fun main(input: Address?): Address? {
+	return input
+}
+
+`, WithArg("input", "0x01cf0e2f2f715450")).GetAsInterface()
+
+		assert.NoError(t, err)
+		assert.Equal(t, `0x01cf0e2f2f715450`, res)
+	})
+
+	t.Run("Run script with optional Address empty", func(t *testing.T) {
+		res, err := o.Script(`
+pub fun main(input: Address?): Address? {
+	return input
+}
+
+`, WithArg("input", nil)).GetAsInterface()
+
+		assert.NoError(t, err)
+		assert.Equal(t, nil, res)
+	})
 }
