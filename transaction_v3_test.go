@@ -15,6 +15,16 @@ func TestTransaction(t *testing.T) {
 		assert.NoError(t, res.Err)
 	})
 
+	t.Run("error on missing argument", func(t *testing.T) {
+		res := o.Tx("arguments", WithSignerServiceAccount())
+		assert.ErrorContains(t, res.Err, "the interaction 'arguments' is missing [test]")
+	})
+
+	t.Run("error on redundant argument", func(t *testing.T) {
+		res := o.Tx("arguments", WithArg("test2", "foo"), WithArg("test", "foo"), WithSignerServiceAccount())
+		assert.ErrorContains(t, res.Err, "the interaction 'arguments' has the following extra arguments [test2]")
+	})
+
 	t.Run("Run simple tx with sa proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposerServiceAccount())
 		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")

@@ -3,15 +3,28 @@ package overflow
 import (
 	"testing"
 
-	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSetupIntegration(t *testing.T) {
 
+	o := Overflow()
 	t.Run("Should create inmemory emulator client", func(t *testing.T) {
-		g := NewOverflowInMemoryEmulator().Start()
-		litter.Dump(g)
-		assert.Equal(t, "emulator", g.Network)
+		assert.Equal(t, "emulator", o.Network)
 	})
+
+	t.Run("should get account", func(t *testing.T) {
+		account := o.Account("first")
+		assert.Equal(t, "01cf0e2f2f715450", account.Address().String())
+	})
+
+	t.Run("should get address", func(t *testing.T) {
+		account := o.Address("first")
+		assert.Equal(t, "0x01cf0e2f2f715450", account)
+	})
+
+	t.Run("panic on wrong account name", func(t *testing.T) {
+		assert.Panics(t, func() { o.Address("foobar") })
+	})
+
 }

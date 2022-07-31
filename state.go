@@ -220,11 +220,7 @@ func (o *OverflowState) Address(key string) string {
 
 //return the account of a given account
 func (o *OverflowState) Account(key string) *flowkit.Account {
-	if o.PrependNetworkToAccountNames {
-		key = fmt.Sprintf("%s-%s", o.Network, key)
-	}
-
-	account, err := o.State.Accounts().ByName(key)
+	account, err := o.AccountE(key)
 	if err != nil {
 		panic(err)
 	}
