@@ -274,7 +274,7 @@ func WithMaxGas(gas uint64) OverflowInteractionOption {
 }
 
 // set a filter for events
-func WithEvents(filter OverflowEventFilter) OverflowInteractionOption {
+func WithEventsFilter(filter OverflowEventFilter) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.EventFilter = filter
 	}

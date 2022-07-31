@@ -7,6 +7,7 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/stretchr/testify/assert"
 )
 
 type Cadencetest struct {
@@ -89,4 +90,11 @@ func TestCadenceValueToInterface(t *testing.T) {
 			tc.want.Equal(t, value)
 		})
 	}
+}
+
+func TestCadenceValueToJson(t *testing.T) {
+	result, err := CadenceValueToJsonString(cadence.String(""))
+	assert.NoError(t, err)
+	assert.Equal(t, "", result)
+
 }

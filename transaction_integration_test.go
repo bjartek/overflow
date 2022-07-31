@@ -84,3 +84,27 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 
 }
+func TestTransactionEventFiltering(t *testing.T) {
+
+	filter := OverflowEventFilter{
+		"Log": []string{"msg"},
+	}
+
+	filterLocal := OverflowEventFilter{
+		"LogNum": []string{"id"},
+	}
+
+	o, err := OverflowTesting(WithGlobalEventFilter(filter))
+	assert.NoError(t, err)
+	o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(message:String) {
+		  prepare(acct: AuthAccount) {
+			Debug.log(message) 
+			Debug.id(1)
+		} }`,
+		WithEventsFilter(filterLocal),
+		WithSigner("first"),
+		WithArg("message", "foobar"),
+	).AssertSuccess(t).AssertEventCount(t, 0)
+}

@@ -26,10 +26,6 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 		if litter.Sdump(o) == litter.Sdump(ev) {
 			return true
 		}
-		/*jresult := reflect.DeepEqual(o, ev)
-		if result {
-			return true
-		}*/
 	}
 	return false
 }
@@ -91,14 +87,14 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 		}
 
 		if strings.HasSuffix(name, "TokensDeposited") {
-			despoitEvents := []OverflowEvent{}
+			depositEvents := []OverflowEvent{}
 			for _, value := range events {
 				if value["to"] != nil {
-					despoitEvents = append(despoitEvents, value)
+					depositEvents = append(depositEvents, value)
 				}
 			}
-			if len(despoitEvents) != 0 {
-				filteredEvents[name] = despoitEvents
+			if len(depositEvents) != 0 {
+				filteredEvents[name] = depositEvents
 			} else {
 				delete(filteredEvents, name)
 			}
@@ -132,14 +128,14 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 		}
 
 		if strings.HasSuffix(name, "FlowToken.TokensDeposited") {
-			despoitEvents := []OverflowEvent{}
+			depositEvents := []OverflowEvent{}
 			for _, value := range events {
 				if value["amount"].(float64) != fee {
-					despoitEvents = append(despoitEvents, value)
+					depositEvents = append(depositEvents, value)
 				}
 			}
-			if len(despoitEvents) != 0 {
-				filteredEvents[name] = despoitEvents
+			if len(depositEvents) != 0 {
+				filteredEvents[name] = depositEvents
 			} else {
 				delete(filteredEvents, name)
 			}

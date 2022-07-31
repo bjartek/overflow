@@ -70,4 +70,12 @@ func TestEventFetcher(t *testing.T) {
 		assert.Contains(t, err.Error(), "foo: is a directory")
 
 	})
+
+	t.Run("Return false if cannot find event", func(t *testing.T) {
+
+		events := []OverflowEvent{{"foo2": map[string]string{"bar": "baz"}}}
+		event := OverflowEvent{"foo": map[string]string{"bar": "baz"}}
+
+		assert.False(t, event.ExistIn(events))
+	})
 }

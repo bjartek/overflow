@@ -59,6 +59,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		defer os.Remove("progress")
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(ev))
+		assert.Contains(t, ev[0].String(), "100")
 	})
 
 	t.Run("should fail reading invalid progress from file", func(t *testing.T) {

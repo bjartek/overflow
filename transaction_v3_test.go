@@ -209,4 +209,31 @@ transaction(test:UFix64) {
 		assert.NoError(t, res.Error)
 	})
 
+	t.Run("add printer args", func(t *testing.T) {
+		res := o.BuildInteraction(`
+transaction(test:UFix64) {
+  prepare(acct: AuthAccount) {
+
+ }
+}
+`, "transaction", WithArg("test", 1.0), WithSignerServiceAccount(), WithPrintOptions(WithEmulatorLog()), WithPrintOptions(WithFullMeter()))
+		assert.NoError(t, res.Error)
+		assert.Equal(t, 2, len(*res.PrintOptions))
+	})
+
+	t.Run("add event filter", func(t *testing.T) {
+		filter := OverflowEventFilter{
+			"Deposit": []string{"id"},
+		}
+
+		res := o.BuildInteraction(`
+transaction(test:UFix64) {
+  prepare(acct: AuthAccount) {
+ }
+}
+`, "transaction", WithArg("test", 1.0), WithSignerServiceAccount(), WithoutGlobalEventFilter(), WithEventsFilter(filter))
+		assert.NoError(t, res.Error)
+		assert.True(t, res.IgnoreGlobalEventFilters)
+		assert.Equal(t, 1, len(res.EventFilter))
+	})
 }
