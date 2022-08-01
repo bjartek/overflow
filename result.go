@@ -140,8 +140,8 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 			}
 
 			if !newFields.ExistIn(newEvents) {
-				assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
-				newEventsMap := OverflowEvents{name: newEvents}
+				assert.Fail(t, fmt.Sprintf("transaction %s missing event %s with fields %s", o.Name, name, litter.Sdump(newFields)))
+				newEventsMap := OverflowEvents{eventName: newEvents}
 				newEventsMap.Print(t)
 			}
 		}
