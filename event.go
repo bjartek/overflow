@@ -149,7 +149,7 @@ func printOrLog(t *testing.T, s string) {
 	if t == nil {
 		fmt.Println(s)
 	} else {
-		t.Log(t)
+		t.Log(s)
 		t.Helper()
 	}
 }
