@@ -69,6 +69,18 @@ pub fun main(input: [String]): [String] {
 
 	})
 
+	t.Run("Run script with string map", func(t *testing.T) {
+		input := `{"test": "foo", "test2": "bar"}`
+		res, err := o.Script(`
+pub fun main(input: {String : String}): {String: String} {
+	return input
+}
+
+`, WithArg("input", input)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `{"test": "foo", "test2":"bar"}`, res)
+	})
+
 	t.Run("Run script with ufix64 array as string", func(t *testing.T) {
 		res, err := o.Script(`
 pub fun main(input: [UFix64]): [UFix64] {
