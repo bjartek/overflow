@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/hexops/autogold v1.3.0
 	github.com/onflow/cadence v0.24.2-0.20220627202951-5a06fec82b4a
-	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220722140917-f1a85c8a966f
+	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220727151921-0095fb2a585b
 	github.com/onflow/flow-emulator v0.33.4-0.20220708173546-d2a99600c3fa
 	github.com/onflow/flow-go-sdk v0.26.5-0.20220629191626-900f9f91bffc
 	github.com/pkg/errors v0.9.1
