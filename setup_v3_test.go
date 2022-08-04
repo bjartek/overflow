@@ -43,6 +43,14 @@ func TestOverflowv3(t *testing.T) {
 		assert.False(t, b.InMemory)
 	})
 
+	t.Run("WithNetworkMainnet", func(t *testing.T) {
+		b := Apply(WithNetwork("mainnet"))
+		assert.Equal(t, "mainnet", b.Network)
+		assert.False(t, b.DeployContracts)
+		assert.False(t, b.InitializeAccounts)
+		assert.False(t, b.InMemory)
+	})
+
 	t.Run("WithInMemory", func(t *testing.T) {
 		b := Apply()
 		assert.True(t, b.InMemory)
@@ -90,6 +98,16 @@ func TestOverflowv3(t *testing.T) {
 	t.Run("WithScriptFolderName", func(t *testing.T) {
 		b := Apply(WithScriptFolderName("script"))
 		assert.Equal(t, "script", b.ScriptFolderName)
+	})
+
+	t.Run("WithGlobalPrintOptions", func(t *testing.T) {
+		b := Apply(WithGlobalPrintOptions(WithoutId()))
+		assert.Equal(t, 1, len(*b.PrintOptions))
+	})
+
+	t.Run("WithPrintResults", func(t *testing.T) {
+		b := Apply(WithPrintResults(WithoutId()))
+		assert.Equal(t, 1, len(*b.PrintOptions))
 	})
 
 	t.Run("WithTransactionFolderName", func(t *testing.T) {

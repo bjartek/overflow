@@ -390,6 +390,11 @@ func WithGlobalPrintOptions(opts ...OverflowPrinterOption) OverflowOption {
 	}
 }
 
+// alias for WithGLobalPrintOptions
+func WithPrintResults(opts ...OverflowPrinterOption) OverflowOption {
+	return WithGlobalPrintOptions(opts...)
+}
+
 // Set the amount of flow for new account, default is 0.001
 func WithFlowForNewUsers(amount float64) OverflowOption {
 	return func(o *OverflowBuilder) {
