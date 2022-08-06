@@ -81,6 +81,51 @@ pub fun main(input: {String : String}): {String: String} {
 		assert.JSONEq(t, `{"test": "foo", "test2":"bar"}`, res)
 	})
 
+	t.Run("Run script with string map from native input", func(t *testing.T) {
+		input := map[string]string{
+			"test":  "foo",
+			"test2": "bar",
+		}
+		res, err := o.Script(`
+pub fun main(input: {String : String}): {String: String} {
+	return input
+}
+
+`, WithArg("input", input)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `{"test": "foo", "test2":"bar"}`, res)
+	})
+
+	t.Run("Run script with string:float64 map from native input", func(t *testing.T) {
+		input := map[string]float64{
+			"test":  1.0,
+			"test2": 2.0,
+		}
+		res, err := o.Script(`
+pub fun main(input: {String : UFix64}): {String: UFix64} {
+	return input
+}
+
+`, WithArg("input", input)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `{"test": 1.0, "test2":2.0}`, res)
+	})
+
+	t.Run("Run script with string:uint64 map from native input", func(t *testing.T) {
+		input := map[string]uint64{
+			"test":  1,
+			"test2": 2,
+		}
+		res, err := o.Script(`
+pub fun main(input: {String : UInt64}): {String: UInt64} {
+	return input
+}
+
+`, WithArg("input", input)).GetAsJson()
+		assert.NoError(t, err)
+		assert.JSONEq(t, `{"test": 1, "test2":2}`, res)
+	})
+
 	t.Run("Run script with ufix64 array as string", func(t *testing.T) {
 		res, err := o.Script(`
 pub fun main(input: [UFix64]): [UFix64] {

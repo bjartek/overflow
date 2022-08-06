@@ -158,6 +158,25 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			argumentString = strings.Join(strings.Fields(fmt.Sprintf("%v", a)), ", ")
 		case []string:
 			argumentString = fmt.Sprintf("[\"%s\"]", strings.Join(a, "\", \""))
+		case map[string]string:
+			args := []string{}
+			for key, value := range a {
+				args = append(args, fmt.Sprintf(`"%s":"%s"`, key, value))
+			}
+			argumentString = fmt.Sprintf("{%s}", strings.Join(args, ", "))
+		case map[string]float64:
+			args := []string{}
+			for key, value := range a {
+				args = append(args, fmt.Sprintf(`"%s":%f`, key, value))
+			}
+			argumentString = fmt.Sprintf("{%s}", strings.Join(args, ", "))
+		case map[string]uint64:
+			args := []string{}
+			for key, value := range a {
+				args = append(args, fmt.Sprintf(`"%s":%d`, key, value))
+			}
+			argumentString = fmt.Sprintf("{%s}", strings.Join(args, ", "))
+
 		case float64:
 			argumentString = fmt.Sprintf("%f", a)
 		default:
