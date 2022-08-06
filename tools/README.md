@@ -2,8 +2,8 @@
 
 I use  these mappings in nvim
 
-nmap <leader>c /<><cr>xxi
-inoremap <silent><c-q> <esc>/<><cr>xxi
+ - nmap <leader>c /<><cr>xxi
+ - inoremap <silent><c-q> <esc>/<><cr>xxi
 
 so I can run
 > o scripts/<filename>.cdc
