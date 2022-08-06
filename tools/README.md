@@ -23,3 +23,6 @@ This has only been tested on my mac.
 
 ## improvements
 
+# overflow-json
+
+build it, and use with ´query´ script to get sane json output from flow-cli
