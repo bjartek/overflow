@@ -46,7 +46,7 @@ import (
 
 func main() {
   o := Overflow(WithNetwork(emulator), WithPrintResults())
-    o.Tx("arguments",
+  o.Tx("arguments",
     WithSigner(""),
     WithArg("test", "String"),
   )
