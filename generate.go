@@ -55,7 +55,7 @@ import (
 )
 
 func main() {
-  o := Overflow(WithNetwork(%s), WithPrintResults())
+  o := Overflow(WithNetwork("%s"), WithPrintResults())
 %s
 }`, network, stub), nil
 
