@@ -11,6 +11,7 @@ require (
 	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20220727151921-0095fb2a585b
 	github.com/onflow/flow-emulator v0.33.4-0.20220708173546-d2a99600c3fa
 	github.com/onflow/flow-go-sdk v0.26.5-0.20220629191626-900f9f91bffc
+	github.com/onflow/flow-go/crypto v0.24.3
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
 	github.com/sanity-io/litter v1.5.5
@@ -85,7 +86,6 @@ require (
 	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20220513155751-c4c1f8d59f83 // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
 	github.com/onflow/flow-go v0.25.13-0.20220706165514-abf4535fe946 // indirect
-	github.com/onflow/flow-go/crypto v0.24.3 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.3.1 // indirect
 	github.com/onflow/sdks v0.4.4 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
