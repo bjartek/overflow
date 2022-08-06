@@ -15,7 +15,7 @@ func TestGenerate(t *testing.T) {
 	t.Run("script", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/test.cdc", false)
 		assert.NoError(t, err)
-		assert.Equal(t, "  o.Script(\"test\",\n    WithArg(\"account\", \"Address\"),\n  )", stub)
+		assert.Equal(t, "  o.Script(\"test\",\n    WithArg(\"account\", <>), //Address\n  )", stub)
 	})
 	t.Run("script with no arg", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/type.cdc", false)
@@ -26,13 +26,13 @@ func TestGenerate(t *testing.T) {
 	t.Run("transaction", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "transactions/arguments.cdc", false)
 		assert.NoError(t, err)
-		assert.Equal(t, "  o.Tx(\"arguments\",\n    WithSigner(\"\"),\n    WithArg(\"test\", \"String\"),\n  )", stub)
+		assert.Equal(t, "  o.Tx(\"arguments\",\n    WithSigner(\"<>\"),\n    WithArg(\"test\", <>), //String\n  )", stub)
 	})
 
 	t.Run("transaction with no args", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "transactions/create_nft_collection.cdc", false)
 		assert.NoError(t, err)
-		assert.Equal(t, "  o.Tx(\"create_nft_collection\",\n    WithSigner(\"\"),\n  )", stub)
+		assert.Equal(t, "  o.Tx(\"create_nft_collection\",\n    WithSigner(\"<>\"),\n  )", stub)
 	})
 
 	t.Run("transaction standalone", func(t *testing.T) {
@@ -47,8 +47,8 @@ import (
 func main() {
   o := Overflow(WithNetwork("emulator"), WithPrintResults())
   o.Tx("arguments",
-    WithSigner(""),
-    WithArg("test", "String"),
+    WithSigner("<>"),
+    WithArg("test", <>), //String
   )
 }`, stub)
 
