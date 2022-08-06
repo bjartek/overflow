@@ -26,7 +26,7 @@ func (o *OverflowState) GenerateStub(network, filePath string) (string, error) {
 	if interaction == nil {
 		return "", fmt.Errorf("Could not find interaction of type %s with name %s", commandName, interaction)
 	}
-	stub := fmt.Sprintf(`o.%s("%s"`, commandName, interactionName)
+	stub := fmt.Sprintf(`  o.%s("%s"`, commandName, interactionName)
 	if len(interaction.Parameters) > 0 {
 		stub = stub + ",\n"
 	}
@@ -35,10 +35,10 @@ func (o *OverflowState) GenerateStub(network, filePath string) (string, error) {
 		if len(interaction.Parameters) == 0 {
 			stub = stub + ",\n"
 		}
-		stub = stub + "WithSigner(\"\"),\n"
+		stub = stub + "    WithSigner(\"\"),\n"
 	}
 	for name, value := range interaction.Parameters {
-		stub = stub + fmt.Sprintf("  WithArg(\"%s\", \"%s\"),\n", name, value)
+		stub = stub + fmt.Sprintf("    WithArg(\"%s\", \"%s\"),\n", name, value)
 	}
 	stub = stub + `)`
 	return stub, nil

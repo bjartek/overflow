@@ -15,24 +15,24 @@ func TestGenerate(t *testing.T) {
 	t.Run("script", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/test.cdc")
 		assert.NoError(t, err)
-		assert.Equal(t, "o.Script(\"test\",\n  WithArg(\"account\", \"Address\"),\n)", stub)
+		assert.Equal(t, "  o.Script(\"test\",\n    WithArg(\"account\", \"Address\"),\n)", stub)
 	})
 	t.Run("script with no arg", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/type.cdc")
 		assert.NoError(t, err)
-		assert.Equal(t, "o.Script(\"type\")", stub)
+		assert.Equal(t, "  o.Script(\"type\")", stub)
 	})
 
 	t.Run("transaction", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "transactions/arguments.cdc")
 		assert.NoError(t, err)
-		assert.Equal(t, "o.Tx(\"arguments\",\nWithSigner(\"\"),\n  WithArg(\"test\", \"String\"),\n)", stub)
+		assert.Equal(t, "  o.Tx(\"arguments\",\n    WithSigner(\"\"),\n    WithArg(\"test\", \"String\"),\n)", stub)
 	})
 
 	t.Run("transaction with no args", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "transactions/create_nft_collection.cdc")
 		assert.NoError(t, err)
-		assert.Equal(t, "o.Tx(\"create_nft_collection\",\nWithSigner(\"\"),\n)", stub)
+		assert.Equal(t, "  o.Tx(\"create_nft_collection\",\n    WithSigner(\"\"),\n)", stub)
 	})
 
 }
