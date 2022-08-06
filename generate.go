@@ -37,7 +37,7 @@ func (o *OverflowState) GenerateStub(network, filePath string) (string, error) {
 		lines = append(lines, fmt.Sprintf("    WithArg(\"%s\", \"%s\")", name, value))
 	}
 	if len(lines) > 1 {
-		lines = append(lines, ")")
+		lines = append(lines, "  )")
 	} else {
 		return lines[0] + ")", nil
 	}
