@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (o *OverflowState) GenerateStub(network, filePath string) (string, error) {
+func (o *OverflowState) GenerateStub(network, filePath string, standalone bool) (string, error) {
 
 	solution, err := o.ParseAll()
 	if err != nil {
@@ -36,12 +36,27 @@ func (o *OverflowState) GenerateStub(network, filePath string) (string, error) {
 	for name, value := range interaction.Parameters {
 		lines = append(lines, fmt.Sprintf("    WithArg(\"%s\", \"%s\")", name, value))
 	}
+	var stub string
 	if len(lines) > 1 {
 		lines = append(lines, "  )")
+		stub = strings.Join(lines, ",\n")
 	} else {
-		return lines[0] + ")", nil
+		stub = lines[0] + ")"
 	}
 
-	return strings.Join(lines, ",\n"), nil
+	if !standalone {
+		return stub, nil
+	}
+
+	return fmt.Sprintf(`package main
+
+import (
+   . "github.com/bjartek/overflow"
+)
+
+func main() {
+  o := Overflow(WithNetwork(%s), WithPrintResults())
+  %s
+}`, network, stub), nil
 
 }
