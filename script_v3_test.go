@@ -207,4 +207,5 @@ pub fun main(input: Address?): Address? {
 		assert.NoError(t, err)
 		assert.Equal(t, nil, res)
 	})
+
 }

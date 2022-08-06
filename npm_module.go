@@ -137,7 +137,10 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo {
 	params := params(codeFileName, code)
 	if params == nil {
-		return nil
+		return &OverflowDeclarationInfo{
+			ParameterOrder: []string{},
+			Parameters:     map[string]string{},
+		}
 	}
 	parametersMap := make(map[string]string, len(params.Parameters))
 	var parameterList []string
@@ -146,7 +149,10 @@ func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo 
 		parameterList = append(parameterList, parameter.Identifier.Identifier)
 	}
 	if len(parameterList) == 0 {
-		return nil
+		return &OverflowDeclarationInfo{
+			ParameterOrder: []string{},
+			Parameters:     map[string]string{},
+		}
 	}
 	return &OverflowDeclarationInfo{
 		ParameterOrder: parameterList,

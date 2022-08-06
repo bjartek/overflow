@@ -15,12 +15,18 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"block": overflow.OverflowCodeWithSpec{Code: `// test script to ensure code is running
+			"block": overflow.OverflowCodeWithSpec{
+				Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 			"test": overflow.OverflowCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
@@ -35,12 +41,18 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"type": overflow.OverflowCodeWithSpec{Code: `// test script to ensure code is running
+			"type": overflow.OverflowCodeWithSpec{
+				Code: `// test script to ensure code is running
 import FlowToken from 0x0ae53cb6e3f42a79
 
 pub fun main(): Type {
         return Type<@FlowToken.Vault>()
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 		},
 		Transactions: map[string]overflow.OverflowCodeWithSpec{
 			"Foo": overflow.OverflowCodeWithSpec{
@@ -92,7 +104,8 @@ transaction(test:Address) {
 					Parameters: map[string]string{"test": "Address"},
 				},
 			},
-			"create_nft_collection": overflow.OverflowCodeWithSpec{Code: `import NonFungibleToken from 0xf8d6e0586b0a20c7
+			"create_nft_collection": overflow.OverflowCodeWithSpec{
+				Code: `import NonFungibleToken from 0xf8d6e0586b0a20c7
 
 // This transaction creates an empty NFT Collection in the signer's account
 transaction {
@@ -105,7 +118,12 @@ transaction {
 
     log("Created a new empty collection and published a reference")
   }
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 			"mint_tokens": overflow.OverflowCodeWithSpec{
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
@@ -209,12 +227,18 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"block": overflow.OverflowCodeWithSpec{Code: `// test script to ensure code is running
+			"block": overflow.OverflowCodeWithSpec{
+				Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 			"test": overflow.OverflowCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
@@ -229,12 +253,18 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"type": overflow.OverflowCodeWithSpec{Code: `// test script to ensure code is running
+			"type": overflow.OverflowCodeWithSpec{
+				Code: `// test script to ensure code is running
 import FlowToken from 0x1654653399040a61
 
 pub fun main(): Type {
         return Type<@FlowToken.Vault>()
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 		},
 		Transactions: map[string]overflow.OverflowCodeWithSpec{
 			"Foo": overflow.OverflowCodeWithSpec{
@@ -286,7 +316,8 @@ transaction(test:Address) {
 					Parameters: map[string]string{"test": "Address"},
 				},
 			},
-			"create_nft_collection": overflow.OverflowCodeWithSpec{Code: `import NonFungibleToken from 0x1d7e57aa55817448
+			"create_nft_collection": overflow.OverflowCodeWithSpec{
+				Code: `import NonFungibleToken from 0x1d7e57aa55817448
 
 // This transaction creates an empty NFT Collection in the signer's account
 transaction {
@@ -299,7 +330,12 @@ transaction {
 
     log("Created a new empty collection and published a reference")
   }
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 			"mint_tokens": overflow.OverflowCodeWithSpec{
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79
@@ -400,12 +436,18 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"block": overflow.OverflowCodeWithSpec{Code: `// test script to ensure code is running
+			"block": overflow.OverflowCodeWithSpec{
+				Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 			"test": overflow.OverflowCodeWithSpec{
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
@@ -420,12 +462,18 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
-			"type": overflow.OverflowCodeWithSpec{Code: `// test script to ensure code is running
+			"type": overflow.OverflowCodeWithSpec{
+				Code: `// test script to ensure code is running
 import FlowToken from 0x7e60df042a9c0868
 
 pub fun main(): Type {
         return Type<@FlowToken.Vault>()
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 		},
 		Transactions: map[string]overflow.OverflowCodeWithSpec{
 			"Foo": overflow.OverflowCodeWithSpec{
@@ -477,7 +525,8 @@ transaction(test:Address) {
 					Parameters: map[string]string{"test": "Address"},
 				},
 			},
-			"create_nft_collection": overflow.OverflowCodeWithSpec{Code: `import NonFungibleToken from 0x631e88ae7f1d7c20
+			"create_nft_collection": overflow.OverflowCodeWithSpec{
+				Code: `import NonFungibleToken from 0x631e88ae7f1d7c20
 
 // This transaction creates an empty NFT Collection in the signer's account
 transaction {
@@ -490,7 +539,12 @@ transaction {
 
     log("Created a new empty collection and published a reference")
   }
-}`},
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
+				},
+			},
 			"mint_tokens": overflow.OverflowCodeWithSpec{
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 import FlowToken from 0x0ae53cb6e3f42a79

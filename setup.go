@@ -18,6 +18,8 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	emulator "github.com/onflow/flow-emulator"
+	"github.com/onflow/flow-go/crypto"
+	"github.com/onflow/flow-go/crypto/hash"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
@@ -77,6 +79,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	PrintOptions:                        &[]OverflowPrinterOption{},
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
+	UseDefaultFlowJson:                  false,
 }
 
 //OverflowBuilder is the struct used to gather up configuration when building an overflow instance
@@ -100,15 +103,25 @@ type OverflowBuilder struct {
 	StopOnError                         bool
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
+	UseDefaultFlowJson                  bool
 }
 
 // StartE will start Overflow and return State and error if any
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
 	loader := &afero.Afero{Fs: afero.NewOsFs()}
-	state, err := flowkit.Load(o.ConfigFiles, loader)
-	if err != nil {
-		return nil, err
+	var state *flowkit.State
+	var err error
+	if o.UseDefaultFlowJson {
+		state, err = flowkit.Init(loader, crypto.ECDSAP256, hash.SHA3_256)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		state, err = flowkit.Load(o.ConfigFiles, loader)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	logger := output.NewStdoutLogger(o.LogLevel)
@@ -407,4 +420,11 @@ func WithoutTransactionFees() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.TransactionFees = false
 	}
+}
+
+func WithDefaultFlowJson() OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.UseDefaultFlowJson = true
+	}
+
 }

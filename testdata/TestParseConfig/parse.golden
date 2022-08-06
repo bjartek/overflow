@@ -10,6 +10,10 @@
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "Address"},
 		},
+		"create_nft_collection": &overflow.OverflowDeclarationInfo{
+			ParameterOrder: []string{},
+			Parameters:     map[string]string{},
+		},
 		"emulatorFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
@@ -38,6 +42,10 @@
 		},
 	},
 	Scripts: map[string]*overflow.OverflowDeclarationInfo{
+		"block": &overflow.OverflowDeclarationInfo{
+			ParameterOrder: []string{},
+			Parameters:     map[string]string{},
+		},
 		"emulatorFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
@@ -53,6 +61,10 @@
 		"testnetFoo": &overflow.OverflowDeclarationInfo{
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+		},
+		"type": &overflow.OverflowDeclarationInfo{
+			ParameterOrder: []string{},
+			Parameters:     map[string]string{},
 		},
 	},
 	Networks: map[string]*overflow.OverflowSolutionNetwork{
