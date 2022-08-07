@@ -73,8 +73,8 @@ func TestEventFetcher(t *testing.T) {
 
 	t.Run("Return false if cannot find event", func(t *testing.T) {
 
-		events := []OverflowEvent{{"foo2": map[string]string{"bar": "baz"}}}
-		event := OverflowEvent{"foo": map[string]string{"bar": "baz"}}
+		events := []OverflowEvent{{Fields: map[string]interface{}{"bar": "baz"}}}
+		event := OverflowEvent{Fields: map[string]interface{}{"baz": "bar"}}
 
 		assert.False(t, event.ExistIn(events))
 	})

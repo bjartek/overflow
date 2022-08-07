@@ -418,7 +418,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.RawEvents = res.Events
 
 	overflowEvents, fee := parseEvents(result.RawEvents)
-	result.Fee = fee
+	result.Fee = fee.Fields
 	if len(result.Fee) != 0 {
 		executionEffort, ok := result.Fee["executionEffort"].(float64)
 		if !ok {

@@ -58,7 +58,7 @@ type OverflowResult struct {
 func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) (uint64, error) {
 	for name, event := range o.Events {
 		if strings.HasSuffix(name, eventName) {
-			return event[0][fieldName].(uint64), nil
+			return event[0].Fields[fieldName].(uint64), nil
 		}
 	}
 	err := fmt.Errorf("Could not find id field %s in event with suffix %s", fieldName, eventName)
@@ -74,7 +74,7 @@ func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []ui
 	for name, events := range o.Events {
 		if strings.HasSuffix(name, eventName) {
 			for _, event := range events {
-				ids = append(ids, event[fieldName].(uint64))
+				ids = append(ids, event.Fields[fieldName].(uint64))
 			}
 		}
 	}
@@ -110,13 +110,12 @@ func (o OverflowResult) AssertSuccess(t *testing.T) OverflowResult {
 }
 
 // Assert that the event with the given name suffix and fields are present
-func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEvent) OverflowResult {
+func (o OverflowResult) AssertEvent(t *testing.T, name string, fields map[string]interface{}) OverflowResult {
 	t.Helper()
-	newFields := OverflowEvent{}
-
+	newFields := OverflowEvent{Fields: map[string]interface{}{}}
 	for key, value := range fields {
 		if value != nil {
-			newFields[key] = value
+			newFields.Fields[key] = value
 		}
 	}
 	hit := false
@@ -125,12 +124,12 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 			hit = true
 			newEvents := []OverflowEvent{}
 			for _, event := range events {
-				oe := OverflowEvent{}
+				oe := OverflowEvent{Fields: map[string]interface{}{}}
 				valid := false
-				for key, value := range event {
-					_, exist := newFields[key]
+				for key, value := range event.Fields {
+					_, exist := newFields.Fields[key]
 					if exist {
-						oe[key] = value
+						oe.Fields[key] = value
 						valid = true
 					}
 				}
@@ -140,7 +139,7 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields OverflowEv
 			}
 
 			if !newFields.ExistIn(newEvents) {
-				assert.Fail(t, fmt.Sprintf("transaction %s missing event %s with fields %s", o.Name, name, litter.Sdump(newFields)))
+				assert.Fail(t, fmt.Sprintf("transaction %s missing event %s with fields %s", o.Name, name, litter.Sdump(newFields.Fields)))
 				newEventsMap := OverflowEvents{eventName: newEvents}
 				newEventsMap.Print(t)
 			}
@@ -246,7 +245,7 @@ func (o OverflowResult) AssertDebugLog(t *testing.T, message ...string) Overflow
 	for name, fe := range o.Events {
 		if strings.HasSuffix(name, "Debug.Log") {
 			for _, ev := range fe {
-				logMessages = append(logMessages, ev["msg"])
+				logMessages = append(logMessages, ev.Fields["msg"])
 			}
 		}
 	}

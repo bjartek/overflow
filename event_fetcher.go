@@ -108,7 +108,7 @@ func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]Overf
 					Name:        name,
 					Time:        blockEvent.BlockTimestamp,
 					BlockHeight: blockEvent.Height,
-					Fields:      instance,
+					Event:       instance,
 				})
 			}
 		}
@@ -216,7 +216,7 @@ type OverflowPastEvent struct {
 	Name        string        `json:"name"`
 	BlockHeight uint64        `json:"blockHeight,omitempty"`
 	Time        time.Time     `json:"time,omitempty"`
-	Fields      OverflowEvent `json:"fields"`
+	Event       OverflowEvent `json:"event"`
 }
 
 //String pretty print an event as a String
@@ -230,5 +230,5 @@ func (e OverflowPastEvent) String() string {
 
 // get the given field as an uint64
 func (e OverflowPastEvent) GetFieldAsUInt64(field string) uint64 {
-	return e.Fields[field].(uint64)
+	return e.Event.Fields[field].(uint64)
 }

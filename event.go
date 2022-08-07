@@ -17,13 +17,16 @@ type OverflowEventFilter map[string][]string
 // a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string][]OverflowEvent
 
-// a type representing the terse output of an raw Flow Event
-type OverflowEvent map[string]interface{}
+type OverflowEvent struct {
+	Fields        map[string]interface{} `json:"fields"`
+	TransactionId string                 `json:"transactionID"`
+	Name          string                 `json:"name"`
+}
 
 // Check if an event exist in the other events
 func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 	for _, ev := range events {
-		if litter.Sdump(o) == litter.Sdump(ev) {
+		if litter.Sdump(o.Fields) == litter.Sdump(ev.Fields) {
 			return true
 		}
 	}
@@ -56,11 +59,19 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 		if !ok {
 			events = []OverflowEvent{}
 		}
-		events = append(events, finalFields)
+		events = append(events, OverflowEvent{
+			Fields:        finalFields,
+			Name:          event.Type,
+			TransactionId: event.TransactionID.String(),
+		})
 		overflowEvents[event.Type] = events
 
 		if strings.HasSuffix(event.Type, "FlowFees.FeesDeducted") {
-			fee = finalFields
+			fee = OverflowEvent{
+				Fields:        finalFields,
+				Name:          event.Type,
+				TransactionId: event.TransactionID.String(),
+			}
 		}
 
 	}
@@ -75,7 +86,7 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
-				if value["from"] != nil {
+				if value.Fields["from"] != nil {
 					withDrawnEvents = append(withDrawnEvents, value)
 				}
 			}
@@ -89,7 +100,7 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 		if strings.HasSuffix(name, "TokensDeposited") {
 			depositEvents := []OverflowEvent{}
 			for _, value := range events {
-				if value["to"] != nil {
+				if value.Fields["to"] != nil {
 					depositEvents = append(depositEvents, value)
 				}
 			}
@@ -116,7 +127,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
-				if value["amount"].(float64) != fee {
+				if value.Fields["amount"].(float64) != fee {
 					withDrawnEvents = append(withDrawnEvents, value)
 				}
 			}
@@ -130,7 +141,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 		if strings.HasSuffix(name, "FlowToken.TokensDeposited") {
 			depositEvents := []OverflowEvent{}
 			for _, value := range events {
-				if value["amount"].(float64) != fee {
+				if value.Fields["amount"].(float64) != fee {
 					depositEvents = append(depositEvents, value)
 				}
 			}
@@ -163,7 +174,7 @@ func (overflowEvents OverflowEvents) Print(t *testing.T) {
 		for _, event := range eventList {
 			printOrLog(t, name)
 			length := 0
-			for key := range event {
+			for key := range event.Fields {
 				keyLength := len(key)
 				if keyLength > length {
 					length = keyLength
@@ -171,7 +182,7 @@ func (overflowEvents OverflowEvents) Print(t *testing.T) {
 			}
 
 			format := fmt.Sprintf("%%%ds -> %%v", length+2)
-			for key, value := range event {
+			for key, value := range event.Fields {
 				printOrLog(t, fmt.Sprintf(format, key, value))
 			}
 		}
@@ -193,8 +204,8 @@ func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverflowEventFilt
 
 		eventList := []OverflowEvent{}
 		for _, ev := range events {
-			event := OverflowEvent{}
-			for key, value := range ev {
+			event := OverflowEvent{Fields: map[string]interface{}{}}
+			for key, value := range ev.Fields {
 				valid := true
 				for _, ig := range ignoreFieldNames {
 					if strings.HasSuffix(key, ig) {
@@ -202,10 +213,10 @@ func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverflowEventFilt
 					}
 				}
 				if valid {
-					event[key] = value
+					event.Fields[key] = value
 				}
 			}
-			if len(event) != 0 {
+			if len(event.Fields) != 0 {
 				eventList = append(eventList, event)
 			}
 		}
