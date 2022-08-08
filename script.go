@@ -171,8 +171,7 @@ func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer str
 	assert.NoError(t, err)
 
 	switch result.(type) {
-	case []interface{}:
-	case map[interface{}]interface{}:
+	case []interface{}, map[interface{}]interface{}:
 		want.Equal(t, litter.Sdump(result))
 	default:
 		want.Equal(t, result)
@@ -187,6 +186,7 @@ func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer s
 	assert.NoError(t, err)
 	switch res := result.(type) {
 	case []interface{}:
+		assert.Equal(t, length, len(res), litter.Sdump(osr.Output))
 	case map[interface{}]interface{}:
 		assert.Equal(t, length, len(res), litter.Sdump(osr.Output))
 	default:
