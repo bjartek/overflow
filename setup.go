@@ -187,17 +187,17 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		LogLevel:                            o.LogLevel,
 	}
 
-	if o.DeployContracts {
-		overflow = overflow.InitializeContracts()
-		if overflow.Error != nil {
-			return overflow, errors.Wrap(overflow.Error, "could not deploy contracts")
-		}
-	}
-
 	if o.InitializeAccounts {
 		o2, err := overflow.CreateAccountsE()
 		if err != nil {
 			return o2, errors.Wrap(err, "could not create accounts")
+		}
+	}
+
+	if o.DeployContracts {
+		overflow = overflow.InitializeContracts()
+		if overflow.Error != nil {
+			return overflow, errors.Wrap(overflow.Error, "could not deploy contracts")
 		}
 	}
 

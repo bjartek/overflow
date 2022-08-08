@@ -8,6 +8,11 @@ import (
 
 func TestErrorsInAccountCreation(t *testing.T) {
 
+	t.Run("Should deploy contracts to multiple accounts", func(t *testing.T) {
+		_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull())
+		assert.NoError(t, err)
+	})
+
 	t.Run("Should give error on wrong contract name", func(t *testing.T) {
 		assert.Panics(t, func() {
 			NewTestingEmulator().Config("testdata/non_existing_contract.json").Start()
