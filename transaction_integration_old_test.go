@@ -329,7 +329,7 @@ func TestFillUpSpace(t *testing.T) {
 	assert.NoError(t, err)
 
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 129123, result)
+	assert.Equal(t, 129213, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 
