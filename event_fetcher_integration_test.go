@@ -19,6 +19,17 @@ func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 
 func TestIntegrationEventFetcher(t *testing.T) {
 
+	t.Run("Test that if end is larger then from we return with empty result", func(t *testing.T) {
+		result, err := startOverflowAndMintTokens(t).FetchEvents(
+			WithEndIndex(2),
+			WithFromIndex(1),
+			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, len(result), 0)
+
+	})
+
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
 		_, err := startOverflowAndMintTokens(t).FetchEvents(
 			WithEndIndex(2),

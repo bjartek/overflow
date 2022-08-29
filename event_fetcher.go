@@ -9,7 +9,7 @@ import (
 
 // Event fetching
 //
-//A function to customize the transaction builder
+// A function to customize the transaction builder
 type OverflowEventFetcherOption func(*OverflowEventFetcherBuilder)
 
 // OverflowEventFetcherBuilder builder to hold info about eventhook context.
@@ -94,6 +94,9 @@ func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]Overf
 		events = append(events, key)
 	}
 
+	if uint64(fromIndex) > endIndex {
+		return []OverflowPastEvent{}, nil
+	}
 	blockEvents, err := e.OverflowState.Services.Events.Get(events, uint64(fromIndex), endIndex, e.EventBatchSize, e.NumberOfWorkers)
 	if err != nil {
 		return nil, err
@@ -219,7 +222,7 @@ type OverflowPastEvent struct {
 	Event       OverflowEvent `json:"event"`
 }
 
-//String pretty print an event as a String
+// String pretty print an event as a String
 func (e OverflowPastEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
 	if err != nil {
