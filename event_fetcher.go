@@ -51,13 +51,13 @@ type EventFetcherResult struct {
 	To     uint64
 }
 
-func (efr EventFetcherResult) String() {
+func (efr EventFetcherResult) String() string {
 	events := []string{}
 	for event := range efr.State.EventsAndIgnoreFields {
 		events = append(events, event)
 	}
 	eventString := strings.Join(events, ", ")
-	fmt.Printf("Fetched number=%d of events within from=%d block to=%d for events='%s'\n", len(efr.Events), efr.From, efr.To, eventString)
+	return fmt.Sprintf("Fetched number=%d of events within from=%d block to=%d for events='%s'\n", len(efr.Events), efr.From, efr.To, eventString)
 }
 
 // FetchEvents using the given options
