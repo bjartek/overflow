@@ -46,6 +46,8 @@ type EventFetcherResult struct {
 	Events []OverflowPastEvent
 	Error  error
 	State  *OverflowEventFetcherBuilder
+	From   int64
+	To     uint64
 }
 
 // FetchEvents using the given options
@@ -142,6 +144,8 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 	})
 
 	res.Events = formatedEvents
+	res.From = fromIndex
+	res.To = endIndex
 	return res
 
 }
