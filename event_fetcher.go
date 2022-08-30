@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -48,6 +49,15 @@ type EventFetcherResult struct {
 	State  *OverflowEventFetcherBuilder
 	From   int64
 	To     uint64
+}
+
+func (efr EventFetcherResult) String() {
+	events := []string{}
+	for event := range efr.State.EventsAndIgnoreFields {
+		events = append(events, event)
+	}
+	eventString := strings.Join(events, ", ")
+	fmt.Printf("Fetched %d number of events within blocks %d-%d for events %s\n", len(efr.Events), efr.From, efr.To, eventString)
 }
 
 // FetchEvents using the given options
