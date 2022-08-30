@@ -57,7 +57,7 @@ func (efr EventFetcherResult) String() {
 		events = append(events, event)
 	}
 	eventString := strings.Join(events, ", ")
-	fmt.Printf("Fetched %d number of events within blocks %d-%d for events %s\n", len(efr.Events), efr.From, efr.To, eventString)
+	fmt.Printf("Fetched number=%d of events within from=%d block to=%d for events='%s'\n", len(efr.Events), efr.From, efr.To, eventString)
 }
 
 // FetchEvents using the given options
