@@ -42,29 +42,40 @@ func (o *OverflowState) buildEventInteraction(opts ...OverflowEventFetcherOption
 	return e
 }
 
+type EventFetcherResult struct {
+	Events []OverflowPastEvent
+	Error  error
+	State  *OverflowEventFetcherBuilder
+}
+
 // FetchEvents using the given options
-func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]OverflowPastEvent, error) {
+func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult {
 
 	e := o.buildEventInteraction(opts...)
+
+	res := EventFetcherResult{State: e}
 	//if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
 
 		present, err := exists(e.ProgressFile)
 		if err != nil {
-			return nil, err
+			res.Error = err
+			return res
 		}
 
 		if !present {
 			err := writeProgressToFile(e.ProgressFile, 0)
 			if err != nil {
-				return nil, fmt.Errorf("could not create initial progress file %v", err)
+				res.Error = fmt.Errorf("could not create initial progress file %v", err)
+				return res
 			}
 
 			e.FromIndex = 0
 		} else {
 			oldHeight, err := readProgressFromFile(e.ProgressFile)
 			if err != nil {
-				return nil, fmt.Errorf("could not parse progress file as block height %v", err)
+				res.Error = fmt.Errorf("could not parse progress file as block height %v", err)
+				return res
 			}
 			e.FromIndex = oldHeight
 		}
@@ -74,7 +85,8 @@ func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]Overf
 	if e.EndAtCurrentHeight {
 		blockHeight, err := e.OverflowState.Services.Blocks.GetLatestBlockHeight()
 		if err != nil {
-			return nil, err
+			res.Error = err
+			return res
 		}
 		endIndex = blockHeight
 	}
@@ -86,7 +98,8 @@ func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]Overf
 	}
 
 	if fromIndex < 0 {
-		return nil, fmt.Errorf("FromIndex is negative")
+		res.Error = fmt.Errorf("FromIndex is negative")
+		return res
 	}
 
 	var events []string
@@ -95,11 +108,12 @@ func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]Overf
 	}
 
 	if uint64(fromIndex) > endIndex {
-		return []OverflowPastEvent{}, nil
+		return res
 	}
 	blockEvents, err := e.OverflowState.Services.Events.Get(events, uint64(fromIndex), endIndex, e.EventBatchSize, e.NumberOfWorkers)
 	if err != nil {
-		return nil, err
+		res.Error = err
+		return res
 	}
 
 	formatedEvents := []OverflowPastEvent{}
@@ -119,15 +133,23 @@ func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]Overf
 	if e.ProgressFile != "" {
 		err := writeProgressToFile(e.ProgressFile, endIndex+1)
 		if err != nil {
-			return nil, fmt.Errorf("could not write progress to file %v", err)
+			res.Error = fmt.Errorf("could not write progress to file %v", err)
+			return res
 		}
 	}
 	sort.Slice(formatedEvents, func(i, j int) bool {
 		return formatedEvents[i].BlockHeight < formatedEvents[j].BlockHeight
 	})
 
-	return formatedEvents, nil
+	res.Events = formatedEvents
+	return res
 
+}
+
+// FetchEvents using the given options
+func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]OverflowPastEvent, error) {
+	res := o.FetchEventsWithResult(opts...)
+	return res.Events, res.Error
 }
 
 // Set the Workers size for FetchEvents
