@@ -396,6 +396,13 @@ func WithPanicOnError() OverflowOption {
 	}
 }
 
+//If this option is used a panic will be called if an error occurs after an interaction is run
+func WithReturnErrors() OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.StopOnError = false
+	}
+}
+
 // automatically print interactions using the following options
 func WithGlobalPrintOptions(opts ...OverflowPrinterOption) OverflowOption {
 	return func(o *OverflowBuilder) {
