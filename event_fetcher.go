@@ -258,6 +258,60 @@ type OverflowPastEvent struct {
 	Event       OverflowEvent `json:"event"`
 }
 
+/*
+type MarketEvent struct {
+   EventDate         time.Time `json:"eventDate"`
+   FlowEventID       string    `json:"flowEventId"`
+   FlowTransactionID string    `json:"flowTransactionId"`
+   ID                string    `json:"id"`
+   BlockEventData    struct {
+  12   } `json:"blockEventData"`
+ }
+*/
+type OverflowGraffleEvent struct {
+	EventDate         time.Time              `json:"eventDate"`
+	FlowEventID       string                 `json:"flowEventId"`
+	FlowTransactionID string                 `json:"flowTransactionId"`
+	ID                string                 `json:"id"`
+	BlockEventData    map[string]interface{} `json:"blockEventData"`
+}
+
+func (e OverflowPastEvent) ToGraffleEvent() OverflowGraffleEvent {
+	return OverflowGraffleEvent{
+		EventDate:         e.Time,
+		FlowEventID:       e.Name,
+		ID:                "unknown",
+		FlowTransactionID: e.Event.TransactionId,
+		BlockEventData:    e.Event.Fields,
+	}
+}
+
+func (e OverflowGraffleEvent) MarshalAs(marshalTo interface{}) error {
+	bytes, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e OverflowPastEvent) MarshalAs(marshalTo interface{}) error {
+	bytes, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // String pretty print an event as a String
 func (e OverflowPastEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")

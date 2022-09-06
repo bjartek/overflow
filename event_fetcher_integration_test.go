@@ -4,7 +4,9 @@ import (
 	"io/fs"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/hexops/autogold"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,6 +17,16 @@ func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	assert.NoError(t, result.Err)
 	return o
 
+}
+
+type MarketEvent struct {
+	EventDate         time.Time `json:"eventDate"`
+	FlowEventID       string    `json:"flowEventId"`
+	FlowTransactionID string    `json:"flowTransactionId"`
+	ID                string    `json:"id"`
+	BlockEventData    struct {
+		Amount float64 `json:"amount"`
+	} `json:"blockEventData"`
 }
 
 func TestIntegrationEventFetcher(t *testing.T) {
@@ -86,7 +98,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		assert.Equal(t, "could not parse progress file as block height strconv.ParseInt: parsing \"invalid\": invalid syntax", err.Error())
 	})
 
-	t.Run("Fetch last write progress file that exists", func(t *testing.T) {
+	t.Run("Fetch last write progress file that exists and marshal events", func(t *testing.T) {
 
 		err := os.WriteFile("progress", []byte("1"), fs.ModePerm)
 		assert.NoError(t, err)
@@ -98,6 +110,18 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		defer os.Remove("progress")
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(ev))
+		event := ev[0]
+
+		graffleEvent := event.ToGraffleEvent()
+
+		var eventMarshal map[string]interface{}
+		assert.NoError(t, event.MarshalAs(&eventMarshal))
+		assert.NotEmpty(t, eventMarshal)
+
+		autogold.Equal(t, graffleEvent.BlockEventData, autogold.Name("graffle-event"))
+		var marshalTo MarketEvent
+		assert.NoError(t, graffleEvent.MarshalAs(&marshalTo))
+		assert.Equal(t, float64(100), marshalTo.BlockEventData.Amount)
 	})
 
 }
