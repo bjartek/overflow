@@ -258,16 +258,6 @@ type OverflowPastEvent struct {
 	Event       OverflowEvent `json:"event"`
 }
 
-/*
-type MarketEvent struct {
-   EventDate         time.Time `json:"eventDate"`
-   FlowEventID       string    `json:"flowEventId"`
-   FlowTransactionID string    `json:"flowTransactionId"`
-   ID                string    `json:"id"`
-   BlockEventData    struct {
-  12   } `json:"blockEventData"`
- }
-*/
 type OverflowGraffleEvent struct {
 	EventDate         time.Time              `json:"eventDate"`
 	FlowEventID       string                 `json:"flowEventId"`
