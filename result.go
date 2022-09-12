@@ -91,6 +91,17 @@ func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
 	return []OverflowEvent{}
 }
 
+// Get all events that end with the given suffix
+func (o OverflowResult) MarshalEventsWithName(eventName string, result interface{}) error {
+	for name, event := range o.Events {
+		if strings.HasSuffix(name, eventName) {
+			err := event.MarshalAs(result)
+			return err
+		}
+	}
+	return nil
+}
+
 // Assert that this particular transaction was a failure that has a message that contains the sendt in assertion
 func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	t.Helper()

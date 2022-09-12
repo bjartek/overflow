@@ -83,6 +83,24 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertEmulatorLog(t, "Transaction submitted")
 	})
 
+	t.Run("Mint tokens and marshal event", func(t *testing.T) {
+		result := o.Tx("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1)).
+			AssertSuccess(t)
+
+		var events []interface{}
+		err := result.MarshalEventsWithName("TokensDeposited", &events)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(events))
+
+		var singleEvent interface{}
+		err = result.GetEventsWithName("TokensDeposited")[0].MarshalAs(&singleEvent)
+		assert.NoError(t, err)
+		assert.NotNil(t, singleEvent)
+	})
+
 }
 func TestTransactionEventFiltering(t *testing.T) {
 

@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -14,8 +15,10 @@ import (
 // a type alias to an OverflowEventFilter to filter out all events with a given suffix and the fields with given suffixes
 type OverflowEventFilter map[string][]string
 
+type OverflowEventList []OverflowEvent
+
 // a type holding all events that are emitted from a Transaction
-type OverflowEvents map[string][]OverflowEvent
+type OverflowEvents map[string]OverflowEventList
 
 type OverflowEvent struct {
 	Fields        map[string]interface{} `json:"fields"`
@@ -31,6 +34,32 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 		}
 	}
 	return false
+}
+
+func (e OverflowEventList) MarshalAs(marshalTo interface{}) error {
+	bytes, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
+	bytes, err := json.Marshal(e)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(bytes, marshalTo)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //Parse raw flow events into a list of events and a fee event
