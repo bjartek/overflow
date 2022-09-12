@@ -31,7 +31,8 @@ type OverflowPrinterBuilder struct {
 	//print transaction id, useful to disable in tests
 	Id bool
 
-	Arguments bool
+	Arguments      bool
+	TransactionUrl bool
 }
 
 // print full meter verbose mode
@@ -46,6 +47,13 @@ func WithMeter() OverflowPrinterOption {
 	return func(opb *OverflowPrinterBuilder) {
 		opb.Meter = 1
 	}
+}
+
+func WithTransactionUrl() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.TransactionUrl = true
+	}
+
 }
 
 // do not print meter
@@ -92,12 +100,13 @@ func WithArguments() OverflowPrinterOption {
 func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 
 	printOpts := &OverflowPrinterBuilder{
-		Events:      true,
-		EventFilter: OverflowEventFilter{},
-		Meter:       1,
-		EmulatorLog: false,
-		Id:          true,
-		Arguments:   false,
+		Events:         true,
+		EventFilter:    OverflowEventFilter{},
+		Meter:          1,
+		EmulatorLog:    false,
+		Id:             true,
+		Arguments:      false,
+		TransactionUrl: false,
 	}
 
 	for _, opb := range opbs {
@@ -130,6 +139,10 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 	}
 
 	fmt.Printf("%v %s\n", emoji.OkHand, strings.Join(messages, " "))
+
+	if printOpts.TransactionUrl {
+		fmt.Printf("https://flowscan.org/transaction/%s\n", o.Id)
+	}
 
 	if printOpts.Arguments {
 		o.PrintArguments(nil)
