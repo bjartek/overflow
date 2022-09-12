@@ -197,6 +197,9 @@ func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer s
 
 // Marshal the script output as the given sent in type
 func (osr *OverflowScriptResult) MarshalAs(marshalTo interface{}) error {
+	if osr.Err != nil {
+		return osr.Err
+	}
 	bytes, err := json.Marshal(osr.Output)
 	if err != nil {
 		return err
