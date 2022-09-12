@@ -78,8 +78,18 @@ type OverflowState struct {
 	NewUserFlowAmount float64
 }
 
-func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, error) {
+type OverflowArgument struct {
+	Name  string
+	Value interface{}
+	Type  ast.Type
+}
+
+type OverflowArguments map[string]OverflowArgument
+type OverflowArgumentList []OverflowArgument
+
+func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
+	resultArgsMap := CadenceArguments{}
 
 	codes := map[common.Location]string{}
 	location := common.StringLocation(fileName)
@@ -103,12 +113,11 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	}
 
 	if parameterList == nil {
-		return resultArgs, nil
+		return resultArgs, resultArgsMap, nil
 	}
-
 	argumentNotPresent := []string{}
 	argumentNames := []string{}
-	args := []interface{}{}
+	args := OverflowArgumentList{}
 	for _, parameter := range parameterList {
 		parameterName := parameter.Identifier.Identifier
 		value, ok := inputArgs[parameterName]
@@ -116,13 +125,17 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			argumentNotPresent = append(argumentNotPresent, parameterName)
 		} else {
 			argumentNames = append(argumentNames, parameterName)
-			args = append(args, value)
+			args = append(args, OverflowArgument{
+				Name:  parameterName,
+				Value: value,
+				Type:  parameter.TypeAnnotation.Type,
+			})
 		}
 	}
 
 	if len(argumentNotPresent) > 0 {
 		err := fmt.Errorf("the interaction '%s' is missing %v", fileName, argumentNotPresent)
-		return nil, err
+		return nil, nil, err
 	}
 
 	redundantArgument := []string{}
@@ -135,14 +148,18 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 	if len(redundantArgument) > 0 {
 		err := fmt.Errorf("the interaction '%s' has the following extra arguments %v", fileName, redundantArgument)
-		return nil, err
+		return nil, nil, err
 	}
 
-	for index, argument := range args {
+	for _, oa := range args {
+
+		name := oa.Name
+		argument := oa.Value
 
 		cadenceVal, isCadenceValue := argument.(cadence.Value)
 		if isCadenceValue {
 			resultArgs = append(resultArgs, cadenceVal)
+			resultArgsMap[name] = cadenceVal
 			continue
 		}
 
@@ -183,8 +200,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			argumentString = fmt.Sprintf("%v", argument)
 
 		}
-		astType := parameterList[index].TypeAnnotation.Type
-		semaType := checker.ConvertType(astType)
+		semaType := checker.ConvertType(oa.Type)
 
 		switch semaType {
 		case sema.StringType:
@@ -209,11 +225,12 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
 		if err != nil {
-			return nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", parameterList[index].Identifier, argumentString, semaType)
+			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", name, argumentString, semaType)
 		}
 		resultArgs = append(resultArgs, value)
+		resultArgsMap[name] = value
 	}
-	return resultArgs, nil
+	return resultArgs, resultArgsMap, nil
 }
 
 // AccountE fetch an account from State
@@ -492,6 +509,7 @@ func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *
 		result.Print(po...)
 	}
 	if o.StopOnError && result.Err != nil {
+		result.PrintArguments(nil)
 		panic(result.Err)
 	}
 
@@ -567,12 +585,13 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		return ftb
 	}
 
-	parseArgs, err := o.parseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
+	parseArgs, namedCadenceArguments, err := o.parseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
 	if err != nil {
 		ftb.Error = err
 		return ftb
 	}
 	ftb.Arguments = parseArgs
+	ftb.NamedCadenceArguments = namedCadenceArguments
 	return ftb
 }
 

@@ -30,6 +30,8 @@ type OverflowPrinterBuilder struct {
 
 	//print transaction id, useful to disable in tests
 	Id bool
+
+	Arguments bool
 }
 
 // print full meter verbose mode
@@ -80,6 +82,12 @@ func WithoutId() OverflowPrinterOption {
 	}
 }
 
+func WithArguments() OverflowPrinterOption {
+	return func(opb *OverflowPrinterBuilder) {
+		opb.Arguments = true
+	}
+}
+
 // print out an result
 func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 
@@ -89,6 +97,7 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 		Meter:       1,
 		EmulatorLog: false,
 		Id:          true,
+		Arguments:   false,
 	}
 
 	for _, opb := range opbs {
@@ -121,6 +130,10 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 	}
 
 	fmt.Printf("%v %s\n", emoji.OkHand, strings.Join(messages, " "))
+
+	if printOpts.Arguments {
+		o.PrintArguments(nil)
+	}
 
 	if printOpts.Events {
 		events := o.Events

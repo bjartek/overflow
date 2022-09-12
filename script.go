@@ -55,6 +55,7 @@ func (o *OverflowState) Script(filename string, opts ...OverflowInteractionOptio
 		result.Print()
 	}
 	if o.StopOnError && result.Err != nil {
+		result.PrintArguments(nil)
 		panic(result.Err)
 	}
 	return result
@@ -119,6 +120,27 @@ type OverflowScriptResult struct {
 	Input  *OverflowInteractionBuilder
 	Log    []OverflowEmulatorLogMessage
 	Output interface{}
+}
+
+func (osr *OverflowScriptResult) PrintArguments(t *testing.T) {
+
+	args := osr.Input.NamedCadenceArguments
+	maxLength := 0
+	for name := range args {
+		if len(name) > maxLength {
+			maxLength = len(name)
+		}
+	}
+
+	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
+
+	for name, arg := range args {
+		value, err := CadenceValueToJsonString(arg)
+		if err != nil {
+			panic(err)
+		}
+		printOrLog(t, fmt.Sprintf(format, name, value))
+	}
 }
 
 // get the script as json

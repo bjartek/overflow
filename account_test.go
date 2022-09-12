@@ -9,7 +9,7 @@ import (
 func TestErrorsInAccountCreation(t *testing.T) {
 
 	t.Run("Should deploy contracts to multiple accounts", func(t *testing.T) {
-		_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull())
+		_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull(), WithFlowForNewUsers(100.0))
 		assert.NoError(t, err)
 	})
 

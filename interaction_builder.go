@@ -41,6 +41,8 @@ type OverflowInteractionBuilder struct {
 	//The list of raw arguments
 	Arguments []cadence.Value
 
+	NamedCadenceArguments CadenceArguments
+
 	//The main signer used to sign the transaction
 	// Payer: the account paying for the transaction fees.
 	Payer *flowkit.Account
@@ -303,7 +305,10 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
-	result := &OverflowResult{StopOnError: oib.Overflow.StopOnError}
+	result := &OverflowResult{
+		StopOnError: oib.Overflow.StopOnError,
+		Arguments:   oib.NamedCadenceArguments,
+	}
 	if oib.Error != nil {
 		result.Err = oib.Error
 		return result
