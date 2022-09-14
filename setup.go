@@ -441,6 +441,6 @@ func WithDefaultFlowJson() OverflowOption {
 
 func WithReaderWrite(rw flowkit.ReaderWriter) OverflowOption {
 	return func(o *OverflowBuilder) {
-		o.ReaderWrier = rw
+		o.ReaderWriter = &rw
 	}
 }
