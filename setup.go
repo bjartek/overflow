@@ -105,13 +105,13 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 	UseDefaultFlowJson                  bool
-	ReaderWriter                        *flowkit.ReaderWriter
+	ReaderWriter                        flowkit.ReaderWriter
 }
 
 // StartE will start Overflow and return State and error if any
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
-	loader := *o.ReaderWriter
+	loader := o.ReaderWriter
 	if o.ReaderWriter == nil {
 		loader = afero.Afero{Fs: afero.NewOsFs()}
 	}
@@ -452,7 +452,8 @@ func WithDefaultFlowJson() OverflowOption {
 
 func WithEmbedFS(fs embed.FS) OverflowOption {
 	return func(o *OverflowBuilder) {
-		o.ReaderWriter = &EmbedWrapper{Embed: fs}
+		wrapper := EmbedWrapper{Embed: fs}
+		o.ReaderWriter = &wrapper
 	}
 }
 
@@ -460,11 +461,11 @@ type EmbedWrapper struct {
 	Embed embed.FS
 }
 
-func (ew EmbedWrapper) ReadFile(source string) ([]byte, error) {
+func (ew *EmbedWrapper) ReadFile(source string) ([]byte, error) {
 	return ew.Embed.ReadFile(source)
 }
 
-func (ew EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
+func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
 	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
 	return nil
 }
