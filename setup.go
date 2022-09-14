@@ -174,11 +174,15 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
 	if o.ScriptFolderName == "" {
 		scriptFolderName = o.Path
+	} else if o.Path == "" {
+		scriptFolderName = o.ScriptFolderName
 	}
 
 	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
 	if o.TransactionFolderName == "" {
 		txPathName = o.Path
+	} else if o.Path == "" {
+		txPathName = o.TransactionFolderName
 	}
 	overflow := &OverflowState{
 		State:                               state,
