@@ -169,6 +169,16 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		}
 		service = services.NewServices(gw, state, logger)
 	}
+
+	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
+	if o.ScriptFolderName == "" {
+		scriptFolderName = o.Path
+	}
+
+	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
+	if o.TransactionFolderName == "" {
+		txPathName = o.Path
+	}
 	overflow := &OverflowState{
 		State:                               state,
 		Services:                            service,
@@ -178,8 +188,8 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		ServiceAccountSuffix:                o.ServiceSuffix,
 		Gas:                                 o.GasLimit,
 		BasePath:                            o.Path,
-		TransactionBasePath:                 fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
-		ScriptBasePath:                      fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
+		TransactionBasePath:                 txPathName,
+		ScriptBasePath:                      scriptFolderName,
 		Log:                                 &memlog,
 		EmulatorLog:                         &emulatorLog,
 		FilterOutFeeEvents:                  o.FilterOutFeeEvents,
