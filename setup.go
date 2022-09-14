@@ -7,6 +7,7 @@ package overflow
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"io"
 	"os"
@@ -449,8 +450,21 @@ func WithDefaultFlowJson() OverflowOption {
 	}
 }
 
-func WithReaderWrite(rw flowkit.ReaderWriter) OverflowOption {
+func WithEmbedFS(fs embed.FS) OverflowOption {
 	return func(o *OverflowBuilder) {
-		o.ReaderWriter = &rw
+		o.ReaderWriter = &EmbedWrapper{Embed: fs}
 	}
+}
+
+type EmbedWrapper struct {
+	Embed embed.FS
+}
+
+func (ew EmbedWrapper) ReadFile(source string) ([]byte, error) {
+	return ew.Embed.ReadFile(source)
+}
+
+func (ew EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
+	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
+	return nil
 }
