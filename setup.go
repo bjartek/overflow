@@ -40,11 +40,11 @@ type OverflowOption func(*OverflowBuilder)
 // OVERFLOW_CONTINUE: to continue this overflow on an already running emulator., default false
 // OVERFLOW_STOP_ON_ERROR: will the process panic if an erorr is encountered. If set to false the result objects will have the error. default: false
 //
-// Starting overflow without env vars will make it start in embedded mode deploying all contracts creating accounts
+// # Starting overflow without env vars will make it start in embedded mode deploying all contracts creating accounts
 //
 // You can then chose to override this setting with the builder methods example
 //
-//  Overflow(WithNetwork("mainnet"))
+//	Overflow(WithNetwork("mainnet"))
 func Overflow(opts ...OverflowOption) *OverflowState {
 	ob := defaultOverflowBuilder.applyOptions(opts)
 	o, err := ob.StartE()
@@ -82,7 +82,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	UseDefaultFlowJson:                  false,
 }
 
-//OverflowBuilder is the struct used to gather up configuration when building an overflow instance
+// OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
 	TransactionFees                     bool
 	Network                             string
@@ -104,12 +104,16 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 	UseDefaultFlowJson                  bool
+	ReaderWriter                        *flowkit.ReaderWriter
 }
 
 // StartE will start Overflow and return State and error if any
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
-	loader := &afero.Afero{Fs: afero.NewOsFs()}
+	loader := *o.ReaderWriter
+	if o.ReaderWriter == nil {
+		loader = afero.Afero{Fs: afero.NewOsFs()}
+	}
 	var state *flowkit.State
 	var err error
 	if o.UseDefaultFlowJson {
@@ -204,7 +208,7 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 	return overflow, nil
 }
 
-//applyOptions will apply all options from the sent in slice to an overflow builder
+// applyOptions will apply all options from the sent in slice to an overflow builder
 func (o OverflowBuilder) applyOptions(opts []OverflowOption) *OverflowBuilder {
 
 	network := os.Getenv("OVERFLOW_ENV")
@@ -286,7 +290,7 @@ func WithNetwork(network string) OverflowOption {
 	}
 }
 
-//WithExistingEmulator will attach to an existing emulator, not deploying contracts and creating accounts
+// WithExistingEmulator will attach to an existing emulator, not deploying contracts and creating accounts
 func WithExistingEmulator() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.DeployContracts = false
@@ -296,14 +300,14 @@ func WithExistingEmulator() OverflowOption {
 	}
 }
 
-//DoNotPrependNetworkToAccountNames will not prepend the name of the network to account names
+// DoNotPrependNetworkToAccountNames will not prepend the name of the network to account names
 func WithNoPrefixToAccountNames() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.PrependNetworkName = false
 	}
 }
 
-//WithServiceAccountSuffix will set the suffix of the service account
+// WithServiceAccountSuffix will set the suffix of the service account
 func WithServiceAccountSuffix(suffix string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.ServiceSuffix = suffix
@@ -324,7 +328,7 @@ func WithLogFull() OverflowOption {
 	}
 }
 
-//WithNoLog will not log anything from results or flowkit logger
+// WithNoLog will not log anything from results or flowkit logger
 func WithLogNone() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.LogLevel = output.NoneLog
@@ -332,43 +336,43 @@ func WithLogNone() OverflowOption {
 	}
 }
 
-//WithGas set the default gas limit, standard is 9999 (max)
+// WithGas set the default gas limit, standard is 9999 (max)
 func WithGas(gas int) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.GasLimit = gas
 	}
 }
 
-//WithBasePath will change the standard basepath `.` to another folder
+// WithBasePath will change the standard basepath `.` to another folder
 func WithBasePath(path string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.Path = path
 	}
 }
 
-//WithFlowConfig will set the path to one or more flow.json config files
-//The default is ~/flow.json and ./flow.json.
+// WithFlowConfig will set the path to one or more flow.json config files
+// The default is ~/flow.json and ./flow.json.
 func WithFlowConfig(files ...string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.ConfigFiles = files
 	}
 }
 
-//WithScriptFolderName will overwite the default script subdir for scripts `scripts`
+// WithScriptFolderName will overwite the default script subdir for scripts `scripts`
 func WithScriptFolderName(name string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.ScriptFolderName = name
 	}
 }
 
-//WithTransactionFolderName will overwite the default script subdir for transactions `transactions`
+// WithTransactionFolderName will overwite the default script subdir for transactions `transactions`
 func WithTransactionFolderName(name string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.TransactionFolderName = name
 	}
 }
 
-//WithTransactionFolderName will overwite the default script subdir for transactions `transactions`
+// WithTransactionFolderName will overwite the default script subdir for transactions `transactions`
 func WithFeesEvents() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.FilterOutFeeEvents = false
@@ -389,14 +393,14 @@ func WithGlobalEventFilter(filter OverflowEventFilter) OverflowOption {
 	}
 }
 
-//If this option is used a panic will be called if an error occurs after an interaction is run
+// If this option is used a panic will be called if an error occurs after an interaction is run
 func WithPanicOnError() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.StopOnError = true
 	}
 }
 
-//If this option is used a panic will be called if an error occurs after an interaction is run
+// If this option is used a panic will be called if an error occurs after an interaction is run
 func WithReturnErrors() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.StopOnError = false
@@ -433,5 +437,10 @@ func WithDefaultFlowJson() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.UseDefaultFlowJson = true
 	}
+}
 
+func WithReaderWrite(rw flowkit.ReaderWriter) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.ReaderWrier = rw
+	}
 }
