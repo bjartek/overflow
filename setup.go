@@ -47,13 +47,10 @@ type OverflowOption func(*OverflowBuilder)
 //	Overflow(WithNetwork("mainnet"))
 func Overflow(opts ...OverflowOption) *OverflowState {
 	ob := defaultOverflowBuilder.applyOptions(opts)
-	o, err := ob.StartE()
+	o := ob.StartResult()
 
-	if err != nil {
-		if o.StopOnError {
-			panic(err)
-		}
-		o.Error = err
+	if o.Error != nil && o.StopOnError {
+		panic(o.Error)
 	}
 
 	return o
@@ -106,8 +103,32 @@ type OverflowBuilder struct {
 	UseDefaultFlowJson                  bool
 }
 
-// StartE will start Overflow and return State and error if any
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
+	result := o.StartResult()
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return result, nil
+}
+
+// StartE will start Overflow and return State and error if any
+func (o *OverflowBuilder) StartResult() *OverflowState {
+	overflow := &OverflowState{
+		Network:                             o.Network,
+		PrependNetworkToAccountNames:        o.PrependNetworkName,
+		ServiceAccountSuffix:                o.ServiceSuffix,
+		Gas:                                 o.GasLimit,
+		BasePath:                            o.Path,
+		TransactionBasePath:                 fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
+		ScriptBasePath:                      fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
+		FilterOutFeeEvents:                  o.FilterOutFeeEvents,
+		FilterOutEmptyWithDrawDepositEvents: o.FilterOutEmptyWithDrawDepositEvents,
+		GlobalEventFilter:                   o.GlobalEventFilter,
+		StopOnError:                         o.StopOnError,
+		PrintOptions:                        o.PrintOptions,
+		NewUserFlowAmount:                   o.NewAccountFlowAmount,
+		LogLevel:                            o.LogLevel,
+	}
 
 	loader := &afero.Afero{Fs: afero.NewOsFs()}
 	var state *flowkit.State
@@ -115,19 +136,24 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 	if o.UseDefaultFlowJson {
 		state, err = flowkit.Init(loader, crypto.ECDSAP256, hash.SHA3_256)
 		if err != nil {
-			return nil, err
+			overflow.Error = err
+			return overflow
 		}
 	} else {
 		state, err = flowkit.Load(o.ConfigFiles, loader)
 		if err != nil {
-			return nil, err
+			overflow.Error = err
+			return overflow
 		}
 	}
+	overflow.State = state
 
 	logger := output.NewStdoutLogger(o.LogLevel)
-	var service *services.Services
+	overflow.Logger = logger
 	var memlog bytes.Buffer
 	var emulatorLog bytes.Buffer
+	overflow.Log = &memlog
+	overflow.EmulatorLog = &emulatorLog
 
 	if o.InMemory {
 		acc, _ := state.EmulatorServiceAccount()
@@ -152,18 +178,20 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 			gateway.WithEmulatorOptions(emulatorOptions...),
 		)
 
-		service = services.NewServices(gw, state, logger)
+		overflow.Services = services.NewServices(gw, state, logger)
 	} else {
 		network, err := state.Networks().ByName(o.Network)
 		if err != nil {
-			return nil, err
+			overflow.Error = err
+			return overflow
 		}
 		host := network.Host
 		gw, err := gateway.NewGrpcGateway(host)
 		if err != nil {
-			return nil, err
+			overflow.Error = err
+			return overflow
 		}
-		service = services.NewServices(gw, state, logger)
+		overflow.Services = services.NewServices(gw, state, logger)
 	}
 
 	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
@@ -195,23 +223,25 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 		PrintOptions:                        o.PrintOptions,
 		NewUserFlowAmount:                   o.NewAccountFlowAmount,
 		LogLevel:                            o.LogLevel,
+>>>>>>> main
 	}
 
 	if o.InitializeAccounts {
-		o2, err := overflow.CreateAccountsE()
+		_, err := overflow.CreateAccountsE()
 		if err != nil {
-			return o2, errors.Wrap(err, "could not create accounts")
+			overflow.Error = errors.Wrap(err, "could not create accounts")
+			return overflow
 		}
 	}
 
 	if o.DeployContracts {
 		overflow = overflow.InitializeContracts()
 		if overflow.Error != nil {
-			return overflow, errors.Wrap(overflow.Error, "could not deploy contracts")
+			overflow.Error = errors.Wrap(overflow.Error, "could not deploy contracts")
+			return overflow
 		}
 	}
-
-	return overflow, nil
+	return overflow
 }
 
 // applyOptions will apply all options from the sent in slice to an overflow builder

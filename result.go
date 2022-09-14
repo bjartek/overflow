@@ -5,10 +5,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 )
+
+type CadenceArguments map[string]cadence.Value
 
 // a type to define a function used to compose Transaction interactions
 type OverflowTransactionFunction func(filename string, opts ...OverflowInteractionOption) *OverflowResult
@@ -52,6 +55,29 @@ type OverflowResult struct {
 
 	//The name of the Transaction
 	Name string
+
+	Arguments CadenceArguments
+}
+
+func (o OverflowResult) PrintArguments(t *testing.T) {
+
+	printOrLog(t, "=== Arguments ===")
+	maxLength := 0
+	for name := range o.Arguments {
+		if len(name) > maxLength {
+			maxLength = len(name)
+		}
+	}
+
+	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
+
+	for name, arg := range o.Arguments {
+		value, err := CadenceValueToJsonString(arg)
+		if err != nil {
+			panic(err)
+		}
+		printOrLog(t, fmt.Sprintf(format, name, value))
+	}
 }
 
 // Get a uint64 field with the given fieldname(most often an id) from an event with a given suffix
@@ -89,6 +115,17 @@ func (o OverflowResult) GetEventsWithName(eventName string) []OverflowEvent {
 		}
 	}
 	return []OverflowEvent{}
+}
+
+// Get all events that end with the given suffix
+func (o OverflowResult) MarshalEventsWithName(eventName string, result interface{}) error {
+	for name, event := range o.Events {
+		if strings.HasSuffix(name, eventName) {
+			err := event.MarshalAs(result)
+			return err
+		}
+	}
+	return nil
 }
 
 // Assert that this particular transaction was a failure that has a message that contains the sendt in assertion

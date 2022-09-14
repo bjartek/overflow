@@ -28,6 +28,13 @@ func TestScript(t *testing.T) {
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
 	})
 
+	t.Run("Run simple script marshal with underlying error", func(t *testing.T) {
+		var res string
+		err := o.Script("test2", WithArg("account", "first")).MarshalAs(&res)
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "Could not read interaction file from path")
+	})
+
 	t.Run("compose a script", func(t *testing.T) {
 		accountScript := o.ScriptFN(WithArg("account", "first"))
 		res := accountScript("test")

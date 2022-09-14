@@ -9,7 +9,7 @@ import (
 func TestErrorsInAccountCreation(t *testing.T) {
 
 	t.Run("Should deploy contracts to multiple accounts", func(t *testing.T) {
-		_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull())
+		_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull(), WithFlowForNewUsers(100.0))
 		assert.NoError(t, err)
 	})
 
@@ -17,6 +17,12 @@ func TestErrorsInAccountCreation(t *testing.T) {
 		assert.Panics(t, func() {
 			NewTestingEmulator().Config("testdata/non_existing_contract.json").Start()
 		})
+	})
+
+	t.Run("Should give error on invalid env var in flow.json", func(t *testing.T) {
+		_, err := NewTestingEmulator().Config("testdata/invalid_env_flow.json").StartE()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "invalid private key for account: emulator-5")
 	})
 
 	t.Run("Should give error on wrong account name", func(t *testing.T) {

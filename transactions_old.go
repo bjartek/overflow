@@ -20,13 +20,14 @@ func (o *OverflowState) SimpleTxArgs(filename string, signer string, args *Overf
 // TransactionFromFile will start a flow transaction builder
 func (o *OverflowState) TransactionFromFile(filename string) OverflowInteractionBuilder {
 	return OverflowInteractionBuilder{
-		Overflow:       o,
-		FileName:       filename,
-		Payer:          nil,
-		Arguments:      []cadence.Value{},
-		PayloadSigners: []*flowkit.Account{},
-		GasLimit:       uint64(o.Gas),
-		BasePath:       fmt.Sprintf("%s/transactions", o.BasePath),
+		Overflow:              o,
+		FileName:              filename,
+		Payer:                 nil,
+		Arguments:             []cadence.Value{},
+		NamedCadenceArguments: CadenceArguments{},
+		PayloadSigners:        []*flowkit.Account{},
+		GasLimit:              uint64(o.Gas),
+		BasePath:              fmt.Sprintf("%s/transactions", o.BasePath),
 	}
 }
 
@@ -35,14 +36,15 @@ func (o *OverflowState) TransactionFromFile(filename string) OverflowInteraction
 // Transaction will start a flow transaction builder using the inline transaction
 func (o *OverflowState) Transaction(content string) OverflowInteractionBuilder {
 	return OverflowInteractionBuilder{
-		Overflow:       o,
-		FileName:       "inline",
-		Content:        content,
-		Payer:          nil,
-		Arguments:      []cadence.Value{},
-		PayloadSigners: []*flowkit.Account{},
-		GasLimit:       uint64(o.Gas),
-		BasePath:       fmt.Sprintf("%s/transactions", o.BasePath),
+		Overflow:              o,
+		FileName:              "inline",
+		Content:               content,
+		Payer:                 nil,
+		Arguments:             []cadence.Value{},
+		NamedCadenceArguments: CadenceArguments{},
+		PayloadSigners:        []*flowkit.Account{},
+		GasLimit:              uint64(o.Gas),
+		BasePath:              fmt.Sprintf("%s/transactions", o.BasePath),
 	}
 }
 
