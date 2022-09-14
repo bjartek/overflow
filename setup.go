@@ -7,6 +7,7 @@ package overflow
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"io"
 	"os"
@@ -101,6 +102,7 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 	UseDefaultFlowJson                  bool
+	ReaderWriter                        flowkit.ReaderWriter
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -130,7 +132,10 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		LogLevel:                            o.LogLevel,
 	}
 
-	loader := &afero.Afero{Fs: afero.NewOsFs()}
+	loader := o.ReaderWriter
+	if o.ReaderWriter == nil {
+		loader = afero.Afero{Fs: afero.NewOsFs()}
+	}
 	var state *flowkit.State
 	var err error
 	if o.UseDefaultFlowJson {
@@ -202,6 +207,20 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
 	if o.TransactionFolderName == "" {
 		txPathName = o.Path
+	}
+
+	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
+	if o.ScriptFolderName == "" {
+		scriptFolderName = o.Path
+	} else if o.Path == "" {
+		scriptFolderName = o.ScriptFolderName
+	}
+
+	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
+	if o.TransactionFolderName == "" {
+		txPathName = o.Path
+	} else if o.Path == "" {
+		txPathName = o.TransactionFolderName
 	}
 	overflow := &OverflowState{
 		State:                               state,
@@ -473,5 +492,24 @@ func WithDefaultFlowJson() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.UseDefaultFlowJson = true
 	}
+}
 
+func WithEmbedFS(fs embed.FS) OverflowOption {
+	return func(o *OverflowBuilder) {
+		wrapper := EmbedWrapper{Embed: fs}
+		o.ReaderWriter = &wrapper
+	}
+}
+
+type EmbedWrapper struct {
+	Embed embed.FS
+}
+
+func (ew *EmbedWrapper) ReadFile(source string) ([]byte, error) {
+	return ew.Embed.ReadFile(source)
+}
+
+func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
+	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
+	return nil
 }
