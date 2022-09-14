@@ -115,14 +115,29 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
 // StartE will start Overflow and return State and error if any
 func (o *OverflowBuilder) StartResult() *OverflowState {
+
+	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
+	if o.ScriptFolderName == "" {
+		scriptFolderName = o.Path
+	} else if o.Path == "" {
+		scriptFolderName = o.ScriptFolderName
+	}
+
+	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
+	if o.TransactionFolderName == "" {
+		txPathName = o.Path
+	} else if o.Path == "" {
+		txPathName = o.TransactionFolderName
+	}
+
 	overflow := &OverflowState{
 		Network:                             o.Network,
 		PrependNetworkToAccountNames:        o.PrependNetworkName,
 		ServiceAccountSuffix:                o.ServiceSuffix,
 		Gas:                                 o.GasLimit,
 		BasePath:                            o.Path,
-		TransactionBasePath:                 fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName),
-		ScriptBasePath:                      fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName),
+		TransactionBasePath:                 txPathName,
+		ScriptBasePath:                      scriptFolderName,
 		FilterOutFeeEvents:                  o.FilterOutFeeEvents,
 		FilterOutEmptyWithDrawDepositEvents: o.FilterOutEmptyWithDrawDepositEvents,
 		GlobalEventFilter:                   o.GlobalEventFilter,
@@ -197,52 +212,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow
 		}
 		overflow.Services = services.NewServices(gw, state, logger)
-	}
-
-	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
-	if o.ScriptFolderName == "" {
-		scriptFolderName = o.Path
-	}
-
-	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
-	if o.TransactionFolderName == "" {
-		txPathName = o.Path
-	}
-
-	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
-	if o.ScriptFolderName == "" {
-		scriptFolderName = o.Path
-	} else if o.Path == "" {
-		scriptFolderName = o.ScriptFolderName
-	}
-
-	txPathName := fmt.Sprintf("%s/%s", o.Path, o.TransactionFolderName)
-	if o.TransactionFolderName == "" {
-		txPathName = o.Path
-	} else if o.Path == "" {
-		txPathName = o.TransactionFolderName
-	}
-	overflow := &OverflowState{
-		State:                               state,
-		Services:                            service,
-		Network:                             o.Network,
-		Logger:                              logger,
-		PrependNetworkToAccountNames:        o.PrependNetworkName,
-		ServiceAccountSuffix:                o.ServiceSuffix,
-		Gas:                                 o.GasLimit,
-		BasePath:                            o.Path,
-		TransactionBasePath:                 txPathName,
-		ScriptBasePath:                      scriptFolderName,
-		Log:                                 &memlog,
-		EmulatorLog:                         &emulatorLog,
-		FilterOutFeeEvents:                  o.FilterOutFeeEvents,
-		FilterOutEmptyWithDrawDepositEvents: o.FilterOutEmptyWithDrawDepositEvents,
-		GlobalEventFilter:                   o.GlobalEventFilter,
-		StopOnError:                         o.StopOnError,
-		PrintOptions:                        o.PrintOptions,
-		NewUserFlowAmount:                   o.NewAccountFlowAmount,
-		LogLevel:                            o.LogLevel,
->>>>>>> main
 	}
 
 	if o.InitializeAccounts {
