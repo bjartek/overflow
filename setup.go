@@ -19,8 +19,6 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	emulator "github.com/onflow/flow-emulator"
-	"github.com/onflow/flow-go/crypto"
-	"github.com/onflow/flow-go/crypto/hash"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
@@ -77,7 +75,6 @@ var defaultOverflowBuilder = OverflowBuilder{
 	PrintOptions:                        &[]OverflowPrinterOption{},
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
-	UseDefaultFlowJson:                  false,
 }
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
@@ -101,7 +98,6 @@ type OverflowBuilder struct {
 	StopOnError                         bool
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
-	UseDefaultFlowJson                  bool
 	ReaderWriter                        flowkit.ReaderWriter
 }
 
@@ -153,18 +149,10 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	}
 	var state *flowkit.State
 	var err error
-	if o.UseDefaultFlowJson {
-		state, err = flowkit.Init(loader, crypto.ECDSAP256, hash.SHA3_256)
-		if err != nil {
-			overflow.Error = err
-			return overflow
-		}
-	} else {
-		state, err = flowkit.Load(o.ConfigFiles, loader)
-		if err != nil {
-			overflow.Error = err
-			return overflow
-		}
+	state, err = flowkit.Load(o.ConfigFiles, loader)
+	if err != nil {
+		overflow.Error = err
+		return overflow
 	}
 	overflow.State = state
 
@@ -300,7 +288,9 @@ func WithNetwork(network string) OverflowOption {
 		case "testnet", "mainnet":
 			o.DeployContracts = false
 			o.InitializeAccounts = false
+			o.StopOnError = false
 			o.InMemory = false
+			o.PrintOptions = nil
 		case emulatorValue:
 			o.InMemory = false
 		case "testing":
@@ -454,12 +444,6 @@ func WithFlowForNewUsers(amount float64) OverflowOption {
 func WithoutTransactionFees() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.TransactionFees = false
-	}
-}
-
-func WithDefaultFlowJson() OverflowOption {
-	return func(o *OverflowBuilder) {
-		o.UseDefaultFlowJson = true
 	}
 }
 
