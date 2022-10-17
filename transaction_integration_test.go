@@ -78,7 +78,7 @@ func TestTransactionIntegration(t *testing.T) {
 			WithArg("message", "foobar"),
 		).
 			AssertDebugLog(t, "foobar").
-			AssertComputationUsed(t, 37).
+			AssertComputationUsed(t, 7).
 			AssertComputationLessThenOrEqual(t, 40).
 			AssertEmulatorLog(t, "Transaction submitted")
 	})

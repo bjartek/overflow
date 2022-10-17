@@ -17,6 +17,7 @@ import (
 	"github.com/onflow/cadence/runtime/ast"
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
+	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/contracts"
@@ -91,9 +92,9 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 	resultArgsMap := CadenceArguments{}
 
-	codes := map[common.Location]string{}
+	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
-	program, must := cmd.PrepareProgram(string(code), location, codes)
+	program, must := cmd.PrepareProgram(code, location, codes)
 	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
 
 	var parameterList []*ast.Parameter
@@ -223,7 +224,11 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			}
 		}
 
-		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
+		inter, interErr := interpreter.NewInterpreter(nil, nil, &interpreter.Config{})
+		if interErr != nil {
+			return nil, nil, interErr
+		}
+		var value, err = runtime.ParseLiteral(argumentString, semaType, inter)
 		if err != nil {
 			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", name, argumentString, semaType)
 		}
@@ -373,9 +378,9 @@ func (o *OverflowState) GetAccount(key string) (*flow.Account, error) {
 func (o *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, inputArgs map[string]string) ([]cadence.Value, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
 
-	codes := map[common.Location]string{}
+	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
-	program, must := cmd.PrepareProgram(string(code), location, codes)
+	program, must := cmd.PrepareProgram(code, location, codes)
 	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
 
 	var parameterList []*ast.Parameter
@@ -440,7 +445,11 @@ func (o *OverflowState) ParseArgumentsWithoutType(fileName string, code []byte, 
 			}
 		}
 
-		var value, err = runtime.ParseLiteral(argumentString, semaType, nil)
+		inter, interErr := interpreter.NewInterpreter(nil, nil, &interpreter.Config{})
+		if interErr != nil {
+			return nil, interErr
+		}
+		var value, err = runtime.ParseLiteral(argumentString, semaType, inter)
 		if err != nil {
 			return nil, errors.Wrapf(err, "argument `%s` is not expected type `%s`", parameterList[index].Identifier, semaType)
 		}
