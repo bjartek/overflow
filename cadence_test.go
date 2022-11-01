@@ -98,7 +98,6 @@ func TestCadenceValueToJson(t *testing.T) {
 	result, err := CadenceValueToJsonString(cadence.String(""))
 	assert.NoError(t, err)
 	assert.Equal(t, "", result)
-
 }
 
 func TestParseInputValue(t *testing.T) {
@@ -131,7 +130,7 @@ func TestParseInputValue(t *testing.T) {
 
 func TestMarshalCadenceStruct(t *testing.T) {
 
-	val, err := MarshalAsCadenceStruct("A.123.Foo.Bar", Bar{Baz: "foo"})
+	val, err := StructToCadence("A.123.Foo.Bar", Bar{Baz: "foo"})
 	assert.NoError(t, err)
 	assert.Equal(t, "A.123.Foo.Bar", val.Type().ID())
 	jsonVal, err := CadenceValueToJsonString(val)
@@ -140,7 +139,23 @@ func TestMarshalCadenceStruct(t *testing.T) {
 
 }
 
+func TestMarshalCadenceStructWithStructTag(t *testing.T) {
+
+	val, err := StructToCadence("A.123.Foo.Baz", Baz{Something: "foo"})
+	assert.NoError(t, err)
+	assert.Equal(t, "A.123.Foo.Baz", val.Type().ID())
+	jsonVal, err := CadenceValueToJsonString(val)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
+
+}
+
 // in Foo.Bar.Baz
 type Bar struct {
 	Baz string
+}
+
+// in Foo.Bar.Baz
+type Baz struct {
+	Something string `cadence:"bar"`
 }

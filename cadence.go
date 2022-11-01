@@ -116,7 +116,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return field.String()
 	}
 }
-func MarshalAsCadenceStruct(qualifiedIdentifier string, t interface{}) (cadence.Value, error) {
+func StructToCadence(qualifiedIdentifier string, t interface{}) (cadence.Value, error) {
 	var val []cadence.Value
 
 	s := reflect.ValueOf(t)
@@ -132,8 +132,13 @@ func MarshalAsCadenceStruct(qualifiedIdentifier string, t interface{}) (cadence.
 			return nil, err
 		}
 
+		field := typeOfT.Field(i)
+		name := field.Tag.Get("cadence")
+		if name == "" {
+			name = strings.ToLower(field.Name)
+		}
 		fields = append(fields, cadence.Field{
-			Identifier: strings.ToLower(typeOfT.Field(i).Name),
+			Identifier: name,
 			Type:       cadenceType,
 		})
 
