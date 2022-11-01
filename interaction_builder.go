@@ -190,46 +190,12 @@ func WithStructArgsCustomQualifier(name string, resolver InputResolver, values .
 	}
 }
 
-// Send an list of structs into a transaction
-
-// use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgs(name string, values ...interface{}) OverflowInteractionOption {
-	return func(oib *OverflowInteractionBuilder) {
-
-		array := []cadence.Value{}
-		for _, value := range values {
-			structValue, err := InputToCadence(value, oib.Overflow.InputResolver)
-			if err != nil {
-				oib.Error = err
-				return
-			}
-			array = append(array, structValue)
-		}
-		oib.NamedArgs[name] = cadence.NewArray(array)
-	}
-}
-
 // Send an struct as argument into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
 func WithStructArgCustomResolver(name string, resolver InputResolver, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		structValue, err := InputToCadence(value, resolver)
-		if err != nil {
-			oib.Error = err
-			return
-		}
-		oib.NamedArgs[name] = structValue
-	}
-}
-
-// Send an struct as argument into a transaction
-
-// use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArg(name string, value interface{}) OverflowInteractionOption {
-	return func(oib *OverflowInteractionBuilder) {
-
-		structValue, err := InputToCadence(value, oib.Overflow.InputResolver)
 		if err != nil {
 			oib.Error = err
 			return

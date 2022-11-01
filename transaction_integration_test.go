@@ -115,7 +115,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", Debug_Foo{Bar: "baz"}),
+			WithArg("foo", Debug_Foo{Bar: "baz"}),
 		).AssertSuccess(t)
 
 	})
@@ -157,7 +157,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArgs("foo", Debug_Foo{Bar: "baz"}, Debug_Foo{Bar: "baz2"}),
+			WithArgs("foo", []Debug_Foo{{Bar: "baz"}, {Bar: "baz2"}}),
 		).AssertSuccess(t)
 
 	})
@@ -171,7 +171,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", Debug_FooBar{Bar: "bar", Foo: Debug_Foo{Bar: "baz"}}),
+			WithArg("foo", Debug_FooBar{Bar: "bar", Foo: Debug_Foo{Bar: "baz"}}),
 		).AssertSuccess(t)
 
 	})
@@ -185,7 +185,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", MetadataViews_HTTPFile{Url: "foo"}),
+			WithArg("foo", MetadataViews_HTTPFile{Url: "foo"}),
 		).AssertSuccess(t)
 
 	})
@@ -199,7 +199,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", MetadataViews_IPFSFile{Cid: "foo"}),
+			WithArg("foo", MetadataViews_IPFSFile{Cid: "foo"}),
 		).AssertSuccess(t)
 
 	})
@@ -214,7 +214,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", MetadataViews_IPFSFile{Cid: "foo", Path: &path}),
+			WithArg("foo", MetadataViews_IPFSFile{Cid: "foo", Path: &path}),
 		).AssertSuccess(t)
 
 	})
@@ -228,7 +228,7 @@ func TestTransactionIntegration(t *testing.T) {
 				 }
 			 }`,
 			WithSigner("first"),
-			WithStructArg("display", MetadataViews_Display_IPFS{Name: "foo", Description: "desc", Thumbnail: MetadataViews_IPFSFile{Cid: "foo"}}),
+			WithArg("display", MetadataViews_Display_IPFS{Name: "foo", Description: "desc", Thumbnail: MetadataViews_IPFSFile{Cid: "foo"}}),
 		).AssertSuccess(t)
 
 	})
@@ -242,7 +242,7 @@ func TestTransactionIntegration(t *testing.T) {
 			 }
 		 }`,
 			WithSigner("first"),
-			WithStructArg("display", MetadataViews_Display_Http{Name: "foo", Description: "desc", Thumbnail: MetadataViews_HTTPFile{Url: "foo"}}),
+			WithArg("display", MetadataViews_Display_Http{Name: "foo", Description: "desc", Thumbnail: MetadataViews_HTTPFile{Url: "foo"}}),
 		).AssertSuccess(t)
 
 	})
@@ -256,7 +256,7 @@ func TestTransactionIntegration(t *testing.T) {
 			 }
 		 }`,
 			WithSigner("first"),
-			WithStructArg("trait", MetadataViews_Trait{Name: "foo", Value: "bar"}),
+			WithArg("trait", MetadataViews_Trait{Name: "foo", Value: "bar"}),
 		).AssertSuccess(t)
 
 	})
