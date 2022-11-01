@@ -15,7 +15,7 @@ func TestTransactionIntegration(t *testing.T) {
 	customResolver := func(input string) (string, error) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
-	o, err := OverflowTesting(WithLogFull())
+	o, err := OverflowTesting()
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
 
 	assert.NoError(t, err)
@@ -176,6 +176,90 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	t.Run("Send HttpFile to transaction", func(t *testing.T) {
+
+		o.Tx(`
+		import MetadataViews from "../contracts/MetadataViews.cdc"
+		transaction(foo: AnyStruct{MetadataViews.File}) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArg("foo", MetadataViews_HTTPFile{Url: "foo"}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send IpfsFile to transaction", func(t *testing.T) {
+
+		o.Tx(`
+		import MetadataViews from "../contracts/MetadataViews.cdc"
+		transaction(foo: AnyStruct{MetadataViews.File}) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArg("foo", MetadataViews_IPFSFile{Cid: "foo"}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send IpfsFile with path to transaction", func(t *testing.T) {
+
+		path := "/Foo"
+		o.Tx(`
+		import MetadataViews from "../contracts/MetadataViews.cdc"
+		transaction(foo: AnyStruct{MetadataViews.File}) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArg("foo", MetadataViews_IPFSFile{Cid: "foo", Path: &path}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send IpfsDisplay to transaction", func(t *testing.T) {
+
+		o.Tx(`
+				import MetadataViews from "../contracts/MetadataViews.cdc"
+				transaction(display: MetadataViews.Display) {
+				  prepare(acct: AuthAccount) {
+				 }
+			 }`,
+			WithSigner("first"),
+			WithStructArg("display", MetadataViews_Display_IPFS{Name: "foo", Description: "desc", Thumbnail: MetadataViews_IPFSFile{Cid: "foo"}}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send HttpDisplay to transaction", func(t *testing.T) {
+
+		o.Tx(`
+			import MetadataViews from "../contracts/MetadataViews.cdc"
+			transaction(display: MetadataViews.Display) {
+			  prepare(acct: AuthAccount) {
+			 }
+		 }`,
+			WithSigner("first"),
+			WithStructArg("display", MetadataViews_Display_Http{Name: "foo", Description: "desc", Thumbnail: MetadataViews_HTTPFile{Url: "foo"}}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send Trait to transaction", func(t *testing.T) {
+
+		o.Tx(`
+			import MetadataViews from "../contracts/MetadataViews.cdc"
+			transaction(trait: MetadataViews.Trait) {
+			  prepare(acct: AuthAccount) {
+			 }
+		 }`,
+			WithSigner("first"),
+			WithStructArg("trait", MetadataViews_Trait{Name: "foo", Value: "bar"}),
+		).AssertSuccess(t)
+
+	})
 }
 
 func TestTransactionEventFiltering(t *testing.T) {

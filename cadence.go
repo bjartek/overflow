@@ -130,16 +130,18 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Valu
 
 	kind := inputType.Kind()
 	switch kind {
+	case reflect.Interface:
+		return cadence.NewValue(value.Interface())
 	case reflect.Struct:
 		var val []cadence.Value
 		fields := []cadence.Field{}
 		for i := 0; i < value.NumField(); i++ {
 			fieldValue := value.Field(i)
 			cadenceVal, err := ReflectToCadence(fieldValue, resolver)
-			cadenceType := cadenceVal.Type()
 			if err != nil {
 				return nil, err
 			}
+			cadenceType := cadenceVal.Type()
 
 			field := inputType.Field(i)
 			name := field.Tag.Get("cadence")

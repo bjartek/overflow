@@ -90,42 +90,45 @@ type OverflowArgument struct {
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
 
-// Generate a cadence value from an interface{}
-
-/*
-func (o *OverflowState) InputResolver() InputResolver {
-	return func(name string) (string, error) {
-		return o.QualifiedIdentiferFromSnakeCase(name)
-	}
-}
-*/
-
 // Qualified identifier from a snakeCase string Account_Contract_Struct
 func (o *OverflowState) QualifiedIdentiferFromSnakeCase(typeName string) (string, error) {
 
 	words := strings.Split(typeName, "_")
-	if len(words) == 2 {
-		return o.ServiceAccountQualifiedIdentifier(words[0], words[1]), nil
-	} else if len(words) == 3 {
-		return o.QualifiedIdentifier(words[0], words[1], words[2]), nil
+	if len(words) < 2 {
+		return "", fmt.Errorf("Invalid snake_case type string Contract_Name")
 	}
-	return "", fmt.Errorf("Invalid snake_case type string Account_Contract_Name")
-
-}
-
-func (o *OverflowState) ServiceAccountQualifiedIdentifier(contract, name string) string {
-	return o.QualifiedIdentifier(o.ServiceAccountSuffix, contract, name)
+	return o.QualifiedIdentifier(words[0], words[1])
 }
 
 // Create a qualified identifier from account, contract, name
 
 // account can either be a name from  accounts or the raw value
-func (o *OverflowState) QualifiedIdentifier(account string, contract string, name string) string {
-	flowAccount, err := o.AccountE(account)
+func (o *OverflowState) QualifiedIdentifier(contract string, name string) (string, error) {
+
+	flowContract, err := o.State.Contracts().ByNameAndNetwork(contract, o.Network)
 	if err != nil {
-		return fmt.Sprintf("A.%s.%s.%s", account, contract, name)
+		return "", err
 	}
-	return fmt.Sprintf("A.%s.%s.%s", flowAccount.Address().String(), contract, name)
+
+	//we found the contract specified in contracts section
+	if flowContract != nil && flowContract.Alias != "" {
+		return fmt.Sprintf("A.%s.%s.%s", strings.TrimPrefix(flowContract.Alias, "0x"), contract, name), nil
+	}
+
+	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
+	if err != nil {
+		return "", err
+
+	}
+
+	for _, flowDeploymentContract := range flowDeploymentContracts {
+		if flowDeploymentContract.Name == contract {
+			return fmt.Sprintf("A.%s.%s.%s", flowDeploymentContract.AccountAddress, contract, name), nil
+		}
+	}
+
+	return "", fmt.Errorf("You are trying to get the qualified identifier for something you are not creating or have mentioned in flow.json with name=%s", contract)
+
 }
 
 func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
