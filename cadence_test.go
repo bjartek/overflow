@@ -135,12 +135,12 @@ func TestParseInputValue(t *testing.T) {
 
 func TestMarshalCadenceStruct(t *testing.T) {
 
-	val, err := StructToCadence("A.123.Foo.Bar", Bar{Baz: "foo"})
+	val, err := StructToCadence("A.123.Foo.Bar", Foo{Bar: "foo"})
 	assert.NoError(t, err)
 	assert.Equal(t, "A.123.Foo.Bar", val.Type().ID())
 	jsonVal, err := CadenceValueToJsonString(val)
 	assert.NoError(t, err)
-	assert.JSONEq(t, `{ "baz": "foo" }`, jsonVal)
+	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
 
 }
 
@@ -155,9 +155,9 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
 }
 
-// in Foo.Bar.Baz
-type Bar struct {
-	Baz string
+// in Debug.cdc
+type Foo struct {
+	Bar string
 }
 
 // in Foo.Bar.Baz

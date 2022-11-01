@@ -101,7 +101,36 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.NotNil(t, singleEvent)
 	})
 
+	t.Run("Send struct to transaction", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: Debug.Foo) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArg("foo", o.CreateServiceAccountType("Debug.Foo"), Foo{Bar: "baz"}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send list of struct to transaction", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: [Debug.Foo]) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArgs("foo", o.CreateServiceAccountType("Debug.Foo"), Foo{Bar: "baz"}, Foo{Bar: "baz2"}),
+		).AssertSuccess(t)
+
+	})
+
 }
+
 func TestTransactionEventFiltering(t *testing.T) {
 
 	filter := OverflowEventFilter{
