@@ -116,6 +116,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return field.String()
 	}
 }
+
 func StructToCadence(qualifiedIdentifier string, t interface{}) (cadence.Value, error) {
 	var val []cadence.Value
 
@@ -124,6 +125,7 @@ func StructToCadence(qualifiedIdentifier string, t interface{}) (cadence.Value, 
 		return nil, fmt.Errorf("input is not a struct")
 	}
 	typeOfT := s.Type()
+	fmt.Println(typeOfT.Name())
 	fields := []cadence.Field{}
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)

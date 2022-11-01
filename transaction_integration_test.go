@@ -110,7 +110,35 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", o.CreateServiceAccountType("Debug.Foo"), Foo{Bar: "baz"}),
+			WithStructArg("foo", DebugFoo{Bar: "baz"}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send list of struct to transaction custom qualifier", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: [Debug.Foo]) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArgsCustomQualifier("foo", o.ServiceAccountQualifiedIdentifier("Debug", "Foo"), Foo{Bar: "baz"}, Foo{Bar: "baz2"}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send struct to transaction custom qualifier", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: Debug.Foo) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArgCustomQualifier("foo", o.ServiceAccountQualifiedIdentifier("Debug", "Foo"), Foo{Bar: "baz"}),
 		).AssertSuccess(t)
 
 	})
@@ -124,7 +152,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArgs("foo", o.CreateServiceAccountType("Debug.Foo"), Foo{Bar: "baz"}, Foo{Bar: "baz2"}),
+			WithStructArgs("foo", DebugFoo{Bar: "baz"}, DebugFoo{Bar: "baz2"}),
 		).AssertSuccess(t)
 
 	})

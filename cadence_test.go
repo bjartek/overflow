@@ -155,8 +155,23 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
 }
 
+func TestMarshalCadenceStructWithAutogenStructTag(t *testing.T) {
+
+	val, err := StructToCadence("A.123.Foo.Baz", Baz{Something: "foo"})
+	assert.NoError(t, err)
+	assert.Equal(t, "A.123.Foo.Baz", val.Type().ID())
+	jsonVal, err := CadenceValueToJsonString(val)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
+
+}
+
 // in Debug.cdc
 type Foo struct {
+	Bar string
+}
+
+type DebugFoo struct {
 	Bar string
 }
 

@@ -172,13 +172,33 @@ func WithArg(name string, value interface{}) OverflowInteractionOption {
 }
 
 // Send an list of structs into a transaction
+
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgs(name string, identifier string, values ...interface{}) OverflowInteractionOption {
+func WithStructArgsCustomQualifier(name string, qualifier string, values ...interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 
 		array := []cadence.Value{}
 		for _, value := range values {
-			structValue, err := StructToCadence(identifier, value)
+			structValue, err := StructToCadence(qualifier, value)
+			if err != nil {
+				oib.Error = err
+				return
+			}
+			array = append(array, structValue)
+		}
+		oib.NamedArgs[name] = cadence.NewArray(array)
+	}
+}
+
+// Send an list of structs into a transaction
+
+// use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
+func WithStructArgs(name string, values ...interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+
+		array := []cadence.Value{}
+		for _, value := range values {
+			structValue, err := oib.Overflow.StructToCadence(value)
 			if err != nil {
 				oib.Error = err
 				return
@@ -190,10 +210,25 @@ func WithStructArgs(name string, identifier string, values ...interface{}) Overf
 }
 
 // Send an struct as argument into a transaction
+
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArg(name string, identifier string, value interface{}) OverflowInteractionOption {
+func WithStructArgCustomQualifier(name string, qualifier string, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		structValue, err := StructToCadence(identifier, value)
+		structValue, err := StructToCadence(qualifier, value)
+		if err != nil {
+			oib.Error = err
+			return
+		}
+		oib.NamedArgs[name] = structValue
+	}
+}
+
+// Send an struct as argument into a transaction
+
+// use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
+func WithStructArg(name string, value interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		structValue, err := oib.Overflow.StructToCadence(value)
 		if err != nil {
 			oib.Error = err
 			return
