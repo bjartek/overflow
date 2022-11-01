@@ -110,7 +110,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArg("foo", DebugFoo{Bar: "baz"}),
+			WithStructArg("foo", Debug_Foo{Bar: "baz"}),
 		).AssertSuccess(t)
 
 	})
@@ -152,7 +152,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArgs("foo", DebugFoo{Bar: "baz"}, DebugFoo{Bar: "baz2"}),
+			WithStructArgs("foo", Debug_Foo{Bar: "baz"}, Debug_Foo{Bar: "baz2"}),
 		).AssertSuccess(t)
 
 	})

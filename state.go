@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"unicode"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -92,11 +91,11 @@ type OverflowArgumentList []OverflowArgument
 
 // Generate a cadence value from an interface{}
 
-// The qualifiedIdentifier is created from parsing camelCase of go stuct name. DebugFoo will create A.<serviceAccount>.Debug.Foo
+// The qualifiedIdentifier is created from parsing snake_case of go stuct name. Debug_Foo will create A.<serviceAccount>.Debug.Foo
 func (o *OverflowState) StructToCadence(value interface{}) (cadence.Value, error) {
 
 	typeName := reflect.ValueOf(value).Type().Name()
-	qualifiedIdentifer, err := o.QualifiedIdentiferFromCamelCase(typeName)
+	qualifiedIdentifer, err := o.QualifiedIdentiferFromSnakeCase(typeName)
 	if err != nil {
 		return nil, err
 	}
@@ -104,24 +103,16 @@ func (o *OverflowState) StructToCadence(value interface{}) (cadence.Value, error
 
 }
 
-// QualifeidIdentifer from a camelCase string, first element is account, send contract, third struct, if first is emitted it is ServiceAccount
-func (o *OverflowState) QualifiedIdentiferFromCamelCase(typeName string) (string, error) {
-	var words []string
-	l := 0
-	for s := typeName; s != ""; s = s[l:] {
-		l = strings.IndexFunc(s[1:], unicode.IsUpper) + 1
-		if l <= 0 {
-			l = len(s)
-		}
-		words = append(words, s[:l])
-	}
+// Qualified identifier from a snakeCase string Account_Contract_Struct
+func (o *OverflowState) QualifiedIdentiferFromSnakeCase(typeName string) (string, error) {
 
+	words := strings.Split(typeName, "_")
 	if len(words) == 2 {
 		return o.ServiceAccountQualifiedIdentifier(words[0], words[1]), nil
 	} else if len(words) == 3 {
 		return o.QualifiedIdentifier(words[0], words[1], words[2]), nil
 	}
-	return "", fmt.Errorf("Invalid camelCase type string <Account><Contract><Name>")
+	return "", fmt.Errorf("Invalid snake_case type string Account_Contract_Name")
 
 }
 
@@ -129,9 +120,15 @@ func (o *OverflowState) ServiceAccountQualifiedIdentifier(contract, name string)
 	return o.QualifiedIdentifier(o.ServiceAccountSuffix, contract, name)
 }
 
-// Create a qualified identifier from account name name
+// Create a qualified identifier from account, contract, name
+
+// account can either be a name from  accounts or the raw value
 func (o *OverflowState) QualifiedIdentifier(account string, contract string, name string) string {
-	return fmt.Sprintf("A.%s.%s.%s", o.Account(account).Address().String(), contract, name)
+	flowAccount, err := o.AccountE(account)
+	if err != nil {
+		return fmt.Sprintf("A.%s.%s.%s", account, contract, name)
+	}
+	return fmt.Sprintf("A.%s.%s.%s", flowAccount.Address().String(), contract, name)
 }
 
 func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {

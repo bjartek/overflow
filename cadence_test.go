@@ -171,7 +171,7 @@ type Foo struct {
 	Bar string
 }
 
-type DebugFoo struct {
+type Debug_Foo struct {
 	Bar string
 }
 
