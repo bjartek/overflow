@@ -166,6 +166,11 @@ type Foo struct {
 	Bar string
 }
 
+type Debug_FooBar struct {
+	Bar string
+	Foo Debug_Foo
+}
+
 type Debug_Foo struct {
 	Bar string
 }

@@ -161,6 +161,20 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	t.Run("Send nestedstruct to transaction", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: Debug.FooBar) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithStructArg("foo", Debug_FooBar{Bar: "bar", Foo: Debug_Foo{Bar: "baz"}}),
+		).AssertSuccess(t)
+
+	})
+
 }
 
 func TestTransactionEventFiltering(t *testing.T) {
