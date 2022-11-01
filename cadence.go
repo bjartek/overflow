@@ -163,37 +163,51 @@ func InputToCadence(v interface{}) (cadence.Type, cadence.Value, error) {
 func ReflectToCadence(f reflect.Value) (cadence.Type, cadence.Value, error) {
 	inputType := f.Type()
 
-	fmt.Printf("value %v\n", f)
-	fmt.Printf("type %v\n", inputType)
-	fmt.Printf("name %s\n", inputType.Name())
-	fmt.Printf("kind %s\n", inputType.Kind())
+	/*
+		fmt.Printf("value %v\n", f)
+		fmt.Printf("type %v\n", inputType)
+		fmt.Printf("name %s\n", inputType.Name())
+		fmt.Printf("kind %s\n", inputType.Kind())
+	*/
 
 	kind := inputType.Kind()
 	switch kind {
+	case reflect.Pointer:
+		if f.IsNil() {
+			return cadence.OptionalType{}, cadence.NewOptional(nil), nil
+		}
 
-	/*
-		Bool
-		Int
-		Int8
-		Int16
-		Int32
-		Int64
-		Uint
-		Uint8
-		Uint16
-		Uint32
-		Uintptr
-		Float32
-		Pointer
-	*/
+		ptrType, ptrValue, err := ReflectToCadence(f.Elem())
+		if err != nil {
+			return nil, nil, err
+		}
+		return cadence.OptionalType{Type: ptrType}, cadence.NewOptional(ptrValue), nil
+
+	case reflect.Int:
+		return cadence.IntType{}, cadence.NewInt(f.Interface().(int)), nil
+	case reflect.Int8:
+		return cadence.Int8Type{}, cadence.NewInt8(f.Interface().(int8)), nil
+	case reflect.Int16:
+		return cadence.Int16Type{}, cadence.NewInt16(f.Interface().(int16)), nil
+	case reflect.Int32:
+		return cadence.Int32Type{}, cadence.NewInt32(f.Interface().(int32)), nil
+	case reflect.Int64:
+		return cadence.Int64Type{}, cadence.NewInt64(f.Interface().(int64)), nil
+	case reflect.Bool:
+		return cadence.BoolType{}, cadence.NewBool(f.Interface().(bool)), nil
+	case reflect.Uint:
+		return cadence.UIntType{}, cadence.NewUInt(f.Interface().(uint)), nil
+	case reflect.Uint8:
+		return cadence.UInt8Type{}, cadence.NewUInt8(f.Interface().(uint8)), nil
+	case reflect.Uint16:
+		return cadence.UInt16Type{}, cadence.NewUInt16(f.Interface().(uint16)), nil
+	case reflect.Uint32:
+		return cadence.UInt32Type{}, cadence.NewUInt32(f.Interface().(uint32)), nil
 	case reflect.Uint64:
 		return cadence.UInt64Type{}, cadence.NewUInt64(f.Interface().(uint64)), nil
-
 	case reflect.String:
 		result, err := cadence.NewString(f.Interface().(string))
-		fmt.Println("string")
 		return cadence.StringType{}, result, err
-
 	case reflect.Float64:
 		result, err := cadence.NewUFix64(fmt.Sprintf("%.2f", f.Interface().(float64)))
 		return cadence.UFix64Type{}, result, err

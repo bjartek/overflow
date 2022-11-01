@@ -102,12 +102,17 @@ func TestCadenceValueToJson(t *testing.T) {
 
 func TestParseInputValue(t *testing.T) {
 
+	foo := "foo"
+
+	var strPointer *string = nil
 	values := []interface{}{
 		"foo",
 		uint64(42),
 		map[string]uint64{"foo": uint64(42)},
 		[]uint64{42, 69},
 		[2]string{"foo", "bar"},
+		&foo,
+		strPointer,
 	}
 
 	for idx, value := range values {
