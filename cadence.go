@@ -209,7 +209,7 @@ func ReflectToCadence(f reflect.Value) (cadence.Type, cadence.Value, error) {
 		result, err := cadence.NewString(f.Interface().(string))
 		return cadence.StringType{}, result, err
 	case reflect.Float64:
-		result, err := cadence.NewUFix64(fmt.Sprintf("%.2f", f.Interface().(float64)))
+		result, err := cadence.NewUFix64(fmt.Sprintf("%f", f.Interface().(float64)))
 		return cadence.UFix64Type{}, result, err
 
 	case reflect.Map:

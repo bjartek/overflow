@@ -170,6 +170,9 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			argumentString = "nil"
 		case string:
 			argumentString = a
+		case int:
+			argumentString = fmt.Sprintf("%v", a)
+
 			/*
 				case []float64:
 					argumentString = strings.Join(strings.Fields(fmt.Sprintf("%v", a)), ", ")
