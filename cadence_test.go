@@ -98,3 +98,17 @@ func TestCadenceValueToJson(t *testing.T) {
 	assert.Equal(t, "", result)
 
 }
+
+func TestParseArgument(t *testing.T) {
+
+	/*
+		input := map[string]interface{}{
+			"foo": "bar",
+		}
+	*/
+	input := "foo"
+	result, typ, err := ParseInputValue(input)
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", typ)
+	assert.Equal(t, "foo", result)
+}
