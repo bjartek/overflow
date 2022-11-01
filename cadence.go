@@ -119,16 +119,15 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 func MarshalAsCadenceStruct(qualifiedIdentifier string, t interface{}) (cadence.Value, error) {
 	var val []cadence.Value
 
-	reflect.TypeOf(t)
-	s := reflect.ValueOf(t).Elem()
+	s := reflect.ValueOf(t)
 	if s.Kind() != reflect.Struct {
-		panic(s.Kind())
+		return nil, fmt.Errorf("input is not a struct")
 	}
 	typeOfT := s.Type()
 	fields := []cadence.Field{}
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)
-		cadenceType, cadenceVal, err := ParseInput(f)
+		cadenceType, cadenceVal, err := ReflectToCadence(f)
 		if err != nil {
 			return nil, err
 		}
@@ -146,18 +145,17 @@ func MarshalAsCadenceStruct(qualifiedIdentifier string, t interface{}) (cadence.
 		Fields:              fields,
 	}
 
-	value :=
-		cadence.NewStruct(val).WithType(&structType)
+	value := cadence.NewStruct(val).WithType(&structType)
 
 	return value, nil
 }
 
-func ParseInputValue(v interface{}) (cadence.Type, cadence.Value, error) {
+func InputToCadence(v interface{}) (cadence.Type, cadence.Value, error) {
 	f := reflect.ValueOf(v)
-	return ParseInput(f)
+	return ReflectToCadence(f)
 }
 
-func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
+func ReflectToCadence(f reflect.Value) (cadence.Type, cadence.Value, error) {
 	inputType := f.Type()
 
 	fmt.Printf("value %v\n", f)
@@ -179,17 +177,9 @@ func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
 		Uint8
 		Uint16
 		Uint32
-		Uint64
 		Uintptr
 		Float32
-		Float64
-		Complex64
-		Complex128
-		Array
-		Interface
 		Pointer
-		Struct
-		UnsafePointer
 	*/
 	case reflect.Uint64:
 		return cadence.UInt64Type{}, cadence.NewUInt64(f.Interface().(uint64)), nil
@@ -212,12 +202,12 @@ func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
 		for iter.Next() {
 			key := iter.Key()
 			val := iter.Value()
-			typ, cadenceKey, err := ParseInput(key)
+			typ, cadenceKey, err := ReflectToCadence(key)
 			typeKey = typ
 			if err != nil {
 				return nil, nil, err
 			}
-			typ, cadenceVal, err := ParseInput(val)
+			typ, cadenceVal, err := ReflectToCadence(val)
 			typeVal = typ
 			if err != nil {
 				return nil, nil, err
@@ -234,7 +224,7 @@ func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
 		array := []cadence.Value{}
 		for i := 0; i < f.Len(); i++ {
 			arrValue := f.Index(i)
-			typ, cadenceVal, err := ParseInput(arrValue)
+			typ, cadenceVal, err := ReflectToCadence(arrValue)
 			sliceType = typ
 			if err != nil {
 				return nil, cadenceVal, err

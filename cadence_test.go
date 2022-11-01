@@ -113,7 +113,7 @@ func TestParseInputValue(t *testing.T) {
 
 	for idx, value := range values {
 		t.Run(fmt.Sprintf("parse input %d", idx), func(t *testing.T) {
-			_, cv, err := ParseInputValue(value)
+			_, cv, err := InputToCadence(value)
 			assert.NoError(t, err)
 			v := CadenceValueToInterface(cv)
 
@@ -126,7 +126,21 @@ func TestParseInputValue(t *testing.T) {
 			assert.Equal(t, string(cvj), string(vj))
 		})
 	}
+
 }
 
-//TODO; add a list of all escenarios from above, run a test that convert to Interface and then back to cadence again.
-//TODO; add a list of all escenarios from above, run a test that convert interface to cadence and back again
+func TestMarshalCadenceStruct(t *testing.T) {
+
+	val, err := MarshalAsCadenceStruct("A.123.Foo.Bar", Bar{Baz: "foo"})
+	assert.NoError(t, err)
+	assert.Equal(t, "A.123.Foo.Bar", val.Type().ID())
+	jsonVal, err := CadenceValueToJsonString(val)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{ "baz": "foo" }`, jsonVal)
+
+}
+
+// in Foo.Bar.Baz
+type Bar struct {
+	Baz string
+}
