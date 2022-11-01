@@ -30,11 +30,12 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertFailure(t, "💩 Could not read interaction file from path=./transactions/create_nft_collectio.cdc")
 	})
 
-	t.Run("Create NFT collection with different base path", func(t *testing.T) {
-		o.Tx("../tx/create_nft_collection",
-			WithSigner("first")).
-			AssertSuccess(t).
-			AssertNoEvents(t)
+	t.Run("mint tokens with different base path", func(t *testing.T) {
+		o.Tx("../tx/mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1)).
+			AssertSuccess(t)
 	})
 
 	t.Run("Mint tokens assert events", func(t *testing.T) {

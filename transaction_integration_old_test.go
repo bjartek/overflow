@@ -38,14 +38,6 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			AssertFailure("Could not read interaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
 	})
 
-	t.Run("Create NFT collection with different base path", func(t *testing.T) {
-		g.TransactionFromFile("create_nft_collection").
-			SignProposeAndPayAs("first").
-			TransactionPath("./tx").
-			Test(t).        //This method will return a TransactionResult that we can assert upon
-			AssertSuccess() //Assert that there are no errors and that the transactions succeeds
-	})
-
 	t.Run("Mint tokens assert events", func(t *testing.T) {
 		result := g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().

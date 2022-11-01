@@ -119,7 +119,7 @@ pub struct Report{
 			NamedArguments(map[string]string{}).
 			RunReturnsInterface()
 
-		assert.Equal(t, uint64(4), value)
+		assert.Equal(t, uint64(5), value)
 	})
 
 }
