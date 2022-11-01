@@ -160,86 +160,90 @@ func ParseInputValue(v interface{}) (cadence.Type, cadence.Value, error) {
 func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
 	inputType := f.Type()
 
-	fmt.Printf("%v\n", f)
-	fmt.Printf("%v\n", inputType)
-	fmt.Printf("%s\n", inputType.Name())
-	fmt.Printf("%s\n", inputType.Kind())
+	fmt.Printf("value %v\n", f)
+	fmt.Printf("type %v\n", inputType)
+	fmt.Printf("name %s\n", inputType.Name())
+	fmt.Printf("kind %s\n", inputType.Kind())
 
-	//TODO: switch on kind
-	switch inputType {
+	kind := inputType.Kind()
+	switch kind {
 
-	case reflect.TypeOf(uint64(0)):
+	/*
+		Bool
+		Int
+		Int8
+		Int16
+		Int32
+		Int64
+		Uint
+		Uint8
+		Uint16
+		Uint32
+		Uint64
+		Uintptr
+		Float32
+		Float64
+		Complex64
+		Complex128
+		Array
+		Interface
+		Pointer
+		Struct
+		UnsafePointer
+	*/
+	case reflect.Uint64:
 		return cadence.UInt64Type{}, cadence.NewUInt64(f.Interface().(uint64)), nil
 
-	case reflect.TypeOf("string"):
+	case reflect.String:
 		result, err := cadence.NewString(f.Interface().(string))
 		fmt.Println("string")
 		return cadence.StringType{}, result, err
 
-	case reflect.TypeOf(float64(0.0)):
+	case reflect.Float64:
 		result, err := cadence.NewUFix64(fmt.Sprintf("%.2f", f.Interface().(float64)))
 		return cadence.UFix64Type{}, result, err
 
-	case reflect.TypeOf(map[interface{}]interface{}{}):
+	case reflect.Map:
 		array := []cadence.KeyValuePair{}
-		for key, val := range f.Interface().(map[interface{}]interface{}) {
-			//how can key here be string or int or uint64
-			reflectKey := reflect.ValueOf(key)
-			_, cadenceKey, err := ParseInput(reflectKey)
+		var typeKey cadence.Type
+		var typeVal cadence.Type
+		iter := f.MapRange()
+
+		for iter.Next() {
+			key := iter.Key()
+			val := iter.Value()
+			typ, cadenceKey, err := ParseInput(key)
+			typeKey = typ
 			if err != nil {
 				return nil, nil, err
 			}
-			reflectVal := reflect.ValueOf(val)
-			_, cadenceVal, err := ParseInput(reflectVal)
+			typ, cadenceVal, err := ParseInput(val)
+			typeVal = typ
 			if err != nil {
 				return nil, nil, err
 			}
 			array = append(array, cadence.KeyValuePair{Key: cadenceKey, Value: cadenceVal})
 		}
 		//we need to return a better type, with key and elements
-		return cadence.DictionaryType{}, cadence.NewDictionary(array), nil
-
-	case reflect.TypeOf(map[string]interface{}{}):
-		array := []cadence.KeyValuePair{}
-		for key, val := range f.Interface().(map[string]interface{}) {
-			reflectKey := reflect.ValueOf(key)
-			_, cadenceKey, err := ParseInput(reflectKey)
-			if err != nil {
-				return nil, nil, err
-			}
-			reflectVal := reflect.ValueOf(val)
-			_, cadenceVal, err := ParseInput(reflectVal)
-			if err != nil {
-				return nil, nil, err
-			}
-			array = append(array, cadence.KeyValuePair{Key: cadenceKey, Value: cadenceVal})
-		}
-		return cadence.DictionaryType{}, cadence.NewDictionary(array), nil
-
-	case reflect.TypeOf([]interface{}{}):
+		return cadence.DictionaryType{
+			KeyType:     typeKey,
+			ElementType: typeVal,
+		}, cadence.NewDictionary(array), nil
+	case reflect.Slice, reflect.Array:
+		var sliceType cadence.Type
 		array := []cadence.Value{}
-		for _, val := range f.Interface().([]interface{}) {
-			reflectVal := reflect.ValueOf(val)
-			_, cadenceVal, err := ParseInput(reflectVal)
+		for i := 0; i < f.Len(); i++ {
+			arrValue := f.Index(i)
+			typ, cadenceVal, err := ParseInput(arrValue)
+			sliceType = typ
 			if err != nil {
 				return nil, cadenceVal, err
 			}
 			array = append(array, cadenceVal)
 		}
-		return cadence.VariableSizedArrayType{}, cadence.NewArray(array), nil
+		return cadence.VariableSizedArrayType{ElementType: sliceType}, cadence.NewArray(array), nil
 
-	case reflect.TypeOf([]uint64{}):
-		array := []cadence.Value{}
-		for _, val := range f.Interface().([]uint64) {
-			reflectVal := reflect.ValueOf(val)
-			_, cadenceVal, err := ParseInput(reflectVal)
-			if err != nil {
-				return nil, cadenceVal, err
-			}
-			array = append(array, cadenceVal)
-		}
-		return cadence.VariableSizedArrayType{}, cadence.NewArray(array), nil
 	}
 
-	panic(fmt.Sprintf("Not supported type for now. Type : %s", f.Type()))
+	return nil, nil, fmt.Errorf("Not supported type for now. Type : %s", inputType.Kind())
 }

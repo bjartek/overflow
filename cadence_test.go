@@ -1,6 +1,8 @@
 package overflow
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/hexops/autogold"
@@ -99,18 +101,31 @@ func TestCadenceValueToJson(t *testing.T) {
 
 }
 
-func TestParseArgument(t *testing.T) {
+func TestParseInputValue(t *testing.T) {
 
-	/*
-		input := map[string]interface{}{
-			"foo": "bar",
-		}
-	*/
-	input := "foo"
-	result, typ, err := ParseInputValue(input)
-	assert.NoError(t, err)
-	assert.Equal(t, "foo", typ)
-	assert.Equal(t, "foo", result)
+	values := []interface{}{
+		"foo",
+		uint64(42),
+		map[string]uint64{"foo": uint64(42)},
+		[]uint64{42, 69},
+		[2]string{"foo", "bar"},
+	}
+
+	for idx, value := range values {
+		t.Run(fmt.Sprintf("parse input %d", idx), func(t *testing.T) {
+			_, cv, err := ParseInputValue(value)
+			assert.NoError(t, err)
+			v := CadenceValueToInterface(cv)
+
+			vj, err := json.Marshal(v)
+			assert.NoError(t, err)
+
+			cvj, err := json.Marshal(value)
+			assert.NoError(t, err)
+
+			assert.Equal(t, string(cvj), string(vj))
+		})
+	}
 }
 
 //TODO; add a list of all escenarios from above, run a test that convert to Interface and then back to cadence again.
