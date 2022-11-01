@@ -117,7 +117,9 @@ func TestParseInputValue(t *testing.T) {
 
 	for idx, value := range values {
 		t.Run(fmt.Sprintf("parse input %d", idx), func(t *testing.T) {
-			_, cv, err := InputToCadence(value)
+			cv, err := InputToCadence(value, func(string) (string, error) {
+				return "", nil
+			})
 			assert.NoError(t, err)
 			v := CadenceValueToInterface(cv)
 
@@ -135,7 +137,9 @@ func TestParseInputValue(t *testing.T) {
 
 func TestMarshalCadenceStruct(t *testing.T) {
 
-	val, err := StructToCadence("A.123.Foo.Bar", Foo{Bar: "foo"})
+	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
+		return "A.123.Foo.Bar", nil
+	})
 	assert.NoError(t, err)
 	assert.Equal(t, "A.123.Foo.Bar", val.Type().ID())
 	jsonVal, err := CadenceValueToJsonString(val)
@@ -146,18 +150,9 @@ func TestMarshalCadenceStruct(t *testing.T) {
 
 func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
-	val, err := StructToCadence("A.123.Foo.Baz", Baz{Something: "foo"})
-	assert.NoError(t, err)
-	assert.Equal(t, "A.123.Foo.Baz", val.Type().ID())
-	jsonVal, err := CadenceValueToJsonString(val)
-	assert.NoError(t, err)
-	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
-
-}
-
-func TestMarshalCadenceStructWithAutogenStructTag(t *testing.T) {
-
-	val, err := StructToCadence("A.123.Foo.Baz", Baz{Something: "foo"})
+	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
+		return "A.123.Foo.Baz", nil
+	})
 	assert.NoError(t, err)
 	assert.Equal(t, "A.123.Foo.Baz", val.Type().ID())
 	jsonVal, err := CadenceValueToJsonString(val)

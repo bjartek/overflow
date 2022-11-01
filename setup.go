@@ -99,6 +99,7 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 	ReaderWriter                        flowkit.ReaderWriter
+	InputResolver                       *InputResolver
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -156,6 +157,13 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	}
 	overflow.State = state
 
+	if o.InputResolver != nil {
+		overflow.InputResolver = *o.InputResolver
+	} else {
+		overflow.InputResolver = func(name string) (string, error) {
+			return overflow.QualifiedIdentiferFromSnakeCase(name)
+		}
+	}
 	logger := output.NewStdoutLogger(o.LogLevel)
 	overflow.Logger = logger
 	var memlog bytes.Buffer
@@ -451,6 +459,12 @@ func WithEmbedFS(fs embed.FS) OverflowOption {
 	return func(o *OverflowBuilder) {
 		wrapper := EmbedWrapper{Embed: fs}
 		o.ReaderWriter = &wrapper
+	}
+}
+
+func WithInputResolver(ir InputResolver) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.InputResolver = &ir
 	}
 }
 

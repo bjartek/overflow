@@ -117,143 +117,126 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 	}
 }
 
-func StructToCadence(qualifiedIdentifier string, t interface{}) (cadence.Value, error) {
-	var val []cadence.Value
+// a resolver to resolve a input type into a name, can be used to resolve struct names for instance
+type InputResolver func(string) (string, error)
 
-	s := reflect.ValueOf(t)
-	if s.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("input is not a struct")
-	}
-	typeOfT := s.Type()
-	fields := []cadence.Field{}
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		cadenceType, cadenceVal, err := ReflectToCadence(f)
-		if err != nil {
-			return nil, err
-		}
-
-		field := typeOfT.Field(i)
-		name := field.Tag.Get("cadence")
-		if name == "" {
-			name = strings.ToLower(field.Name)
-		}
-		fields = append(fields, cadence.Field{
-			Identifier: name,
-			Type:       cadenceType,
-		})
-
-		val = append(val, cadenceVal)
-	}
-
-	structType := cadence.StructType{
-		QualifiedIdentifier: qualifiedIdentifier,
-		Fields:              fields,
-	}
-
-	value := cadence.NewStruct(val).WithType(&structType)
-
-	return value, nil
-}
-
-func InputToCadence(v interface{}) (cadence.Type, cadence.Value, error) {
+func InputToCadence(v interface{}, resolver InputResolver) (cadence.Value, error) {
 	f := reflect.ValueOf(v)
-	return ReflectToCadence(f)
+	return ReflectToCadence(f, resolver)
 }
 
-func ReflectToCadence(f reflect.Value) (cadence.Type, cadence.Value, error) {
-	inputType := f.Type()
-
-	/*
-		fmt.Printf("value %v\n", f)
-		fmt.Printf("type %v\n", inputType)
-		fmt.Printf("name %s\n", inputType.Name())
-		fmt.Printf("kind %s\n", inputType.Kind())
-	*/
+func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Value, error) {
+	inputType := value.Type()
 
 	kind := inputType.Kind()
 	switch kind {
-	case reflect.Pointer:
-		if f.IsNil() {
-			return cadence.OptionalType{}, cadence.NewOptional(nil), nil
+	case reflect.Struct:
+		var val []cadence.Value
+		fields := []cadence.Field{}
+		for i := 0; i < value.NumField(); i++ {
+			fieldValue := value.Field(i)
+			cadenceVal, err := ReflectToCadence(fieldValue, resolver)
+			cadenceType := cadenceVal.Type()
+			if err != nil {
+				return nil, err
+			}
+
+			field := inputType.Field(i)
+			name := field.Tag.Get("cadence")
+			if name == "" {
+				name = strings.ToLower(field.Name)
+			}
+			fields = append(fields, cadence.Field{
+				Identifier: name,
+				Type:       cadenceType,
+			})
+
+			val = append(val, cadenceVal)
 		}
 
-		ptrType, ptrValue, err := ReflectToCadence(f.Elem())
+		resolvedIdentifier, err := resolver(inputType.Name())
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		return cadence.OptionalType{Type: ptrType}, cadence.NewOptional(ptrValue), nil
+		structType := cadence.StructType{
+			QualifiedIdentifier: resolvedIdentifier,
+			Fields:              fields,
+		}
+
+		structValue := cadence.NewStruct(val).WithType(&structType)
+		return structValue, nil
+
+	case reflect.Pointer:
+		if value.IsNil() {
+			return cadence.NewOptional(nil), nil
+		}
+
+		ptrValue, err := ReflectToCadence(value.Elem(), resolver)
+		if err != nil {
+			return nil, err
+		}
+		return cadence.NewOptional(ptrValue), nil
 
 	case reflect.Int:
-		return cadence.IntType{}, cadence.NewInt(f.Interface().(int)), nil
+		return cadence.NewInt(value.Interface().(int)), nil
 	case reflect.Int8:
-		return cadence.Int8Type{}, cadence.NewInt8(f.Interface().(int8)), nil
+		return cadence.NewInt8(value.Interface().(int8)), nil
 	case reflect.Int16:
-		return cadence.Int16Type{}, cadence.NewInt16(f.Interface().(int16)), nil
+		return cadence.NewInt16(value.Interface().(int16)), nil
 	case reflect.Int32:
-		return cadence.Int32Type{}, cadence.NewInt32(f.Interface().(int32)), nil
+		return cadence.NewInt32(value.Interface().(int32)), nil
 	case reflect.Int64:
-		return cadence.Int64Type{}, cadence.NewInt64(f.Interface().(int64)), nil
+		return cadence.NewInt64(value.Interface().(int64)), nil
 	case reflect.Bool:
-		return cadence.BoolType{}, cadence.NewBool(f.Interface().(bool)), nil
+		return cadence.NewBool(value.Interface().(bool)), nil
 	case reflect.Uint:
-		return cadence.UIntType{}, cadence.NewUInt(f.Interface().(uint)), nil
+		return cadence.NewUInt(value.Interface().(uint)), nil
 	case reflect.Uint8:
-		return cadence.UInt8Type{}, cadence.NewUInt8(f.Interface().(uint8)), nil
+		return cadence.NewUInt8(value.Interface().(uint8)), nil
 	case reflect.Uint16:
-		return cadence.UInt16Type{}, cadence.NewUInt16(f.Interface().(uint16)), nil
+		return cadence.NewUInt16(value.Interface().(uint16)), nil
 	case reflect.Uint32:
-		return cadence.UInt32Type{}, cadence.NewUInt32(f.Interface().(uint32)), nil
+		return cadence.NewUInt32(value.Interface().(uint32)), nil
 	case reflect.Uint64:
-		return cadence.UInt64Type{}, cadence.NewUInt64(f.Interface().(uint64)), nil
+		return cadence.NewUInt64(value.Interface().(uint64)), nil
 	case reflect.String:
-		result, err := cadence.NewString(f.Interface().(string))
-		return cadence.StringType{}, result, err
+		result, err := cadence.NewString(value.Interface().(string))
+		return result, err
 	case reflect.Float64:
-		result, err := cadence.NewUFix64(fmt.Sprintf("%f", f.Interface().(float64)))
-		return cadence.UFix64Type{}, result, err
+		result, err := cadence.NewUFix64(fmt.Sprintf("%f", value.Interface().(float64)))
+		return result, err
 
 	case reflect.Map:
 		array := []cadence.KeyValuePair{}
-		var typeKey cadence.Type
-		var typeVal cadence.Type
-		iter := f.MapRange()
+		iter := value.MapRange()
 
 		for iter.Next() {
 			key := iter.Key()
 			val := iter.Value()
-			typ, cadenceKey, err := ReflectToCadence(key)
-			typeKey = typ
+			cadenceKey, err := ReflectToCadence(key, resolver)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
-			typ, cadenceVal, err := ReflectToCadence(val)
-			typeVal = typ
+			cadenceVal, err := ReflectToCadence(val, resolver)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			array = append(array, cadence.KeyValuePair{Key: cadenceKey, Value: cadenceVal})
 		}
-		//we need to return a better type, with key and elements
-		return cadence.DictionaryType{
-			KeyType:     typeKey,
-			ElementType: typeVal,
-		}, cadence.NewDictionary(array), nil
+		return cadence.NewDictionary(array), nil
 	case reflect.Slice, reflect.Array:
-		var sliceType cadence.Type
 		array := []cadence.Value{}
-		for i := 0; i < f.Len(); i++ {
-			arrValue := f.Index(i)
-			typ, cadenceVal, err := ReflectToCadence(arrValue)
-			sliceType = typ
+		for i := 0; i < value.Len(); i++ {
+			arrValue := value.Index(i)
+			cadenceVal, err := ReflectToCadence(arrValue, resolver)
 			if err != nil {
-				return nil, cadenceVal, err
+				return nil, err
 			}
 			array = append(array, cadenceVal)
 		}
-		return cadence.VariableSizedArrayType{ElementType: sliceType}, cadence.NewArray(array), nil
+		return cadence.NewArray(array), nil
 
 	}
 
-	return nil, nil, fmt.Errorf("Not supported type for now. Type : %s", inputType.Kind())
+	return nil, fmt.Errorf("Not supported type for now. Type : %s", inputType.Kind())
 }

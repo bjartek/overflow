@@ -174,12 +174,12 @@ func WithArg(name string, value interface{}) OverflowInteractionOption {
 // Send an list of structs into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgsCustomQualifier(name string, qualifier string, values ...interface{}) OverflowInteractionOption {
+func WithStructArgsCustomQualifier(name string, resolver InputResolver, values ...interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 
 		array := []cadence.Value{}
 		for _, value := range values {
-			structValue, err := StructToCadence(qualifier, value)
+			structValue, err := InputToCadence(value, resolver)
 			if err != nil {
 				oib.Error = err
 				return
@@ -198,7 +198,7 @@ func WithStructArgs(name string, values ...interface{}) OverflowInteractionOptio
 
 		array := []cadence.Value{}
 		for _, value := range values {
-			structValue, err := oib.Overflow.StructToCadence(value)
+			structValue, err := InputToCadence(value, oib.Overflow.InputResolver)
 			if err != nil {
 				oib.Error = err
 				return
@@ -212,9 +212,9 @@ func WithStructArgs(name string, values ...interface{}) OverflowInteractionOptio
 // Send an struct as argument into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgCustomQualifier(name string, qualifier string, value interface{}) OverflowInteractionOption {
+func WithStructArgCustomResolver(name string, resolver InputResolver, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		structValue, err := StructToCadence(qualifier, value)
+		structValue, err := InputToCadence(value, resolver)
 		if err != nil {
 			oib.Error = err
 			return
@@ -228,7 +228,8 @@ func WithStructArgCustomQualifier(name string, qualifier string, value interface
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
 func WithStructArg(name string, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		structValue, err := oib.Overflow.StructToCadence(value)
+
+		structValue, err := InputToCadence(value, oib.Overflow.InputResolver)
 		if err != nil {
 			oib.Error = err
 			return

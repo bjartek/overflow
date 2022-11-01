@@ -11,6 +11,10 @@ import (
 */
 
 func TestTransactionIntegration(t *testing.T) {
+
+	customResolver := func(input string) (string, error) {
+		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
+	}
 	o, err := OverflowTesting(WithLogFull())
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
 
@@ -124,7 +128,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArgsCustomQualifier("foo", o.ServiceAccountQualifiedIdentifier("Debug", "Foo"), Foo{Bar: "baz"}, Foo{Bar: "baz2"}),
+			WithStructArgsCustomQualifier("foo", customResolver, Foo{Bar: "baz"}, Foo{Bar: "baz2"}),
 		).AssertSuccess(t)
 
 	})
@@ -138,7 +142,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithStructArgCustomQualifier("foo", o.ServiceAccountQualifiedIdentifier("Debug", "Foo"), Foo{Bar: "baz"}),
+			WithStructArgCustomResolver("foo", customResolver, Foo{Bar: "baz"}),
 		).AssertSuccess(t)
 
 	})

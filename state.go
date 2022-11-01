@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -78,6 +77,8 @@ type OverflowState struct {
 
 	//Mint this amount of flow to new accounts
 	NewUserFlowAmount float64
+
+	InputResolver InputResolver
 }
 
 type OverflowArgument struct {
@@ -91,17 +92,13 @@ type OverflowArgumentList []OverflowArgument
 
 // Generate a cadence value from an interface{}
 
-// The qualifiedIdentifier is created from parsing snake_case of go stuct name. Debug_Foo will create A.<serviceAccount>.Debug.Foo
-func (o *OverflowState) StructToCadence(value interface{}) (cadence.Value, error) {
-
-	typeName := reflect.ValueOf(value).Type().Name()
-	qualifiedIdentifer, err := o.QualifiedIdentiferFromSnakeCase(typeName)
-	if err != nil {
-		return nil, err
+/*
+func (o *OverflowState) InputResolver() InputResolver {
+	return func(name string) (string, error) {
+		return o.QualifiedIdentiferFromSnakeCase(name)
 	}
-	return StructToCadence(qualifiedIdentifer, value)
-
 }
+*/
 
 // Qualified identifier from a snakeCase string Account_Contract_Struct
 func (o *OverflowState) QualifiedIdentiferFromSnakeCase(typeName string) (string, error) {
@@ -216,7 +213,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		case int:
 			argumentString = fmt.Sprintf("%v", a)
 		default:
-			_, cadenceVal, err := InputToCadence(argument)
+			cadenceVal, err := InputToCadence(argument, o.InputResolver)
 			if err != nil {
 				return nil, nil, err
 			}
