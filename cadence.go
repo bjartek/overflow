@@ -165,6 +165,7 @@ func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
 	fmt.Printf("%s\n", inputType.Name())
 	fmt.Printf("%s\n", inputType.Kind())
 
+	//TODO: switch on kind
 	switch inputType {
 
 	case reflect.TypeOf(uint64(0)):
@@ -195,6 +196,7 @@ func ParseInput(f reflect.Value) (cadence.Type, cadence.Value, error) {
 			}
 			array = append(array, cadence.KeyValuePair{Key: cadenceKey, Value: cadenceVal})
 		}
+		//we need to return a better type, with key and elements
 		return cadence.DictionaryType{}, cadence.NewDictionary(array), nil
 
 	case reflect.TypeOf(map[string]interface{}{}):

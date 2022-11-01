@@ -112,3 +112,6 @@ func TestParseArgument(t *testing.T) {
 	assert.Equal(t, "foo", typ)
 	assert.Equal(t, "foo", result)
 }
+
+//TODO; add a list of all escenarios from above, run a test that convert to Interface and then back to cadence again.
+//TODO; add a list of all escenarios from above, run a test that convert interface to cadence and back again
