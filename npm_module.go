@@ -162,9 +162,9 @@ func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo 
 
 func params(fileName string, code []byte) *ast.ParameterList {
 
-	codes := map[common.Location]string{}
+	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
-	program, _ := cmd.PrepareProgram(string(code), location, codes)
+	program, _ := cmd.PrepareProgram(code, location, codes)
 
 	transactionDeclaration := program.SoleTransactionDeclaration()
 	if transactionDeclaration != nil {
