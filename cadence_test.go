@@ -182,5 +182,5 @@ type Debug_Foo struct {
 
 // in Foo.Bar.Baz
 type Baz struct {
-	Something string `cadence:"bar"`
+	Something string `json:"bar"`
 }

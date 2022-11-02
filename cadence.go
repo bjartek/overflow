@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fatih/structtag"
 	"github.com/onflow/cadence"
 )
 
@@ -144,7 +145,21 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Valu
 			cadenceType := cadenceVal.Type()
 
 			field := inputType.Field(i)
-			name := field.Tag.Get("cadence")
+
+			tags, err := structtag.Parse(string(field.Tag))
+			if err != nil {
+				return nil, err
+			}
+
+			name := ""
+			tag, err := tags.Get("cadence")
+			if err != nil {
+				tag, _ = tags.Get("json")
+			}
+			if tag != nil {
+				name = tag.Name
+			}
+
 			if name == "-" {
 				continue
 			}
