@@ -120,6 +120,20 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	t.Run("Send struct to transaction With Skip field", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: Debug.Foo) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithArg("foo", Debug_Foo_Skip{Bar: "baz", Skip: "skip"}),
+		).AssertSuccess(t)
+
+	})
+
 	t.Run("Send list of struct to transaction custom qualifier", func(t *testing.T) {
 
 		o.Tx(`

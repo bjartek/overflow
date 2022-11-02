@@ -145,9 +145,14 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Valu
 
 			field := inputType.Field(i)
 			name := field.Tag.Get("cadence")
+			if name == "-" {
+				continue
+			}
+
 			if name == "" {
 				name = strings.ToLower(field.Name)
 			}
+
 			fields = append(fields, cadence.Field{
 				Identifier: name,
 				Type:       cadenceType,

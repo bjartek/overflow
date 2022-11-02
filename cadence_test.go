@@ -171,6 +171,11 @@ type Debug_FooBar struct {
 	Foo Debug_Foo
 }
 
+type Debug_Foo_Skip struct {
+	Bar  string
+	Skip string `cadence:"-"`
+}
+
 type Debug_Foo struct {
 	Bar string
 }
