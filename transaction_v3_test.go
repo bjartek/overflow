@@ -58,7 +58,7 @@ transaction(test:UInt64) {
     log(test)
  }
 }
-`, WithArg("test", 1), WithSignerServiceAccount())
+`, WithArg("test", uint64(1)), WithSignerServiceAccount())
 		assert.NoError(t, res.Err)
 	})
 

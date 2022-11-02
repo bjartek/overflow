@@ -173,7 +173,7 @@ func WithWorkers(workers int) OverflowEventFetcherOption {
 	}
 }
 
-// Set the batch sice for FetchEvents
+// Set the batch size for FetchEvents
 func WithBatchSize(size uint64) OverflowEventFetcherOption {
 	return func(e *OverflowEventFetcherBuilder) {
 		e.EventBatchSize = size

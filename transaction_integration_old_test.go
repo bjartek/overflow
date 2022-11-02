@@ -10,7 +10,7 @@ import (
 )
 
 /*
- Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
+Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestTransactionIntegrationLegacy(t *testing.T) {
 	logNumName := "A.f8d6e0586b0a20c7.Debug.LogNum"
@@ -36,14 +36,6 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			SignProposeAndPayAs("first").
 			Test(t).                                                                                           //This method will return a TransactionResult that we can assert upon
 			AssertFailure("Could not read interaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
-	})
-
-	t.Run("Create NFT collection with different base path", func(t *testing.T) {
-		g.TransactionFromFile("create_nft_collection").
-			SignProposeAndPayAs("first").
-			TransactionPath("./tx").
-			Test(t).        //This method will return a TransactionResult that we can assert upon
-			AssertSuccess() //Assert that there are no errors and that the transactions succeeds
 	})
 
 	t.Run("Mint tokens assert events", func(t *testing.T) {

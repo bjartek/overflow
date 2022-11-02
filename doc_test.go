@@ -15,7 +15,7 @@ func Example() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug
+	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
 }
 
 func ExampleOverflowState_Tx() {
@@ -33,7 +33,7 @@ func ExampleOverflowState_Tx() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug
+	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
 	//👌 Tx:arguments fee:0.00000100 gas:0
 	//
 }
@@ -55,7 +55,7 @@ func ExampleOverflowState_Tx_inline() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug
+	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
 	//👌 Tx: fee:0.00000134 gas:7
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
@@ -81,7 +81,7 @@ func ExampleOverflowState_Tx_multisign() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug
+	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
 	//👌 Tx: fee:0.00000134 gas:7
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
@@ -107,7 +107,7 @@ func ExampleOverflowState_Script() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug
+	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
 	//⭐ Script test run result:"0x01cf0e2f2f715450"
 }
 
@@ -126,6 +126,6 @@ pub fun main(account: Address): String {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug
+	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
 	//⭐ Script get_address run result:"0x01cf0e2f2f715450"
 }

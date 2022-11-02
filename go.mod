@@ -6,6 +6,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.13.0
+	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.0
 	github.com/onflow/cadence v0.28.0
 	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20221013174805-71f721b956bf

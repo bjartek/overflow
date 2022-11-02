@@ -77,6 +77,8 @@ type OverflowState struct {
 
 	//Mint this amount of flow to new accounts
 	NewUserFlowAmount float64
+
+	InputResolver InputResolver
 }
 
 type OverflowArgument struct {
@@ -87,6 +89,47 @@ type OverflowArgument struct {
 
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
+
+// Qualified identifier from a snakeCase string Account_Contract_Struct
+func (o *OverflowState) QualifiedIdentiferFromSnakeCase(typeName string) (string, error) {
+
+	words := strings.Split(typeName, "_")
+	if len(words) < 2 {
+		return "", fmt.Errorf("Invalid snake_case type string Contract_Name")
+	}
+	return o.QualifiedIdentifier(words[0], words[1])
+}
+
+// Create a qualified identifier from account, contract, name
+
+// account can either be a name from  accounts or the raw value
+func (o *OverflowState) QualifiedIdentifier(contract string, name string) (string, error) {
+
+	flowContract, err := o.State.Contracts().ByNameAndNetwork(contract, o.Network)
+	if err != nil {
+		return "", err
+	}
+
+	//we found the contract specified in contracts section
+	if flowContract != nil && flowContract.Alias != "" {
+		return fmt.Sprintf("A.%s.%s.%s", strings.TrimPrefix(flowContract.Alias, "0x"), contract, name), nil
+	}
+
+	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
+	if err != nil {
+		return "", err
+
+	}
+
+	for _, flowDeploymentContract := range flowDeploymentContracts {
+		if flowDeploymentContract.Name == contract {
+			return fmt.Sprintf("A.%s.%s.%s", flowDeploymentContract.AccountAddress, contract, name), nil
+		}
+	}
+
+	return "", fmt.Errorf("You are trying to get the qualified identifier for something you are not creating or have mentioned in flow.json with name=%s", contract)
+
+}
 
 func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
 	var resultArgs []cadence.Value = make([]cadence.Value, 0)
@@ -170,35 +213,16 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			argumentString = "nil"
 		case string:
 			argumentString = a
-		case []float64:
-			argumentString = strings.Join(strings.Fields(fmt.Sprintf("%v", a)), ", ")
-		case []uint64:
-			argumentString = strings.Join(strings.Fields(fmt.Sprintf("%v", a)), ", ")
-		case []string:
-			argumentString = fmt.Sprintf("[\"%s\"]", strings.Join(a, "\", \""))
-		case map[string]string:
-			args := []string{}
-			for key, value := range a {
-				args = append(args, fmt.Sprintf(`"%s":"%s"`, key, value))
-			}
-			argumentString = fmt.Sprintf("{%s}", strings.Join(args, ", "))
-		case map[string]float64:
-			args := []string{}
-			for key, value := range a {
-				args = append(args, fmt.Sprintf(`"%s":%f`, key, value))
-			}
-			argumentString = fmt.Sprintf("{%s}", strings.Join(args, ", "))
-		case map[string]uint64:
-			args := []string{}
-			for key, value := range a {
-				args = append(args, fmt.Sprintf(`"%s":%d`, key, value))
-			}
-			argumentString = fmt.Sprintf("{%s}", strings.Join(args, ", "))
-
-		case float64:
-			argumentString = fmt.Sprintf("%f", a)
+		case int:
+			argumentString = fmt.Sprintf("%v", a)
 		default:
-			argumentString = fmt.Sprintf("%v", argument)
+			cadenceVal, err := InputToCadence(argument, o.InputResolver)
+			if err != nil {
+				return nil, nil, err
+			}
+			resultArgs = append(resultArgs, cadenceVal)
+			resultArgsMap[name] = cadenceVal
+			continue
 
 		}
 		semaType := checker.ConvertType(oa.Type)
@@ -259,7 +283,7 @@ func (o *OverflowState) Address(key string) string {
 	return fmt.Sprintf("0x%s", o.Account(key).Address().String())
 }
 
-//return the account of a given account
+// return the account of a given account
 func (o *OverflowState) Account(key string) *flowkit.Account {
 	account, err := o.AccountE(key)
 	if err != nil {
@@ -508,7 +532,7 @@ func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...OverflowInter
 	}
 }
 
-//The main function for running an transasction in overflow
+// The main function for running an transasction in overflow
 func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *OverflowResult {
 	ftb := o.BuildInteraction(filename, "transaction", opts...)
 	result := ftb.Send()

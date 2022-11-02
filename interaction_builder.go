@@ -111,7 +111,7 @@ func (oib OverflowInteractionBuilder) getContractCode(codeFileName string) ([]by
 	return code, nil
 }
 
-//A function to customize the transaction builder
+// A function to customize the transaction builder
 type OverflowInteractionOption func(*OverflowInteractionBuilder)
 
 // force no printing for this interaction
@@ -168,6 +168,39 @@ func WithName(name string) OverflowInteractionOption {
 func WithArg(name string, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.NamedArgs[name] = value
+	}
+}
+
+// Send an list of structs into a transaction
+
+// use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
+func WithStructArgsCustomQualifier(name string, resolver InputResolver, values ...interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+
+		array := []cadence.Value{}
+		for _, value := range values {
+			structValue, err := InputToCadence(value, resolver)
+			if err != nil {
+				oib.Error = err
+				return
+			}
+			array = append(array, structValue)
+		}
+		oib.NamedArgs[name] = cadence.NewArray(array)
+	}
+}
+
+// Send an struct as argument into a transaction
+
+// use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
+func WithStructArgCustomResolver(name string, resolver InputResolver, value interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		structValue, err := InputToCadence(value, resolver)
+		if err != nil {
+			oib.Error = err
+			return
+		}
+		oib.NamedArgs[name] = structValue
 	}
 }
 

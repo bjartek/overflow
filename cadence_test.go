@@ -1,6 +1,8 @@
 package overflow
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/hexops/autogold"
@@ -96,5 +98,89 @@ func TestCadenceValueToJson(t *testing.T) {
 	result, err := CadenceValueToJsonString(cadence.String(""))
 	assert.NoError(t, err)
 	assert.Equal(t, "", result)
+}
 
+func TestParseInputValue(t *testing.T) {
+
+	foo := "foo"
+
+	var strPointer *string = nil
+	values := []interface{}{
+		"foo",
+		uint64(42),
+		map[string]uint64{"foo": uint64(42)},
+		[]uint64{42, 69},
+		[2]string{"foo", "bar"},
+		&foo,
+		strPointer,
+	}
+
+	for idx, value := range values {
+		t.Run(fmt.Sprintf("parse input %d", idx), func(t *testing.T) {
+			cv, err := InputToCadence(value, func(string) (string, error) {
+				return "", nil
+			})
+			assert.NoError(t, err)
+			v := CadenceValueToInterface(cv)
+
+			vj, err := json.Marshal(v)
+			assert.NoError(t, err)
+
+			cvj, err := json.Marshal(value)
+			assert.NoError(t, err)
+
+			assert.Equal(t, string(cvj), string(vj))
+		})
+	}
+
+}
+
+func TestMarshalCadenceStruct(t *testing.T) {
+
+	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
+		return "A.123.Foo.Bar", nil
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "A.123.Foo.Bar", val.Type().ID())
+	jsonVal, err := CadenceValueToJsonString(val)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
+
+}
+
+func TestMarshalCadenceStructWithStructTag(t *testing.T) {
+
+	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
+		return "A.123.Foo.Baz", nil
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "A.123.Foo.Baz", val.Type().ID())
+	jsonVal, err := CadenceValueToJsonString(val)
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
+
+}
+
+// in Debug.cdc
+type Foo struct {
+	Bar string
+}
+
+type Debug_FooBar struct {
+	Bar string
+	Foo Debug_Foo
+}
+
+type Debug_Foo_Skip struct {
+	Bar  string
+	Skip string `cadence:"-"`
+}
+
+type Debug_Foo struct {
+	Bar string
+}
+
+// in Foo.Bar.Baz
+type Baz struct {
+	Something string `json:"bar"`
 }
