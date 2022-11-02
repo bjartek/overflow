@@ -6,6 +6,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.13.0
+	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.0
 	github.com/onflow/cadence v0.28.0
 	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20221013174805-71f721b956bf
@@ -47,7 +48,6 @@ require (
 	github.com/ef-ds/deque v1.0.4 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/ethereum/go-ethereum v1.10.21 // indirect
-	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.1-0.20220515183430-ad2eae63303f // indirect
 	github.com/fxamacker/circlehash v0.3.0 // indirect
