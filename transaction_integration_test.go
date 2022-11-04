@@ -274,6 +274,35 @@ func TestTransactionIntegration(t *testing.T) {
 		).AssertSuccess(t)
 
 	})
+
+	t.Run("Send empty map transaction", func(t *testing.T) {
+
+		o.Tx(`
+			import MetadataViews from "../contracts/MetadataViews.cdc"
+			transaction(value: { String : String}) {
+			  prepare(acct: AuthAccount) {
+			 }
+		 }`,
+			WithSigner("first"),
+			WithArg("value", map[string]string{}),
+		).AssertSuccess(t)
+
+	})
+
+	t.Run("Send struct withempty map transaction", func(t *testing.T) {
+
+		o.Tx(`
+			import Debug from "../contracts/Debug.cdc"
+			transaction(value: Debug.Data) {
+			  prepare(acct: AuthAccount) {
+			 }
+		 }`,
+			WithSigner("first"),
+			WithArg("value", Debug_Data{Metadata: map[string]string{}}),
+		).AssertSuccess(t)
+
+	})
+
 }
 
 func TestTransactionEventFiltering(t *testing.T) {

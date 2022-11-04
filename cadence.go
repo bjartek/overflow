@@ -126,11 +126,11 @@ func InputToCadence(v interface{}, resolver InputResolver) (cadence.Type, cadenc
 	return ReflectToCadence(f, resolver)
 }
 
-func primitiveReflectTypeToCadenceype(typ reflect.Type) cadence.Type {
+func primitiveReflectTypeToCadenceType(typ reflect.Type) cadence.Type {
 	kind := typ.Kind()
 	switch kind {
 	case reflect.Pointer:
-		return cadence.OptionalType{Type: primitiveReflectTypeToCadenceype(typ.Elem())}
+		return cadence.OptionalType{Type: primitiveReflectTypeToCadenceType(typ.Elem())}
 	case reflect.Int:
 		return cadence.IntType{}
 	case reflect.Int8:
@@ -159,11 +159,11 @@ func primitiveReflectTypeToCadenceype(typ reflect.Type) cadence.Type {
 		return cadence.UFix64Type{}
 	case reflect.Map:
 		return cadence.DictionaryType{
-			KeyType:     primitiveReflectTypeToCadenceype(typ.Key()),
-			ElementType: primitiveReflectTypeToCadenceype(typ.Elem()),
+			KeyType:     primitiveReflectTypeToCadenceType(typ.Key()),
+			ElementType: primitiveReflectTypeToCadenceType(typ.Elem()),
 		}
 	case reflect.Slice, reflect.Array:
-		return cadence.VariableSizedArrayType{ElementType: primitiveReflectTypeToCadenceype(typ.Elem())}
+		return cadence.VariableSizedArrayType{ElementType: primitiveReflectTypeToCadenceType(typ.Elem())}
 	}
 	return nil
 }
@@ -298,8 +298,9 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Type
 			}
 			array = append(array, cadence.KeyValuePair{Key: cadenceKey, Value: cadenceVal})
 		}
-		value := cadence.NewDictionary(array)
-		return primitiveReflectTypeToCadenceype(inputType), value, nil
+		typ := primitiveReflectTypeToCadenceType(inputType).(cadence.DictionaryType)
+		value := cadence.NewDictionary(array).WithType(typ)
+		return typ, value, nil
 	case reflect.Slice, reflect.Array:
 		array := []cadence.Value{}
 		for i := 0; i < value.Len(); i++ {
@@ -310,8 +311,9 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Type
 			}
 			array = append(array, cadenceVal)
 		}
-		value := cadence.NewArray(array)
-		return primitiveReflectTypeToCadenceype(inputType), value, nil
+		typ := primitiveReflectTypeToCadenceType(inputType).(cadence.ArrayType)
+		value := cadence.NewArray(array).WithType(typ)
+		return typ, value, nil
 
 	}
 
