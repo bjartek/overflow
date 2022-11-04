@@ -1,0 +1,80 @@
+{
+  "f_type": "InteractionTemplate",
+  "f_version": "1.0.0",
+  "id": "7b581646d265ec6ed4a0d29c809ae6f0adafe56794d6a9eb162513187c43befc",
+  "data": {
+    "type": "transaction",
+    "interface": "",
+    "messages": {
+      "title": {
+        "i18n": {
+          "en-US": "Stake New Tokens"
+        }
+      },
+      "description": {
+        "i18n": {
+          "en-US": "Stakes new tokens for a stake held in a Staking Collection"
+        }
+      }
+    },
+    "cadence": "import FlowStakingCollection from 0xSTAKINGCOLLECTIONADDRESS\n/// Commits new tokens to stake for the specified node or delegator in the staking collection\n/// The tokens from the locked vault are used first, if it exists\n/// followed by the tokens from the unlocked vault\ntransaction(nodeID: String, delegatorID: UInt32?, amount: UFix64) {\n    \n    let stakingCollectionRef: &FlowStakingCollection.StakingCollection\n    prepare(account: AuthAccount) {\n        self.stakingCollectionRef = account.borrow<&FlowStakingCollection.StakingCollection>(from: FlowStakingCollection.StakingCollectionStoragePath)\n            ?? panic(\"Could not borrow ref to StakingCollection\")\n    }\n    execute {\n        self.stakingCollectionRef.stakeNewTokens(nodeID: nodeID, delegatorID: delegatorID, amount: amount)\n    }\n}\n",
+    "dependencies": {
+      "0xSTAKINGCOLLECTIONADDRESS": {
+        "FlowStakingCollection": {
+          "testnet": {
+            "address": "0x95e019a17d0e23d7",
+            "fq_address": "A.0x95e019a17d0e23d7.FlowStakingCollection",
+            "contract": "FlowStakingCollection",
+            "pin": "335e428a95ad99ec21eeb8899b40a4c351884191a32596207a79a2b22548442d",
+            "pin_block_height": 74561022
+          },
+          "mainnet": {
+            "address": "0x8d0e87b65159ae63",
+            "fq_address": "A.0x8d0e87b65159ae63.FlowStakingCollection",
+            "contract": "FlowStakingCollection",
+            "pin": "335e428a95ad99ec21eeb8899b40a4c351884191a32596207a79a2b22548442d",
+            "pin_block_height": 34027702
+          }
+        }
+      }
+    },
+    "arguments": {
+      "nodeID": {
+        "index": 0,
+        "type": "String",
+        "messages": {
+          "title": {
+            "i18n": {
+              "en-US": "The node ID"
+            }
+          }
+        },
+        "balance": ""
+      },
+      "delegatorID": {
+        "index": 1,
+        "type": "UInt32?",
+        "messages": {
+          "title": {
+            "i18n": {
+              "en-US": "The delegator ID"
+            }
+          }
+        },
+        "balance": ""
+      },
+      "amount": {
+        "index": 2,
+        "type": "UFix64",
+        "messages": {
+          "title": {
+            "i18n": {
+              "en-US": "The amount of FLOW tokens to stake"
+            }
+          }
+        },
+        "balance": ""
+      }
+    }
+  }
+}

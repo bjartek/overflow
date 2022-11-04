@@ -33,6 +33,7 @@ type OverflowSolution struct {
 type OverflowDeclarationInfo struct {
 	ParameterOrder []string          `json:"order"`
 	Parameters     map[string]string `json:"parameters"`
+	DocString      string
 }
 
 // a type representing one network in a solution, so mainnet/testnet/emulator
@@ -47,7 +48,7 @@ type OverflowSolutionMerged struct {
 	Networks map[string]OverflowSolutionMergedNetwork `json:"networks"`
 }
 
-//a network in the merged solution
+// a network in the merged solution
 type OverflowSolutionMergedNetwork struct {
 	Scripts      map[string]OverflowCodeWithSpec `json:"scripts"`
 	Transactions map[string]OverflowCodeWithSpec `json:"transactions,omitempty"`
@@ -135,7 +136,7 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 }
 
 func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo {
-	params := params(codeFileName, code)
+	params, docString := paramsAndDocString(codeFileName, code)
 	if params == nil {
 		return &OverflowDeclarationInfo{
 			ParameterOrder: []string{},
@@ -157,10 +158,11 @@ func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo 
 	return &OverflowDeclarationInfo{
 		ParameterOrder: parameterList,
 		Parameters:     parametersMap,
+		DocString:      docString,
 	}
 }
 
-func params(fileName string, code []byte) *ast.ParameterList {
+func paramsAndDocString(fileName string, code []byte) (*ast.ParameterList, string) {
 
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
@@ -169,18 +171,18 @@ func params(fileName string, code []byte) *ast.ParameterList {
 	transactionDeclaration := program.SoleTransactionDeclaration()
 	if transactionDeclaration != nil {
 		if transactionDeclaration.ParameterList != nil {
-			return transactionDeclaration.ParameterList
+			return transactionDeclaration.ParameterList, transactionDeclaration.DocString
 		}
 	}
 
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
 	if functionDeclaration != nil {
 		if functionDeclaration.ParameterList != nil {
-			return functionDeclaration.ParameterList
+			return functionDeclaration.ParameterList, functionDeclaration.DocString
 		}
 	}
 
-	return nil
+	return nil, ""
 }
 
 func formatCode(input string) string {

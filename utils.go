@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -176,4 +177,32 @@ func hexToAddress(h string) (*cadence.Address, error) {
 	}
 	address := cadence.BytesToAddress(b)
 	return &address, nil
+}
+
+func ReadFileIntoStruct[T interface{}](fileName string) (*T, error) {
+	jsonFile, err := os.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var objects T
+	err = json.Unmarshal(jsonFile, &objects)
+	if err != nil {
+		return nil, err
+	}
+	return &objects, nil
+}
+
+func ReadFileArrayIntoStructs[T interface{}](fileName string) ([]T, error) {
+	jsonFile, err := os.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var objects []T
+	err = json.Unmarshal(jsonFile, &objects)
+	if err != nil {
+		return nil, err
+	}
+	return objects, nil
 }
