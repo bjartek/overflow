@@ -9,6 +9,7 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -117,7 +118,7 @@ func TestParseInputValue(t *testing.T) {
 
 	for idx, value := range values {
 		t.Run(fmt.Sprintf("parse input %d", idx), func(t *testing.T) {
-			cv, err := InputToCadence(value, func(string) (string, error) {
+			_, cv, err := InputToCadence(value, func(string) (string, error) {
 				return "", nil
 			})
 			assert.NoError(t, err)
@@ -137,7 +138,7 @@ func TestParseInputValue(t *testing.T) {
 
 func TestMarshalCadenceStruct(t *testing.T) {
 
-	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
+	_, val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
 		return "A.123.Foo.Bar", nil
 	})
 	assert.NoError(t, err)
@@ -150,11 +151,12 @@ func TestMarshalCadenceStruct(t *testing.T) {
 
 func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
-	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
+	typ, val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
 		return "A.123.Foo.Baz", nil
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, "A.123.Foo.Baz", val.Type().ID())
+	assert.Equal(t, "A.123.Foo.Baz", typ.ID())
 	jsonVal, err := CadenceValueToJsonString(val)
 	assert.NoError(t, err)
 	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
@@ -163,11 +165,13 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
 func TestMarshalCadenceStructWithEmptyMap(t *testing.T) {
 
-	val, err := InputToCadence(Debug_Data{Metadata: map[string]string{}}, func(string) (string, error) {
+	typ, _, err := InputToCadence(Debug_Data{Metadata: map[string]string{}}, func(string) (string, error) {
 		return "A.123.Debug.Data", nil
 	})
 	assert.NoError(t, err)
-	assert.Equal(t, "", val)
+
+	assert.Contains(t, litter.Sdump(typ), "ElementType: cadence.StringType{}")
+	assert.Contains(t, litter.Sdump(typ), "KeyType: cadence.StringType{}")
 
 }
 

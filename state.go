@@ -216,7 +216,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		case int:
 			argumentString = fmt.Sprintf("%v", a)
 		default:
-			cadenceVal, err := InputToCadence(argument, o.InputResolver)
+			_, cadenceVal, err := InputToCadence(argument, o.InputResolver)
 			if err != nil {
 				return nil, nil, err
 			}

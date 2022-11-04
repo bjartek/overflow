@@ -179,7 +179,7 @@ func WithStructArgsCustomQualifier(name string, resolver InputResolver, values .
 
 		array := []cadence.Value{}
 		for _, value := range values {
-			structValue, err := InputToCadence(value, resolver)
+			_, structValue, err := InputToCadence(value, resolver)
 			if err != nil {
 				oib.Error = err
 				return
@@ -195,7 +195,7 @@ func WithStructArgsCustomQualifier(name string, resolver InputResolver, values .
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
 func WithStructArgCustomResolver(name string, resolver InputResolver, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		structValue, err := InputToCadence(value, resolver)
+		_, structValue, err := InputToCadence(value, resolver)
 		if err != nil {
 			oib.Error = err
 			return
