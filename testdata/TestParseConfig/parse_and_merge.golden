@@ -194,6 +194,14 @@ pub struct Foo{
 	}
 }
 
+pub struct Data{
+	pub let metadata:{String:String}
+
+	init(metadata:{String:String}) {
+		self.metadata=metadata
+	}
+}
+
 pub event Log(msg: String)
 pub event LogNum(id: UInt64)
 
@@ -406,6 +414,14 @@ pub struct Foo{
 	}
 }
 
+pub struct Data{
+	pub let metadata:{String:String}
+
+	init(metadata:{String:String}) {
+		self.metadata=metadata
+	}
+}
+
 pub event Log(msg: String)
 pub event LogNum(id: UInt64)
 
@@ -612,6 +628,14 @@ pub struct Foo{
 
 	init(bar: String) {
 		self.bar=bar
+	}
+}
+
+pub struct Data{
+	pub let metadata:{String:String}
+
+	init(metadata:{String:String}) {
+		self.metadata=metadata
 	}
 }
 

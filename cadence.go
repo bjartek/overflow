@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/structtag"
 	"github.com/onflow/cadence"
+	"github.com/sanity-io/litter"
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
@@ -232,6 +233,8 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Valu
 		array := []cadence.KeyValuePair{}
 		iter := value.MapRange()
 
+		litter.Dump(value)
+		litter.Dump(value.Type())
 		for iter.Next() {
 			key := iter.Key()
 			val := iter.Value()

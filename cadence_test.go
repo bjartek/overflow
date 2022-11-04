@@ -161,9 +161,23 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
 }
 
+func TestMarshalCadenceStructWithEmptyMap(t *testing.T) {
+
+	val, err := InputToCadence(Debug_Data{Metadata: map[string]string{}}, func(string) (string, error) {
+		return "A.123.Debug.Data", nil
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "", val)
+
+}
+
 // in Debug.cdc
 type Foo struct {
 	Bar string
+}
+
+type Debug_Data struct {
+	Metadata map[string]string
 }
 
 type Debug_FooBar struct {

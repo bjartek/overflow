@@ -20,6 +20,14 @@ pub contract Debug {
 		}
 	}
 
+	pub struct Data{
+		pub let metadata:{String:String}
+
+		init(metadata:{String:String}) {
+			self.metadata=metadata
+		}
+	}
+
 	pub event Log(msg: String)
 	pub event LogNum(id: UInt64)
 
