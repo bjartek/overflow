@@ -14,19 +14,18 @@ func TestErrorsInAccountCreation(t *testing.T) {
 	})
 
 	t.Run("Should give error on wrong contract name", func(t *testing.T) {
-		assert.Panics(t, func() {
-			NewTestingEmulator().Config("testdata/non_existing_contract.json").Start()
-		})
+		_, err := OverflowTesting(WithFlowConfig("testdata/non_existing_contract.json"))
+		assert.ErrorContains(t, err, "deployment contains nonexisting contract Debug2")
 	})
 
 	t.Run("Should give error on invalid env var in flow.json", func(t *testing.T) {
-		_, err := NewTestingEmulator().Config("testdata/invalid_env_flow.json").StartE()
+		_, err := OverflowTesting(WithFlowConfig("testdata/invalid_env_flow.json"))
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "invalid private key for account: emulator-5")
 	})
 
 	t.Run("Should give error on wrong account name", func(t *testing.T) {
-		_, err := NewTestingEmulator().Config("testdata/invalid_account_in_deployment.json").StartE()
+		_, err := OverflowTesting(WithFlowConfig("testdata/invalid_account_in_deployment.json"))
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "deployment contains nonexisting account emulator-firs")
 	})
@@ -36,7 +35,7 @@ func TestErrorsInAccountCreation(t *testing.T) {
 func TestGetAccount(t *testing.T) {
 
 	t.Run("Should return the account", func(t *testing.T) {
-		g, _ := NewTestingEmulator().StartE()
+		g, _ := OverflowTesting()
 		account, err := g.GetAccount("account")
 
 		assert.Nil(t, err)
@@ -44,14 +43,14 @@ func TestGetAccount(t *testing.T) {
 	})
 
 	t.Run("Should return an error if account doesn't exist", func(t *testing.T) {
-		g, _ := NewTestingEmulator().StartE()
+		g, _ := OverflowTesting()
 		_, err := g.GetAccount("doesnotexist")
 		assert.ErrorContains(t, err, "could not find account with name emulator-doesnotexist in the configuration")
 
 	})
 
 	t.Run("Should return an error if sa does not exist", func(t *testing.T) {
-		_, err := NewTestingEmulator().SetServiceSuffix("dummy").StartE()
+		_, err := OverflowTesting(WithServiceAccountSuffix("dummy"))
 
 		assert.ErrorContains(t, err, "could not find account with name emulator-dummy in the configuration")
 

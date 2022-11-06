@@ -7,86 +7,121 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSetup(t *testing.T) {
-	t.Parallel()
+func TestOverflowv3(t *testing.T) {
 
-	t.Run("default builder", func(t *testing.T) {
-		o := NewOverflow()
-		assert.Equal(t, output.InfoLog, o.LogLevel)
+	t.Run("WithNetworkEmbedded", func(t *testing.T) {
+		b := Apply(WithNetwork("embedded"))
+		assert.Equal(t, "emulator", b.Network)
+		assert.True(t, b.DeployContracts)
+		assert.True(t, b.InitializeAccounts)
+		assert.True(t, b.InMemory)
+		assert.Equal(t, output.NoneLog, b.LogLevel)
 	})
 
-	t.Run("default builder with loglevel from env", func(t *testing.T) {
-		t.Setenv("OVERFLOW_LOGGING", "2")
-		o := NewOverflow()
-		assert.Equal(t, output.DebugLog, o.LogLevel)
+	t.Run("WithNetworkTesting", func(t *testing.T) {
+		b := Apply(WithNetwork("testing"))
+		assert.Equal(t, "emulator", b.Network)
+		assert.True(t, b.DeployContracts)
+		assert.True(t, b.InitializeAccounts)
+		assert.True(t, b.InMemory)
+		assert.Equal(t, output.NoneLog, b.LogLevel)
 	})
 
-	t.Run("panic on wrong logging level", func(t *testing.T) {
-		t.Setenv("OVERFLOW_LOGGING", "asd")
-		assert.Panics(t, func() { NewOverflow() })
+	t.Run("WithNetworkEmulator", func(t *testing.T) {
+		b := Apply(WithNetwork("emulator"))
+		assert.Equal(t, "emulator", b.Network)
+		assert.True(t, b.DeployContracts)
+		assert.True(t, b.InitializeAccounts)
+		assert.False(t, b.InMemory)
 	})
 
-	t.Run("none log", func(t *testing.T) {
-		o := NewOverflow().NoneLog()
-		assert.Equal(t, output.NoneLog, o.LogLevel)
+	t.Run("WithNetworkTestnet", func(t *testing.T) {
+		b := Apply(WithNetwork("testnet"))
+		assert.Equal(t, "testnet", b.Network)
+		assert.False(t, b.DeployContracts)
+		assert.False(t, b.InitializeAccounts)
+		assert.False(t, b.InMemory)
 	})
 
-	t.Run("new overflow builder for network", func(t *testing.T) {
-		o := NewOverflowForNetwork("testnet")
-		assert.Equal(t, "testnet", o.Network)
+	t.Run("WithNetworkMainnet", func(t *testing.T) {
+		b := Apply(WithNetwork("mainnet"))
+		assert.Equal(t, "mainnet", b.Network)
+		assert.False(t, b.DeployContracts)
+		assert.False(t, b.InitializeAccounts)
+		assert.False(t, b.InMemory)
 	})
 
-	t.Run("new overflow in memory", func(t *testing.T) {
-		o := NewOverflowInMemoryEmulator()
-		assert.Equal(t, "emulator", o.Network)
+	t.Run("WithInMemory", func(t *testing.T) {
+		b := Apply()
+		assert.True(t, b.InMemory)
+		assert.True(t, b.InitializeAccounts)
+		assert.True(t, b.DeployContracts)
+		assert.Equal(t, "emulator", b.Network)
 	})
 
-	t.Run("new overflow testnet", func(t *testing.T) {
-		o := NewOverflowTestnet()
-		assert.Equal(t, "testnet", o.Network)
-	})
-	t.Run("new overflow mainnet", func(t *testing.T) {
-		o := NewOverflowMainnet()
-		assert.Equal(t, "mainnet", o.Network)
+	t.Run("WithExistingEmulator", func(t *testing.T) {
+		b := Apply(WithExistingEmulator())
+		assert.False(t, b.InitializeAccounts)
+		assert.False(t, b.DeployContracts)
 	})
 
-	t.Run("new overflow emulator", func(t *testing.T) {
-		o := NewOverflowEmulator()
-		assert.Equal(t, "emulator", o.Network)
+	t.Run("DoNotPrependNetworkToAccountNames", func(t *testing.T) {
+		b := Apply(WithNoPrefixToAccountNames())
+		assert.False(t, b.PrependNetworkName)
 	})
 
-	t.Run("new overflow builder without network", func(t *testing.T) {
-		o := NewOverflowBuilder("", false, 1)
-		assert.Equal(t, "emulator", o.Network)
+	t.Run("WithServiceAccountSuffix", func(t *testing.T) {
+		b := Apply(WithServiceAccountSuffix("foo"))
+		assert.Equal(t, "foo", b.ServiceSuffix)
 	})
 
-	t.Run("existing emulator", func(t *testing.T) {
-		o := NewOverflow().ExistingEmulator()
-		assert.Equal(t, false, o.DeployContracts)
-		assert.Equal(t, false, o.InitializeAccounts)
+	t.Run("WithBasePath", func(t *testing.T) {
+		b := Apply(WithBasePath("../"))
+		assert.Equal(t, "../", b.Path)
 	})
 
-	t.Run("should error on getting invalid account", func(t *testing.T) {
-		o := NewOverflowInMemoryEmulator().ExistingEmulator().DoNotPrependNetworkToAccountNames()
-		_, err := o.Start().AccountE("foobar")
-		assert.ErrorContains(t, err, "could not find account with name foobar in the configuration")
+	t.Run("WithNoLog", func(t *testing.T) {
+		b := Apply(WithLogNone())
+		assert.Equal(t, output.NoneLog, b.LogLevel)
 	})
 
-	t.Run("do not prepend network names", func(t *testing.T) {
-		o := NewOverflowInMemoryEmulator().ExistingEmulator().DoNotPrependNetworkToAccountNames()
-		assert.Equal(t, false, o.PrependNetworkName)
-		assert.Equal(t, "account", o.Start().ServiceAccountName())
-
+	t.Run("WithGas", func(t *testing.T) {
+		b := Apply(WithGas(42))
+		assert.Equal(t, 42, b.GasLimit)
 	})
 
-	t.Run("default gas", func(t *testing.T) {
-		o := NewOverflow().DefaultGas(100)
-		assert.Equal(t, 100, o.GasLimit)
+	t.Run("WithFlowConfig", func(t *testing.T) {
+		b := Apply(WithFlowConfig("foo.json", "bar.json"))
+		assert.Equal(t, []string{"foo.json", "bar.json"}, b.ConfigFiles)
 	})
 
-	t.Run("base path", func(t *testing.T) {
-		o := NewOverflow().BasePath("../")
-		assert.Equal(t, "../", o.Path)
+	t.Run("WithScriptFolderName", func(t *testing.T) {
+		b := Apply(WithScriptFolderName("script"))
+		assert.Equal(t, "script", b.ScriptFolderName)
 	})
 
+	t.Run("WithGlobalPrintOptions", func(t *testing.T) {
+		b := Apply(WithGlobalPrintOptions(WithoutId()))
+		assert.Equal(t, 1, len(*b.PrintOptions))
+	})
+
+	t.Run("WithPrintResults", func(t *testing.T) {
+		b := Apply(WithPrintResults(WithoutId()))
+		assert.Equal(t, 1, len(*b.PrintOptions))
+	})
+
+	t.Run("WithTransactionFolderName", func(t *testing.T) {
+		b := Apply(WithTransactionFolderName("tx"))
+		assert.Equal(t, "tx", b.TransactionFolderName)
+	})
+
+	t.Run("Overflow panics", func(t *testing.T) {
+		assert.Panics(t, func() {
+			Overflow(WithFlowConfig("nonexistant.json"))
+		})
+	})
+}
+
+func Apply(opt ...OverflowOption) *OverflowBuilder {
+	return defaultOverflowBuilder.applyOptions(opt)
 }

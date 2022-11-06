@@ -9,7 +9,8 @@ import (
 )
 
 func TestParseConfig(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	g, err := OverflowTesting()
+	assert.NoError(t, err)
 	t.Parallel()
 
 	t.Run("parse", func(t *testing.T) {

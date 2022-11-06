@@ -7,11 +7,12 @@ import (
 )
 
 /*
- Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
+Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestGenerate(t *testing.T) {
 
-	o := NewTestingEmulator().Start()
+	o, err := OverflowTesting()
+	assert.NoError(t, err)
 	t.Run("script", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/test.cdc", false)
 		assert.NoError(t, err)

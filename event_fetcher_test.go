@@ -9,7 +9,8 @@ import (
 
 func TestEventFetcher(t *testing.T) {
 
-	g := NewTestingEmulator().Start()
+	g, err := OverflowTesting()
+	assert.NoError(t, err)
 
 	t.Run("Start argument", func(t *testing.T) {
 		ef := g.buildEventInteraction(WithStartHeight(100))
