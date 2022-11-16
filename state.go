@@ -321,7 +321,28 @@ func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 
 // return the address of an given account
 func (o *OverflowState) Address(key string) string {
-	return fmt.Sprintf("0x%s", o.Account(key).Address().String())
+	account, err := o.AccountE(key)
+	if err == nil {
+		return fmt.Sprintf("0x%s", account.Address().String())
+	}
+
+	flowContract, err := o.State.Contracts().ByNameAndNetwork(key, o.Network)
+	if err == nil && flowContract != nil && flowContract.Alias != "" {
+		return flowContract.Alias
+	}
+
+	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, flowDeploymentContract := range flowDeploymentContracts {
+		if flowDeploymentContract.Name == key {
+			return fmt.Sprintf("0x%s", flowDeploymentContract.AccountAddress)
+		}
+	}
+	panic("Not valid user account, contract or deployment contract")
+
 }
 
 // return the account of a given account
