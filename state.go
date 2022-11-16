@@ -57,6 +57,17 @@ type OverflowClient interface {
 	GetBlockById(blockId string) (*flow.Block, error)
 
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
+
+	UploadFile(filename string, accountName string) error
+	DownloadAndUploadFile(url string, accountName string) error
+	DownloadImageAndUploadAsDataUrl(url, accountName string) error
+	UploadImageAsDataUrl(filename string, accountName string) error
+	UploadString(content string, accountName string) error
+	GetFreeCapacity(accountName string) int
+	MintFlowTokens(accountName string, amount float64) *OverflowState
+	FillUpStorage(accountName string) *OverflowState
+
+	SignUserMessage(account string, message string) (string, error)
 }
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state

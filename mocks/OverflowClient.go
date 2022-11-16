@@ -187,6 +187,82 @@ func (_c *OverflowClient_Address_Call) Return(_a0 string) *OverflowClient_Addres
 	return _c
 }
 
+// DownloadAndUploadFile provides a mock function with given fields: url, accountName
+func (_m *OverflowClient) DownloadAndUploadFile(url string, accountName string) error {
+	ret := _m.Called(url, accountName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(url, accountName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// OverflowClient_DownloadAndUploadFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DownloadAndUploadFile'
+type OverflowClient_DownloadAndUploadFile_Call struct {
+	*mock.Call
+}
+
+// DownloadAndUploadFile is a helper method to define mock.On call
+//   - url string
+//   - accountName string
+func (_e *OverflowClient_Expecter) DownloadAndUploadFile(url interface{}, accountName interface{}) *OverflowClient_DownloadAndUploadFile_Call {
+	return &OverflowClient_DownloadAndUploadFile_Call{Call: _e.mock.On("DownloadAndUploadFile", url, accountName)}
+}
+
+func (_c *OverflowClient_DownloadAndUploadFile_Call) Run(run func(url string, accountName string)) *OverflowClient_DownloadAndUploadFile_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_DownloadAndUploadFile_Call) Return(_a0 error) *OverflowClient_DownloadAndUploadFile_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+// DownloadImageAndUploadAsDataUrl provides a mock function with given fields: url, accountName
+func (_m *OverflowClient) DownloadImageAndUploadAsDataUrl(url string, accountName string) error {
+	ret := _m.Called(url, accountName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(url, accountName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// OverflowClient_DownloadImageAndUploadAsDataUrl_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DownloadImageAndUploadAsDataUrl'
+type OverflowClient_DownloadImageAndUploadAsDataUrl_Call struct {
+	*mock.Call
+}
+
+// DownloadImageAndUploadAsDataUrl is a helper method to define mock.On call
+//   - url string
+//   - accountName string
+func (_e *OverflowClient_Expecter) DownloadImageAndUploadAsDataUrl(url interface{}, accountName interface{}) *OverflowClient_DownloadImageAndUploadAsDataUrl_Call {
+	return &OverflowClient_DownloadImageAndUploadAsDataUrl_Call{Call: _e.mock.On("DownloadImageAndUploadAsDataUrl", url, accountName)}
+}
+
+func (_c *OverflowClient_DownloadImageAndUploadAsDataUrl_Call) Run(run func(url string, accountName string)) *OverflowClient_DownloadImageAndUploadAsDataUrl_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_DownloadImageAndUploadAsDataUrl_Call) Return(_a0 error) *OverflowClient_DownloadImageAndUploadAsDataUrl_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // FetchEventsWithResult provides a mock function with given fields: opts
 func (_m *OverflowClient) FetchEventsWithResult(opts ...overflow.OverflowEventFetcherOption) overflow.EventFetcherResult {
 	_va := make([]interface{}, len(opts))
@@ -233,6 +309,45 @@ func (_c *OverflowClient_FetchEventsWithResult_Call) Run(run func(opts ...overfl
 }
 
 func (_c *OverflowClient_FetchEventsWithResult_Call) Return(_a0 overflow.EventFetcherResult) *OverflowClient_FetchEventsWithResult_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+// FillUpStorage provides a mock function with given fields: accountName
+func (_m *OverflowClient) FillUpStorage(accountName string) *overflow.OverflowState {
+	ret := _m.Called(accountName)
+
+	var r0 *overflow.OverflowState
+	if rf, ok := ret.Get(0).(func(string) *overflow.OverflowState); ok {
+		r0 = rf(accountName)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*overflow.OverflowState)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FillUpStorage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FillUpStorage'
+type OverflowClient_FillUpStorage_Call struct {
+	*mock.Call
+}
+
+// FillUpStorage is a helper method to define mock.On call
+//   - accountName string
+func (_e *OverflowClient_Expecter) FillUpStorage(accountName interface{}) *OverflowClient_FillUpStorage_Call {
+	return &OverflowClient_FillUpStorage_Call{Call: _e.mock.On("FillUpStorage", accountName)}
+}
+
+func (_c *OverflowClient_FillUpStorage_Call) Run(run func(accountName string)) *OverflowClient_FillUpStorage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FillUpStorage_Call) Return(_a0 *overflow.OverflowState) *OverflowClient_FillUpStorage_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
@@ -375,6 +490,43 @@ func (_c *OverflowClient_GetBlockById_Call) Return(_a0 *flow.Block, _a1 error) *
 	return _c
 }
 
+// GetFreeCapacity provides a mock function with given fields: accountName
+func (_m *OverflowClient) GetFreeCapacity(accountName string) int {
+	ret := _m.Called(accountName)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(string) int); ok {
+		r0 = rf(accountName)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
+
+// OverflowClient_GetFreeCapacity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFreeCapacity'
+type OverflowClient_GetFreeCapacity_Call struct {
+	*mock.Call
+}
+
+// GetFreeCapacity is a helper method to define mock.On call
+//   - accountName string
+func (_e *OverflowClient_Expecter) GetFreeCapacity(accountName interface{}) *OverflowClient_GetFreeCapacity_Call {
+	return &OverflowClient_GetFreeCapacity_Call{Call: _e.mock.On("GetFreeCapacity", accountName)}
+}
+
+func (_c *OverflowClient_GetFreeCapacity_Call) Run(run func(accountName string)) *OverflowClient_GetFreeCapacity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_GetFreeCapacity_Call) Return(_a0 int) *OverflowClient_GetFreeCapacity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // GetLatestBlock provides a mock function with given fields:
 func (_m *OverflowClient) GetLatestBlock() (*flow.Block, error) {
 	ret := _m.Called()
@@ -452,6 +604,46 @@ func (_c *OverflowClient_GetNetwork_Call) Run(run func()) *OverflowClient_GetNet
 }
 
 func (_c *OverflowClient_GetNetwork_Call) Return(_a0 string) *OverflowClient_GetNetwork_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+// MintFlowTokens provides a mock function with given fields: accountName, amount
+func (_m *OverflowClient) MintFlowTokens(accountName string, amount float64) *overflow.OverflowState {
+	ret := _m.Called(accountName, amount)
+
+	var r0 *overflow.OverflowState
+	if rf, ok := ret.Get(0).(func(string, float64) *overflow.OverflowState); ok {
+		r0 = rf(accountName, amount)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*overflow.OverflowState)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_MintFlowTokens_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MintFlowTokens'
+type OverflowClient_MintFlowTokens_Call struct {
+	*mock.Call
+}
+
+// MintFlowTokens is a helper method to define mock.On call
+//   - accountName string
+//   - amount float64
+func (_e *OverflowClient_Expecter) MintFlowTokens(accountName interface{}, amount interface{}) *OverflowClient_MintFlowTokens_Call {
+	return &OverflowClient_MintFlowTokens_Call{Call: _e.mock.On("MintFlowTokens", accountName, amount)}
+}
+
+func (_c *OverflowClient_MintFlowTokens_Call) Run(run func(accountName string, amount float64)) *OverflowClient_MintFlowTokens_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(float64))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_MintFlowTokens_Call) Return(_a0 *overflow.OverflowState) *OverflowClient_MintFlowTokens_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
@@ -705,6 +897,51 @@ func (_c *OverflowClient_ScriptFileNameFN_Call) Return(_a0 overflow.OverflowScri
 	return _c
 }
 
+// SignUserMessage provides a mock function with given fields: account, message
+func (_m *OverflowClient) SignUserMessage(account string, message string) (string, error) {
+	ret := _m.Called(account, message)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(account, message)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(account, message)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_SignUserMessage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SignUserMessage'
+type OverflowClient_SignUserMessage_Call struct {
+	*mock.Call
+}
+
+// SignUserMessage is a helper method to define mock.On call
+//   - account string
+//   - message string
+func (_e *OverflowClient_Expecter) SignUserMessage(account interface{}, message interface{}) *OverflowClient_SignUserMessage_Call {
+	return &OverflowClient_SignUserMessage_Call{Call: _e.mock.On("SignUserMessage", account, message)}
+}
+
+func (_c *OverflowClient_SignUserMessage_Call) Run(run func(account string, message string)) *OverflowClient_SignUserMessage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_SignUserMessage_Call) Return(_a0 string, _a1 error) *OverflowClient_SignUserMessage_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // Tx provides a mock function with given fields: filename, opts
 func (_m *OverflowClient) Tx(filename string, opts ...overflow.OverflowInteractionOption) *overflow.OverflowResult {
 	_va := make([]interface{}, len(opts))
@@ -861,6 +1098,120 @@ func (_c *OverflowClient_TxFileNameFN_Call) Run(run func(filename string, outerO
 }
 
 func (_c *OverflowClient_TxFileNameFN_Call) Return(_a0 overflow.OverflowTransactionOptsFunction) *OverflowClient_TxFileNameFN_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+// UploadFile provides a mock function with given fields: filename, accountName
+func (_m *OverflowClient) UploadFile(filename string, accountName string) error {
+	ret := _m.Called(filename, accountName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(filename, accountName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// OverflowClient_UploadFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UploadFile'
+type OverflowClient_UploadFile_Call struct {
+	*mock.Call
+}
+
+// UploadFile is a helper method to define mock.On call
+//   - filename string
+//   - accountName string
+func (_e *OverflowClient_Expecter) UploadFile(filename interface{}, accountName interface{}) *OverflowClient_UploadFile_Call {
+	return &OverflowClient_UploadFile_Call{Call: _e.mock.On("UploadFile", filename, accountName)}
+}
+
+func (_c *OverflowClient_UploadFile_Call) Run(run func(filename string, accountName string)) *OverflowClient_UploadFile_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_UploadFile_Call) Return(_a0 error) *OverflowClient_UploadFile_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+// UploadImageAsDataUrl provides a mock function with given fields: filename, accountName
+func (_m *OverflowClient) UploadImageAsDataUrl(filename string, accountName string) error {
+	ret := _m.Called(filename, accountName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(filename, accountName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// OverflowClient_UploadImageAsDataUrl_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UploadImageAsDataUrl'
+type OverflowClient_UploadImageAsDataUrl_Call struct {
+	*mock.Call
+}
+
+// UploadImageAsDataUrl is a helper method to define mock.On call
+//   - filename string
+//   - accountName string
+func (_e *OverflowClient_Expecter) UploadImageAsDataUrl(filename interface{}, accountName interface{}) *OverflowClient_UploadImageAsDataUrl_Call {
+	return &OverflowClient_UploadImageAsDataUrl_Call{Call: _e.mock.On("UploadImageAsDataUrl", filename, accountName)}
+}
+
+func (_c *OverflowClient_UploadImageAsDataUrl_Call) Run(run func(filename string, accountName string)) *OverflowClient_UploadImageAsDataUrl_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_UploadImageAsDataUrl_Call) Return(_a0 error) *OverflowClient_UploadImageAsDataUrl_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+// UploadString provides a mock function with given fields: content, accountName
+func (_m *OverflowClient) UploadString(content string, accountName string) error {
+	ret := _m.Called(content, accountName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(content, accountName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// OverflowClient_UploadString_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UploadString'
+type OverflowClient_UploadString_Call struct {
+	*mock.Call
+}
+
+// UploadString is a helper method to define mock.On call
+//   - content string
+//   - accountName string
+func (_e *OverflowClient_Expecter) UploadString(content interface{}, accountName interface{}) *OverflowClient_UploadString_Call {
+	return &OverflowClient_UploadString_Call{Call: _e.mock.On("UploadString", content, accountName)}
+}
+
+func (_c *OverflowClient_UploadString_Call) Run(run func(content string, accountName string)) *OverflowClient_UploadString_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_UploadString_Call) Return(_a0 error) *OverflowClient_UploadString_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
