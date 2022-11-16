@@ -38,6 +38,8 @@ type OverflowClient interface {
 	QualifiedIdentiferFromSnakeCase(typeName string) (string, error)
 	QualifiedIdentifier(contract string, name string) (string, error)
 
+	AddContract(name string, contract *services.Contract, update bool) error
+
 	GetNetwork() string
 	AccountE(key string) (*flowkit.Account, error)
 	Address(key string) string
@@ -116,6 +118,15 @@ type OverflowArgument struct {
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
 
+func (o *OverflowState) AddContract(name string, contract *services.Contract, update bool) error {
+	account, err := o.AccountE(name)
+	if err != nil {
+		return err
+	}
+	_, err = o.Services.Accounts.AddContract(account, contract, update)
+	return err
+
+}
 func (o *OverflowState) GetNetwork() string {
 	return o.Network
 }
