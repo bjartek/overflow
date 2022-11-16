@@ -29,7 +29,46 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// OverflowState
+// Overflow client is an interface with the most used v1 api methods for overflow
+type OverflowClient interface {
+	ScriptFN(outerOpts ...OverflowInteractionOption) OverflowScriptFunction
+	ScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowScriptOptsFunction
+	Script(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
+
+	QualifiedIdentiferFromSnakeCase(typeName string) (string, error)
+	QualifiedIdentifier(contract string, name string) (string, error)
+
+	AddContract(name string, contract *services.Contract, update bool) error
+
+	GetNetwork() string
+	AccountE(key string) (*flowkit.Account, error)
+	Address(key string) string
+	Account(key string) *flowkit.Account
+
+	//Note that this returns a flow account and not a flowkit account like the others, is this needed?
+	GetAccount(key string) (*flow.Account, error)
+
+	Tx(filename string, opts ...OverflowInteractionOption) *OverflowResult
+	TxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction
+	TxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction
+
+	GetLatestBlock() (*flow.Block, error)
+	GetBlockAtHeight(height uint64) (*flow.Block, error)
+	GetBlockById(blockId string) (*flow.Block, error)
+
+	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
+
+	UploadFile(filename string, accountName string) error
+	DownloadAndUploadFile(url string, accountName string) error
+	DownloadImageAndUploadAsDataUrl(url, accountName string) error
+	UploadImageAsDataUrl(filename string, accountName string) error
+	UploadString(content string, accountName string) error
+	GetFreeCapacity(accountName string) int
+	MintFlowTokens(accountName string, amount float64) *OverflowState
+	FillUpStorage(accountName string) *OverflowState
+
+	SignUserMessage(account string, message string) (string, error)
+}
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {
@@ -89,6 +128,19 @@ type OverflowArgument struct {
 
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
+
+func (o *OverflowState) AddContract(name string, contract *services.Contract, update bool) error {
+	account, err := o.AccountE(name)
+	if err != nil {
+		return err
+	}
+	_, err = o.Services.Accounts.AddContract(account, contract, update)
+	return err
+
+}
+func (o *OverflowState) GetNetwork() string {
+	return o.Network
+}
 
 // Qualified identifier from a snakeCase string Account_Contract_Struct
 func (o *OverflowState) QualifiedIdentiferFromSnakeCase(typeName string) (string, error) {
