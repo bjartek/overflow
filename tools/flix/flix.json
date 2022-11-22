@@ -1,75 +1,63 @@
 {
   "f_type": "InteractionTemplate",
   "f_version": "1.0.0",
-  "id": "7b581646d265ec6ed4a0d29c809ae6f0adafe56794d6a9eb162513187c43befc",
+  "id": "290b6b6222b2a77b16db896a80ddf29ebd1fa3038c9e6625a933fa213fce51fa",
   "data": {
     "type": "transaction",
     "interface": "",
     "messages": {
       "title": {
         "i18n": {
-          "en-US": "Stake New Tokens"
+          "en-US": "Transfer Tokens"
         }
       },
       "description": {
         "i18n": {
-          "en-US": "Stakes new tokens for a stake held in a Staking Collection"
+          "en-US": "Transfer tokens from one account to another"
         }
       }
     },
-    "cadence": "import FlowStakingCollection from 0xSTAKINGCOLLECTIONADDRESS\n/// Commits new tokens to stake for the specified node or delegator in the staking collection\n/// The tokens from the locked vault are used first, if it exists\n/// followed by the tokens from the unlocked vault\ntransaction(nodeID: String, delegatorID: UInt32?, amount: UFix64) {\n    \n    let stakingCollectionRef: &FlowStakingCollection.StakingCollection\n    prepare(account: AuthAccount) {\n        self.stakingCollectionRef = account.borrow<&FlowStakingCollection.StakingCollection>(from: FlowStakingCollection.StakingCollectionStoragePath)\n            ?? panic(\"Could not borrow ref to StakingCollection\")\n    }\n    execute {\n        self.stakingCollectionRef.stakeNewTokens(nodeID: nodeID, delegatorID: delegatorID, amount: amount)\n    }\n}\n",
+    "cadence": "import FungibleToken from 0xFUNGIBLETOKENADDRESS\ntransaction(amount: UFix64, to: Address) {\nlet vault: @FungibleToken.Vault\nprepare(signer: AuthAccount) {\nself.vault <- signer\n.borrow<&{FungibleToken.Provider}>(from: /storage/flowTokenVault)!\n.withdraw(amount: amount)\n}\nexecute {\ngetAccount(to)\n.getCapability(/public/flowTokenReceiver)!\n.borrow<&{FungibleToken.Receiver}>()!\n.deposit(from: <-self.vault)\n}\n}",
     "dependencies": {
-      "0xSTAKINGCOLLECTIONADDRESS": {
-        "FlowStakingCollection": {
-          "testnet": {
-            "address": "0x95e019a17d0e23d7",
-            "fq_address": "A.0x95e019a17d0e23d7.FlowStakingCollection",
-            "contract": "FlowStakingCollection",
-            "pin": "335e428a95ad99ec21eeb8899b40a4c351884191a32596207a79a2b22548442d",
-            "pin_block_height": 74561022
-          },
+      "0xFUNGIBLETOKENADDRESS": {
+        "FungibleToken": {
           "mainnet": {
-            "address": "0x8d0e87b65159ae63",
-            "fq_address": "A.0x8d0e87b65159ae63.FlowStakingCollection",
-            "contract": "FlowStakingCollection",
-            "pin": "335e428a95ad99ec21eeb8899b40a4c351884191a32596207a79a2b22548442d",
-            "pin_block_height": 34027702
+            "address": "0xf233dcee88fe0abe",
+            "fq_address": "A.0xf233dcee88fe0abe.FungibleToken",
+            "contract": "FungibleToken",
+            "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
+            "pin_block_height": 34166296
+          },
+          "testnet": {
+            "address": "0x9a0766d93b6608b7",
+            "fq_address": "A.0x9a0766d93b6608b7.FungibleToken",
+            "contract": "FungibleToken",
+            "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
+            "pin_block_height": 74776482
           }
         }
       }
     },
     "arguments": {
-      "nodeID": {
-        "index": 0,
-        "type": "String",
-        "messages": {
-          "title": {
-            "i18n": {
-              "en-US": "The node ID"
-            }
-          }
-        },
-        "balance": ""
-      },
-      "delegatorID": {
-        "index": 1,
-        "type": "UInt32?",
-        "messages": {
-          "title": {
-            "i18n": {
-              "en-US": "The delegator ID"
-            }
-          }
-        },
-        "balance": ""
-      },
       "amount": {
-        "index": 2,
+        "index": 0,
         "type": "UFix64",
         "messages": {
           "title": {
             "i18n": {
-              "en-US": "The amount of FLOW tokens to stake"
+              "en-US": "The amount of FLOW tokens to send"
+            }
+          }
+        },
+        "balance": ""
+      },
+      "to": {
+        "index": 1,
+        "type": "Address",
+        "messages": {
+          "title": {
+            "i18n": {
+              "en-US": "The Flow account the tokens will go to"
             }
           }
         },

@@ -1,11 +1,18 @@
 package overflow
 
+import "strings"
+
 type FlowInteractionTemplate struct {
 	FType    string `json:"f_type"`
 	FVersion string `json:"f_version"`
 	ID       string `json:"id"`
 	Data     Data   `json:"data"`
 }
+
+func (self FlowInteractionTemplate) IsTransaction() bool {
+	return self.Data.Type == "transaction"
+}
+
 type Title struct {
 	I18N map[string]string `json:"i18n"`
 }
@@ -41,4 +48,15 @@ type Data struct {
 	Cadence      string       `json:"cadence"`
 	Dependencies Dependencies `json:"dependencies"`
 	Arguments    Arguments    `json:"arguments"`
+}
+
+func (self Data) ResolvedCadence(network string) string {
+	code := self.Cadence
+	for placeholder, dependency := range self.Dependencies {
+		for _, networks := range dependency {
+			address := networks[network].Address
+			code = strings.ReplaceAll(code, placeholder, address)
+		}
+	}
+	return code
 }
