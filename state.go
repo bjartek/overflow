@@ -633,9 +633,7 @@ func (o *OverflowState) ParseAll() (*OverflowSolution, error) {
 	return o.ParseAllWithConfig(false, []string{}, []string{})
 }
 
-// Parse the gieven overflow state with filters
 func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*OverflowSolution, error) {
-
 	warnings := []string{}
 	transactions := map[string]string{}
 	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {

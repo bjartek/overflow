@@ -1,7 +1,17 @@
-import FungibleToken from 0xee82856bf20e2aa6
-import FlowToken from 0x0ae53cb6e3f42a79
+import FungibleToken from "../contracts/FungibleToken.cdc"
+import FlowToken from "../contracts/FlowToken.cdc"
 
+/**
+Mint Flow tokens
 
+A transaction to mint flowtokens, since you need access to the FlowToken.Administrator this is most usefull on emulator
+
+@lang en-US
+@param recipient: The Flow account the tokens will go to
+@param amount: The amount to send specified as a floating point number
+@balance amount: FlowToken
+@flixInterface UserFunds
+*/
 transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}

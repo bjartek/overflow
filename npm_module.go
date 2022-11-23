@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/onflow/cadence/runtime/ast"
@@ -34,6 +35,8 @@ type OverflowDeclarationInfo struct {
 	ParameterOrder []string          `json:"order"`
 	Parameters     map[string]string `json:"parameters"`
 	DocString      string
+	EnvCode        string
+	Imports        map[string]string
 }
 
 // a type representing one network in a solution, so mainnet/testnet/emulator
@@ -136,12 +139,17 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 }
 
 func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo {
-	params, docString := paramsAndDocString(codeFileName, code)
+	params, docString, envCode, imports := paramsDocStringEnvCode(codeFileName, code)
+
+	info := &OverflowDeclarationInfo{
+		ParameterOrder: []string{},
+		Parameters:     map[string]string{},
+		DocString:      docString,
+		EnvCode:        envCode,
+		Imports:        imports,
+	}
 	if params == nil {
-		return &OverflowDeclarationInfo{
-			ParameterOrder: []string{},
-			Parameters:     map[string]string{},
-		}
+		return info
 	}
 	parametersMap := make(map[string]string, len(params.Parameters))
 	var parameterList []string
@@ -150,39 +158,47 @@ func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo 
 		parameterList = append(parameterList, parameter.Identifier.Identifier)
 	}
 	if len(parameterList) == 0 {
-		return &OverflowDeclarationInfo{
-			ParameterOrder: []string{},
-			Parameters:     map[string]string{},
-		}
+		return info
 	}
-	return &OverflowDeclarationInfo{
-		ParameterOrder: parameterList,
-		Parameters:     parametersMap,
-		DocString:      docString,
-	}
+	info.ParameterOrder = parameterList
+	info.Parameters = parametersMap
+	return info
 }
 
-func paramsAndDocString(fileName string, code []byte) (*ast.ParameterList, string) {
+func paramsDocStringEnvCode(fileName string, code []byte) (*ast.ParameterList, string, string, map[string]string) {
 
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
 	program, _ := cmd.PrepareProgram(code, location, codes)
 
+	var parameterList *ast.ParameterList = nil
+	var docString string = ""
+
 	transactionDeclaration := program.SoleTransactionDeclaration()
 	if transactionDeclaration != nil {
-		if transactionDeclaration.ParameterList != nil {
-			return transactionDeclaration.ParameterList, transactionDeclaration.DocString
-		}
+		docString = transactionDeclaration.DocString
+		parameterList = transactionDeclaration.ParameterList
 	}
 
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
 	if functionDeclaration != nil {
-		if functionDeclaration.ParameterList != nil {
-			return functionDeclaration.ParameterList, functionDeclaration.DocString
+		docString = functionDeclaration.DocString
+		parameterList = functionDeclaration.ParameterList
+	}
+
+	replacedCode := string(code)
+	importEnvToLocation := map[string]string{}
+	for _, importDeclaration := range program.ImportDeclarations() {
+		_, isFileImport := importDeclaration.Location.(common.StringLocation)
+
+		if isFileImport {
+			to := strings.ToUpper(importDeclaration.Identifiers[0].Identifier)
+			replacedCode = strings.Replace(replacedCode, fmt.Sprintf(`"%s"`, importDeclaration.Location.String()), fmt.Sprintf("0x%s", to), 1)
+			importEnvToLocation[importDeclaration.Identifiers[0].Identifier] = importDeclaration.Location.String()
 		}
 	}
 
-	return nil, ""
+	return parameterList, docString, replacedCode, importEnvToLocation
 }
 
 func formatCode(input string) string {

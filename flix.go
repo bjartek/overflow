@@ -20,15 +20,15 @@ type Description struct {
 	I18N map[string]string `json:"i18n"`
 }
 type Messages struct {
-	Title       Title       `json:"title"`
-	Description Description `json:"description"`
+	Title       *Title       `json:"title,omitempty"`
+	Description *Description `json:"description,omitempty"`
 }
 type Network struct {
 	Address        string `json:"address"`
 	FqAddress      string `json:"fq_address"`
 	Contract       string `json:"contract"`
 	Pin            string `json:"pin"`
-	PinBlockHeight int    `json:"pin_block_height"`
+	PinBlockHeight uint64 `json:"pin_block_height"`
 }
 
 type Dependencies = map[string]map[string]map[string]Network
