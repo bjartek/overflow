@@ -1,12 +1,14 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/bjartek/overflow"
-	"github.com/sanity-io/litter"
+	"github.com/onflow/flow-go-sdk"
 )
 
 func main() {
@@ -73,8 +75,6 @@ func main() {
 		description = append(description, line)
 	}
 	descriptionString := strings.TrimSpace(strings.Join(description, "\n"))
-	fmt.Println("====")
-	litter.Dump(data)
 
 	flixArguments := map[string]overflow.Argument{}
 	for i, arg := range data.ParameterOrder {
@@ -110,53 +110,59 @@ func main() {
 		}
 
 		for name := range data.Imports {
-			o.Address()
+			address := ovf.Address(name)
+
+			account, err := ovf.Services.Accounts.Get(flow.HexToAddress(address))
+			if err != nil {
+				panic(err)
+			}
+			contractBytes := account.Contracts[name]
+			hash := sha256.Sum256(contractBytes)
+
 			nw := overflow.Network{
-				Address:        "",
-				FqAddress:      "",
+				Address:        address,
+				FqAddress:      fmt.Sprintf("A.%s.%s", strings.TrimPrefix(address, "0x"), name),
 				Contract:       name,
-				Pin:            ""
+				Pin:            hex.EncodeToString(hash[:]),
 				PinBlockHeight: latestBlock.Height,
 			}
-			deps[fmt.Sprintf("0x%s", strings.ToUpper(name))][name][network.Name] = nw
+
+			key1 := fmt.Sprintf("0x%s", strings.ToUpper(name))
+			key2 := name
+			key3 := network.Name
+
+			fmt.Println(key1, " ", key2, " ", key3)
+			if deps[key1] == nil {
+				fmt.Println("cannot find key1")
+				deps[key1] = map[string]map[string]overflow.Network{
+					key2: {
+						key3: nw,
+					},
+				}
+			}
+			deps[key1][key2][key3] = nw
 		}
 	}
-	/*
-		"0xFUNGIBLETOKENADDRESS": {
-		        "FungibleToken": {
-		          "mainnet": {
-		            "address": "0xf233dcee88fe0abe",
-		            "fq_address": "A.0xf233dcee88fe0abe.FungibleToken",
-		            "contract": "FungibleToken",
-		            "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
-		            "pin_block_height": 34166296
-		          },
-		          "testnet": {
-		            "address": "0x9a0766d93b6608b7",
-		            "fq_address": "A.0x9a0766d93b6608b7.FungibleToken",
-		            "contract": "FungibleToken",
-		            "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
-		            "pin_block_height": 74776482
-		          }
-		        }
-		      }
-	*/
 	flix := overflow.FlowInteractionTemplate{
 		FType:    "InteractionTemplate",
 		FVersion: "1.0",
-		ID:       "TBD",
 		Data: overflow.Data{
 			Type:         "transaction",
 			Interface:    flixInterface,
 			Messages:     createMessage(lang, name, descriptionString),
 			Cadence:      data.EnvCode,
-			Dependencies: map[string]map[string]map[string]overflow.Network{},
+			Dependencies: deps,
 			Arguments:    flixArguments,
 		},
 	}
 
-	out, _ := json.MarshalIndent(flix, "", " ")
-	fmt.Println(string(out))
+	out, _ := json.Marshal(flix)
+	idHash := sha256.Sum256(out)
+	flix.ID = hex.EncodeToString(idHash[:])
+
+	out2, _ := json.MarshalIndent(flix, "", " ")
+
+	fmt.Println(string(out2))
 
 }
 
@@ -182,8 +188,3 @@ func createMessage(lang, title, description string) overflow.Messages {
 
 	return msg
 }
-
-/*
-TODO:
- - pins, contact network, find latest code, SHA3_256 digest hex
-*/
