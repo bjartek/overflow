@@ -131,9 +131,7 @@ func main() {
 			key2 := name
 			key3 := network.Name
 
-			fmt.Println(key1, " ", key2, " ", key3)
 			if deps[key1] == nil {
-				fmt.Println("cannot find key1")
 				deps[key1] = map[string]map[string]overflow.Network{
 					key2: {
 						key3: nw,
