@@ -35,7 +35,7 @@ type OverflowClient interface {
 	ScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowScriptOptsFunction
 	Script(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
 
-	QualifiedIdentiferFromSnakeCase(typeName string) (string, error)
+	QualifiedIdentifierFromSnakeCase(typeName string) (string, error)
 	QualifiedIdentifier(contract string, name string) (string, error)
 
 	AddContract(name string, contract *services.Contract, update bool) error
@@ -143,7 +143,7 @@ func (o *OverflowState) GetNetwork() string {
 }
 
 // Qualified identifier from a snakeCase string Account_Contract_Struct
-func (o *OverflowState) QualifiedIdentiferFromSnakeCase(typeName string) (string, error) {
+func (o *OverflowState) QualifiedIdentifierFromSnakeCase(typeName string) (string, error) {
 
 	words := strings.Split(typeName, "_")
 	if len(words) < 2 {
