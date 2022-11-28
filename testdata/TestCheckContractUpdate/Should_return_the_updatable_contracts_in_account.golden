@@ -1,0 +1,4 @@
+map[string]bool{
+	"Debug": false, "MetadataViews": false,
+	"NonFungibleToken": false,
+}

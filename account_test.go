@@ -3,6 +3,8 @@ package overflow
 import (
 	"testing"
 
+	"github.com/hexops/autogold"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,6 +57,60 @@ func TestGetAccount(t *testing.T) {
 
 		assert.ErrorContains(t, err, "could not find account with name emulator-dummy in the configuration")
 
+	})
+
+}
+
+func TestCheckContractUpdate(t *testing.T) {
+
+	t.Run("Should return the updatable contracts in account", func(t *testing.T) {
+		g, _ := NewTestingEmulator().StartE()
+		res, err := g.CheckContractUpdates("account")
+
+		assert.Nil(t, err)
+		autogold.Equal(t, res)
+	})
+
+	t.Run("Should return the updatable contracts in account (updatable)", func(t *testing.T) {
+		g, _ := NewTestingEmulator().StartE()
+
+		code := []byte(`pub contract Debug{
+			pub struct FooBar {
+				pub let foo:Foo
+				pub let bar:String
+		
+				init(foo:Foo, bar:String) {
+					self.foo=foo
+					self.bar=bar
+				}
+			}
+		
+			pub struct Foo{
+				pub let bar: String
+		
+				init(bar: String) {
+					self.bar=bar
+				}
+			}
+		
+			pub event Log(msg: String)
+			pub event LogNum(id: UInt64)
+
+			pub fun haha(){}
+		}`)
+
+		contract := &services.Contract{
+			Name:    "Debug",
+			Source:  code,
+			Network: "emulator",
+		}
+
+		err := g.AddContract("account", contract, true)
+		assert.Nil(t, err)
+		res, err := g.CheckContractUpdates("account")
+
+		assert.Nil(t, err)
+		autogold.Equal(t, res)
 	})
 
 }

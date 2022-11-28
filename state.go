@@ -915,3 +915,91 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network string) 
 	}
 	return strings.TrimSpace(string(resolvedCode)), nil
 }
+
+func (o *OverflowState) CheckContractUpdates(user string) (map[string]bool, error) {
+	s := o.State
+	// check there are not multiple accounts with same contract
+	if s.ContractConflictExists(o.Network) {
+		return nil, fmt.Errorf( // TODO(sideninja) specify which contract by name is a problem
+			"the same contract cannot be deployed to multiple accounts on the same network",
+		)
+	}
+
+	// create new processor for contract
+	processor := contracts.NewPreprocessor(
+		contracts.FilesystemLoader{
+			Reader: s.ReaderWriter(),
+		},
+		s.AliasesForNetwork(o.Network),
+	)
+
+	// add all contracts needed to deploy to processor
+	contractsNetwork, err := s.DeploymentContractsByNetwork(o.Network)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, contract := range contractsNetwork {
+		err := processor.AddContractSource(
+			contract.Name,
+			contract.Source,
+			contract.AccountAddress,
+			contract.AccountName,
+			contract.Args,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// resolve imports assigns accounts to imports
+	err = processor.ResolveImports()
+	if err != nil {
+		return nil, err
+	}
+
+	// sort correct deployment order of contracts so we don't have import that is not yet deployed
+	orderedContracts, err := processor.ContractDeploymentOrder()
+	if err != nil {
+		return nil, err
+	}
+
+	res := map[string]bool{}
+	for _, contract := range orderedContracts {
+
+		acct, err := o.GetAccount(user)
+		if err != nil {
+			return nil, err
+		}
+
+		if contract.Target().String() != acct.Address.String() {
+			continue
+		}
+
+		targetAccount, err := s.Accounts().ByName(contract.AccountName())
+		if err != nil {
+			return nil, fmt.Errorf("target account for checking contract not found in configuration")
+		}
+
+		// get deployment account
+		targetAccountInfo, err := o.GetAccount(user)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch information for account %s: %w", targetAccount.Address(), err)
+		}
+
+		// check if contract exists on account
+		existingContract, exists := targetAccountInfo.Contracts[contract.Name()]
+		noDiffInContract := bytes.Equal([]byte(contract.TranspiledCode()), existingContract)
+
+		if !exists {
+			res[contract.Name()] = true
+			continue
+		}
+		if !noDiffInContract {
+			res[contract.Name()] = true
+			continue
+		}
+		res[contract.Name()] = false
+	}
+	return res, nil
+}
