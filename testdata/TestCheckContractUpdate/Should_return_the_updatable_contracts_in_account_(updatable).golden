@@ -1,4 +1,0 @@
-map[string]bool{
-	"Debug": true, "MetadataViews": false,
-	"NonFungibleToken": false,
-}

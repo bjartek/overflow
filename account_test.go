@@ -63,15 +63,15 @@ func TestGetAccount(t *testing.T) {
 
 func TestCheckContractUpdate(t *testing.T) {
 
-	t.Run("Should return the updatable contracts in account", func(t *testing.T) {
+	t.Run("Should return the updatable contracts", func(t *testing.T) {
 		g, _ := NewTestingEmulator().StartE()
-		res, err := g.CheckContractUpdates("account")
+		res, err := g.CheckContractUpdates()
 
 		assert.Nil(t, err)
 		autogold.Equal(t, res)
 	})
 
-	t.Run("Should return the updatable contracts in account (updatable)", func(t *testing.T) {
+	t.Run("Should return the updatable contracts (updatable)", func(t *testing.T) {
 		g, _ := NewTestingEmulator().StartE()
 
 		code := []byte(`pub contract Debug{
@@ -107,7 +107,7 @@ func TestCheckContractUpdate(t *testing.T) {
 
 		err := g.AddContract("account", contract, true)
 		assert.Nil(t, err)
-		res, err := g.CheckContractUpdates("account")
+		res, err := g.CheckContractUpdates()
 
 		assert.Nil(t, err)
 		autogold.Equal(t, res)
