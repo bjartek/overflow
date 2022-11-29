@@ -5,10 +5,12 @@ import (
 
 	"github.com/onflow/cadence"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestScriptArguments(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	g, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 	t.Parallel()
 
 	t.Run("Argument test", func(t *testing.T) {

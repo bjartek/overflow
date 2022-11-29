@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 /*
@@ -11,7 +12,8 @@ import (
 */
 func TestGenerate(t *testing.T) {
 
-	o := NewTestingEmulator().Start()
+	o, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 	t.Run("script", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/test.cdc", false)
 		assert.NoError(t, err)

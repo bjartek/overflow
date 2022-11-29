@@ -12,6 +12,7 @@ import (
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 )
@@ -339,8 +340,20 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{
-		StopOnError: oib.Overflow.StopOnError,
-		Arguments:   oib.NamedCadenceArguments,
+		StopOnError:     oib.Overflow.StopOnError,
+		Err:             nil,
+		Id:              [32]byte{},
+		Meter:           &OverflowMeter{},
+		RawLog:          []OverflowEmulatorLogMessage{},
+		EmulatorLog:     []string{},
+		ComputationUsed: 0,
+		RawEvents:       []flow.Event{},
+		Events:          map[string]OverflowEventList{},
+		Transaction:     &flow.Transaction{},
+		Fee:             map[string]interface{}{},
+		FeeGas:          0,
+		Name:            "",
+		Arguments:       oib.NamedCadenceArguments,
 	}
 	if oib.Error != nil {
 		result.Err = oib.Error
@@ -383,17 +396,19 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		signers = append(signers, oib.Proposer)
 	}
 
+	script := &services.Script{
+		Code:     oib.TransactionCode,
+		Args:     oib.Arguments,
+		Filename: codeFileName,
+	}
+	addresses := services.NewTransactionAddresses(oib.Payer.Address(), oib.Proposer.Address(), authorizers)
+
 	tx, err := oib.Overflow.Services.Transactions.Build(
-		oib.Proposer.Address(),
-		authorizers,
-		oib.Proposer.Address(),
+		addresses,
 		oib.Proposer.Key().Index(),
-		oib.TransactionCode,
-		codeFileName,
+		script,
 		oib.GasLimit,
-		oib.Arguments,
 		oib.Overflow.Network,
-		true,
 	)
 	if err != nil {
 		result.Err = err
@@ -416,8 +431,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	txId := tx.FlowTransaction().ID()
 	result.Id = txId
 
-	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
-	ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(txBytes, true)
+	ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(tx)
 	result.Transaction = ftx
 
 	if err != nil {
