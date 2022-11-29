@@ -927,10 +927,8 @@ func (o *OverflowState) CheckContractUpdates() (map[string]map[string]bool, erro
 	for _, contract := range contracts {
 
 		split := strings.Split(contract.AccountName(), "-")
-		if len(split) < 2 {
-			return nil, fmt.Errorf("failed to fetch information for account %s : %w", contract.AccountName(), err)
-		}
-		key := split[1]
+
+		key := strings.Join(split[1:], "-")
 
 		result, ok := res[key]
 		if !ok {
