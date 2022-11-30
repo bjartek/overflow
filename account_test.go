@@ -9,13 +9,10 @@ import (
 
 func TestErrorsInAccountCreation(t *testing.T) {
 
-	/*
-		//TODO this fails now with some strange errors
-			t.Run("Should deploy contracts to multiple accounts", func(t *testing.T) {
-				_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull(), WithFlowForNewUsers(100.0))
-				assert.NoError(t, err)
-			})
-	*/
+	t.Run("Should deploy contracts to multiple accounts", func(t *testing.T) {
+		_, err := OverflowTesting(WithFlowConfig("testdata/flow-with-multiple-deployments.json"), WithLogFull(), WithFlowForNewUsers(100.0))
+		assert.NoError(t, err)
+	})
 
 	t.Run("Should give error on wrong contract name", func(t *testing.T) {
 		assert.Panics(t, func() {
