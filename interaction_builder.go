@@ -383,6 +383,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	*/
 	// we append the payer at the end here so that it signs last
 	signers := oib.PayloadSigners
+	payer := oib.Payer
 	if oib.Payer != nil {
 		signers = append(signers, oib.Payer)
 	}
@@ -393,6 +394,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	if oib.Payer == nil {
+		payer = oib.Proposer
 		signers = append(signers, oib.Proposer)
 	}
 
@@ -401,7 +403,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		Args:     oib.Arguments,
 		Filename: codeFileName,
 	}
-	addresses := services.NewTransactionAddresses(oib.Proposer.Address(), oib.Payer.Address(), authorizers)
+	addresses := services.NewTransactionAddresses(oib.Proposer.Address(), payer.Address(), authorizers)
 
 	tx, err := oib.Overflow.Services.Transactions.Build(
 		addresses,
