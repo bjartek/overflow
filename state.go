@@ -915,3 +915,44 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network string) 
 	}
 	return strings.TrimSpace(string(resolvedCode)), nil
 }
+
+func (o *OverflowState) CheckContractUpdates() (map[string]map[string]bool, error) {
+
+	contracts, err := o.contracts(o.Network)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch contracts: %w", err)
+	}
+
+	res := map[string]map[string]bool{}
+	for _, contract := range contracts {
+
+		split := strings.Split(contract.AccountName(), "-")
+
+		key := strings.Join(split[1:], "-")
+
+		result, ok := res[key]
+		if !ok {
+			res[key] = map[string]bool{}
+			result = res[key]
+		}
+
+		targetAccountInfo, err := o.GetAccount(key)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch information for account %s-%s: %w", o.Network, key, err)
+		}
+
+		// check if contract exists on account
+		existingContract, exists := targetAccountInfo.Contracts[contract.Name()]
+		noDiffInContract := bytes.Equal([]byte(contract.TranspiledCode()), existingContract)
+
+		if !exists {
+			result[contract.Name()] = true
+		} else if !noDiffInContract {
+			result[contract.Name()] = true
+		} else {
+			result[contract.Name()] = false
+		}
+
+	}
+	return res, nil
+}
