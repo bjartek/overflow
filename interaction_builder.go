@@ -401,7 +401,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		Args:     oib.Arguments,
 		Filename: codeFileName,
 	}
-	addresses := services.NewTransactionAddresses(oib.Payer.Address(), oib.Proposer.Address(), authorizers)
+	addresses := services.NewTransactionAddresses(oib.Proposer.Address(), oib.Payer.Address(), authorizers)
 
 	tx, err := oib.Overflow.Services.Transactions.Build(
 		addresses,
