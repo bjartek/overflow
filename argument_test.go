@@ -11,7 +11,7 @@ import (
 )
 
 /*
- Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
+Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestArguments(t *testing.T) {
 	g, err := NewTestingEmulator().StartE()

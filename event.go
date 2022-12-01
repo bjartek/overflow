@@ -62,7 +62,7 @@ func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
 	return nil
 }
 
-//Parse raw flow events into a list of events and a fee event
+// Parse raw flow events into a list of events and a fee event
 func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}

@@ -188,7 +188,7 @@ func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string,
 	return osr
 }
 
-//Assert that a jsonPointer into the result is equal to the given autogold Want
+// Assert that a jsonPointer into the result is equal to the given autogold Want
 func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
 	t.Helper()
 	result, err := osr.GetWithPointer(pointer)

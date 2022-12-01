@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/bjartek/overflow"
@@ -15,7 +15,10 @@ func main() {
 		panic(err)
 	}
 
-	bytes, err := ioutil.ReadAll(os.Stdin)
+	bytes, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		panic(err)
+	}
 	value, err := jsoncdc.Decode(nil, bytes)
 	if err != nil {
 		panic(err)

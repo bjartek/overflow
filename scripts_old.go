@@ -48,13 +48,13 @@ func (o *OverflowState) ScriptFromFile(filename string) OverflowScriptBuilder {
 	}
 }
 
-//Deprecated: use FlowInteractionBuilder and the Script method
+// Deprecated: use FlowInteractionBuilder and the Script method
 func (t OverflowScriptBuilder) ScriptPath(path string) OverflowScriptBuilder {
 	t.BasePath = path
 	return t
 }
 
-//Deprecated: use FlowInteractionBuilder and the Script method
+// Deprecated: use FlowInteractionBuilder and the Script method
 func (t OverflowScriptBuilder) NamedArguments(args map[string]string) OverflowScriptBuilder {
 
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
