@@ -38,28 +38,6 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 			AssertFailure("Could not read interaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
 	})
 
-	t.Run("Mint tokens assert events", func(t *testing.T) {
-		result := g.TransactionFromFile("mint_tokens").
-			SignProposeAndPayAsService().
-			ArgsFn(func(args *OverflowArgumentsBuilder) {
-				args.Account("first")
-				args.UFix64(100.1)
-			}).
-			Test(t).
-			AssertSuccess().
-			AssertEventCount(3).                                                                                                                                            //assert the number of events returned
-			AssertPartialEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": float64(100.1)})).                             //assert a given event, can also take multiple events if you like
-			AssertEmitEventNameShortForm("FlowToken.TokensMinted").                                                                                                         //assert the name of a single event
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated"). //or assert more then one eventname in a go
-			AssertEmitEvent(NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": float64(100.1)})).
-			//assert a given event, can also take multiple events if you like
-			AssertEmitEventJson("{\n  \"name\": \"A.0ae53cb6e3f42a79.FlowToken.MinterCreated\",\n  \"time\": \"1970-01-01T00:00:00Z\",\n  \"fields\": {\n    \"allowedAmount\": 100.1\n  }\n}") //assert a given event using json, can also take multiple events if you like
-
-		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
-		assert.Equal(t, 1, len(result.Result.GetEventsWithName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited")))
-
-	})
-
 	t.Run("Assert get id", func(t *testing.T) {
 		result := g.Transaction(`
 		import Debug from "../contracts/Debug.cdc"
