@@ -8,6 +8,7 @@ import (
 
 	"github.com/hexops/autogold"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func startOverflowAndMintTokens(t *testing.T) *OverflowState {
