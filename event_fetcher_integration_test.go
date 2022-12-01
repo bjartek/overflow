@@ -126,4 +126,31 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		assert.Equal(t, float64(100), marshalTo.BlockEventData.Amount)
 	})
 
+	t.Run("Return progress writer ", func(t *testing.T) {
+		progressFile := "progress"
+
+		err := writeProgressToFile(progressFile, 0)
+		require.NoError(t, err)
+		res := startOverflowAndMintTokens(t).FetchEventsWithResult(
+			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
+			WithTrackProgressIn(progressFile),
+			WithReturnProgressWriter(),
+		)
+		require.NoError(t, res.Error)
+		progress, err := readProgressFromFile(progressFile)
+		require.NoError(t, err)
+		assert.Equal(t, int64(0), progress)
+
+		res.ProgressWriteFunction()
+
+		progress, err = readProgressFromFile(progressFile)
+		require.NoError(t, err)
+		assert.Equal(t, int64(7), progress)
+
+		ev := res.Events
+		defer os.Remove(progressFile)
+		assert.Equal(t, 1, len(ev))
+		assert.Contains(t, ev[0].String(), "100")
+	})
+
 }
