@@ -199,7 +199,7 @@ func TestTransactionIntegration(t *testing.T) {
 		 } 
 	 }`,
 			WithSigner("first"),
-			WithArg("foo", Debug_FooListBar{Bar: "bar", Foo: []Debug_Foo{{Bar: "baz"}}}),
+			WithArg("foo", Debug_FooListBar{Bar: "bar", Foo: []Debug_Foo2{{Bar: "0xf8d6e0586b0a20c7"}}}),
 		).AssertSuccess(t)
 
 	})

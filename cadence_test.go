@@ -168,7 +168,7 @@ type Foo struct {
 
 type Debug_FooListBar struct {
 	Bar string
-	Foo []Debug_Foo
+	Foo []Debug_Foo2
 }
 
 type Debug_FooBar struct {
@@ -179,6 +179,10 @@ type Debug_FooBar struct {
 type Debug_Foo_Skip struct {
 	Bar  string
 	Skip string `cadence:"-"`
+}
+
+type Debug_Foo2 struct {
+	Bar string `cadence:"bar,cadenceAddress"`
 }
 
 type Debug_Foo struct {

@@ -3,10 +3,10 @@ import NonFungibleToken from "./NonFungibleToken.cdc"
 pub contract Debug {
 
 	pub struct FooListBar {
-		pub let foo:[Foo]
+		pub let foo:[Foo2]
 		pub let bar:String
 
-		init(foo:[Foo], bar:String) {
+		init(foo:[Foo2], bar:String) {
 			self.foo=foo
 			self.bar=bar
 		}
@@ -17,6 +17,15 @@ pub contract Debug {
 
 		init(foo:Foo, bar:String) {
 			self.foo=foo
+			self.bar=bar
+		}
+	}
+
+
+	pub struct Foo2{
+		pub let bar: Address
+
+		init(bar: Address) {
 			self.bar=bar
 		}
 	}

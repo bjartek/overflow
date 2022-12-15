@@ -75,6 +75,24 @@ func TestCheckContractUpdate(t *testing.T) {
 		g, _ := NewTestingEmulator().StartE()
 
 		code := []byte(`pub contract Debug{
+
+	pub struct FooListBar {
+		pub let foo:[Foo2]
+		pub let bar:String
+
+		init(foo:[Foo2], bar:String) {
+			self.foo=foo
+			self.bar=bar
+		}
+	}
+
+	pub struct Foo2{
+		pub let bar: Address
+
+		init(bar: Address) {
+			self.bar=bar
+		}
+	}
 			pub struct FooBar {
 				pub let foo:Foo
 				pub let bar:String
