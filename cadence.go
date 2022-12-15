@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/structtag"
 	"github.com/onflow/cadence"
+	"golang.org/x/exp/slices"
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
@@ -166,6 +167,17 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Valu
 
 			if name == "" {
 				name = strings.ToLower(field.Name)
+			}
+
+			if tag != nil && slices.Contains(tag.Options, "cadenceAddress") {
+				stringVal := getAndUnquoteString(cadenceVal)
+				adr, err := hexToAddress(stringVal)
+				if err != nil {
+					return nil, err
+				}
+				cadenceAddress := cadence.BytesToAddress(adr.Bytes())
+				cadenceType = cadence.AddressType{}
+				cadenceVal = cadenceAddress
 			}
 
 			fields = append(fields, cadence.Field{

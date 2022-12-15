@@ -190,6 +190,20 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	t.Run("Send nestedstruct with array to transaction", func(t *testing.T) {
+
+		o.Tx(`
+		import Debug from "../contracts/Debug.cdc"
+		transaction(foo: Debug.FooListBar) {
+		  prepare(acct: AuthAccount) {
+		 } 
+	 }`,
+			WithSigner("first"),
+			WithArg("foo", Debug_FooListBar{Bar: "bar", Foo: []Debug_Foo2{{Bar: "0xf8d6e0586b0a20c7"}}}),
+		).AssertSuccess(t)
+
+	})
+
 	t.Run("Send HttpFile to transaction", func(t *testing.T) {
 
 		o.Tx(`
