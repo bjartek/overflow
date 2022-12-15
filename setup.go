@@ -161,7 +161,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		overflow.InputResolver = *o.InputResolver
 	} else {
 		overflow.InputResolver = func(name string) (string, error) {
-			return overflow.QualifiedIdentiferFromSnakeCase(name)
+			return overflow.QualifiedIdentifierFromSnakeCase(name)
 		}
 	}
 	logger := output.NewStdoutLogger(o.LogLevel)
