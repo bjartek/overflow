@@ -8,10 +8,10 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.0
-	github.com/onflow/cadence v0.28.0
-	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20221129161202-9a155fa08460
-	github.com/onflow/flow-emulator v0.40.0
-	github.com/onflow/flow-go-sdk v0.29.1
+	github.com/onflow/cadence v0.30.0
+	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20221216000001-83fd0ee097ae
+	github.com/onflow/flow-emulator v0.41.0
+	github.com/onflow/flow-go-sdk v0.30.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
 	github.com/sanity-io/litter v1.5.5
@@ -19,7 +19,7 @@ require (
 	github.com/spf13/afero v1.9.3
 	github.com/stretchr/testify v1.8.1
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
-	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
+	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15
 )
 
 require (
@@ -99,10 +99,11 @@ require (
 	github.com/libp2p/go-libp2p-core v0.20.1 // indirect
 	github.com/libp2p/go-libp2p-tls v0.4.1 // indirect
 	github.com/libp2p/go-openssl v0.1.0 // indirect
+	github.com/lmars/go-slip10 v0.0.0-20190606092855-400ba44fee12 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -118,17 +119,19 @@ require (
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/onflow/atree v0.4.0 // indirect
-	github.com/onflow/cadence-tools/test v0.2.1-0.20221012182900-f46efb551c55 // indirect
-	github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20220720151516-797b149ceaaa // indirect
-	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20220720151516-797b149ceaaa // indirect
+	github.com/onflow/cadence-tools/test v0.3.0 // indirect
+	github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20221205150827-c68044a2505c // indirect
+	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20221205150827-c68044a2505c // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
-	github.com/onflow/flow-go v0.28.1-0.20221114195106-8bf6b00e6fbd // indirect
+	github.com/onflow/flow-go v0.28.1-0.20221214175701-076c0fd2a2f9 // indirect
 	github.com/onflow/flow-go/crypto v0.24.4 // indirect
-	github.com/onflow/flow/protobuf/go/flow v0.3.1 // indirect
+	github.com/onflow/flow/protobuf/go/flow v0.3.2-0.20221130185733-92eb85ead310 // indirect
 	github.com/onflow/sdks v0.4.4 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
+	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
@@ -144,9 +147,9 @@ require (
 	github.com/spf13/viper v1.14.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c // indirect
 	github.com/thoas/go-funk v0.9.2 // indirect
 	github.com/turbolent/prettier v0.0.0-20220320183459-661cc755135d // indirect
-	github.com/tyler-smith/go-bip32 v1.0.0 // indirect
 	github.com/tyler-smith/go-bip39 v1.0.1-0.20181017060643-dbb3b84ba2ef // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.11 // indirect
@@ -169,7 +172,8 @@ require (
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/tools v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect

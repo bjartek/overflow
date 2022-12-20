@@ -295,15 +295,15 @@ func TestTransactionIntegrationLegacy(t *testing.T) {
 }
 
 func TestFillUpSpace(t *testing.T) {
-	o, err := OverflowTesting(WithFlowForNewUsers(0.0003))
+	o, err := OverflowTesting(WithFlowForNewUsers(0.002))
 	assert.NoError(t, err)
 
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 129213, result)
+	assert.Equal(t, 299213, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 
 	result2 := o.GetFreeCapacity("first")
-	assert.LessOrEqual(t, result2, 100)
+	assert.LessOrEqual(t, result2, 40000)
 
 }
