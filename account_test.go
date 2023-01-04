@@ -121,8 +121,10 @@ func TestCheckContractUpdate(t *testing.T) {
 		}`)
 
 		contract := &services.Contract{
+			Script: &services.Script{
+				Code: code,
+			},
 			Name:    "Debug",
-			Source:  code,
 			Network: "emulator",
 		}
 
