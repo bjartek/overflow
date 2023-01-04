@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
@@ -76,11 +77,12 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
-	result, err := o.Services.Scripts.Execute(
-		fbi.TransactionCode,
-		fbi.Arguments,
-		filePath,
-		o.Network)
+	script := &services.Script{
+		Code:     fbi.TransactionCode,
+		Args:     fbi.Arguments,
+		Filename: filePath,
+	}
+	result, err := o.Services.Scripts.Execute(script, o.Network)
 
 	osc.Result = result
 	osc.Output = CadenceValueToInterface(result)
@@ -186,7 +188,7 @@ func (osr *OverflowScriptResult) AssertWithPointer(t *testing.T, pointer string,
 	return osr
 }
 
-//Assert that a jsonPointer into the result is equal to the given autogold Want
+// Assert that a jsonPointer into the result is equal to the given autogold Want
 func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer string, want autogold.Value) *OverflowScriptResult {
 	t.Helper()
 	result, err := osr.GetWithPointer(pointer)

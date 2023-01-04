@@ -47,7 +47,7 @@ type OverflowSolutionMerged struct {
 	Networks map[string]OverflowSolutionMergedNetwork `json:"networks"`
 }
 
-//a network in the merged solution
+// a network in the merged solution
 type OverflowSolutionMergedNetwork struct {
 	Scripts      map[string]OverflowCodeWithSpec `json:"scripts"`
 	Transactions map[string]OverflowCodeWithSpec `json:"transactions,omitempty"`

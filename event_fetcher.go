@@ -23,6 +23,7 @@ type OverflowEventFetcherBuilder struct {
 	ProgressFile          string
 	NumberOfWorkers       int
 	EventBatchSize        uint64
+	ReturnWriterFunction  bool
 }
 
 // Build an event fetcher builder from the sent in options
@@ -35,6 +36,7 @@ func (o *OverflowState) buildEventInteraction(opts ...OverflowEventFetcherOption
 		ProgressFile:          "",
 		EventBatchSize:        250,
 		NumberOfWorkers:       20,
+		ReturnWriterFunction:  false,
 	}
 
 	for _, opt := range opts {
@@ -43,12 +45,15 @@ func (o *OverflowState) buildEventInteraction(opts ...OverflowEventFetcherOption
 	return e
 }
 
+type ProgressWriterFunction func() error
+
 type EventFetcherResult struct {
-	Events []OverflowPastEvent
-	Error  error
-	State  *OverflowEventFetcherBuilder
-	From   int64
-	To     uint64
+	Events                []OverflowPastEvent
+	Error                 error
+	State                 *OverflowEventFetcherBuilder
+	From                  int64
+	To                    uint64
+	ProgressWriteFunction ProgressWriterFunction
 }
 
 func (efr EventFetcherResult) String() string {
@@ -142,11 +147,19 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 			}
 		}
 	}
+
+	progressWriter := func() error {
+		return writeProgressToFile(e.ProgressFile, endIndex+1)
+	}
 	if e.ProgressFile != "" {
-		err := writeProgressToFile(e.ProgressFile, endIndex+1)
-		if err != nil {
-			res.Error = fmt.Errorf("could not write progress to file %v", err)
-			return res
+		if e.ReturnWriterFunction {
+			res.ProgressWriteFunction = progressWriter
+		} else {
+			err := progressWriter()
+			if err != nil {
+				res.Error = fmt.Errorf("could not write progress to file %v", err)
+				return res
+			}
 		}
 	}
 	sort.Slice(formatedEvents, func(i, j int) bool {
@@ -247,6 +260,13 @@ func WithTrackProgressIn(fileName string) OverflowEventFetcherOption {
 		e.EndIndex = 0
 		e.FromIndex = 0
 		e.EndAtCurrentHeight = true
+	}
+}
+
+// track what block we have read since last run in a file
+func WithReturnProgressWriter() OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
+		e.ReturnWriterFunction = true
 	}
 }
 

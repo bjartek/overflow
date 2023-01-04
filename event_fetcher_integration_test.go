@@ -8,12 +8,13 @@ import (
 
 	"github.com/hexops/autogold"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	t.Helper()
 	o, err := OverflowTesting()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	result := o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 100.0))
 	assert.NoError(t, result.Err)
 	return o
@@ -112,6 +113,33 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		var marshalTo MarketEvent
 		assert.NoError(t, graffleEvent.MarshalAs(&marshalTo))
 		assert.Equal(t, float64(10), marshalTo.BlockEventData.Amount)
+	})
+
+	t.Run("Return progress writer ", func(t *testing.T) {
+		progressFile := "progress"
+
+		err := writeProgressToFile(progressFile, 0)
+		require.NoError(t, err)
+		res := startOverflowAndMintTokens(t).FetchEventsWithResult(
+			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
+			WithTrackProgressIn(progressFile),
+			WithReturnProgressWriter(),
+		)
+		require.NoError(t, res.Error)
+		progress, err := readProgressFromFile(progressFile)
+		require.NoError(t, err)
+		assert.Equal(t, int64(0), progress)
+
+		res.ProgressWriteFunction()
+
+		progress, err = readProgressFromFile(progressFile)
+		require.NoError(t, err)
+		assert.Equal(t, int64(7), progress)
+
+		ev := res.Events
+		defer os.Remove(progressFile)
+		assert.Equal(t, 1, len(ev))
+		assert.Contains(t, ev[0].String(), "100")
 	})
 
 }

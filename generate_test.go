@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 /*
@@ -12,7 +13,7 @@ Tests must be in the same folder as flow.json with contracts and transactions/sc
 func TestGenerate(t *testing.T) {
 
 	o, err := OverflowTesting()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	t.Run("script", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/test.cdc", false)
 		assert.NoError(t, err)

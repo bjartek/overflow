@@ -19,7 +19,7 @@ type OverflowTransactionFunction func(filename string, opts ...OverflowInteracti
 // a type to define a function used to compose Transaction interactions
 type OverflowTransactionOptsFunction func(opts ...OverflowInteractionOption) *OverflowResult
 
-//OverflowResult represents the state after running an transaction
+// OverflowResult represents the state after running an transaction
 type OverflowResult struct {
 	StopOnError bool
 	//The error if any

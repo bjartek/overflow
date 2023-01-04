@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationEvents(t *testing.T) {
 
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
 		g, err := OverflowTesting()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		g.Tx("mint_tokens",
 			WithSignerServiceAccount(),
@@ -32,23 +33,21 @@ func TestIntegrationEvents(t *testing.T) {
 
 	t.Run("Fetch last events", func(t *testing.T) {
 		g, err := OverflowTesting()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		g.Tx("mint_tokens",
 			WithSignerServiceAccount(),
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
 			AssertEventCount(t, 3)
-
 		ev, err := g.FetchEvents(WithLastBlocks(2), WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"))
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(ev))
 	})
 
 	t.Run("Fetch last events and sort them ", func(t *testing.T) {
-
 		g, err := OverflowTesting()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		g.Tx("mint_tokens",
 			WithSignerServiceAccount(),
 			WithArg("recipient", "first"),
@@ -70,9 +69,8 @@ func TestIntegrationEvents(t *testing.T) {
 	})
 
 	t.Run("Fetch last write progress file", func(t *testing.T) {
-
 		g, err := OverflowTesting()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		g.Tx("mint_tokens",
 			WithSignerServiceAccount(),
 			WithArg("recipient", "first"),
@@ -91,7 +89,7 @@ func TestIntegrationEvents(t *testing.T) {
 		assert.NoError(t, err)
 
 		g, err := OverflowTesting()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		_, err = g.FetchEvents(WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"), WithTrackProgressIn("progress"))
 		defer os.Remove("progress")

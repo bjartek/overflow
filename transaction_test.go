@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTransaction(t *testing.T) {
-	o, _ := OverflowTesting()
-
+	o, err := OverflowTesting()
+	require.NoError(t, err)
 	t.Run("Run simple tx", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithSignerServiceAccount())
 		assert.NoError(t, res.Err)

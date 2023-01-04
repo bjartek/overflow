@@ -14,9 +14,9 @@ jobs:
     steps:
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18 
+          go-version: 1.19 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18 
+          go-version: 1.19 
       - uses: actions/cache@v2
         with:
           path: |
@@ -40,16 +40,16 @@ jobs:
             ${{ runner.os }}-go-
       - uses: zencargo/github-action-go-mod-tidy@v1
         with:
-          go-version: 1.18 
+          go-version: 1.19 
 
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - uses: actions/cache@v2
         with:
           path: |
@@ -69,10 +69,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
       - uses: actions/cache@v2
         with:
           path: |

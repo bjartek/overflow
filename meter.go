@@ -11,7 +11,7 @@ type OverflowMeter struct {
 	MemoryIntensities      OverflowMeteredMemoryIntensities      `json:"memoryIntensities"`
 }
 
-//get the number of functions invocations
+// get the number of functions invocations
 func (m OverflowMeter) FunctionInvocations() int {
 	return int(m.ComputationIntensities[common.ComputationKindFunctionInvocation])
 }
@@ -21,7 +21,7 @@ func (m OverflowMeter) Loops() int {
 	return int(m.ComputationIntensities[common.ComputationKindLoop])
 }
 
-//get the number of statements
+// get the number of statements
 func (m OverflowMeter) Statements() int {
 	return int(m.ComputationIntensities[common.ComputationKindStatement])
 }
