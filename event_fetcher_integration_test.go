@@ -134,7 +134,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 
 		progress, err = readProgressFromFile(progressFile)
 		require.NoError(t, err)
-		assert.Equal(t, int64(7), progress)
+		assert.Equal(t, int64(9), progress)
 
 		ev := res.Events
 		defer os.Remove(progressFile)
