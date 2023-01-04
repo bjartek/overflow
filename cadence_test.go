@@ -161,6 +161,37 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
 }
 
+func TestPrimitiveInptuToCadence(t *testing.T) {
+	tests := []struct {
+		name  string
+		value interface{}
+	}{
+		{name: "int", value: 1},
+		{name: "int8", value: int8(8)},
+		{name: "int16", value: int16(16)},
+		{name: "int32", value: int32(32)},
+		{name: "int64", value: int64(64)},
+		{name: "uint8", value: uint8(8)},
+		{name: "uint16", value: uint16(16)},
+		{name: "uint32", value: uint32(32)},
+		{name: "true", value: true},
+		{name: "false", value: false},
+	}
+
+	resolver := func(string) (string, error) {
+		return "", nil
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cadenceValue, err := InputToCadence(test.value, resolver)
+			assert.NoError(t, err)
+			result2 := CadenceValueToInterface(cadenceValue)
+			assert.Equal(t, test.value, result2)
+		})
+	}
+}
+
 // in Debug.cdc
 type Foo struct {
 	Bar string
