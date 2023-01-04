@@ -153,7 +153,7 @@ transaction(recipient: Address, amount: UFix64) {
 func (o *OverflowState) FillUpStorage(accountName string) *OverflowState {
 
 	capacity := o.GetFreeCapacity(accountName)
-	length := capacity - 7400 //we cannot fill up all of storage since we need flow to pay for the transaction that fills it up
+	length := capacity - 51000 //we cannot fill up all of storage since we need flow to pay for the transaction that fills it up
 
 	err := o.UploadString(randomString(length), accountName)
 	if err != nil {

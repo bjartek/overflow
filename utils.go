@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"math/rand"
 	"net/http"
@@ -68,7 +68,7 @@ func exists(path string) (bool, error) {
 
 func writeProgressToFile(fileName string, blockHeight uint64) error {
 
-	err := ioutil.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
+	err := os.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
 
 	if err != nil {
 		return fmt.Errorf("could not create initial progress file %v", err)
@@ -77,7 +77,7 @@ func writeProgressToFile(fileName string, blockHeight uint64) error {
 }
 
 func readProgressFromFile(fileName string) (int64, error) {
-	dat, err := ioutil.ReadFile(fileName)
+	dat, err := os.ReadFile(fileName)
 	if err != nil {
 		return 0, fmt.Errorf("ProgressFile is not valid %v", err)
 	}
@@ -110,7 +110,7 @@ func fileAsImageData(path string) (string, error) {
 
 	// Read entire JPG into byte slice.
 	reader := bufio.NewReader(f)
-	content, err := ioutil.ReadAll(reader)
+	content, err := io.ReadAll(reader)
 	if err != nil {
 		return "", fmt.Errorf("could not read imageFile %s, %w", path, err)
 	}
@@ -134,7 +134,7 @@ func fileAsBase64(path string) (string, error) {
 
 	// Read entire JPG into byte slice.
 	reader := bufio.NewReader(f)
-	content, err := ioutil.ReadAll(reader)
+	content, err := io.ReadAll(reader)
 	if err != nil {
 		return "", fmt.Errorf("could not read file %s, %w", path, err)
 	}
@@ -153,7 +153,7 @@ func getUrl(url string) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func randomString(length int) string {

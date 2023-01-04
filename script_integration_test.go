@@ -5,6 +5,7 @@ import (
 
 	"github.com/hexops/autogold"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type AwesomeStruct struct {
@@ -15,7 +16,7 @@ type AwesomeStruct struct {
 
 func TestScriptIntegrationNew(t *testing.T) {
 	o, err := OverflowTesting()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	t.Parallel()
 
 	mapScript := o.ScriptFileNameFN(`pub fun main() : {String: {String: String}} {

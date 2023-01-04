@@ -5,11 +5,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEvent(t *testing.T) {
 
-	g := NewTestingEmulator().Start()
+	g, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 
 	t.Run("Start argument", func(t *testing.T) {
 		ef := g.EventFetcher().Start(100)

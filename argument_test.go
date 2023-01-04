@@ -7,13 +7,15 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 /*
- Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
+Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestArguments(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	g, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 	t.Parallel()
 
 	t.Run("Argument test", func(t *testing.T) {

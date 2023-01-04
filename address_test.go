@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetAddress(t *testing.T) {
 
 	o, err := OverflowTesting()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	testCases := map[string]string{
 		"first":     "0x01cf0e2f2f715450",

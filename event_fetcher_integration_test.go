@@ -13,7 +13,8 @@ import (
 
 func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	t.Helper()
-	o := NewTestingEmulator().Start()
+	o, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 	result := o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 100.0))
 	assert.NoError(t, result.Err)
 	return o

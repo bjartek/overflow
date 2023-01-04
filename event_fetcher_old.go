@@ -53,7 +53,7 @@ func (e OverflowEventFetcherBuilder) Event(eventName string) OverflowEventFetche
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//EventIgnoringFields fetch event and ignore the specified fields
+// EventIgnoringFields fetch event and ignore the specified fields
 func (e OverflowEventFetcherBuilder) EventIgnoringFields(eventName string, ignoreFields []string) OverflowEventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = ignoreFields
 	return e
@@ -61,7 +61,7 @@ func (e OverflowEventFetcherBuilder) EventIgnoringFields(eventName string, ignor
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//Start specify what blockHeight to fetch starting atm. This can be negative related to end/until
+// Start specify what blockHeight to fetch starting atm. This can be negative related to end/until
 func (e OverflowEventFetcherBuilder) Start(blockHeight int64) OverflowEventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
@@ -69,7 +69,7 @@ func (e OverflowEventFetcherBuilder) Start(blockHeight int64) OverflowEventFetch
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//From specify what blockHeight to fetch from. This can be negative related to end.
+// From specify what blockHeight to fetch from. This can be negative related to end.
 func (e OverflowEventFetcherBuilder) From(blockHeight int64) OverflowEventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
@@ -77,7 +77,7 @@ func (e OverflowEventFetcherBuilder) From(blockHeight int64) OverflowEventFetche
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//End specify what index to end at
+// End specify what index to end at
 func (e OverflowEventFetcherBuilder) End(blockHeight uint64) OverflowEventFetcherBuilder {
 	e.EndIndex = blockHeight
 	e.EndAtCurrentHeight = false
@@ -86,7 +86,7 @@ func (e OverflowEventFetcherBuilder) End(blockHeight uint64) OverflowEventFetche
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//Last fetch events from the number last blocks
+// Last fetch events from the number last blocks
 func (e OverflowEventFetcherBuilder) Last(number uint64) OverflowEventFetcherBuilder {
 	e.EndAtCurrentHeight = true
 	e.FromIndex = -int64(number)
@@ -95,7 +95,7 @@ func (e OverflowEventFetcherBuilder) Last(number uint64) OverflowEventFetcherBui
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//Until specify what index to end at
+// Until specify what index to end at
 func (e OverflowEventFetcherBuilder) Until(blockHeight uint64) OverflowEventFetcherBuilder {
 	e.EndIndex = blockHeight
 	e.EndAtCurrentHeight = false
@@ -104,7 +104,7 @@ func (e OverflowEventFetcherBuilder) Until(blockHeight uint64) OverflowEventFetc
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//UntilCurrent Specify to fetch events until the current Block
+// UntilCurrent Specify to fetch events until the current Block
 func (e OverflowEventFetcherBuilder) UntilCurrent() OverflowEventFetcherBuilder {
 	e.EndAtCurrentHeight = true
 	e.EndIndex = 0
@@ -113,7 +113,7 @@ func (e OverflowEventFetcherBuilder) UntilCurrent() OverflowEventFetcherBuilder 
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//TrackProgressIn Specify a file to store progress in
+// TrackProgressIn Specify a file to store progress in
 func (e OverflowEventFetcherBuilder) TrackProgressIn(fileName string) OverflowEventFetcherBuilder {
 	e.ProgressFile = fileName
 	e.EndIndex = 0
@@ -124,7 +124,7 @@ func (e OverflowEventFetcherBuilder) TrackProgressIn(fileName string) OverflowEv
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//Run runs the eventfetcher returning events or an error
+// Run runs the eventfetcher returning events or an error
 func (e OverflowEventFetcherBuilder) Run() ([]*OverflowFormatedEvent, error) {
 
 	//if we have a progress file read the value from it and set it as oldHeight
@@ -223,7 +223,7 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	}
 }
 
-//FormatEvents
+// FormatEvents
 func FormatEvents(blockEvents []flow.BlockEvents, ignoreFields map[string][]string) []*OverflowFormatedEvent {
 	var events []*OverflowFormatedEvent
 
@@ -236,7 +236,7 @@ func FormatEvents(blockEvents []flow.BlockEvents, ignoreFields map[string][]stri
 	return events
 }
 
-//ParseEvent parses a flow event into a more terse representation
+// ParseEvent parses a flow event into a more terse representation
 func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFields []string) *OverflowFormatedEvent {
 
 	var fieldNames []string
@@ -320,7 +320,7 @@ func NewTestEvent(name string, fields map[string]interface{}) *OverflowFormatedE
 
 // Deprecated: Deprecated in favor of FetchEvent with builder
 //
-//String pretty print an event as a String
+// String pretty print an event as a String
 func (e OverflowFormatedEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
 	if err != nil {

@@ -6,10 +6,12 @@ import (
 	"github.com/hexops/autogold"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseConfig(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	g, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 	t.Parallel()
 
 	t.Run("parse", func(t *testing.T) {

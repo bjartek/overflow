@@ -4,10 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestScriptIntegrationLegacy(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	g, err := NewTestingEmulator().StartE()
+	require.NoError(t, err)
 	t.Parallel()
 
 	t.Run("Raw account argument", func(t *testing.T) {

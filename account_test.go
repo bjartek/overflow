@@ -6,6 +6,7 @@ import (
 	"github.com/hexops/autogold"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestErrorsInAccountCreation(t *testing.T) {
@@ -23,13 +24,13 @@ func TestErrorsInAccountCreation(t *testing.T) {
 
 	t.Run("Should give error on invalid env var in flow.json", func(t *testing.T) {
 		_, err := NewTestingEmulator().Config("testdata/invalid_env_flow.json").StartE()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "invalid private key for account: emulator-5")
 	})
 
 	t.Run("Should give error on wrong account name", func(t *testing.T) {
 		_, err := NewTestingEmulator().Config("testdata/invalid_account_in_deployment.json").StartE()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "deployment contains nonexisting account emulator-firs")
 	})
 
@@ -38,7 +39,8 @@ func TestErrorsInAccountCreation(t *testing.T) {
 func TestGetAccount(t *testing.T) {
 
 	t.Run("Should return the account", func(t *testing.T) {
-		g, _ := NewTestingEmulator().StartE()
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		account, err := g.GetAccount("account")
 
 		assert.Nil(t, err)
@@ -46,8 +48,9 @@ func TestGetAccount(t *testing.T) {
 	})
 
 	t.Run("Should return an error if account doesn't exist", func(t *testing.T) {
-		g, _ := NewTestingEmulator().StartE()
-		_, err := g.GetAccount("doesnotexist")
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
+		_, err = g.GetAccount("doesnotexist")
 		assert.ErrorContains(t, err, "could not find account with name emulator-doesnotexist in the configuration")
 
 	})
@@ -118,8 +121,10 @@ func TestCheckContractUpdate(t *testing.T) {
 		}`)
 
 		contract := &services.Contract{
+			Script: &services.Script{
+				Code: code,
+			},
 			Name:    "Debug",
-			Source:  code,
 			Network: "emulator",
 		}
 

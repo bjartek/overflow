@@ -100,12 +100,12 @@ func TestFilterOverflowEvents(t *testing.T) {
 		filtered := eventsWithFees.FilterFees(0.00000918)
 		want := autogold.Want("fees filtered with transfer", OverflowEvents{
 			"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
-				OverflowEvent{Fields: map[string]interface{}{
+				{Fields: map[string]interface{}{
 					"amount": 1,
 					"to":     "0xf919ee77447b7497",
 				}},
 			},
-			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{OverflowEvent{Fields: map[string]interface{}{
+			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{{Fields: map[string]interface{}{
 				"amount": 1,
 				"from":   "0x55ad22f01ef568a1",
 			}}},
@@ -130,7 +130,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 		}
 		filtered := eventsWithFees.FilterTempWithdrawDeposit()
 		want := autogold.Want("fees empty deposit withdraw", OverflowEvents{"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
-			OverflowEvent{Fields: map[string]interface{}{
+			{Fields: map[string]interface{}{
 				"amount": 1,
 				"to":     "0xf919ee77447b7497",
 			}},
@@ -156,16 +156,16 @@ func TestFilterOverflowEvents(t *testing.T) {
 		filtered := eventsWithFees.FilterTempWithdrawDeposit()
 		want := autogold.Want("fees non-empty deposit withdraw", OverflowEvents{
 			"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
-				OverflowEvent{Fields: map[string]interface{}{
+				{Fields: map[string]interface{}{
 					"amount": 9.18e-06,
 					"to":     "0x02",
 				}},
-				OverflowEvent{Fields: map[string]interface{}{
+				{Fields: map[string]interface{}{
 					"amount": 1,
 					"to":     "0xf919ee77447b7497",
 				}},
 			},
-			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{OverflowEvent{Fields: map[string]interface{}{
+			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{{Fields: map[string]interface{}{
 				"amount": 9.18e-06,
 				"from":   "0x01",
 			}}},

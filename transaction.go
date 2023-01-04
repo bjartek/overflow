@@ -12,7 +12,7 @@ import (
 
 // OverflowTransactionResult
 //
-// The old result object from an transaction
+// # The old result object from an transaction
 //
 // Deprecated: use the new Tx() method and OverflowResult
 type OverflowTransactionResult struct {

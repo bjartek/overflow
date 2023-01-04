@@ -30,5 +30,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf(stub)
+	fmt.Println(stub)
 }

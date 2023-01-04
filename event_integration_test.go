@@ -6,12 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIntegrationEvents(t *testing.T) {
 
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
-		g := NewTestingEmulator().Start()
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			Args(g.Arguments().
@@ -21,13 +23,15 @@ func TestIntegrationEvents(t *testing.T) {
 			AssertSuccess().
 			AssertEventCount(3)
 
-		_, err := g.EventFetcher().End(2).From(-10).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
+		_, err = g.EventFetcher().End(2).From(-10).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "FromIndex is negative")
 	})
 
 	t.Run("Fetch last events", func(t *testing.T) {
-		g := NewTestingEmulator().Start()
+
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			Args(g.Arguments().
@@ -43,7 +47,9 @@ func TestIntegrationEvents(t *testing.T) {
 	})
 
 	t.Run("Fetch last events and sort them ", func(t *testing.T) {
-		g := NewTestingEmulator().Start()
+
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			Args(g.Arguments().
@@ -69,7 +75,8 @@ func TestIntegrationEvents(t *testing.T) {
 	})
 
 	t.Run("Fetch last write progress file", func(t *testing.T) {
-		g := NewTestingEmulator().Start()
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			Args(g.Arguments().
@@ -89,7 +96,8 @@ func TestIntegrationEvents(t *testing.T) {
 		err := os.WriteFile("progress", []byte("invalid"), fs.ModePerm)
 		assert.NoError(t, err)
 
-		g := NewTestingEmulator().Start()
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		_, err = g.EventFetcher().Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").TrackProgressIn("progress").Run()
 		defer os.Remove("progress")
 		assert.Error(t, err)
@@ -101,7 +109,8 @@ func TestIntegrationEvents(t *testing.T) {
 		err := os.WriteFile("progress", []byte("1"), fs.ModePerm)
 		assert.NoError(t, err)
 
-		g := NewTestingEmulator().Start()
+		g, err := NewTestingEmulator().StartE()
+		require.NoError(t, err)
 		g.TransactionFromFile("mint_tokens").
 			SignProposeAndPayAsService().
 			Args(g.Arguments().

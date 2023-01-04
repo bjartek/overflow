@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIdentifierIntegration(t *testing.T) {
 	o, err := OverflowTesting()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	result, err := o.QualifiedIdentifier("MetadataViews", "Display")
 	assert.NoError(t, err)
@@ -17,7 +18,7 @@ func TestIdentifierIntegration(t *testing.T) {
 
 func TestIdentifierTestnet(t *testing.T) {
 	o := Overflow(WithNetwork("testnet"))
-	assert.NoError(t, o.Error)
+	require.NoError(t, o.Error)
 
 	result, err := o.QualifiedIdentifier("MetadataViews", "Display")
 	assert.NoError(t, err)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/pkg/errors"
 )
 
@@ -47,13 +48,13 @@ func (o *OverflowState) ScriptFromFile(filename string) OverflowScriptBuilder {
 	}
 }
 
-//Deprecated: use FlowInteractionBuilder and the Script method
+// Deprecated: use FlowInteractionBuilder and the Script method
 func (t OverflowScriptBuilder) ScriptPath(path string) OverflowScriptBuilder {
 	t.BasePath = path
 	return t
 }
 
-//Deprecated: use FlowInteractionBuilder and the Script method
+// Deprecated: use FlowInteractionBuilder and the Script method
 func (t OverflowScriptBuilder) NamedArguments(args map[string]string) OverflowScriptBuilder {
 
 	scriptFilePath := fmt.Sprintf("%s/%s.cdc", t.BasePath, t.FileName)
@@ -141,11 +142,12 @@ func (t OverflowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	t.Overflow.EmulatorLog.Reset()
 
-	result, err := f.Services.Scripts.Execute(
-		script,
-		t.Arguments,
-		scriptFilePath,
-		f.Network)
+	flowScript := &services.Script{
+		Code:     script,
+		Args:     t.Arguments,
+		Filename: scriptFilePath,
+	}
+	result, err := f.Services.Scripts.Execute(flowScript, f.Network)
 	if err != nil {
 		return nil, err
 	}
