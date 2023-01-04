@@ -7,7 +7,8 @@ import (
 )
 
 func TestSignIntegration(t *testing.T) {
-	g := NewTestingEmulator().Start()
+	g, err := OverflowTesting()
+	assert.NoError(t, err)
 	t.Parallel()
 
 	t.Run("fail on missing signer", func(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 func TestGetBlock(t *testing.T) {
 
 	t.Run("Should get latest block", func(t *testing.T) {
-		g, err := NewTestingEmulator().StartE()
+		g, err := OverflowTesting()
 		require.NoError(t, err)
 		block, err := g.GetLatestBlock()
 
@@ -19,7 +19,7 @@ func TestGetBlock(t *testing.T) {
 	})
 
 	t.Run("Should get block by height", func(t *testing.T) {
-		g, err := NewTestingEmulator().StartE()
+		g, err := OverflowTesting()
 		require.NoError(t, err)
 		block, err := g.GetBlockAtHeight(0)
 
@@ -29,7 +29,7 @@ func TestGetBlock(t *testing.T) {
 
 	t.Run("Should get block by ID", func(t *testing.T) {
 		BlockZeroID := "13c7ff23bb65feb5757cc65fdd75cd243506518c126385fae530ddebdad10b17"
-		g, err := NewTestingEmulator().StartE()
+		g, err := OverflowTesting()
 		require.NoError(t, err)
 		block, err := g.GetBlockById(BlockZeroID)
 

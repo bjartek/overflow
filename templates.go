@@ -54,7 +54,7 @@ func (o *OverflowState) UploadImageAsDataUrl(filename string, accountName string
 // UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
 func (o *OverflowState) UploadString(content string, accountName string) error {
 	//unload previous content if any.
-	if _, err := o.Transaction(`
+	res := o.Tx(`
 	transaction {
 		prepare(signer: AuthAccount) {
 			let path = /storage/upload
@@ -62,13 +62,14 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 			log(existing)
 		}
 	}
-	  `).SignProposeAndPayAs(accountName).RunE(); err != nil {
-		return err
+	  `, WithSigner(accountName))
+	if res.Err != nil {
+		return res.Err
 	}
 
 	parts := splitByWidthMake(content, 1_000_000)
 	for _, part := range parts {
-		if _, err := o.Transaction(`
+		res := o.Tx(`
 		transaction(part: String) {
 			prepare(signer: AuthAccount) {
 				let path = /storage/upload
@@ -78,8 +79,9 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 				log(part)
 			}
 		}
-			`).SignProposeAndPayAs(accountName).Args(o.Arguments().String(part)).RunE(); err != nil {
-			return err
+			`, WithSigner(accountName), WithArg("part", part))
+		if res.Err != nil {
+			return res.Err
 		}
 	}
 
@@ -89,16 +91,18 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 // Get the free capacity in an account
 func (o *OverflowState) GetFreeCapacity(accountName string) int {
 
-	result, ok := o.InlineScript(`
+	result := o.Script(`
 pub fun main(user:Address): UInt64{
 	let account=getAccount(user)
 	return account.storageCapacity - account.storageUsed
 }
-`).Args(o.Arguments().Account(accountName)).RunReturnsInterface().(uint64)
+`, WithArg("user", accountName))
+
+	value, ok := result.Output.(uint64)
 	if !ok {
 		panic("Type conversion of free capacity failed")
 	}
-	return int(result)
+	return int(value)
 }
 
 func (o *OverflowState) MintFlowTokens(accountName string, amount float64) *OverflowState {

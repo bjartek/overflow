@@ -17,19 +17,18 @@ func TestErrorsInAccountCreation(t *testing.T) {
 	})
 
 	t.Run("Should give error on wrong contract name", func(t *testing.T) {
-		assert.Panics(t, func() {
-			NewTestingEmulator().Config("testdata/non_existing_contract.json").Start()
-		})
+		_, err := OverflowTesting(WithFlowConfig("testdata/non_existing_contract.json"))
+		assert.ErrorContains(t, err, "deployment contains nonexisting contract Debug2")
 	})
 
 	t.Run("Should give error on invalid env var in flow.json", func(t *testing.T) {
-		_, err := NewTestingEmulator().Config("testdata/invalid_env_flow.json").StartE()
+		_, err := OverflowTesting(WithFlowConfig("testdata/invalid_env_flow.json"))
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "invalid private key for account: emulator-5")
 	})
 
 	t.Run("Should give error on wrong account name", func(t *testing.T) {
-		_, err := NewTestingEmulator().Config("testdata/invalid_account_in_deployment.json").StartE()
+		_, err := OverflowTesting(WithFlowConfig("testdata/invalid_account_in_deployment.json"))
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "deployment contains nonexisting account emulator-firs")
 	})
@@ -39,7 +38,7 @@ func TestErrorsInAccountCreation(t *testing.T) {
 func TestGetAccount(t *testing.T) {
 
 	t.Run("Should return the account", func(t *testing.T) {
-		g, err := NewTestingEmulator().StartE()
+		g, err := OverflowTesting()
 		require.NoError(t, err)
 		account, err := g.GetAccount("account")
 
@@ -48,7 +47,7 @@ func TestGetAccount(t *testing.T) {
 	})
 
 	t.Run("Should return an error if account doesn't exist", func(t *testing.T) {
-		g, err := NewTestingEmulator().StartE()
+		g, err := OverflowTesting()
 		require.NoError(t, err)
 		_, err = g.GetAccount("doesnotexist")
 		assert.ErrorContains(t, err, "could not find account with name emulator-doesnotexist in the configuration")
@@ -56,7 +55,7 @@ func TestGetAccount(t *testing.T) {
 	})
 
 	t.Run("Should return an error if sa does not exist", func(t *testing.T) {
-		_, err := NewTestingEmulator().SetServiceSuffix("dummy").StartE()
+		_, err := OverflowTesting(WithServiceAccountSuffix("dummy"))
 
 		assert.ErrorContains(t, err, "could not find account with name emulator-dummy in the configuration")
 
@@ -67,7 +66,9 @@ func TestGetAccount(t *testing.T) {
 func TestCheckContractUpdate(t *testing.T) {
 
 	t.Run("Should return the updatable contracts", func(t *testing.T) {
-		g, _ := NewTestingEmulator().StartE()
+
+		g, err := OverflowTesting()
+		require.NoError(t, err)
 		res, err := g.CheckContractUpdates()
 
 		assert.Nil(t, err)
@@ -75,7 +76,8 @@ func TestCheckContractUpdate(t *testing.T) {
 	})
 
 	t.Run("Should return the updatable contracts (updatable)", func(t *testing.T) {
-		g, _ := NewTestingEmulator().StartE()
+		g, err := OverflowTesting()
+		require.NoError(t, err)
 
 		code := []byte(`pub contract Debug{
 
@@ -128,7 +130,7 @@ func TestCheckContractUpdate(t *testing.T) {
 			Network: "emulator",
 		}
 
-		err := g.AddContract("account", contract, true)
+		err = g.AddContract("account", contract, true)
 		assert.Nil(t, err)
 		res, err := g.CheckContractUpdates()
 

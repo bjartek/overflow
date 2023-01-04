@@ -12,7 +12,7 @@ Tests must be in the same folder as flow.json with contracts and transactions/sc
 */
 func TestGenerate(t *testing.T) {
 
-	o, err := NewTestingEmulator().StartE()
+	o, err := OverflowTesting()
 	require.NoError(t, err)
 	t.Run("script", func(t *testing.T) {
 		stub, err := o.GenerateStub("emulator", "scripts/test.cdc", false)

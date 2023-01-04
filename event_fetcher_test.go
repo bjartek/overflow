@@ -10,7 +10,7 @@ import (
 
 func TestEventFetcher(t *testing.T) {
 
-	g, err := NewTestingEmulator().StartE()
+	g, err := OverflowTesting()
 	require.NoError(t, err)
 
 	t.Run("Start argument", func(t *testing.T) {
