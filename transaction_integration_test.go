@@ -314,3 +314,17 @@ func TestTransactionEventFiltering(t *testing.T) {
 		WithArg("message", "foobar"),
 	).AssertSuccess(t).AssertEventCount(t, 0)
 }
+
+func TestFillUpSpace(t *testing.T) {
+	o, err := OverflowTesting(WithFlowForNewUsers(0.001))
+	assert.NoError(t, err)
+
+	result := o.GetFreeCapacity("first")
+	assert.Equal(t, 199213, result)
+	o.FillUpStorage("first")
+	assert.NoError(t, o.Error)
+
+	result2 := o.GetFreeCapacity("first")
+	assert.LessOrEqual(t, result2, 42000)
+
+}
