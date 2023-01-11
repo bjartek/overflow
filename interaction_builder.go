@@ -10,7 +10,6 @@ import (
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 )
@@ -378,19 +377,47 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		signers = append(signers, oib.Proposer)
 	}
 
-	script := &services.Script{
-		Code:     oib.TransactionCode,
-		Args:     oib.Arguments,
-		Filename: codeFileName,
-	}
-	addresses := services.NewTransactionAddresses(oib.Proposer.Address(), payer.Address(), authorizers)
+	/*
+				v0.43.0
+				script := &services.Script{
+					Code:     oib.TransactionCode,
+					Args:     oib.Arguments,
+					Filename: codeFileName,
+				}
+			addresses := services.NewTransactionAddresses(oib.Proposer.Address(), payer.Address(), authorizers)
+		tx, err := oib.Overflow.Services.Transactions.Build(
+				addresses,
+				oib.Proposer.Key().Index(),
+				script,
+				oib.GasLimit,
+				oib.Overflow.Network,
+			)
+	*/
+
+	/*
+		proposer flow.Address,
+		authorizers []flow.Address,
+		payer flow.Address,
+		proposerKeyIndex int,
+		code []byte,
+		codeFilename string,
+		gasLimit uint64,
+		args []cadence.Value,
+		network string,
+		approveBuild bool,
+	*/
 
 	tx, err := oib.Overflow.Services.Transactions.Build(
-		addresses,
+		oib.Proposer.Address(),
+		authorizers,
+		payer.Address(),
 		oib.Proposer.Key().Index(),
-		script,
+		oib.TransactionCode,
+		codeFileName,
 		oib.GasLimit,
+		oib.Arguments,
 		oib.Overflow.Network,
+		false,
 	)
 	if err != nil {
 		result.Err = err
@@ -413,7 +440,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	txId := tx.FlowTransaction().ID()
 	result.Id = txId
 
-	ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(tx)
+	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
+	//v0.43
+	//ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(tx)
+	ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(txBytes, true)
 	result.Transaction = ftx
 
 	if err != nil {

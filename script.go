@@ -10,7 +10,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
@@ -77,12 +76,16 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
+	/* v0.43
 	script := &services.Script{
 		Code:     fbi.TransactionCode,
 		Args:     fbi.Arguments,
 		Filename: filePath,
 	}
 	result, err := o.Services.Scripts.Execute(script, o.Network)
+	*/
+
+	result, err := o.Services.Scripts.Execute(fbi.TransactionCode, fbi.Arguments, filePath, o.Network)
 
 	osc.Result = result
 	osc.Output = CadenceValueToInterface(result)
