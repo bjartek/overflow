@@ -115,6 +115,32 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		assert.Equal(t, float64(10), marshalTo.BlockEventData.Amount)
 	})
 
+	t.Run("Fetch last write progress in memory that exists and marshal events", func(t *testing.T) {
+
+		imr := &InMemoryProgressKeeper{Progress: 1}
+
+		ev, err := startOverflowAndMintTokens(t).FetchEvents(
+			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
+			WithTrackProgress(imr),
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(ev))
+		event := ev[0]
+
+		graffleEvent := event.ToGraffleEvent()
+
+		var eventMarshal map[string]interface{}
+		assert.NoError(t, event.MarshalAs(&eventMarshal))
+		assert.NotEmpty(t, eventMarshal)
+
+		autogold.Equal(t, graffleEvent.BlockEventData, autogold.Name("graffle-event"))
+		var marshalTo MarketEvent
+		assert.NoError(t, graffleEvent.MarshalAs(&marshalTo))
+		assert.Equal(t, float64(10), marshalTo.BlockEventData.Amount)
+
+		assert.Equal(t, int64(9), imr.Progress)
+	})
+
 	t.Run("Return progress writer ", func(t *testing.T) {
 		progressFile := "progress"
 
