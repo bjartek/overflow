@@ -3,6 +3,8 @@ package overflow
 import (
 	"encoding/base64"
 	"fmt"
+
+	"github.com/pkg/errors"
 )
 
 // Templates
@@ -147,7 +149,7 @@ transaction(recipient: Address, amount: UFix64) {
 	)
 
 	if result.Err != nil {
-		o.Error = result.Err
+		o.Error = errors.Wrapf(result.Err, "could not mint tokens to %s", accountName)
 	}
 	return o
 }

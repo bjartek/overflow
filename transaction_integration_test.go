@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 /*
@@ -15,7 +16,8 @@ func TestTransactionIntegration(t *testing.T) {
 	customResolver := func(input string) (string, error) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
-	o, err := OverflowTesting()
+	o, err := OverflowTesting(WithLogFull())
+	require.NoError(t, err)
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
 
 	assert.NoError(t, err)

@@ -216,6 +216,9 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			overflow.Error = errors.Wrap(err, "could not create accounts")
 			return overflow
 		}
+		if overflow.Error != nil {
+			return overflow
+		}
 	}
 
 	if o.DeployContracts {

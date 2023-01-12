@@ -417,10 +417,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		oib.GasLimit,
 		oib.Arguments,
 		oib.Overflow.Network,
-		false,
+		true,
 	)
 	if err != nil {
-		result.Err = err
+		result.Err = errors.Wrap(err, "failed building transaction")
 		return result
 	}
 
@@ -447,7 +447,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.Transaction = ftx
 
 	if err != nil {
-		result.Err = err
+		result.Err = errors.Wrap(err, "send transaction failed")
 		return result
 	}
 

@@ -377,10 +377,13 @@ func (o *OverflowState) ServiceAccountName() string {
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
 func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
+	if o.Error != nil {
+		fmt.Println(o.Error.Error())
+	}
 	p := o.State
 	signerAccount, err := p.Accounts().ByName(o.ServiceAccountName())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not get signers account")
 	}
 
 	accounts := p.AccountNamesForNetwork(o.Network)
@@ -404,7 +407,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			[]crypto.HashAlgorithm{account.Key().HashAlgo()},
 			[]string{})
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "could not create account")
 		}
 
 		messages := []string{
@@ -427,7 +430,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			fmt.Println(strings.Join(messages, " "))
 		}
 	}
-	return o, nil
+	return o, o.Error
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
