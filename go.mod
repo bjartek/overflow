@@ -8,10 +8,10 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.0
-	github.com/onflow/cadence v0.30.0
+	github.com/onflow/cadence v0.31.0
 	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20221216181912-916369eaf1cf
 	github.com/onflow/flow-emulator v0.41.0
-	github.com/onflow/flow-go-sdk v0.30.0
+	github.com/onflow/flow-go-sdk v0.31.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
 	github.com/sanity-io/litter v1.5.5
@@ -190,3 +190,5 @@ require (
 	lukechampine.com/blake3 v1.1.7 // indirect
 	mvdan.cc/gofumpt v0.1.0 // indirect
 )
+
+replace github.com/onflow/flow-cli/pkg/flowkit => ../flow-cli/pkg/flowkit/
