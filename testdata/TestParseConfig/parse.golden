@@ -1,28 +1,28 @@
 &overflow.OverflowSolution{
 	Transactions: map[string]*overflow.OverflowDeclarationInfo{
-		"arguments": &overflow.OverflowDeclarationInfo{
+		"arguments": {
 			ParameterOrder: []string{
 				"test",
 			},
 			Parameters: map[string]string{"test": "String"},
 		},
-		"argumentsWithAccount": &overflow.OverflowDeclarationInfo{
+		"argumentsWithAccount": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "Address"},
 		},
-		"create_nft_collection": &overflow.OverflowDeclarationInfo{
+		"create_nft_collection": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 		},
-		"emulatorFoo": &overflow.OverflowDeclarationInfo{
+		"emulatorFoo": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"mainnetFoo": &overflow.OverflowDeclarationInfo{
+		"mainnetFoo": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"mint_tokens": &overflow.OverflowDeclarationInfo{
+		"mint_tokens": {
 			ParameterOrder: []string{
 				"recipient",
 				"amount",
@@ -32,43 +32,43 @@
 				"recipient": "Address",
 			},
 		},
-		"signWithMultipleAccounts": &overflow.OverflowDeclarationInfo{
+		"signWithMultipleAccounts": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
-		"testnetFoo": &overflow.OverflowDeclarationInfo{
+		"testnetFoo": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 		},
 	},
 	Scripts: map[string]*overflow.OverflowDeclarationInfo{
-		"block": &overflow.OverflowDeclarationInfo{
+		"block": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 		},
-		"emulatorFoo": &overflow.OverflowDeclarationInfo{
+		"emulatorFoo": {
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"mainnetFoo": &overflow.OverflowDeclarationInfo{
+		"mainnetFoo": {
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"test": &overflow.OverflowDeclarationInfo{
+		"test": {
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"testnetFoo": &overflow.OverflowDeclarationInfo{
+		"testnetFoo": {
 			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
 		},
-		"type": &overflow.OverflowDeclarationInfo{
+		"type": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 		},
 	},
 	Networks: map[string]*overflow.OverflowSolutionNetwork{
-		"emulator": &overflow.OverflowSolutionNetwork{
+		"emulator": {
 			Scripts: map[string]string{
 				"block": `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -249,7 +249,7 @@ pub fun log(_ msg: String) : String {
 				"NonFungibleToken": "/**\n\n## The Flow Non-Fungible Token standard\n\n## `NonFungibleToken` contract interface\n\nThe interface that all non-fungible token contracts could conform to.\nIf a user wants to deploy a new nft contract, their contract would need\nto implement the NonFungibleToken interface.\n\nTheir contract would have to follow all the rules and naming\nthat the interface specifies.\n\n## `NFT` resource\n\nThe core resource type that represents an NFT in the smart contract.\n\n## `Collection` Resource\n\nThe resource that stores a user's NFT collection.\nIt includes a few functions to allow the owner to easily\nmove tokens in and out of the collection.\n\n## `Provider` and `Receiver` resource interfaces\n\nThese interfaces declare functions with some pre and post conditions\nthat require the Collection to follow certain naming and behavior standards.\n\nThey are separate because it gives the user the ability to share a reference\nto their Collection that only exposes the fields and functions in one or more\nof the interfaces. It also gives users the ability to make custom resources\nthat implement these interfaces to do various things with the tokens.\n\nBy using resources and interfaces, users of NFT smart contracts can send\nand receive tokens peer-to-peer, without having to interact with a central ledger\nsmart contract.\n\nTo send an NFT to another user, a user would simply withdraw the NFT\nfrom their Collection, then call the deposit function on another user's\nCollection to complete the transfer.\n\n*/\n\n// The main NFT contract interface. Other NFT contracts will\n// import and implement this interface\n//\npub contract interface NonFungibleToken {\n\n    // The total number of tokens of this type in existence\n    pub var totalSupply: UInt64\n\n    // Event that emitted when the NFT contract is initialized\n    //\n    pub event ContractInitialized()\n\n    // Event that is emitted when a token is withdrawn,\n    // indicating the owner of the collection that it was withdrawn from.\n    //\n    // If the collection is not in an account's storage, `from` will be `nil`.\n    //\n    pub event Withdraw(id: UInt64, from: Address?)\n\n    // Event that emitted when a token is deposited to a collection.\n    //\n    // It indicates the owner of the collection that it was deposited to.\n    //\n    pub event Deposit(id: UInt64, to: Address?)\n\n    // Interface that the NFTs have to conform to\n    //\n    pub resource interface INFT {\n        // The unique ID that each NFT has\n        pub let id: UInt64\n    }\n\n    // Requirement that all conforming NFT smart contracts have\n    // to define a resource called NFT that conforms to INFT\n    pub resource NFT: INFT {\n        pub let id: UInt64\n    }\n\n    // Interface to mediate withdraws from the Collection\n    //\n    pub resource interface Provider {\n        // withdraw removes an NFT from the collection and moves it to the caller\n        pub fun withdraw(withdrawID: UInt64): @NFT {\n            post {\n                result.id == withdrawID: \"The ID of the withdrawn token must be the same as the requested ID\"\n            }\n        }\n    }\n\n    // Interface to mediate deposits to the Collection\n    //\n    pub resource interface Receiver {\n\n        // deposit takes an NFT as an argument and adds it to the Collection\n        //\n        pub fun deposit(token: @NFT)\n    }\n\n    // Interface that an account would commonly \n    // publish for their collection\n    pub resource interface CollectionPublic {\n        pub fun deposit(token: @NFT)\n        pub fun getIDs(): [UInt64]\n        pub fun borrowNFT(id: UInt64): &NFT\n    }\n\n    // Requirement for the the concrete resource type\n    // to be declared in the implementing contract\n    //\n    pub resource Collection: Provider, Receiver, CollectionPublic {\n\n        // Dictionary to hold the NFTs in the Collection\n        pub var ownedNFTs: @{UInt64: NFT}\n\n        // withdraw removes an NFT from the collection and moves it to the caller\n        pub fun withdraw(withdrawID: UInt64): @NFT\n\n        // deposit takes a NFT and adds it to the collections dictionary\n        // and adds the ID to the id array\n        pub fun deposit(token: @NFT)\n\n        // getIDs returns an array of the IDs that are in the collection\n        pub fun getIDs(): [UInt64]\n\n        // Returns a borrowed reference to an NFT in the collection\n        // so that the caller can read data and call methods from it\n        pub fun borrowNFT(id: UInt64): &NFT {\n            pre {\n                self.ownedNFTs[id] != nil: \"NFT does not exist in the collection!\"\n            }\n        }\n    }\n\n    // createEmptyCollection creates an empty Collection\n    // and returns it to the caller so that they can own NFTs\n    pub fun createEmptyCollection(): @Collection {\n        post {\n            result.getIDs().length == 0: \"The created collection must be empty!\"\n        }\n    }\n}\n",
 			},
 		},
-		"mainnet": &overflow.OverflowSolutionNetwork{
+		"mainnet": {
 			Scripts: map[string]string{
 				"block": `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -426,7 +426,7 @@ pub fun log(_ msg: String) : String {
 }
 `},
 		},
-		"testnet": &overflow.OverflowSolutionNetwork{
+		"testnet": {
 			Scripts: map[string]string{
 				"block": `// test script to ensure code is running
 pub fun main(): UInt64 {
