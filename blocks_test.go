@@ -28,13 +28,13 @@ func TestGetBlock(t *testing.T) {
 	})
 
 	t.Run("Should get block by ID", func(t *testing.T) {
-		BlockZeroID := "13c7ff23bb65feb5757cc65fdd75cd243506518c126385fae530ddebdad10b17"
 		g, err := OverflowTesting()
 		require.NoError(t, err)
-		block, err := g.GetBlockById(BlockZeroID)
-
+		block, err := g.GetBlockAtHeight(0)
 		assert.Nil(t, err)
-		assert.Equal(t, BlockZeroID, block.ID.String())
+		block, err = g.GetBlockById(block.ID.String())
+		assert.Nil(t, err)
+		assert.NotNil(t, block)
 	})
 
 }

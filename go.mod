@@ -7,11 +7,11 @@ require (
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structtag v1.2.0
-	github.com/hexops/autogold v1.3.0
-	github.com/onflow/cadence v0.30.0
-	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20221216181912-916369eaf1cf
-	github.com/onflow/flow-emulator v0.41.0
-	github.com/onflow/flow-go-sdk v0.30.0
+	github.com/hexops/autogold v1.3.1
+	github.com/onflow/cadence v0.31.0
+	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20230113203555-82d530398400
+	github.com/onflow/flow-emulator v0.42.0
+	github.com/onflow/flow-go-sdk v0.31.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
 	github.com/sanity-io/litter v1.5.5
@@ -19,7 +19,7 @@ require (
 	github.com/spf13/afero v1.9.3
 	github.com/stretchr/testify v1.8.1
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
-	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15
+	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
 )
 
 require (
@@ -73,7 +73,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/hexops/valast v1.4.0 // indirect
+	github.com/hexops/valast v1.4.3 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
@@ -119,13 +119,13 @@ require (
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/onflow/atree v0.4.0 // indirect
-	github.com/onflow/cadence-tools/test v0.3.0 // indirect
-	github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20221205150827-c68044a2505c // indirect
-	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20221205150827-c68044a2505c // indirect
+	github.com/onflow/cadence-tools/test v0.4.0 // indirect
+	github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20221214150253-cb74e7764c12 // indirect
+	github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20221214150253-cb74e7764c12 // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.5.0 // indirect
-	github.com/onflow/flow-go v0.28.1-0.20221214175701-076c0fd2a2f9 // indirect
+	github.com/onflow/flow-go v0.29.1 // indirect
 	github.com/onflow/flow-go/crypto v0.24.4 // indirect
-	github.com/onflow/flow/protobuf/go/flow v0.3.2-0.20221130185733-92eb85ead310 // indirect
+	github.com/onflow/flow/protobuf/go/flow v0.3.2-0.20221202093946-932d1c70e288 // indirect
 	github.com/onflow/sdks v0.4.4 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
@@ -137,7 +137,6 @@ require (
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sethvargo/go-retry v0.2.3 // indirect
-	github.com/shurcooL/go-goon v0.0.0-20210110234559-7585751d9a17 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
@@ -169,13 +168,13 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/crypto v0.1.0 // indirect
-	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/net v0.1.0 // indirect
+	golang.org/x/mod v0.7.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
-	golang.org/x/tools v0.2.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/tools v0.4.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gonum.org/v1/gonum v0.11.0 // indirect
 	google.golang.org/api v0.102.0 // indirect
@@ -188,5 +187,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
-	mvdan.cc/gofumpt v0.1.0 // indirect
+	mvdan.cc/gofumpt v0.4.0 // indirect
 )
