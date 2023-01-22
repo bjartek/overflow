@@ -1,4 +1,4 @@
-map[string]map[string]bool{"account": map[string]bool{
+map[string]map[string]bool{"account": {
 	"Debug":            true,
 	"MetadataViews":    false,
 	"NonFungibleToken": false,
