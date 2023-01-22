@@ -608,6 +608,98 @@ func (_c *OverflowClient_GetNetwork_Call) Return(_a0 string) *OverflowClient_Get
 	return _c
 }
 
+// GetTransactionByBlockId provides a mock function with given fields: blockId
+func (_m *OverflowClient) GetTransactionByBlockId(blockId string) ([]*flow.Transaction, error) {
+	ret := _m.Called(blockId)
+
+	var r0 []*flow.Transaction
+	if rf, ok := ret.Get(0).(func(string) []*flow.Transaction); ok {
+		r0 = rf(blockId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*flow.Transaction)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(blockId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_GetTransactionByBlockId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionByBlockId'
+type OverflowClient_GetTransactionByBlockId_Call struct {
+	*mock.Call
+}
+
+// GetTransactionByBlockId is a helper method to define mock.On call
+//   - blockId string
+func (_e *OverflowClient_Expecter) GetTransactionByBlockId(blockId interface{}) *OverflowClient_GetTransactionByBlockId_Call {
+	return &OverflowClient_GetTransactionByBlockId_Call{Call: _e.mock.On("GetTransactionByBlockId", blockId)}
+}
+
+func (_c *OverflowClient_GetTransactionByBlockId_Call) Run(run func(blockId string)) *OverflowClient_GetTransactionByBlockId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_GetTransactionByBlockId_Call) Return(_a0 []*flow.Transaction, _a1 error) *OverflowClient_GetTransactionByBlockId_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+// GetTransactionResultByBlockId provides a mock function with given fields: blockId
+func (_m *OverflowClient) GetTransactionResultByBlockId(blockId string) ([]*flow.TransactionResult, error) {
+	ret := _m.Called(blockId)
+
+	var r0 []*flow.TransactionResult
+	if rf, ok := ret.Get(0).(func(string) []*flow.TransactionResult); ok {
+		r0 = rf(blockId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*flow.TransactionResult)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(blockId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_GetTransactionResultByBlockId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionResultByBlockId'
+type OverflowClient_GetTransactionResultByBlockId_Call struct {
+	*mock.Call
+}
+
+// GetTransactionResultByBlockId is a helper method to define mock.On call
+//   - blockId string
+func (_e *OverflowClient_Expecter) GetTransactionResultByBlockId(blockId interface{}) *OverflowClient_GetTransactionResultByBlockId_Call {
+	return &OverflowClient_GetTransactionResultByBlockId_Call{Call: _e.mock.On("GetTransactionResultByBlockId", blockId)}
+}
+
+func (_c *OverflowClient_GetTransactionResultByBlockId_Call) Run(run func(blockId string)) *OverflowClient_GetTransactionResultByBlockId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_GetTransactionResultByBlockId_Call) Return(_a0 []*flow.TransactionResult, _a1 error) *OverflowClient_GetTransactionResultByBlockId_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // MintFlowTokens provides a mock function with given fields: accountName, amount
 func (_m *OverflowClient) MintFlowTokens(accountName string, amount float64) *overflow.OverflowState {
 	ret := _m.Called(accountName, amount)

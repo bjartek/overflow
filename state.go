@@ -56,6 +56,7 @@ type OverflowClient interface {
 	GetBlockAtHeight(height uint64) (*flow.Block, error)
 	GetBlockById(blockId string) (*flow.Block, error)
 	GetTransactionResultByBlockId(blockId string) ([]*flow.TransactionResult, error)
+	GetTransactionByBlockId(blockId string) ([]*flow.Transaction, error)
 
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
@@ -545,6 +546,10 @@ func (o *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
 
 func (o *OverflowState) GetTransactionResultByBlockId(blockId string) ([]*flow.TransactionResult, error) {
 	return o.Services.Transactions.GetTransactionResultsByBlockID(blockId)
+}
+
+func (o *OverflowState) GetTransactionByBlockId(blockId string) ([]*flow.Transaction, error) {
+	return o.Services.Transactions.GetTransactionsByBlockID(blockId)
 }
 
 // blockId should be a hexadecimal string
