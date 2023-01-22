@@ -135,7 +135,7 @@ func (o *OverflowState) AddContract(name string, contract *services.Contract, up
 	if err != nil {
 		return err
 	}
-	_, err = o.Services.Accounts.AddContract(account, contract, update)
+	_, _, err = o.Services.Accounts.AddContract(account, contract, update)
 	return err
 
 }
@@ -544,7 +544,7 @@ func (o *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
 }
 
 func (o *OverflowState) GetTransactionResultByBlockId(blockId string) ([]*flow.TransactionResult, error) {
-	return o.Services.Transactions.GetTransactionResultByBlockId(blockId)
+	return o.Services.Transactions.GetTransactionResultsByBlockID(blockId)
 }
 
 // blockId should be a hexadecimal string
