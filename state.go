@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/enescakir/emoji"
@@ -19,8 +18,8 @@ import (
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
+	"github.com/onflow/flow-cli/pkg/flowcli/contracts"
 	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/contracts"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
@@ -38,7 +37,7 @@ type OverflowClient interface {
 	QualifiedIdentifierFromSnakeCase(typeName string) (string, error)
 	QualifiedIdentifier(contract string, name string) (string, error)
 
-	AddContract(name string, contract *services.Contract, update bool) error
+	AddContract(name string, contract *flowkit.Script, update bool) error
 
 	GetNetwork() string
 	AccountE(key string) (*flowkit.Account, error)
@@ -129,12 +128,12 @@ type OverflowArgument struct {
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
 
-func (o *OverflowState) AddContract(name string, contract *services.Contract, update bool) error {
+func (o *OverflowState) AddContract(name string, contract *flowkit.Script, update bool) error {
 	account, err := o.AccountE(name)
 	if err != nil {
 		return err
 	}
-	_, _, err = o.Services.Accounts.AddContract(account, contract, update)
+	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, update)
 	return err
 
 }
@@ -383,13 +382,10 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		return nil, err
 	}
 
-	accounts := p.AccountNamesForNetwork(o.Network)
-	sort.Strings(accounts)
+	//TODO: sorting?
+	accounts := p.AccountsForNetwork(o.Network)
 
-	for _, accountName := range accounts {
-
-		// this error can never happen here, there is a test for it.
-		account, _ := p.Accounts().ByName(accountName)
+	for _, account := range accounts {
 
 		if _, err := o.Services.Accounts.Get(account.Address()); err == nil {
 			continue
@@ -452,7 +448,7 @@ func (o *OverflowState) InitializeContracts() *OverflowState {
 		if o.LogLevel == output.NoneLog && o.PrintOptions != nil {
 			names := []string{}
 			for _, c := range contracts {
-				names = append(names, c.Name())
+				names = append(names, c.Name)
 			}
 			fmt.Printf("%v deploy contracts %s\n", emoji.Scroll, strings.Join(names, ", "))
 		}
@@ -746,7 +742,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	}, nil
 }
 
-func (o *OverflowState) contracts(network string) ([]*contracts.Contract, error) {
+func (o *OverflowState) contracts(network string) ([]*flowkit.Script, error) {
 	// check there are not multiple accounts with same contract
 	if o.State.ContractConflictExists(network) {
 		return nil, fmt.Errorf(
@@ -797,6 +793,8 @@ func (o *OverflowState) contracts(network string) ([]*contracts.Contract, error)
 
 // Parse a given file into a resolved version
 func (o *OverflowState) Parse(codeFileName string, code []byte, network string) (string, error) {
+	return "", nil
+	/* TODO FIX
 	resolver, err := contracts.NewResolver(code)
 	if err != nil {
 		return "", err
@@ -822,6 +820,7 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network string) 
 		return "", err
 	}
 	return strings.TrimSpace(string(resolvedCode)), nil
+	*/
 }
 
 func (o *OverflowState) CheckContractUpdates() (map[string]map[string]bool, error) {

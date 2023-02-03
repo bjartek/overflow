@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/hexops/autogold"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -122,13 +123,7 @@ func TestCheckContractUpdate(t *testing.T) {
 			pub fun haha(){}
 		}`)
 
-		contract := &services.Contract{
-			Script: &services.Script{
-				Code: code,
-			},
-			Name:    "Debug",
-			Network: "emulator",
-		}
+		contract := flowkit.NewScript(code, []cadence.Value{}, "Debug")
 
 		err = g.AddContract("account", contract, true)
 		assert.Nil(t, err)

@@ -9,7 +9,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v0.31.0
-	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20230113203555-82d530398400
+	github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20230131154349-b3cca851971c
 	github.com/onflow/flow-emulator v0.42.0
 	github.com/onflow/flow-go-sdk v0.31.0
 	github.com/pkg/errors v0.9.1

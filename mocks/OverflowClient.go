@@ -112,7 +112,7 @@ func (_c *OverflowClient_AccountE_Call) Return(_a0 *flowkit.Account, _a1 error) 
 }
 
 // AddContract provides a mock function with given fields: name, contract, update
-func (_m *OverflowClient) AddContract(name string, contract *services.Contract, update bool) error {
+func (_m *OverflowClient) AddContract(name string, contract *flowkit.Script, update bool) error {
 	ret := _m.Called(name, contract, update)
 
 	var r0 error
