@@ -544,14 +544,6 @@ func (o *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
 	return block, err
 }
 
-func (o *OverflowState) GetTransactionResultByBlockId(blockId string) ([]*flow.TransactionResult, error) {
-	return o.Services.Transactions.GetTransactionResultsByBlockID(blockId)
-}
-
-func (o *OverflowState) GetTransactionByBlockId(blockId string) ([]*flow.Transaction, error) {
-	return o.Services.Transactions.GetTransactionsByBlockID(blockId)
-}
-
 // blockId should be a hexadecimal string
 func (o *OverflowState) GetBlockById(blockId string) (*flow.Block, error) {
 	block, _, _, err := o.Services.Blocks.GetBlock(blockId, "", false)

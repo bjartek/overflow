@@ -14,6 +14,7 @@ require (
 	github.com/onflow/flow-go-sdk v0.31.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
+	github.com/samber/lo v1.37.0
 	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.3
