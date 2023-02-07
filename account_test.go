@@ -37,8 +37,8 @@ func TestGetAccount(t *testing.T) {
 
 	t.Run("Should return the account", func(t *testing.T) {
 		g, err := OverflowTesting()
-		require.NotNil(t, g)
 		require.NoError(t, err)
+		require.NotNil(t, g)
 		assert.NotNil(t, g)
 		account, err := g.GetAccount("account")
 		require.NoError(t, err)

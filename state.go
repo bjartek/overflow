@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/enescakir/emoji"
@@ -382,11 +383,16 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		return nil, err
 	}
 
-	//TODO: sorting?
 	accounts := p.AccountsForNetwork(o.Network)
 
-	for _, account := range accounts {
+	sort.SliceStable(accounts, func(i, j int) bool {
+		if strings.Compare(accounts[i].Name(), accounts[j].Name()) < 1 {
+			return true
+		}
+		return false
+	})
 
+	for _, account := range accounts {
 		if _, err := o.Services.Accounts.Get(account.Address()); err == nil {
 			continue
 		}
