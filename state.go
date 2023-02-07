@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/enescakir/emoji"
@@ -17,6 +20,7 @@ import (
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/onflow/flow-cli/pkg/flowkit/project"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -608,225 +612,190 @@ func (o *OverflowState) ParseAll() (*OverflowSolution, error) {
 
 // Parse the gieven overflow state with filters
 func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*OverflowSolution, error) {
-	/*
 
-		warnings := []string{}
-		transactions := map[string]string{}
-		err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
-			if strings.HasSuffix(path, ".cdc") {
-				name := strings.TrimSuffix(info.Name(), ".cdc")
-				for _, txSkip := range txSkip {
-					match, err := regexp.MatchString(txSkip, name)
-					if err != nil {
-						return err
-					}
-					if match {
-						return nil
-					}
+	warnings := []string{}
+	transactions := map[string]string{}
+	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, ".cdc") {
+			name := strings.TrimSuffix(info.Name(), ".cdc")
+			for _, txSkip := range txSkip {
+				match, err := regexp.MatchString(txSkip, name)
+				if err != nil {
+					return err
 				}
-
-				transactions[path] = name
+				if match {
+					return nil
+				}
 			}
-			return nil
-		})
 
+			transactions[path] = name
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	scripts := map[string]string{}
+	err = filepath.Walk(fmt.Sprintf("%s/scripts/", o.BasePath), func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, ".cdc") {
+			name := strings.TrimSuffix(info.Name(), ".cdc")
+			for _, scriptSkip := range txSkip {
+				match, err := regexp.MatchString(scriptSkip, name)
+				if err != nil {
+					return err
+				}
+				if match {
+					return nil
+				}
+			}
+			scripts[path] = name
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	transactionDeclarations := map[string]*OverflowDeclarationInfo{}
+	for path, name := range transactions {
+		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
 			return nil, err
 		}
-		scripts := map[string]string{}
-		err = filepath.Walk(fmt.Sprintf("%s/scripts/", o.BasePath), func(path string, info os.FileInfo, err error) error {
-			if strings.HasSuffix(path, ".cdc") {
-				name := strings.TrimSuffix(info.Name(), ".cdc")
-				for _, scriptSkip := range txSkip {
-					match, err := regexp.MatchString(scriptSkip, name)
-					if err != nil {
-						return err
-					}
-					if match {
-						return nil
-					}
-				}
-				scripts[path] = name
-			}
-			return nil
-		})
+		info := declarationInfo(path, code)
+		if info != nil {
+			transactionDeclarations[name] = info
+		}
+	}
+
+	scriptDeclarations := map[string]*OverflowDeclarationInfo{}
+	for path, name := range scripts {
+		code, err := o.State.ReaderWriter().ReadFile(path)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "cannot read file at path %s", path)
+		}
+		info := declarationInfo(path, code)
+		if info != nil {
+			scriptDeclarations[name] = info
+		}
+	}
+
+	networks := o.State.Networks()
+	solutionNetworks := map[string]*OverflowSolutionNetwork{}
+	for _, nw := range *networks {
+
+		contracts, err := o.contracts(nw.Name)
+		if err != nil {
+			return nil, errors.Wrapf(err, "cannot find contracts for network %s", nw.Name)
 		}
 
-		transactionDeclarations := map[string]*OverflowDeclarationInfo{}
+		contractResult := map[string]string{}
+		for _, contract := range contracts {
+			contractResult[contract.Name] = string(contract.Code())
+		}
+
+		scriptResult := map[string]string{}
+		for path, name := range scripts {
+			code, err := o.State.ReaderWriter().ReadFile(path)
+			if err != nil {
+				return nil, err
+			}
+			result, err := o.Parse(path, code, nw.Name)
+			if err == nil {
+				scriptResult[name] = result
+			} else {
+				warnings = append(warnings, fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
+			}
+		}
+
+		txResult := map[string]string{}
 		for path, name := range transactions {
 			code, err := o.State.ReaderWriter().ReadFile(path)
 			if err != nil {
 				return nil, err
 			}
-			info := declarationInfo(path, code)
-			if info != nil {
-				transactionDeclarations[name] = info
-			}
-		}
-
-		scriptDeclarations := map[string]*OverflowDeclarationInfo{}
-		for path, name := range scripts {
-			code, err := o.State.ReaderWriter().ReadFile(path)
+			result, err := o.Parse(path, code, nw.Name)
 			if err != nil {
-				return nil, errors.Wrapf(err, "cannot read file at path %s", path)
-			}
-			info := declarationInfo(path, code)
-			if info != nil {
-				scriptDeclarations[name] = info
+				warnings = append(warnings, fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
+			} else {
+				txResult[name] = result
 			}
 		}
 
-		networks := o.State.Networks()
-		solutionNetworks := map[string]*OverflowSolutionNetwork{}
-		for _, nw := range *networks {
-
-			contracts, err := o.contracts(nw.Name)
-			if err != nil {
-				return nil, errors.Wrapf(err, "cannot find contracts for network %s", nw.Name)
-			}
-
-			contractResult := map[string]string{}
-			for _, contract := range contracts {
-				contractResult[contract.Name()] = contract.TranspiledCode()
-			}
-
-			scriptResult := map[string]string{}
-			for path, name := range scripts {
-				code, err := o.State.ReaderWriter().ReadFile(path)
-				if err != nil {
-					return nil, err
-				}
-				result, err := o.Parse(path, code, nw.Name)
-				if err == nil {
-					scriptResult[name] = result
-				} else {
-					warnings = append(warnings, fmt.Sprintf("Could not create script %s for network %s", path, nw.Name))
-				}
-			}
-
-			txResult := map[string]string{}
-			for path, name := range transactions {
-				code, err := o.State.ReaderWriter().ReadFile(path)
-				if err != nil {
-					return nil, err
-				}
-				result, err := o.Parse(path, code, nw.Name)
-				if err != nil {
-					warnings = append(warnings, fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
-				} else {
-					txResult[name] = result
-				}
-			}
-
-			contract := &contractResult
-			if skipContracts {
-				contract = nil
-			}
-			solutionNetworks[nw.Name] = &OverflowSolutionNetwork{
-				Contracts:    contract,
-				Transactions: txResult,
-				Scripts:      scriptResult,
-			}
+		contract := &contractResult
+		if skipContracts {
+			contract = nil
 		}
+		solutionNetworks[nw.Name] = &OverflowSolutionNetwork{
+			Contracts:    contract,
+			Transactions: txResult,
+			Scripts:      scriptResult,
+		}
+	}
 
-		return &OverflowSolution{
-			Transactions: transactionDeclarations,
-			Scripts:      scriptDeclarations,
-			Networks:     solutionNetworks,
-			Warnings:     warnings,
-		}, nil
-	*/
-	return nil, nil
+	return &OverflowSolution{
+		Transactions: transactionDeclarations,
+		Scripts:      scriptDeclarations,
+		Networks:     solutionNetworks,
+		Warnings:     warnings,
+	}, nil
 }
 
-/*
-func (o *OverflowState) contracts(network string) ([]*flowkit.Script, error) {
-	// check there are not multiple accounts with same contract
-	if o.State.ContractConflictExists(network) {
-		return nil, fmt.Errorf(
-			"the same contract cannot be deployed to multiple accounts on the same network",
-		)
-	}
+func (o *OverflowState) contracts(network string) ([]*project.Contract, error) {
 
-	// create new processor for contract
-	processor := contracts.NewPreprocessor(
-		contracts.FilesystemLoader{
-			Reader: o.State.ReaderWriter(),
-		},
-		o.State.AliasesForNetwork(network),
-	)
-
-	// add all contracts needed to deploy to processor
-	contractsNetwork, err := o.State.DeploymentContractsByNetwork(network)
+	contracts, err := o.State.DeploymentContractsByNetwork(network)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, contract := range contractsNetwork {
-		err2 := processor.AddContractSource(
-			contract.Name,
-			contract.Source,
-			contract.AccountAddress,
-			contract.AccountName,
-			contract.Args,
-		)
-		if err2 != nil {
-			return nil, err2
-		}
-	}
-
-	// resolve imports assigns accounts to imports
-	err = processor.ResolveImports()
+	deployment, err := project.NewDeployment(contracts, o.State.AliasesForNetwork(network))
 	if err != nil {
 		return nil, err
 	}
 
-	// sort correct deployment order of contracts so we don't have import that is not yet deployed
-	orderedContracts, err := processor.ContractDeploymentOrder()
+	sorted, err := deployment.Sort()
 	if err != nil {
 		return nil, err
 	}
-	return orderedContracts, nil
+
+	return sorted, nil
 }
-*/
 
 // Parse a given file into a resolved version
 func (o *OverflowState) Parse(codeFileName string, code []byte, network string) (string, error) {
-	return "", nil
-	/* TODO FIX
-	resolver, err := contracts.NewResolver(code)
+
+	contract := flowkit.NewScript(code, []cadence.Value{}, codeFileName)
+	program, err := project.NewProgram(contract)
 	if err != nil {
 		return "", err
 	}
 
-	if !resolver.HasFileImports() {
-		return strings.TrimSpace(string(code)), nil
+	if !program.HasImports() {
+		return strings.TrimSpace(string(program.Code())), nil
 	}
 
-	contractsNetwork, err := o.State.DeploymentContractsByNetwork(network)
+	contracts, err := o.State.DeploymentContractsByNetwork(network)
 	if err != nil {
 		return "", err
 	}
 
-	aliases := o.State.AliasesForNetwork(network)
-
-	resolvedCode, err := resolver.ResolveImports(
-		codeFileName,
-		contractsNetwork,
-		aliases,
+	importReplacer := project.NewImportReplacer(
+		contracts,
+		o.State.AliasesForNetwork(network),
 	)
+
+	program, err = importReplacer.Replace(program)
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(string(resolvedCode)), nil
-	*/
+
+	return strings.TrimSpace(string(program.Code())), nil
 }
 
 func (o *OverflowState) CheckContractUpdates() (map[string]map[string]bool, error) {
-	/*
 
+	/*
 		contracts, err := o.contracts(o.Network)
 		if err != nil {
 			return nil, fmt.Errorf("failed to fetch contracts: %w", err)
