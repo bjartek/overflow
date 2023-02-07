@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 /*
@@ -301,7 +302,8 @@ func TestTransactionEventFiltering(t *testing.T) {
 	}
 
 	o, err := OverflowTesting(WithGlobalEventFilter(filter))
-	assert.NoError(t, err)
+	require.NotNil(t, o)
+	require.NoError(t, err)
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(message:String) {

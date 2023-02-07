@@ -37,6 +37,7 @@ func TestGetAccount(t *testing.T) {
 
 	t.Run("Should return the account", func(t *testing.T) {
 		g, err := OverflowTesting()
+		require.NotNil(t, g)
 		require.NoError(t, err)
 		assert.NotNil(t, g)
 		account, err := g.GetAccount("account")
@@ -46,6 +47,7 @@ func TestGetAccount(t *testing.T) {
 
 	t.Run("Should return an error if account doesn't exist", func(t *testing.T) {
 		g, err := OverflowTesting()
+		require.NotNil(t, g)
 		require.NoError(t, err)
 		_, err = g.GetAccount("doesnotexist")
 		assert.ErrorContains(t, err, "could not find account with name emulator-doesnotexist in the configuration")
