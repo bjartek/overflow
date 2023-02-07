@@ -756,7 +756,7 @@ func (o *OverflowState) contracts(network string) (map[string]string, error) {
 
 	resolvedContracts := map[string]string{}
 	for _, p := range sorted {
-		code, err := o.Parse(p.Location(), p.Code(), o.Network)
+		code, err := o.Parse(p.Location(), p.Code(), network)
 		if err != nil {
 			return resolvedContracts, err
 		}
@@ -788,12 +788,12 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network string) 
 		o.State.AliasesForNetwork(network),
 	)
 
-	program, err = importReplacer.Replace(program)
+	program2, err := importReplacer.Replace(program)
 	if err != nil {
 		return "", err
 	}
 
-	return strings.TrimSpace(string(program.Code())), nil
+	return strings.TrimSpace(string(program2.Code())), nil
 }
 
 func (o *OverflowState) CheckContractUpdates() (map[string]map[string]bool, error) {
