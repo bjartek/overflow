@@ -685,14 +685,9 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	solutionNetworks := map[string]*OverflowSolutionNetwork{}
 	for _, nw := range *networks {
 
-		contracts, err := o.contracts(nw.Name)
+		contractResult, err := o.contracts(nw.Name)
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot find contracts for network %s", nw.Name)
-		}
-
-		contractResult := map[string]string{}
-		for _, contract := range contracts {
-			contractResult[contract.Name] = string(contract.Code())
 		}
 
 		scriptResult := map[string]string{}
@@ -742,7 +737,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	}, nil
 }
 
-func (o *OverflowState) contracts(network string) ([]*project.Contract, error) {
+func (o *OverflowState) contracts(network string) (map[string]string, error) {
 
 	contracts, err := o.State.DeploymentContractsByNetwork(network)
 	if err != nil {
@@ -759,7 +754,15 @@ func (o *OverflowState) contracts(network string) ([]*project.Contract, error) {
 		return nil, err
 	}
 
-	return sorted, nil
+	resolvedContracts := map[string]string{}
+	for _, p := range sorted {
+		code, err := o.Parse(p.Location(), p.Code(), o.Network)
+		if err != nil {
+			return resolvedContracts, err
+		}
+		resolvedContracts[p.Name] = code
+	}
+	return resolvedContracts, nil
 }
 
 // Parse a given file into a resolved version
