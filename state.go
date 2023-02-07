@@ -420,6 +420,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		if o.Network == "emulator" && o.NewUserFlowAmount != 0.0 {
 			o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
 			if o.Error != nil {
+				fmt.Println(strings.Join(messages, " "))
 				return nil, errors.Wrap(err, "could not mint flow tokens")
 			}
 			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
