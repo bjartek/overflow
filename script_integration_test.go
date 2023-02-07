@@ -17,7 +17,7 @@ type AwesomeStruct struct {
 func TestScriptIntegrationNew(t *testing.T) {
 	o, err := OverflowTesting()
 	require.NoError(t, err)
-	t.Parallel()
+	require.NotNil(t, o)
 
 	mapScript := o.ScriptFileNameFN(`pub fun main() : {String: {String: String}} {
 return { "first" : {  "nested" : "nestedvalue"}}
