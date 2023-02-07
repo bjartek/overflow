@@ -15,6 +15,7 @@ func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	t.Helper()
 	o, err := OverflowTesting()
 	require.NoError(t, err)
+	require.NotNil(t, o)
 	result := o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 100.0))
 	assert.NoError(t, result.Err)
 	return o
