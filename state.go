@@ -26,6 +26,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/pkg/errors"
+	"github.com/sanity-io/litter"
 	"golang.org/x/exp/slices"
 )
 
@@ -398,7 +399,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		}
 
 		o.Logger.Info(fmt.Sprintf("Creating account %s", account.Name()))
-		_, err := o.Services.Accounts.Create(
+		createdAccount, err := o.Services.Accounts.Create(
 			signerAccount,
 			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
 			[]int{1000},
@@ -417,10 +418,11 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 			account.Address().String(),
 		}
 
+		o.Logger.Info(strings.Join(messages, " "))
+		o.Logger.Info(litter.Sdump(createdAccount))
 		if o.Network == "emulator" && o.NewUserFlowAmount != 0.0 {
-			o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
-			if o.Error != nil {
-				fmt.Println(strings.Join(messages, " "))
+			res := o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
+			if res.Error != nil {
 				return nil, errors.Wrap(err, "could not mint flow tokens")
 			}
 			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
