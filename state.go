@@ -386,10 +386,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 	accounts := p.AccountsForNetwork(o.Network)
 
 	sort.SliceStable(accounts, func(i, j int) bool {
-		if strings.Compare(accounts[i].Name(), accounts[j].Name()) < 1 {
-			return true
-		}
-		return false
+		return strings.Compare(accounts[i].Name(), accounts[j].Name()) < 1
 	})
 
 	for _, account := range accounts {
