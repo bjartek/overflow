@@ -378,11 +378,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		signers = append(signers, oib.Proposer)
 	}
 
-	script := &services.Script{
-		Code:     oib.TransactionCode,
-		Args:     oib.Arguments,
-		Filename: codeFileName,
-	}
+	script := flowkit.NewScript(oib.TransactionCode, oib.Arguments, codeFileName)
 	addresses := services.NewTransactionAddresses(oib.Proposer.Address(), payer.Address(), authorizers)
 
 	tx, err := oib.Overflow.Services.Transactions.Build(

@@ -10,6 +10,7 @@ import (
 
 func TestTransaction(t *testing.T) {
 	o, err := OverflowTesting()
+	require.NotNil(t, o)
 	require.NoError(t, err)
 	t.Run("Run simple tx", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithSignerServiceAccount())

@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSignIntegration(t *testing.T) {
 	g, err := OverflowTesting()
-	assert.NoError(t, err)
-	t.Parallel()
+	require.NoError(t, err)
+	require.NotNil(t, g)
 
 	t.Run("fail on missing signer", func(t *testing.T) {
 		_, err := g.SignUserMessage("foobar", "baaaaaaaaanzaaaai")

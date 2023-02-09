@@ -1,4 +1,4 @@
-# overflow-genearte
+# overflow-generate
 
 I use  these mappings in nvim
 

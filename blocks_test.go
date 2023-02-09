@@ -12,6 +12,7 @@ func TestGetBlock(t *testing.T) {
 	t.Run("Should get latest block", func(t *testing.T) {
 		g, err := OverflowTesting()
 		require.NoError(t, err)
+		require.NotNil(t, g)
 		block, err := g.GetLatestBlock()
 
 		assert.Nil(t, err)

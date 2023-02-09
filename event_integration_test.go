@@ -14,6 +14,7 @@ func TestIntegrationEvents(t *testing.T) {
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
 		g, err := OverflowTesting()
 		require.NoError(t, err)
+		require.NotNil(t, g)
 
 		g.Tx("mint_tokens",
 			WithSignerServiceAccount(),

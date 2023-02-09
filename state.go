@@ -20,8 +20,8 @@ import (
 	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/contracts"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/onflow/flow-cli/pkg/flowkit/project"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -38,7 +38,7 @@ type OverflowClient interface {
 	QualifiedIdentifierFromSnakeCase(typeName string) (string, error)
 	QualifiedIdentifier(contract string, name string) (string, error)
 
-	AddContract(name string, contract *services.Contract, update bool) error
+	AddContract(name string, contract *flowkit.Script, update bool) error
 
 	GetNetwork() string
 	AccountE(key string) (*flowkit.Account, error)
@@ -129,12 +129,12 @@ type OverflowArgument struct {
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
 
-func (o *OverflowState) AddContract(name string, contract *services.Contract, update bool) error {
+func (o *OverflowState) AddContract(name string, contract *flowkit.Script, update bool) error {
 	account, err := o.AccountE(name)
 	if err != nil {
 		return err
 	}
-	_, _, err = o.Services.Accounts.AddContract(account, contract, update)
+	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, update)
 	return err
 
 }
@@ -383,14 +383,13 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		return nil, err
 	}
 
-	accounts := p.AccountNamesForNetwork(o.Network)
-	sort.Strings(accounts)
+	accounts := p.AccountsForNetwork(o.Network)
 
-	for _, accountName := range accounts {
+	sort.SliceStable(accounts, func(i, j int) bool {
+		return strings.Compare(accounts[i].Name(), accounts[j].Name()) < 1
+	})
 
-		// this error can never happen here, there is a test for it.
-		account, _ := p.Accounts().ByName(accountName)
-
+	for _, account := range accounts {
 		if _, err := o.Services.Accounts.Get(account.Address()); err == nil {
 			continue
 		}
@@ -416,8 +415,8 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		}
 
 		if o.Network == "emulator" && o.NewUserFlowAmount != 0.0 {
-			o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
-			if o.Error != nil {
+			res := o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
+			if res.Error != nil {
 				return nil, errors.Wrap(err, "could not mint flow tokens")
 			}
 			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
@@ -452,7 +451,7 @@ func (o *OverflowState) InitializeContracts() *OverflowState {
 		if o.LogLevel == output.NoneLog && o.PrintOptions != nil {
 			names := []string{}
 			for _, c := range contracts {
-				names = append(names, c.Name())
+				names = append(names, c.Name)
 			}
 			fmt.Printf("%v deploy contracts %s\n", emoji.Scroll, strings.Join(names, ", "))
 		}
@@ -689,14 +688,9 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	solutionNetworks := map[string]*OverflowSolutionNetwork{}
 	for _, nw := range *networks {
 
-		contracts, err := o.contracts(nw.Name)
+		contractResult, err := o.contracts(nw.Name)
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot find contracts for network %s", nw.Name)
-		}
-
-		contractResult := map[string]string{}
-		for _, contract := range contracts {
-			contractResult[contract.Name()] = contract.TranspiledCode()
 		}
 
 		scriptResult := map[string]string{}
@@ -746,121 +740,61 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	}, nil
 }
 
-func (o *OverflowState) contracts(network string) ([]*contracts.Contract, error) {
-	// check there are not multiple accounts with same contract
-	if o.State.ContractConflictExists(network) {
-		return nil, fmt.Errorf(
-			"the same contract cannot be deployed to multiple accounts on the same network",
-		)
-	}
+func (o *OverflowState) contracts(network string) (map[string]string, error) {
 
-	// create new processor for contract
-	processor := contracts.NewPreprocessor(
-		contracts.FilesystemLoader{
-			Reader: o.State.ReaderWriter(),
-		},
-		o.State.AliasesForNetwork(network),
-	)
-
-	// add all contracts needed to deploy to processor
-	contractsNetwork, err := o.State.DeploymentContractsByNetwork(network)
+	contracts, err := o.State.DeploymentContractsByNetwork(network)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, contract := range contractsNetwork {
-		err2 := processor.AddContractSource(
-			contract.Name,
-			contract.Source,
-			contract.AccountAddress,
-			contract.AccountName,
-			contract.Args,
-		)
-		if err2 != nil {
-			return nil, err2
+	deployment, err := project.NewDeployment(contracts, o.State.AliasesForNetwork(network))
+	if err != nil {
+		return nil, err
+	}
+
+	sorted, err := deployment.Sort()
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedContracts := map[string]string{}
+	for _, p := range sorted {
+		code, err := o.Parse(p.Location(), p.Code(), network)
+		if err != nil {
+			return resolvedContracts, err
 		}
+		resolvedContracts[p.Name] = code
 	}
-
-	// resolve imports assigns accounts to imports
-	err = processor.ResolveImports()
-	if err != nil {
-		return nil, err
-	}
-
-	// sort correct deployment order of contracts so we don't have import that is not yet deployed
-	orderedContracts, err := processor.ContractDeploymentOrder()
-	if err != nil {
-		return nil, err
-	}
-	return orderedContracts, nil
+	return resolvedContracts, nil
 }
 
 // Parse a given file into a resolved version
 func (o *OverflowState) Parse(codeFileName string, code []byte, network string) (string, error) {
-	resolver, err := contracts.NewResolver(code)
+
+	contract := flowkit.NewScript(code, []cadence.Value{}, codeFileName)
+	program, err := project.NewProgram(contract)
 	if err != nil {
 		return "", err
 	}
 
-	if !resolver.HasFileImports() {
-		return strings.TrimSpace(string(code)), nil
+	if !program.HasImports() {
+		return strings.TrimSpace(string(program.Code())), nil
 	}
 
-	contractsNetwork, err := o.State.DeploymentContractsByNetwork(network)
+	contracts, err := o.State.DeploymentContractsByNetwork(network)
 	if err != nil {
 		return "", err
 	}
 
-	aliases := o.State.AliasesForNetwork(network)
-
-	resolvedCode, err := resolver.ResolveImports(
-		codeFileName,
-		contractsNetwork,
-		aliases,
+	importReplacer := project.NewImportReplacer(
+		contracts,
+		o.State.AliasesForNetwork(network),
 	)
+
+	program2, err := importReplacer.Replace(program)
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(string(resolvedCode)), nil
-}
 
-func (o *OverflowState) CheckContractUpdates() (map[string]map[string]bool, error) {
-
-	contracts, err := o.contracts(o.Network)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch contracts: %w", err)
-	}
-
-	res := map[string]map[string]bool{}
-	for _, contract := range contracts {
-
-		split := strings.Split(contract.AccountName(), "-")
-
-		key := strings.Join(split[1:], "-")
-
-		result, ok := res[key]
-		if !ok {
-			res[key] = map[string]bool{}
-			result = res[key]
-		}
-
-		targetAccountInfo, err := o.GetAccount(key)
-		if err != nil {
-			return nil, fmt.Errorf("failed to fetch information for account %s-%s: %w", o.Network, key, err)
-		}
-
-		// check if contract exists on account
-		existingContract, exists := targetAccountInfo.Contracts[contract.Name()]
-		noDiffInContract := bytes.Equal([]byte(contract.TranspiledCode()), existingContract)
-
-		if !exists {
-			result[contract.Name()] = true
-		} else if !noDiffInContract {
-			result[contract.Name()] = true
-		} else {
-			result[contract.Name()] = false
-		}
-
-	}
-	return res, nil
+	return strings.TrimSpace(string(program2.Code())), nil
 }
