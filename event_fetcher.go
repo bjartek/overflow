@@ -13,6 +13,25 @@ import (
 // A function to customize the transaction builder
 type OverflowEventFetcherOption func(*OverflowEventFetcherBuilder)
 
+type ProgressReaderWriter interface {
+	/// can return 0 if we do not have any progress thus far
+	ReadProgress() (int64, error)
+	WriteProgress(progress int64) error
+}
+
+type InMemoryProgressKeeper struct {
+	Progress int64
+}
+
+func (self *InMemoryProgressKeeper) ReadProgress() (int64, error) {
+	return self.Progress, nil
+}
+
+func (self *InMemoryProgressKeeper) WriteProgress(progress int64) error {
+	self.Progress = progress
+	return nil
+}
+
 // OverflowEventFetcherBuilder builder to hold info about eventhook context.
 type OverflowEventFetcherBuilder struct {
 	OverflowState         *OverflowState
@@ -21,6 +40,7 @@ type OverflowEventFetcherBuilder struct {
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
 	ProgressFile          string
+	ProgressRW            ProgressReaderWriter
 	NumberOfWorkers       int
 	EventBatchSize        uint64
 	ReturnWriterFunction  bool
@@ -96,6 +116,13 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 			}
 			e.FromIndex = oldHeight
 		}
+	} else if e.ProgressRW != nil {
+		oldHeight, err := e.ProgressRW.ReadProgress()
+		if err != nil {
+			res.Error = fmt.Errorf("could not parse progress file as block height %v", err)
+			return res
+		}
+		e.FromIndex = oldHeight
 	}
 
 	endIndex := e.EndIndex
@@ -148,10 +175,25 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 		}
 	}
 
-	progressWriter := func() error {
-		return writeProgressToFile(e.ProgressFile, endIndex+1)
-	}
 	if e.ProgressFile != "" {
+
+		progressWriter := func() error {
+			return writeProgressToFile(e.ProgressFile, int64(endIndex+1))
+		}
+		if e.ReturnWriterFunction {
+			res.ProgressWriteFunction = progressWriter
+		} else {
+			err := progressWriter()
+			if err != nil {
+				res.Error = fmt.Errorf("could not write progress to file %v", err)
+				return res
+			}
+		}
+	} else if e.ProgressRW != nil {
+		progressWriter := func() error {
+			return e.ProgressRW.WriteProgress(int64(endIndex + 1))
+		}
+
 		if e.ReturnWriterFunction {
 			res.ProgressWriteFunction = progressWriter
 		} else {
@@ -257,6 +299,16 @@ func WithUntilCurrentBlock() OverflowEventFetcherOption {
 func WithTrackProgressIn(fileName string) OverflowEventFetcherOption {
 	return func(e *OverflowEventFetcherBuilder) {
 		e.ProgressFile = fileName
+		e.EndIndex = 0
+		e.FromIndex = 0
+		e.EndAtCurrentHeight = true
+	}
+}
+
+// track what block we have read since last run in a file
+func WithTrackProgress(progressReaderWriter ProgressReaderWriter) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
+		e.ProgressRW = progressReaderWriter
 		e.EndIndex = 0
 		e.FromIndex = 0
 		e.EndAtCurrentHeight = true
