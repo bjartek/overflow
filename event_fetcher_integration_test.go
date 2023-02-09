@@ -15,6 +15,7 @@ func startOverflowAndMintTokens(t *testing.T) *OverflowState {
 	t.Helper()
 	o, err := OverflowTesting()
 	require.NoError(t, err)
+	require.NotNil(t, o)
 	result := o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 100.0))
 	assert.NoError(t, result.Err)
 	return o
@@ -126,7 +127,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 			WithReturnProgressWriter(),
 		)
 		require.NoError(t, res.Error)
-		want := autogold.Want("eventProgress", `Fetched number=1 of events within from=11 block to=11 for events=A.0ae53cb6e3f42a79.FlowToken.TokensMinted
+		want := autogold.Want("eventProgress", `Fetched number=1 of events within from=8 block to=8 for events=A.0ae53cb6e3f42a79.FlowToken.TokensMinted
 `)
 		want.Equal(t, res.String())
 
@@ -138,7 +139,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 
 		progress, err = readProgressFromFile(progressFile)
 		require.NoError(t, err)
-		assert.Equal(t, int64(12), progress)
+		assert.Equal(t, int64(9), progress)
 
 		ev := res.Events
 		defer os.Remove(progressFile)
