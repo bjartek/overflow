@@ -75,7 +75,7 @@ func TestTransactionIntegration(t *testing.T) {
 
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
 		o.Tx(`
-		import Debug from "../contracts/Debug.cdc"
+		import "Debug"
 		transaction(message:String) {
 		  prepare(acct: AuthAccount) {
 			Debug.log(message) } }`,

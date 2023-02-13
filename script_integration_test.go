@@ -72,4 +72,31 @@ return { "first" : {  "nested" : "nestedvalue"}}
 		mapScript().AssertWant(t, autogold.Want("assertWant", map[string]interface{}{"first": map[string]interface{}{"nested": "nestedvalue"}}))
 	})
 
+	t.Run("Use relative import", func(t *testing.T) {
+		res := o.Script(`
+import Debug from "../contracts/Debug.cdc"
+
+pub fun main() : AnyStruct {
+return "foo"
+}
+
+`)
+		require.NoError(t, res.Err)
+		assert.Equal(t, "foo", res.Output)
+
+	})
+
+	t.Run("Use new import syntax", func(t *testing.T) {
+		res := o.Script(`
+import "Debug"
+
+pub fun main() : AnyStruct {
+return "foo"
+}
+
+`)
+		require.NoError(t, res.Err)
+		assert.Equal(t, "foo", res.Output)
+
+	})
 }
