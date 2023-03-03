@@ -12,6 +12,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
+	"github.com/sanity-io/litter"
 )
 
 // Flow Interaction Builder
@@ -425,6 +426,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.Meter = &OverflowMeter{}
 	messages := []string{}
 	for _, msg := range logMessage {
+		litter.Dump(msg)
 
 		if strings.Contains(msg.Msg, "transaction execution data") {
 			var meter OverflowMeter

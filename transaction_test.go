@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,6 +30,7 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("Run simple tx with sa proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposerServiceAccount())
+		litter.Dump(res.EmulatorLog)
 		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
 	})
 

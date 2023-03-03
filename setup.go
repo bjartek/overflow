@@ -175,8 +175,9 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		logWriter := io.Writer(&memlog)
 		emulatorLogger := zerolog.New(logWriter).Level(zerolog.DebugLevel)
 
-		emulatorOptions := []emulator.Option{}
-		//			emulator.WithLogger(blockchainLog),
+		emulatorOptions := []emulator.Option{
+			emulator.WithLogger(emulatorLogger),
+		}
 
 		if o.TransactionFees {
 			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true))
