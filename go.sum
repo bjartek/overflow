@@ -199,6 +199,8 @@ github.com/fatih/color v1.14.1 h1:qfhVLaG5s+nCROl1zJsZRxFeYrHLqWroPOQ8BWiNb4w=
 github.com/fatih/color v1.14.1/go.mod h1:2oHN61fhTpgcxD3TSWCgKDiH1+x4OiDVVGH8WlgGZGg=
 github.com/fatih/structtag v1.2.0 h1:/OdNE99OxoI/PqaW/SuSK9uxxT3f/tcSZgon/ssNSx4=
 github.com/fatih/structtag v1.2.0/go.mod h1:mBJUNpUnHmRKrKlQQlmCrh5PuhftFbNv8Ys4/aAZl94=
+github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20230303081154-7d5bc82cdf52 h1:dp3eHNGtbApVYPHH3poECooycQAevGDslpHibAUssVo=
+github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20230303081154-7d5bc82cdf52/go.mod h1:aK7JJDFdP50GU5w5wbu7E2wKh4AMp2I/XtcwSxQzmoU=
 github.com/fjl/memsize v0.0.0-20180418122429-ca190fb6ffbc/go.mod h1:VvhXpOYNQvB+uIk2RvXzuaQtkQJzzIx6lSBe1xv7hi0=
 github.com/fogleman/gg v1.2.1-0.20190220221249-0403632d5b90/go.mod h1:R/bRT+9gY/C5z7JzPU0zXsXHKM4/ayA+zqcVNZzPa1k=
 github.com/frankban/quicktest v1.14.3 h1:FJKSZTDHjyhriyC81FLQ0LY93eSai0ZyR/ZIkd3ZUKE=
@@ -533,8 +535,6 @@ github.com/onflow/cadence v0.31.3 h1:lTHTBnoFi/ahGk1cQ9JAC+tfYir4kjRVIqtTVCjbe6E
 github.com/onflow/cadence v0.31.3/go.mod h1:oRgWkvau1RH15m3NuDlZCPHFQzwvC72jEstCGu8OJ98=
 github.com/onflow/cadence-tools/test v0.3.0 h1:+NEiRPq1TXJ1wQz/IMVSFPPcViHRIoVhtu/+NPjkKSI=
 github.com/onflow/cadence-tools/test v0.3.0/go.mod h1:Vo2JfY5C7I1yzY4rBz2dYmvXZLNr+07xEyqVWEeUin4=
-github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20230222170704-aab8c71def7e h1:BooWu/1duUYLEp0GwavEWiPrMFbKlzVMqeR4jRd9GpU=
-github.com/onflow/flow-cli/pkg/flowkit v0.0.0-20230222170704-aab8c71def7e/go.mod h1:aK7JJDFdP50GU5w5wbu7E2wKh4AMp2I/XtcwSxQzmoU=
 github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20221216161720-c1b31d5a4722 h1:fH5e7L9xFXNOd3WLvMaPNkP1m7BngRTDP751zMNndws=
 github.com/onflow/flow-core-contracts/lib/go/contracts v0.11.2-0.20221216161720-c1b31d5a4722/go.mod h1:9nrgjIF/noY2jJ7LP8bKLHTpcdHOa2yO0ryCKTQpxvs=
 github.com/onflow/flow-core-contracts/lib/go/templates v0.11.2-0.20221216161720-c1b31d5a4722 h1:vgNS6I+MM/74pciIoKb7ZBs8XGF1ONsSdkAec36B9iU=

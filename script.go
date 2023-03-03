@@ -74,7 +74,6 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 
 	filePath := fmt.Sprintf("%s/%s.cdc", fbi.BasePath, fbi.FileName)
 
-	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
 	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
@@ -103,7 +102,6 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 		logMessage = append(logMessage, doc)
 	}
 
-	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
 	osc.Log = logMessage

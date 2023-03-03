@@ -15,7 +15,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
 	github.com/sanity-io/litter v1.5.5
-	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.3
 	github.com/stretchr/testify v1.8.2
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
@@ -130,6 +129,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230126093431-47fa9a501578 // indirect
 	github.com/rivo/uniseg v0.2.1-0.20211004051800-57c86be7915a // indirect
 	github.com/sethvargo/go-retry v0.2.3 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
@@ -185,3 +185,5 @@ require (
 	modernc.org/sqlite v1.20.3 // indirect
 	mvdan.cc/gofumpt v0.4.0 // indirect
 )
+
+replace github.com/onflow/flow-cli/pkg/flowkit => github.com/findonflow/flow-cli/pkg/flowkit v0.0.0-20230303081154-7d5bc82cdf52

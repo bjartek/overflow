@@ -91,10 +91,6 @@ type OverflowState struct {
 	Log      *bytes.Buffer
 	LogLevel int
 
-	//https://github.com/bjartek/overflow/issues/45
-	//This is not populated with anything yet since the emulator version that has this change is not in mainline yet
-	EmulatorLog *bytes.Buffer
-
 	//If there was an error starting overflow it is stored here
 	Error error
 

@@ -22,7 +22,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
-	logrus "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 )
 
@@ -167,30 +166,23 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	logger := output.NewStdoutLogger(o.LogLevel)
 	overflow.Logger = logger
 	var memlog bytes.Buffer
-	var emulatorLog bytes.Buffer
 	overflow.Log = &memlog
-	overflow.EmulatorLog = &emulatorLog
 
 	if o.InMemory {
 		acc, _ := state.EmulatorServiceAccount()
 
-		logrusLogger := &logrus.Logger{
-			Formatter: &logrus.JSONFormatter{},
-			Level:     logrus.TraceLevel,
-			Out:       &memlog,
-		}
-		writer := io.Writer(&emulatorLog)
-		emulatorLogger := zerolog.New(writer).Level(zerolog.DebugLevel)
+		//this is the emulator log
+		logWriter := io.Writer(&memlog)
+		emulatorLogger := zerolog.New(logWriter).Level(zerolog.DebugLevel)
 
-		emulatorOptions := []emulator.Option{
-			emulator.WithLogger(emulatorLogger),
-		}
+		emulatorOptions := []emulator.Option{}
+		//			emulator.WithLogger(blockchainLog),
 
 		if o.TransactionFees {
 			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true))
 		}
 		gw := gateway.NewEmulatorGatewayWithOpts(acc,
-			gateway.WithLogger(logrusLogger),
+			gateway.WithLogger(&emulatorLogger),
 			gateway.WithEmulatorOptions(emulatorOptions...),
 		)
 

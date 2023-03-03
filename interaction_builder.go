@@ -1,7 +1,6 @@
 package overflow
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -357,7 +356,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	oib.Overflow.Log.Reset()
-	oib.Overflow.EmulatorLog.Reset()
 	/*
 		❗ Special case: if an account is both the payer and either a proposer or authorizer, it is only required to sign the envelope.
 	*/
@@ -418,25 +416,24 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	logMessage, err := oib.Overflow.readLog()
+
 	if err != nil {
 		result.Err = err
 	}
 	result.RawLog = logMessage
 
 	result.Meter = &OverflowMeter{}
-	var meter OverflowMeter
-	scanner := bufio.NewScanner(oib.Overflow.EmulatorLog)
-	for scanner.Scan() {
-		txt := scanner.Text()
-		if strings.Contains(txt, "transaction execution data") {
-			err = json.Unmarshal([]byte(txt), &meter)
+	messages := []string{}
+	for _, msg := range logMessage {
+
+		if strings.Contains(msg.Msg, "transaction execution data") {
+			var meter OverflowMeter
+			err = json.Unmarshal([]byte(msg.Msg), &meter)
 			if err == nil {
 				result.Meter = &meter
 			}
+			continue
 		}
-	}
-	messages := []string{}
-	for _, msg := range logMessage {
 		if msg.ComputationUsed != 0 {
 			result.ComputationUsed = msg.ComputationUsed
 		}
@@ -483,7 +480,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
-	oib.Overflow.EmulatorLog.Reset()
 	result.Err = res.Error
 	return result
 }
