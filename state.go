@@ -476,17 +476,28 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 	var logMessage []OverflowEmulatorLogMessage
 	dec := json.NewDecoder(o.Log)
 	for {
-		var doc OverflowEmulatorLogMessage
+		var msg map[string]interface{}
 
-		err := dec.Decode(&doc)
+		err := dec.Decode(&msg)
 		if err == io.EOF {
 			// all done
 			break
 		}
+
 		if err != nil {
 			return []OverflowEmulatorLogMessage{}, err
 		}
+		doc := OverflowEmulatorLogMessage{Msg: msg["message"].(string), Level: msg["level"].(string)}
 
+		delete(msg, "message")
+		delete(msg, "level")
+		rawCom, ok := msg["computationUsed"]
+		if ok {
+			field := rawCom.(float64)
+			doc.ComputationUsed = int(field)
+			delete(msg, "computationUsed")
+		}
+		doc.Fields = msg
 		logMessage = append(logMessage, doc)
 	}
 

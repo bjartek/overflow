@@ -12,7 +12,6 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
-	"github.com/sanity-io/litter"
 )
 
 // Flow Interaction Builder
@@ -426,11 +425,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.Meter = &OverflowMeter{}
 	messages := []string{}
 	for _, msg := range logMessage {
-		litter.Dump(msg)
-
 		if strings.Contains(msg.Msg, "transaction execution data") {
 			var meter OverflowMeter
-			err = json.Unmarshal([]byte(msg.Msg), &meter)
+			bytes, _ := json.Marshal(msg.Fields)
+			err = json.Unmarshal(bytes, &meter)
 			if err == nil {
 				result.Meter = &meter
 			}
@@ -439,7 +437,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		if msg.ComputationUsed != 0 {
 			result.ComputationUsed = msg.ComputationUsed
 		}
-		messages = append(messages, msg.Msg)
+		messages = append(messages, msg.String())
 	}
 
 	result.EmulatorLog = messages
