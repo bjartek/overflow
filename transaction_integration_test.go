@@ -74,14 +74,17 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
-		o.Tx(`
+		res := o.Tx(`
 		import "Debug"
 		transaction(message:String) {
 		  prepare(acct: AuthAccount) {
 			Debug.log(message) } }`,
 			WithSigner("first"),
 			WithArg("message", "foobar"),
-		).
+		)
+
+		res.
+			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
 			AssertComputationUsed(t, 7).
 			AssertComputationLessThenOrEqual(t, 40).

@@ -157,14 +157,14 @@ func (o *OverflowState) QualifiedIdentifierFromSnakeCase(typeName string) (strin
 // account can either be a name from  accounts or the raw value
 func (o *OverflowState) QualifiedIdentifier(contract string, name string) (string, error) {
 
-	flowContract, err := o.State.Contracts().ByNameAndNetwork(contract, o.Network)
-	if err != nil {
-		return "", err
-	}
+	flowContract := o.State.Contracts().ByName(contract)
 
 	//we found the contract specified in contracts section
-	if flowContract != nil && flowContract.Alias != "" {
-		return fmt.Sprintf("A.%s.%s.%s", strings.TrimPrefix(flowContract.Alias, "0x"), contract, name), nil
+	if flowContract != nil {
+		alias := flowContract.Aliases.ByNetwork(o.Network)
+		if alias != nil {
+			return fmt.Sprintf("A.%s.%s.%s", alias.Address.String(), contract, name), nil
+		}
 	}
 
 	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
@@ -337,9 +337,14 @@ func (o *OverflowState) Address(key string) string {
 		return fmt.Sprintf("0x%s", account.Address().String())
 	}
 
-	flowContract, err := o.State.Contracts().ByNameAndNetwork(key, o.Network)
-	if err == nil && flowContract != nil && flowContract.Alias != "" {
-		return flowContract.Alias
+	flowContract := o.State.Contracts().ByName(key)
+
+	//we found the contract specified in contracts section
+	if flowContract != nil {
+		alias := flowContract.Aliases.ByNetwork(o.Network)
+		if alias != nil {
+			return fmt.Sprintf("0x%s", alias.Address.String())
+		}
 	}
 
 	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
