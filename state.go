@@ -55,8 +55,8 @@ type OverflowClient interface {
 	GetLatestBlock() (*flow.Block, error)
 	GetBlockAtHeight(height uint64) (*flow.Block, error)
 	GetBlockById(blockId string) (*flow.Block, error)
-	GetTransactionResultByBlockId(blockId string) ([]*flow.TransactionResult, error)
-	GetTransactionByBlockId(blockId string) ([]*flow.Transaction, error)
+	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
+	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
 
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
