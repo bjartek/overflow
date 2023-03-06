@@ -2,7 +2,6 @@ package overflow
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -12,6 +11,12 @@ import (
 )
 
 type FilterFunction func(Transaction) bool
+
+type BlockResult struct {
+	Transactions []Transaction
+	Block        uint64
+	Error        error
+}
 
 type Transaction struct {
 	Events      OverflowEvents
@@ -99,29 +104,25 @@ o := overflow.Overflow(overflow.WithNetwork("mainnet"), overflow.WithPrintResult
 - bulk transform a given classification: transform all Deposit that have Views into NFTDIct
 - send to stream
 */
-func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, filter FilterFunction, channel chan<- Transaction) {
+func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, channel chan<- BlockResult) {
 
 	for {
 		block, err := o.GetBlockAtHeight(height)
 		if err != nil {
-			fmt.Println(err.Error())
+			channel <- BlockResult{Block: height, Error: err}
 			time.Sleep(1 * time.Second)
 			continue
 		}
 		tx, err := o.GetTransactions(ctx, block.ID)
 		if err != nil {
-			fmt.Println(err.Error())
+			channel <- BlockResult{Block: height, Error: err}
 			time.Sleep(1 * time.Second)
 			continue
 		}
+
+		channel <- BlockResult{Block: height, Transactions: tx}
 		log.Printf("getting transactions for block id %s height:%d tx:%d\n", block.ID.String(), block.Height, len(tx))
 
 		height = height + 1
-
-		for _, entry := range tx {
-			if filter(entry) {
-				channel <- entry
-			}
-		}
 	}
 }
