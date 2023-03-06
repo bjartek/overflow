@@ -10,6 +10,7 @@ import (
 
 func TestTransaction(t *testing.T) {
 	o, err := OverflowTesting()
+	require.NotNil(t, o)
 	require.NoError(t, err)
 	t.Run("Run simple tx", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithSignerServiceAccount())
@@ -28,12 +29,12 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("Run simple tx with sa proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposerServiceAccount())
-		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
+		assert.Contains(t, res.EmulatorLog[6], "0x01cf0e2f2f715450")
 	})
 
 	t.Run("Run simple tx with custom proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposer("account"))
-		assert.Contains(t, res.EmulatorLog[4], "0x01cf0e2f2f715450")
+		assert.Contains(t, res.EmulatorLog[6], "0x01cf0e2f2f715450")
 	})
 
 	t.Run("Fail when invalid proposer", func(t *testing.T) {

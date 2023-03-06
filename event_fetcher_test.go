@@ -12,6 +12,7 @@ func TestEventFetcher(t *testing.T) {
 
 	g, err := OverflowTesting()
 	require.NoError(t, err)
+	require.NotNil(t, g)
 
 	t.Run("Start argument", func(t *testing.T) {
 		ef := g.buildEventInteraction(WithStartHeight(100))

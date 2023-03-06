@@ -10,7 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
@@ -74,14 +74,9 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 
 	filePath := fmt.Sprintf("%s/%s.cdc", fbi.BasePath, fbi.FileName)
 
-	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
-	script := &services.Script{
-		Code:     fbi.TransactionCode,
-		Args:     fbi.Arguments,
-		Filename: filePath,
-	}
+	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
 	result, err := o.Services.Scripts.Execute(script, o.Network)
 
 	osc.Result = result
@@ -107,7 +102,6 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 		logMessage = append(logMessage, doc)
 	}
 
-	o.EmulatorLog.Reset()
 	o.Log.Reset()
 
 	osc.Log = logMessage

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 /*
@@ -16,10 +17,9 @@ func TestTransactionIntegration(t *testing.T) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
 	o, err := OverflowTesting()
+	require.NoError(t, err)
+	require.NotNil(t, o)
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
-
-	assert.NoError(t, err)
-	t.Parallel()
 
 	t.Run("fail on missing signer", func(t *testing.T) {
 		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the proposer signer")
@@ -74,14 +74,17 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
-		o.Tx(`
-		import Debug from "../contracts/Debug.cdc"
+		res := o.Tx(`
+		import "Debug"
 		transaction(message:String) {
 		  prepare(acct: AuthAccount) {
 			Debug.log(message) } }`,
 			WithSigner("first"),
 			WithArg("message", "foobar"),
-		).
+		)
+
+		res.
+			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
 			AssertComputationUsed(t, 7).
 			AssertComputationLessThenOrEqual(t, 40).
@@ -301,7 +304,8 @@ func TestTransactionEventFiltering(t *testing.T) {
 	}
 
 	o, err := OverflowTesting(WithGlobalEventFilter(filter))
-	assert.NoError(t, err)
+	require.NotNil(t, o)
+	require.NoError(t, err)
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(message:String) {

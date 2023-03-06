@@ -66,7 +66,7 @@ func exists(path string) (bool, error) {
 	return true, err
 }
 
-func writeProgressToFile(fileName string, blockHeight uint64) error {
+func writeProgressToFile(fileName string, blockHeight int64) error {
 
 	err := os.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
 

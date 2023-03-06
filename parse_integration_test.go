@@ -12,7 +12,7 @@ import (
 func TestParseConfig(t *testing.T) {
 	g, err := OverflowTesting()
 	require.NoError(t, err)
-	t.Parallel()
+	require.NotNil(t, g)
 
 	t.Run("parse", func(t *testing.T) {
 		result, err := g.ParseAll()

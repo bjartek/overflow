@@ -4,10 +4,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestScript(t *testing.T) {
-	o, _ := OverflowTesting()
+	o, err := OverflowTesting()
+	require.NoError(t, err)
+	require.NotNil(t, o)
 
 	t.Run("Run simple script interface", func(t *testing.T) {
 		res, err := o.Script("test", WithArg("account", "first")).GetAsInterface()
