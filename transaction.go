@@ -2,7 +2,9 @@ package overflow
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"math"
 	"time"
 
 	"github.com/onflow/flow-go-sdk"
@@ -10,19 +12,22 @@ import (
 	"github.com/samber/lo"
 )
 
-type FilterFunction func(Transaction) bool
+type FilterFunction func(OverflowTransaction) bool
 
 type BlockResult struct {
-	Transactions []Transaction
-	Block        uint64
+	Transactions []OverflowTransaction
+	Block        *flow.Block
 	Error        error
 }
 
-type Transaction struct {
-	Events      OverflowEvents
-	Fee         OverflowEvent
-	RawTxResult flow.TransactionResult
-	RawTx       flow.Transaction
+type OverflowTransaction struct {
+	Events          OverflowEvents
+	Error           error
+	Fee             float64
+	ExecutionEffort int
+	Status          string
+	Arguments       []interface{}
+	RawTx           flow.Transaction
 }
 
 func (o *OverflowState) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
@@ -33,7 +38,7 @@ func (o *OverflowState) GetTransactionByBlockId(blockId flow.Identifier) ([]*flo
 	return o.Services.Transactions.GetTransactionsByBlockID(blockId)
 }
 
-func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]Transaction, error) {
+func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
 
 	tx, err := o.GetTransactionByBlockId(id)
 	if err != nil {
@@ -49,11 +54,11 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		return nil, errors.Wrap(err, "getting transaction results")
 	}
 
-	return lo.FlatMap(txR, func(r *flow.TransactionResult, _ int) []Transaction {
+	return lo.FlatMap(txR, func(r *flow.TransactionResult, _ int) []OverflowTransaction {
 		t := txMap[r.TransactionID]
 		//for some reason we get epoch heartbeat
 		if len(t.EnvelopeSignatures) == 0 {
-			return []Transaction{}
+			return []OverflowTransaction{}
 		}
 
 		feeAmount := 0.0
@@ -62,11 +67,30 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		if ok {
 			feeAmount = feeRaw.(float64)
 		}
-		return []Transaction{{
-			Events:      events.FilterFees(feeAmount),
-			Fee:         fee,
-			RawTxResult: *r,
-			RawTx:       txMap[r.TransactionID],
+
+		executionEffort, ok := fee.Fields["executionEffort"].(float64)
+		gas := 0
+		if ok {
+			factor := 100000000
+			gas = int(math.Round(executionEffort * float64(factor)))
+		}
+
+		args := []interface{}{}
+		for i := range t.Arguments {
+			arg, err := t.Argument(i)
+			if err != nil {
+				fmt.Println("[WARN]", err.Error())
+			}
+			args = append(args, CadenceValueToInterface(arg))
+		}
+		return []OverflowTransaction{{
+			Status:          r.Status.String(),
+			Events:          events.FilterFees(feeAmount),
+			Error:           r.Error,
+			Arguments:       args,
+			Fee:             feeAmount,
+			ExecutionEffort: gas,
+			RawTx:           t,
 		}}
 	}), nil
 
@@ -109,18 +133,18 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, c
 	for {
 		block, err := o.GetBlockAtHeight(height)
 		if err != nil {
-			channel <- BlockResult{Block: height, Error: err}
+			channel <- BlockResult{Block: block, Error: err}
 			time.Sleep(1 * time.Second)
 			continue
 		}
 		tx, err := o.GetTransactions(ctx, block.ID)
 		if err != nil {
-			channel <- BlockResult{Block: height, Error: err}
+			channel <- BlockResult{Block: block, Error: err}
 			time.Sleep(1 * time.Second)
 			continue
 		}
 
-		channel <- BlockResult{Block: height, Transactions: tx}
+		channel <- BlockResult{Block: block, Transactions: tx}
 		log.Printf("getting transactions for block id %s height:%d tx:%d\n", block.ID.String(), block.Height, len(tx))
 
 		height = height + 1
