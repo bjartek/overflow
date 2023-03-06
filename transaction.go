@@ -133,14 +133,14 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, c
 	for {
 		block, err := o.GetBlockAtHeight(height)
 		if err != nil {
-			channel <- BlockResult{Block: block, Error: err}
+			channel <- BlockResult{Block: block, Error: errors.Wrap(err, "getting block")}
 			time.Sleep(1 * time.Second)
 			continue
 		}
 		tx, err := o.GetTransactions(ctx, block.ID)
 		if err != nil {
-			channel <- BlockResult{Block: block, Error: err}
-			time.Sleep(1 * time.Second)
+			channel <- BlockResult{Block: block, Error: errors.Wrap(err, "getting transactions")}
+			time.Sleep(200 * time.Millisecond)
 			continue
 		}
 
