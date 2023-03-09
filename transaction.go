@@ -2,10 +2,7 @@ package overflow
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"math"
-	"time"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
@@ -26,8 +23,7 @@ type OverflowTransaction struct {
 	Fee             float64
 	ExecutionEffort int
 	Status          string
-	Arguments       []interface{}
-	RawTx           flow.Transaction
+	Id              flow.Identifier
 }
 
 func (o *OverflowState) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
@@ -38,33 +34,20 @@ func (o *OverflowState) GetTransactionByBlockId(blockId flow.Identifier) ([]*flo
 	return o.Services.Transactions.GetTransactionsByBlockID(blockId)
 }
 
-func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
+func (o *OverflowState) GetTransactionById(id flow.Identifier) (*flow.Transaction, error) {
+	tx, _, err := o.Services.Transactions.GetStatus(id, false)
+	return tx, err
+}
 
-	_, _, collection, err := o.Services.Blocks.GetBlock(id.Hex(), "", true)
-	txIds := lo.FlatMap(collection, func(c *flow.Collection, _ int) []flow.Identifier {
-		return c.TransactionIDs
-	})
-
-	tx, err := o.GetTransactionByBlockId(id)
-	if err != nil {
-		return nil, errors.Wrap(err, "getting transactions by id")
-	}
-
-	txMap := lo.Associate(tx, func(t *flow.Transaction) (flow.Identifier, flow.Transaction) {
-		return t.ID(), *t
-	})
+func (o *OverflowState) GetTransactionResults(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
 
 	txR, err := o.GetTransactionResultByBlockId(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting transaction results")
 	}
 
-	fmt.Printf("Lengths collection=%d, tx=%d result=%d\n", len(txIds), len(tx), len(txR))
-
-	return lo.FlatMap(txR, func(r *flow.TransactionResult, _ int) []OverflowTransaction {
-		t := txMap[r.TransactionID]
-		//for some reason we get epoch heartbeat
-		if len(t.EnvelopeSignatures) == 0 {
+	result := lo.FlatMap(txR, func(r *flow.TransactionResult, _ int) []OverflowTransaction {
+		if r.TransactionID.String() == "f31815934bff124e332b3c8be5e1c7a949532707251a9f2f81def8cc9f3d1458" {
 			return []OverflowTransaction{}
 		}
 
@@ -81,25 +64,17 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			factor := 100000000
 			gas = int(math.Round(executionEffort * float64(factor)))
 		}
-
-		args := []interface{}{}
-		for i := range t.Arguments {
-			arg, err := t.Argument(i)
-			if err != nil {
-				fmt.Println("[WARN]", err.Error())
-			}
-			args = append(args, CadenceValueToInterface(arg))
-		}
 		return []OverflowTransaction{{
+			Id:              r.TransactionID,
 			Status:          r.Status.String(),
 			Events:          events.FilterFees(feeAmount),
 			Error:           r.Error,
-			Arguments:       args,
 			Fee:             feeAmount,
 			ExecutionEffort: gas,
-			RawTx:           t,
 		}}
-	}), nil
+	})
+
+	return result, nil
 
 }
 
@@ -135,6 +110,7 @@ o := overflow.Overflow(overflow.WithNetwork("mainnet"), overflow.WithPrintResult
 - bulk transform a given classification: transform all Deposit that have Views into NFTDIct
 - send to stream
 */
+/*
 func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, channel chan<- BlockResult) {
 
 	for {
@@ -157,3 +133,4 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, c
 		height = height + 1
 	}
 }
+*/
