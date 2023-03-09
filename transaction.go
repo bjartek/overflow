@@ -19,6 +19,7 @@ type BlockResult struct {
 }
 
 type OverflowTransaction struct {
+	Id              flow.Identifier
 	Events          OverflowEvents
 	Error           error
 	Fee             float64
@@ -42,32 +43,26 @@ func (o *OverflowState) GetTransactionById(id flow.Identifier) (*flow.Transactio
 }
 
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
-	tx, err := o.GetTransactionByBlockId(id)
-	if err != nil {
-		return nil, errors.Wrap(err, "getting transactions by id")
-	}
-
-	txMap := lo.Associate(tx, func(t *flow.Transaction) (string, flow.Transaction) {
-		tx := *t
-		return tx.ID().Hex(), tx
-	})
 
 	txR, err := o.GetTransactionResultByBlockId(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting transaction results")
 	}
 
-	result := lo.FlatMap(txR, func(r *flow.TransactionResult, _ int) []OverflowTransaction {
-		tx := *r
-		t, ok := txMap[tx.TransactionID.Hex()]
+	tx, err := o.GetTransactionByBlockId(id)
 
-		if !ok {
-			fmt.Println("FOOOOOO")
-		}
+	if err != nil {
+		return nil, errors.Wrap(err, "getting transactions by id")
+	}
 
-		if tx.TransactionID.String() == "f31815934bff124e332b3c8be5e1c7a949532707251a9f2f81def8cc9f3d1458" {
+	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
+		r := *rp
+
+		if r.TransactionID.String() == "f31815934bff124e332b3c8be5e1c7a949532707251a9f2f81def8cc9f3d1458" {
 			return []OverflowTransaction{}
 		}
+
+		t := *tx[i]
 
 		//for some reason we get epoch heartbeat
 		if len(t.EnvelopeSignatures) == 0 {
@@ -97,6 +92,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			args = append(args, CadenceValueToInterface(arg))
 		}
 		return []OverflowTransaction{{
+			Id:              r.TransactionID,
 			Status:          r.Status.String(),
 			Events:          events.FilterFees(feeAmount),
 			Error:           r.Error,
