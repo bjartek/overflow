@@ -40,6 +40,11 @@ func (o *OverflowState) GetTransactionByBlockId(blockId flow.Identifier) ([]*flo
 
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
 
+	_, _, collection, err := o.Services.Blocks.GetBlock(id.Hex(), "", true)
+	txIds := lo.FlatMap(collection, func(c *flow.Collection, _ int) []flow.Identifier {
+		return c.TransactionIDs
+	})
+
 	tx, err := o.GetTransactionByBlockId(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting transactions by id")
@@ -53,6 +58,8 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting transaction results")
 	}
+
+	fmt.Printf("Lengths collection=%d, tx=%d result=%d\n", len(txIds), len(tx), len(txR))
 
 	return lo.FlatMap(txR, func(r *flow.TransactionResult, _ int) []OverflowTransaction {
 		t := txMap[r.TransactionID]

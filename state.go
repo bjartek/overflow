@@ -545,13 +545,13 @@ func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *
 
 // get the latest block
 func (o *OverflowState) GetLatestBlock() (*flow.Block, error) {
-	block, _, _, err := o.Services.Blocks.GetBlock("latest", "", false)
+	block, _, _, err := o.Services.Blocks.GetBlock("latest", "", true)
 	return block, err
 }
 
 // get block at a given height
 func (o *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
-	block, _, _, err := o.Services.Blocks.GetBlock(fmt.Sprintf("%d", height), "", false)
+	block, _, _, err := o.Services.Blocks.GetBlock(fmt.Sprintf("%d", height), "", true)
 	return block, err
 }
 
