@@ -3,7 +3,10 @@ package overflow
 import (
 	"context"
 	"fmt"
+	"log"
 	"math"
+	"strings"
+	"time"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
@@ -14,7 +17,7 @@ type FilterFunction func(OverflowTransaction) bool
 
 type BlockResult struct {
 	Transactions []OverflowTransaction
-	Block        *flow.Block
+	Block        flow.Block
 	Error        error
 }
 
@@ -139,27 +142,67 @@ o := overflow.Overflow(overflow.WithNetwork("mainnet"), overflow.WithPrintResult
 - bulk transform a given classification: transform all Deposit that have Views into NFTDIct
 - send to stream
 */
-/*
-func (o *OverflowState) StreamTransactions(ctx context.Context, height uint64, channel chan<- BlockResult) {
+func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error {
 
+	latestKnownBlock, err := o.GetLatestBlock()
+	if err != nil {
+		return err
+	}
+
+	sleep := poll
 	for {
-		block, err := o.GetBlockAtHeight(height)
-		if err != nil {
-			channel <- BlockResult{Block: block, Error: errors.Wrap(err, "getting block")}
-			time.Sleep(1 * time.Second)
-			continue
-		}
-		tx, err := o.GetTransactions(ctx, block.ID)
-		if err != nil {
-			channel <- BlockResult{Block: block, Error: errors.Wrap(err, "getting transactions")}
-			time.Sleep(200 * time.Millisecond)
-			continue
-		}
+		select {
+		case <-time.After(sleep):
 
-		channel <- BlockResult{Block: block, Transactions: tx}
-		log.Printf("getting transactions for block id %s height:%d tx:%d\n", block.ID.String(), block.Height, len(tx))
+			sleep = poll
+			nextBlockToProcess := height + 1
+			if height == uint64(0) {
+				nextBlockToProcess = latestKnownBlock.Height
+				height = latestKnownBlock.Height
+			}
 
-		height = height + 1
+			var block *flow.Block
+			if nextBlockToProcess < latestKnownBlock.Height {
+				//we are still processing historical blocks
+				block, err = o.GetBlockAtHeight(nextBlockToProcess)
+				if err != nil {
+					log.Println("[ERROR]", "fetching old block", err.Error())
+					continue
+				}
+			} else if nextBlockToProcess != latestKnownBlock.Height {
+				block, err = o.GetLatestBlock()
+				if err != nil {
+					log.Println("[ERROR]", "fetching latest block", err.Error())
+					continue
+				}
+
+				if block == nil || block.Height == latestKnownBlock.Height {
+					continue
+				}
+				latestKnownBlock = block
+				//we just continue the next iteration in the loop here
+				sleep = time.Millisecond
+				//the reason we just cannot process here is that the latestblock might not be the next block we should process
+				continue
+			} else {
+				block = latestKnownBlock
+			}
+			tx, err := o.GetTransactions(ctx, block.ID)
+			if err != nil {
+				fmt.Println(err.Error())
+				if strings.Contains(err.Error(), "could not retrieve collection: key not found") {
+					continue
+				}
+				channel <- BlockResult{Block: *block, Error: errors.Wrap(err, "getting transactions")}
+				continue
+			}
+
+			log.Printf("Fetched new results from %d, latestKnownSealedIs=%d tx:%d\n", height+1, latestKnownBlock.Height, len(tx))
+			channel <- BlockResult{Block: *block, Transactions: tx}
+			height = nextBlockToProcess
+
+		case <-ctx.Done():
+			return ctx.Err()
+		}
 	}
 }
-*/
