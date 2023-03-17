@@ -47,6 +47,13 @@ func (o *OverflowState) GetTransactionById(id flow.Identifier) (*flow.Transactio
 
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
 
+	//sometimes this will become too complex.
+
+	//if we get this error
+	//* rpc error: code = ResourceExhausted desc = grpc: trying to send message larger than max (22072361 vs. 20971520)
+	//we have to fetch the block again with transaction ids.
+	//in paralell loop over them and run GetStatus and create the transactions that way.
+
 	txR, err := o.GetTransactionResultByBlockId(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting transaction results")
@@ -194,6 +201,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 					continue
 				}
 				channel <- BlockResult{Block: *block, Error: errors.Wrap(err, "getting transactions")}
+				height = nextBlockToProcess
 				continue
 			}
 
