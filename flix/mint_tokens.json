@@ -1,0 +1,17 @@
+[
+	{
+		"lang" : "no-NB",
+		"interaction": {
+			"title" : "Mynte Flow ",
+			"description": "En transakson for å myte Flow mynter, siden man trenger tilgang til FlowToken.Administrator er denne mest nyttig på en emulator"
+		},
+		"arguments" : {
+			"recipient": {
+				"title": "Flow addressen myntene vil bli sent til"
+			},
+			"amount": {
+				"title": "Antall mynter som vil bli myntet som et desimal tall"
+			}
+		}
+	}
+]

@@ -27,9 +27,19 @@ func main() {
 		panic(err)
 	}
 
+	//what if we here add a i18n json file for this same tx.
+
 	data := res.Transactions["mint_tokens"]
 
 	docString := strings.TrimSpace(data.DocString)
+
+	//this should probably read from multiple different files
+	fileName := "flix/mint_tokens.json"
+	messages, err := overflow.ReadFileArrayIntoStructs[Internationalisation](fileName)
+	if err != nil {
+		fmt.Printf("%s not found or could not be read err=%s\n", fileName, err.Error())
+		messages = []Internationalisation{}
+	}
 
 	lines := strings.Split(strings.ReplaceAll(docString, "\r\n", "\n"), "\n")
 
@@ -75,6 +85,29 @@ func main() {
 		description = append(description, line)
 	}
 	descriptionString := strings.TrimSpace(strings.Join(description, "\n"))
+	//arg -> language -> message
+	argumentsMessage := map[string]map[string]InternationalisationMessage{}
+	for _, arg := range data.ParameterOrder {
+
+		argMap := map[string]InternationalisationMessage{}
+		for _, msg := range messages {
+			argMap[msg.Lang] = msg.Arguments[arg]
+		}
+		argMap[lang] = InternationalisationMessage{
+			Title: params[arg],
+		}
+		argumentsMessage[arg] = argMap
+	}
+
+	mainMessage := map[string]InternationalisationMessage{}
+
+	for _, msg := range messages {
+		mainMessage[msg.Lang] = msg.Interaction
+	}
+	mainMessage[lang] = InternationalisationMessage{
+		Title:       name,
+		Description: descriptionString,
+	}
 
 	flixArguments := map[string]overflow.Argument{}
 	for i, arg := range data.ParameterOrder {
@@ -88,7 +121,7 @@ func main() {
 		flixArguments[arg] = overflow.Argument{
 			Index:    i,
 			Type:     data.Parameters[arg],
-			Messages: createMessage(lang, params[arg], ""),
+			Messages: createMessages(argumentsMessage[arg]),
 			Balance:  balance,
 		}
 
@@ -147,7 +180,7 @@ func main() {
 		Data: overflow.Data{
 			Type:         "transaction",
 			Interface:    flixInterface,
-			Messages:     createMessage(lang, name, descriptionString),
+			Messages:     createMessages(mainMessage),
 			Cadence:      data.EnvCode,
 			Dependencies: deps,
 			Arguments:    flixArguments,
@@ -164,25 +197,47 @@ func main() {
 
 }
 
-func createMessage(lang, title, description string) overflow.Messages {
+func createMessages(messages map[string]InternationalisationMessage) overflow.Messages {
+
+	titles := map[string]string{}
+	descriptions := map[string]string{}
+	for lang, message := range messages {
+
+		if message.Title != "" {
+			titles[lang] = message.Title
+		}
+
+		if message.Description != "" {
+			descriptions[lang] = message.Description
+		}
+
+	}
 	msg := overflow.Messages{}
-	if title == "" && description == "" {
+
+	if len(titles) == 0 && len(descriptions) == 0 {
 		return msg
 	}
 
-	if title != "" {
-		title := overflow.Title{
-			I18N: map[string]string{lang: title},
-		}
-		msg.Title = &title
+	title := overflow.Title{
+		I18N: titles,
 	}
+	msg.Title = &title
 
-	if description != "" {
-		desc := overflow.Description{
-			I18N: map[string]string{lang: description},
-		}
-		msg.Description = &desc
+	desc := overflow.Description{
+		I18N: descriptions,
 	}
+	msg.Description = &desc
 
 	return msg
+}
+
+type InternationalisationMessage struct {
+	Title       string
+	Description string
+}
+
+type Internationalisation struct {
+	Lang        string
+	Interaction InternationalisationMessage
+	Arguments   map[string]InternationalisationMessage
 }
