@@ -2,7 +2,7 @@
 	{
 		"lang" : "no-NB",
 		"interaction": {
-			"title" : "Mynte Flow ",
+			"title" : "Mynte Flow",
 			"description": "En transakson for å myte Flow mynter, siden man trenger tilgang til FlowToken.Administrator er denne mest nyttig på en emulator"
 		},
 		"arguments" : {
@@ -11,6 +11,21 @@
 			},
 			"amount": {
 				"title": "Antall mynter som vil bli myntet som et desimal tall"
+			}
+		}
+	},
+	{
+		"lang": "zh-CN",
+		"interaction": {
+			"title": "铸造Flow代币",
+			"description": "铸造Flow代币的交易，由于需要访问FlowToken.Administrator，所以最好在模擬器上使用"
+		},
+		"arguments": {
+			"recipient": {
+				"title": "代币将发送到的Flow地址"
+			},
+			"amount": {
+				"title": "Flow代币的数量，以浮点数表示"
 			}
 		}
 	}
