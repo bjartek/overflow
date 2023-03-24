@@ -28,5 +28,20 @@
 				"title": "Flow代币的数量，以浮点数表示"
 			}
 		}
+	},
+	{
+		"lang": "zh-TW",
+		"interaction": {
+			"title": "鑄造Flow代幣",
+			"description": "鑄造Flow代幣的交易，由於需要訪問FlowToken.Administrator，所以最好在模擬器上使用"
+		},
+		"arguments": {
+			"recipient": {
+				"title": "代幣將發送到的Flow地址"
+			},
+			"amount": {
+				"title": "Flow代幣的數量，以浮點數表示"
+			}
+		}
 	}
 ]
