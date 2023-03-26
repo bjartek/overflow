@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/rlp"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 type FlowInteractionTemplate struct {
@@ -55,14 +57,16 @@ type Title struct {
 	I18N map[string]string `json:"i18n"`
 }
 
+//function som tar inn en map av K,V og returnerer interface{}
+
 func (this Title) ToRLP() []interface{} {
-	list := []interface{}{}
-	for lang, content := range this.I18N {
-		list = append(list, []interface{}{
+
+	list := ProcessMap(this.I18N, func(lang string, content string) interface{} {
+		return []interface{}{
 			Sha256String(lang),
 			Sha256String(content),
-		})
-	}
+		}
+	})
 	return []interface{}{Sha256String("title"), list}
 }
 
@@ -71,13 +75,13 @@ type Description struct {
 }
 
 func (this Description) ToRLP() []interface{} {
-	list := []interface{}{}
-	for lang, content := range this.I18N {
-		list = append(list, []interface{}{
+	list := ProcessMap(this.I18N, func(lang string, content string) interface{} {
+		return []interface{}{
 			Sha256String(lang),
 			Sha256String(content),
-		})
-	}
+		}
+	})
+
 	return []interface{}{Sha256String("description"), list}
 }
 
@@ -135,51 +139,20 @@ func (this Network) ToRLP() []interface{} {
 	}
 }
 
-type Dependencies map[string]map[string]map[string]Network
+type Dependencies map[string]Contracts
+type Contracts map[string]Networks
+type Networks map[string]Network
 
 func (this Dependencies) ToRLP() []interface{} {
-	list := []interface{}{}
-	for placeholder, contracts := range this {
-
-		contractRLP := []interface{}{}
-		for name, networks := range contracts {
-
-			networkRLP := []interface{}{}
-			for networkName, network := range networks {
-				/*
-						sha3_256(template-dependency-network),
-						[
-						    sha3_256(template-dependency-network-address),
-						    sha3_256(template-dependency-contract-name),
-						    sha3_256(template-dependency-contract-fq-address),
-						    sha3_256(template-dependency-contract-pin),
-						    sha3_256(template-dependency-contract-pin-block-height)
-						]
-
-					]
-				*/
-				networkRLP = append(networkRLP, []interface{}{Sha256String(networkName), network.ToRLP()})
-			}
-			/*
-				template-dependency-contract-name    = Name of a contract
-				template-dependency-contract         = [
-						sha3_256(template-dependency-contract-name),
-						[ ...template-dependency-contract-network ]
-				]
-
-			*/
-			contractRLP = append(contractRLP, []interface{}{Sha256String(name), networkRLP})
-		}
-		/*
-			template-dependency-addr-placeholder = Placeholder address
-			template-dependency                  = [
-			    sha3_256(template-dependency-addr-placeholder),
-			    [ ...template-dependency-contract ]
-			]
-		*/
-		list = append(list, []interface{}{Sha256String(placeholder), contractRLP})
-	}
-	return list
+	return ProcessMap(this, func(placeholder string, contracts Contracts) interface{} {
+		contractRLP := ProcessMap(contracts, func(name string, networks Networks) interface{} {
+			networkRLP := ProcessMap(networks, func(networkName string, network Network) interface{} {
+				return []interface{}{Sha256String(networkName), network.ToRLP()}
+			})
+			return []interface{}{Sha256String(name), networkRLP}
+		})
+		return []interface{}{Sha256String(placeholder), contractRLP}
+	})
 }
 
 type Argument struct {
@@ -227,17 +200,13 @@ template-argument               = [ sha3_256(template-argument-label), [ ...temp
 template-arguments            = [ ...template-argument ] | []
 */
 func (this Arguments) ToRLP() []interface{} {
-
-	arguments := []interface{}{}
-	for label, arg := range this {
-
-		argRlp := []interface{}{
+	return ProcessMap(this, func(label string, arg Argument) interface{} {
+		return []interface{}{
 			Sha256String(label),
 			arg.ToRLP(),
 		}
-		arguments = append(arguments, argRlp)
-	}
-	return arguments
+
+	})
 }
 
 type Data struct {
@@ -315,4 +284,16 @@ func uint64ToBytes(num uint64) []byte {
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, num)
 	return b
+}
+
+func ProcessMap[M ~map[K]V, K string, V any](m M, fn func(key K, value V) interface{}) []interface{} {
+	keys := maps.Keys(m)
+	slices.Sort(keys)
+
+	list := []interface{}{}
+	for _, key := range keys {
+		value := m[key]
+		list = append(list, fn(key, value))
+	}
+	return list
 }

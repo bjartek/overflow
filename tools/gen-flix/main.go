@@ -126,7 +126,7 @@ func main() {
 		}
 
 	}
-	deps := map[string]map[string]map[string]overflow.Network{}
+	deps := overflow.Dependencies{}
 
 	latestBlocks := map[string]*flow.Block{}
 
@@ -168,11 +168,14 @@ func main() {
 			key3 := network.Name
 
 			if deps[key1] == nil {
-				deps[key1] = map[string]map[string]overflow.Network{
-					key2: {
-						key3: nw,
-					},
+
+				networks := overflow.Networks{
+					key3: nw,
 				}
+				contracts := overflow.Contracts{
+					key2: networks,
+				}
+				deps[key1] = contracts
 			}
 			deps[key1][key2][key3] = nw
 		}
