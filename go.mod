@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/enescakir/emoji v1.0.0
+	github.com/ethereum/go-ethereum v1.10.21
 	github.com/fatih/color v1.13.0
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.0
@@ -47,7 +48,6 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/ef-ds/deque v1.0.4 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
-	github.com/ethereum/go-ethereum v1.10.21 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.1-0.20220515183430-ad2eae63303f // indirect
 	github.com/fxamacker/circlehash v0.3.0 // indirect

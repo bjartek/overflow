@@ -156,11 +156,11 @@ func main() {
 			hash := sha256.Sum256(contractBytes)
 
 			nw := overflow.Network{
-				Address:   address,
-				FqAddress: fmt.Sprintf("A.%s.%s", strings.TrimPrefix(address, "0x"), name),
-				Contract:  name,
-				Pin:       hex.EncodeToString(hash[:]),
-				//				PinBlockHeight: latestBlock.Height,
+				Address:        address,
+				FqAddress:      fmt.Sprintf("A.%s.%s", strings.TrimPrefix(address, "0x"), name),
+				Contract:       name,
+				Pin:            hex.EncodeToString(hash[:]),
+				PinBlockHeight: latestBlock.Height,
 			}
 
 			key1 := fmt.Sprintf("0x%s", strings.ToUpper(name))
@@ -190,20 +190,9 @@ func main() {
 		},
 	}
 
-	out, _ := json.Marshal(flix)
-	idHash := sha256.Sum256(out)
-	flix.ID = hex.EncodeToString(idHash[:])
+	flix.ID, err = overflow.GenerateFlixID(flix)
 
-	//we set the pin heights AFTER we have generate the id hash. if the contracts where different the hash would be different regardless.
-	for alias, aliases := range flix.Data.Dependencies {
-		for name, names := range aliases {
-			for networkName, network := range names {
-				network.PinBlockHeight = latestBlocks[networkName].Height
-				flix.Data.Dependencies[alias][name][networkName] = network
-			}
-		}
-	}
-
+	//	out, _ := json.Marshal(flix)
 	out2, _ := json.MarshalIndent(flix, "", " ")
 
 	fmt.Println(string(out2))
