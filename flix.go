@@ -38,10 +38,10 @@ func (flix FlowInteractionTemplate) EncodeRLP(w io.Writer) (err error) {
 		Sha256String(flix.FVersion),
 		Sha256String(flix.Data.Type),
 		Sha256String(flix.Data.Interface),
-		flix.Data.Messages,
+		flix.Data.Messages.ToRLP(),
 		Sha256String(flix.Data.Cadence),
-		flix.Data.Dependencies,
-		flix.Data.Arguments,
+		flix.Data.Dependencies.ToRLP(),
+		flix.Data.Arguments.ToRLP(),
 	}
 
 	return rlp.Encode(w, input)
@@ -55,7 +55,7 @@ type Title struct {
 	I18N map[string]string `json:"i18n"`
 }
 
-func (this Title) EncodeRLP(w io.Writer) (err error) {
+func (this Title) ToRLP() []interface{} {
 	list := []interface{}{}
 	for lang, content := range this.I18N {
 		list = append(list, []interface{}{
@@ -63,14 +63,14 @@ func (this Title) EncodeRLP(w io.Writer) (err error) {
 			Sha256String(content),
 		})
 	}
-	return rlp.Encode(w, []interface{}{Sha256String("title"), list})
+	return []interface{}{Sha256String("title"), list}
 }
 
 type Description struct {
 	I18N map[string]string `json:"i18n"`
 }
 
-func (this Description) EncodeRLP(w io.Writer) (err error) {
+func (this Description) ToRLP() []interface{} {
 	list := []interface{}{}
 	for lang, content := range this.I18N {
 		list = append(list, []interface{}{
@@ -78,7 +78,7 @@ func (this Description) EncodeRLP(w io.Writer) (err error) {
 			Sha256String(content),
 		})
 	}
-	return rlp.Encode(w, []interface{}{Sha256String("description"), list})
+	return []interface{}{Sha256String("description"), list}
 }
 
 type Messages struct {
@@ -103,8 +103,8 @@ template-argument-content-message = [
 
 ]
 */
-func (this Messages) EncodeRLP(w io.Writer) (err error) {
-	return rlp.Encode(w, []interface{}{this.Title, this.Description})
+func (this Messages) ToRLP() []interface{} {
+	return []interface{}{this.Title.ToRLP(), this.Description.ToRLP()}
 }
 
 type Network struct {
@@ -125,19 +125,19 @@ template-dependency-contract-network          = [
 
 */
 
-func (this Network) EncodeRLP(w io.Writer) (err error) {
+func (this Network) ToRLP() []interface{} {
 
-	return rlp.Encode(w, []interface{}{
+	return []interface{}{
 		Sha256String(this.Address),
 		Sha256String(this.Contract),
 		Sha256String(this.FqAddress),
 		Sha256String(this.Pin),
-	})
+	}
 }
 
 type Dependencies map[string]map[string]map[string]Network
 
-func (this Dependencies) EncodeRLP(w io.Writer) (err error) {
+func (this Dependencies) ToRLP() []interface{} {
 	list := []interface{}{}
 	for placeholder, contracts := range this {
 
@@ -158,7 +158,7 @@ func (this Dependencies) EncodeRLP(w io.Writer) (err error) {
 
 					]
 				*/
-				networkRLP = append(networkRLP, []interface{}{Sha256String(networkName), network})
+				networkRLP = append(networkRLP, []interface{}{Sha256String(networkName), network.ToRLP()})
 			}
 			/*
 				template-dependency-contract-name    = Name of a contract
@@ -179,7 +179,7 @@ func (this Dependencies) EncodeRLP(w io.Writer) (err error) {
 		*/
 		list = append(list, []interface{}{Sha256String(placeholder), contractRLP})
 	}
-	return rlp.Encode(w, list)
+	return list
 }
 
 type Argument struct {
@@ -202,7 +202,7 @@ type Argument struct {
 
 */
 
-func (this Argument) EncodeRLP(w io.Writer) (err error) {
+func (this Argument) ToRLP() []interface{} {
 
 	balance := []byte{}
 	if this.Balance != nil {
@@ -212,10 +212,10 @@ func (this Argument) EncodeRLP(w io.Writer) (err error) {
 		Sha256Int(this.Index),
 		Sha256String(this.Type),
 		balance,
-		this.Messages,
+		this.Messages.ToRLP(),
 	}
 
-	return rlp.Encode(w, list)
+	return list
 }
 
 type Arguments map[string]Argument
@@ -226,19 +226,18 @@ type Arguments map[string]Argument
 template-argument               = [ sha3_256(template-argument-label), [ ...template-argument-content ]]
 template-arguments            = [ ...template-argument ] | []
 */
-func (this Arguments) EncodeRLP(w io.Writer) (err error) {
+func (this Arguments) ToRLP() []interface{} {
 
 	arguments := []interface{}{}
 	for label, arg := range this {
 
 		argRlp := []interface{}{
 			Sha256String(label),
-			arg,
+			arg.ToRLP(),
 		}
 		arguments = append(arguments, argRlp)
 	}
-	return rlp.Encode(w, arguments)
-
+	return arguments
 }
 
 type Data struct {
