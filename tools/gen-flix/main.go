@@ -110,6 +110,9 @@ func main() {
 	for i, arg := range data.ParameterOrder {
 
 		balance, _ := balance[arg]
+		if balance != "" {
+			balance = fmt.Sprintf("0x%sADDRESS.%s", strings.ToUpper(balance), balance)
+		}
 
 		flixArguments[arg] = overflow.Argument{
 			Index:    i,

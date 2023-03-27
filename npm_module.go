@@ -193,7 +193,7 @@ func ParamsDocStringEnvCode(fileName string, code []byte) (*ast.ParameterList, s
 
 		if isFileImport {
 			to := strings.ToUpper(importDeclaration.Identifiers[0].Identifier)
-			replacedCode = strings.Replace(replacedCode, fmt.Sprintf(`"%s"`, importDeclaration.Location.String()), fmt.Sprintf("0x%s", to), 1)
+			replacedCode = strings.Replace(replacedCode, fmt.Sprintf(`"%s"`, importDeclaration.Location.String()), fmt.Sprintf("0x%sADDRESS", to), 1)
 			importEnvToLocation[importDeclaration.Identifiers[0].Identifier] = importDeclaration.Location.String()
 		}
 	}
