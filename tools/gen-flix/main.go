@@ -1,14 +1,11 @@
 package main
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/bjartek/overflow"
-	"github.com/onflow/flow-go-sdk"
 )
 
 func main() {
@@ -29,12 +26,12 @@ func main() {
 
 	//what if we here add a i18n json file for this same tx.
 
-	data := res.Transactions["mint_tokens"]
+	data := res.Transactions["transfer"]
 
 	docString := strings.TrimSpace(data.DocString)
 
 	//this should probably read from multiple different files
-	fileName := "flix/mint_tokens.json"
+	fileName := "flix/transfer.json"
 	messages, err := overflow.ReadFileArrayIntoStructs[Internationalisation](fileName)
 	if err != nil {
 		fmt.Printf("%s not found or could not be read err=%s\n", fileName, err.Error())
@@ -112,11 +109,7 @@ func main() {
 	flixArguments := map[string]overflow.Argument{}
 	for i, arg := range data.ParameterOrder {
 
-		value, ok := balance[arg]
-		balance := &value
-		if !ok {
-			balance = nil
-		}
+		balance, _ := balance[arg]
 
 		flixArguments[arg] = overflow.Argument{
 			Index:    i,
@@ -127,8 +120,6 @@ func main() {
 
 	}
 	deps := overflow.Dependencies{}
-
-	latestBlocks := map[string]*flow.Block{}
 
 	for _, network := range *o.State.Networks() {
 		if network.Name == "emulator" {
@@ -143,23 +134,20 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		latestBlocks[network.Name] = latestBlock
 
 		for name := range data.Imports {
 			address := ovf.Address(name)
 
-			account, err := ovf.Services.Accounts.Get(flow.HexToAddress(address))
+			pin, err := ovf.GeneratePin(address, name)
 			if err != nil {
 				panic(err)
 			}
-			contractBytes := account.Contracts[name]
-			hash := sha256.Sum256(contractBytes)
 
 			nw := overflow.Network{
 				Address:        address,
 				FqAddress:      fmt.Sprintf("A.%s.%s", strings.TrimPrefix(address, "0x"), name),
 				Contract:       name,
-				Pin:            hex.EncodeToString(hash[:]),
+				Pin:            pin,
 				PinBlockHeight: latestBlock.Height,
 			}
 
@@ -228,10 +216,12 @@ func createMessages(messages map[string]InternationalisationMessage) overflow.Me
 	}
 	msg.Title = &title
 
-	desc := overflow.Description{
-		I18N: descriptions,
+	if len(descriptions) > 0 {
+		desc := overflow.Description{
+			I18N: descriptions,
+		}
+		msg.Description = &desc
 	}
-	msg.Description = &desc
 
 	return msg
 }

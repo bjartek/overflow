@@ -4,10 +4,14 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/onflow/cadence/runtime/cmd"
+	"github.com/onflow/cadence/runtime/common"
+	"github.com/onflow/flow-go-sdk"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -108,7 +112,13 @@ template-argument-content-message = [
 ]
 */
 func (this Messages) ToRLP() []interface{} {
-	return []interface{}{this.Title.ToRLP(), this.Description.ToRLP()}
+
+	parts := []interface{}{this.Title.ToRLP()}
+	if this.Description != nil {
+		parts = append(parts, this.Description.ToRLP())
+	}
+
+	return parts
 }
 
 type Network struct {
@@ -159,7 +169,7 @@ type Argument struct {
 	Index    int      `json:"index"`
 	Type     string   `json:"type"`
 	Messages Messages `json:"messages"`
-	Balance  *string  `json:"balance"`
+	Balance  string   `json:"balance"`
 }
 
 /*
@@ -177,14 +187,10 @@ type Argument struct {
 
 func (this Argument) ToRLP() []interface{} {
 
-	balance := []byte{}
-	if this.Balance != nil {
-		balance = Sha256String(*this.Balance)
-	}
 	list := []interface{}{
 		Sha256Int(this.Index),
 		Sha256String(this.Type),
-		balance,
+		Sha256String(this.Balance),
 		this.Messages.ToRLP(),
 	}
 
@@ -242,6 +248,54 @@ func (self Data) ResolvedCadence(network string) string {
 
 */
 
+// TODO: send in the cache to make it spawn multiple generators
+func (o *OverflowState) GeneratePin(address string, name string) (string, error) {
+
+	memoize := map[string][]string{}
+	pin, err := o.GenerateDependentPin(address, name, memoize)
+
+	if err != nil {
+		return "", err
+	}
+	return strings.Join(pin, ""), nil
+}
+
+// https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/interaction-template-utils/generate-dependency-pin.js
+func (o *OverflowState) GenerateDependentPin(address string, name string, cache map[string][]string) ([]string, error) {
+
+	identifier := fmt.Sprintf("A.%s.%s", strings.ReplaceAll(address, "0x", ""), name)
+	existingHash, ok := cache[identifier]
+	if ok {
+		return existingHash, nil
+	}
+	account, err := o.Services.Accounts.Get(flow.HexToAddress(address))
+	if err != nil {
+		return nil, err
+	}
+	code := account.Contracts[name]
+
+	codes := map[common.Location][]byte{}
+	location := common.StringLocation(name)
+	program, _ := cmd.PrepareProgram(code, location, codes)
+
+	hashes := []string{sha256Sum(code)}
+	for _, imp := range program.ImportDeclarations() {
+		address, isAddressImport := imp.Location.(common.AddressLocation)
+		if isAddressImport {
+			adr := address.Address.Hex()
+			impName := imp.Identifiers[0].Identifier
+			dep, err := o.GenerateDependentPin(adr, impName, cache)
+			if err != nil {
+				//TODO: gather up errors?
+				return nil, err
+			}
+			hashes = append(hashes, dep...)
+		}
+	}
+	cache[identifier] = hashes
+	return hashes, nil
+}
+
 func GenerateFlixID(flix FlowInteractionTemplate) (string, error) {
 	rlpOutput, err := rlp.EncodeToBytes(flix)
 	if err != nil {
@@ -257,21 +311,21 @@ func GenerateFlixID(flix FlowInteractionTemplate) (string, error) {
 	return hex.EncodeToString(shaOutput[:]), nil
 }
 
-func Sha256String(value string) []byte {
+func Sha256String(value string) string {
 	return sha256Sum([]byte(value))
 }
 
-func Sha256Int(value int) []byte {
+func Sha256Int(value int) string {
 	return sha256Sum(intToBytes(value))
 }
 
-func Sha256Uint64(value uint64) []byte {
+func Sha256Uint64(value uint64) string {
 	return sha256Sum(uint64ToBytes(value))
 }
 
-func sha256Sum(b []byte) []byte {
+func sha256Sum(b []byte) string {
 	h := sha256.Sum256(b)
-	return h[:]
+	return hex.EncodeToString(h[:])
 }
 
 func intToBytes(num int) []byte {

@@ -139,7 +139,7 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 }
 
 func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo {
-	params, docString, envCode, imports := paramsDocStringEnvCode(codeFileName, code)
+	params, docString, envCode, imports := ParamsDocStringEnvCode(codeFileName, code)
 
 	info := &OverflowDeclarationInfo{
 		ParameterOrder: []string{},
@@ -165,7 +165,7 @@ func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo 
 	return info
 }
 
-func paramsDocStringEnvCode(fileName string, code []byte) (*ast.ParameterList, string, string, map[string]string) {
+func ParamsDocStringEnvCode(fileName string, code []byte) (*ast.ParameterList, string, string, map[string]string) {
 
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
