@@ -257,7 +257,7 @@ func (o *OverflowState) GeneratePin(address string, name string) (string, error)
 	if err != nil {
 		return "", err
 	}
-	return strings.Join(pin, ""), nil
+	return Sha256String(strings.Join(pin, "")), nil
 }
 
 // https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/interaction-template-utils/generate-dependency-pin.js
