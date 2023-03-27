@@ -248,8 +248,48 @@ func (self Data) ResolvedCadence(network string) string {
 
 */
 
-// TODO: send in the cache to make it spawn multiple generators
 func (o *OverflowState) GeneratePin(address string, name string) (string, error) {
+
+	identifier := fmt.Sprintf("%s.%s", address, name)
+
+	horizen := []string{identifier}
+
+	importHash := []string{}
+	for _, contract := range horizen {
+
+		split := strings.Split(contract, ".")
+		address, name := split[0], split[1]
+		account, err := o.Services.Accounts.Get(flow.HexToAddress(address))
+		if err != nil {
+			return "", err
+		}
+		code := account.Contracts[name]
+		importHash = append(importHash, sha256Sum(code))
+		deps := GetAddressImports(code, name)
+		horizen = append(horizen, deps...)
+	}
+	return Sha256String(strings.Join(importHash, "")), nil
+}
+
+func GetAddressImports(code []byte, name string) []string {
+
+	deps := []string{}
+	codes := map[common.Location][]byte{}
+	location := common.StringLocation(name)
+	program, _ := cmd.PrepareProgram(code, location, codes)
+	for _, imp := range program.ImportDeclarations() {
+		address, isAddressImport := imp.Location.(common.AddressLocation)
+		if isAddressImport {
+			adr := address.Address.Hex()
+			impName := imp.Identifiers[0].Identifier
+			deps = append(deps, fmt.Sprintf("%s.%s", adr, impName))
+		}
+	}
+	return deps
+}
+
+// TODO: send in the cache to make it spawn multiple generators
+func (o *OverflowState) GeneratePinDebthFirst(address string, name string) (string, error) {
 
 	memoize := map[string][]string{}
 	pin, err := o.GenerateDependentPin(address, name, memoize)
