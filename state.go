@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -59,6 +60,7 @@ type OverflowClient interface {
 	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
 	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
 	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
 
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
