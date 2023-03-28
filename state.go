@@ -2,6 +2,7 @@ package overflow
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -57,6 +58,7 @@ type OverflowClient interface {
 	GetBlockById(blockId string) (*flow.Block, error)
 	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
 	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
+	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
 
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
