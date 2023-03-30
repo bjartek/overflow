@@ -12,6 +12,7 @@ import (
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/sanity-io/litter"
 	"golang.org/x/crypto/sha3"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -50,6 +51,8 @@ func (flix FlowInteractionTemplate) EncodeRLP(w io.Writer) (err error) {
 		flix.Data.Dependencies.ToRLP(),
 		flix.Data.Arguments.ToRLP(),
 	}
+
+	litter.Dump(input)
 
 	return rlp.Encode(w, input)
 }
