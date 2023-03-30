@@ -129,14 +129,18 @@ func main() {
 			continue
 		}
 		ovf := o
+		height := uint64(49419977)
 		if network.Name == "testnet" {
 			ovf = ot
+			height = 98123798
 		}
 
-		latestBlock, err := ovf.GetLatestBlock()
-		if err != nil {
-			panic(err)
-		}
+		/*
+			latestBlock, err := ovf.GetLatestBlock()
+			if err != nil {
+				panic(err)
+			}
+		*/
 
 		for name := range data.Imports {
 			address := ovf.Address(name)
@@ -151,7 +155,7 @@ func main() {
 				FqAddress:      fmt.Sprintf("A.%s.%s", strings.TrimPrefix(address, "0x"), name),
 				Contract:       name,
 				Pin:            pin,
-				PinBlockHeight: latestBlock.Height,
+				PinBlockHeight: height, //latestBlock.Height,
 			}
 
 			key1 := fmt.Sprintf("0x%s", strings.ToUpper(name))
@@ -173,7 +177,7 @@ func main() {
 	}
 	flix := overflow.FlowInteractionTemplate{
 		FType:    "InteractionTemplate",
-		FVersion: "1.0",
+		FVersion: "1.0.0",
 		Data: overflow.Data{
 			Type:         "transaction",
 			Interface:    flixInterface,

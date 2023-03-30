@@ -12,6 +12,7 @@ import (
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
+	"golang.org/x/crypto/sha3"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -40,12 +41,12 @@ func (flix FlowInteractionTemplate) EncodeRLP(w io.Writer) (err error) {
 	*/
 
 	input := []interface{}{
-		Sha256String(flix.FType),
-		Sha256String(flix.FVersion),
-		Sha256String(flix.Data.Type),
-		Sha256String(flix.Data.Interface),
+		shaHex(flix.FType, "f-type"),
+		shaHex(flix.FVersion, "f-version"),
+		shaHex(flix.Data.Type, "type"),
+		shaHex(flix.Data.Interface, "interface"),
 		flix.Data.Messages.ToRLP(),
-		Sha256String(flix.Data.Cadence),
+		shaHex(flix.Data.Cadence, "cadence"),
 		flix.Data.Dependencies.ToRLP(),
 		flix.Data.Arguments.ToRLP(),
 	}
@@ -67,11 +68,11 @@ func (this Title) ToRLP() []interface{} {
 
 	list := ProcessMap(this.I18N, func(lang string, content string) interface{} {
 		return []interface{}{
-			Sha256String(lang),
-			Sha256String(content),
+			shaHex(lang, "message title lang"),
+			shaHex(content, "message title content"),
 		}
 	})
-	return []interface{}{Sha256String("title"), list}
+	return []interface{}{shaHex("title", "message title"), list}
 }
 
 type Description struct {
@@ -81,12 +82,12 @@ type Description struct {
 func (this Description) ToRLP() []interface{} {
 	list := ProcessMap(this.I18N, func(lang string, content string) interface{} {
 		return []interface{}{
-			Sha256String(lang),
-			Sha256String(content),
+			shaHex(lang, "message description lang"),
+			shaHex(content, "message description content"),
 		}
 	})
 
-	return []interface{}{Sha256String("description"), list}
+	return []interface{}{shaHex("description", "message description"), list}
 }
 
 type Messages struct {
@@ -142,10 +143,11 @@ template-dependency-contract-network          = [
 func (this Network) ToRLP() []interface{} {
 
 	return []interface{}{
-		Sha256String(this.Address),
-		Sha256String(this.Contract),
-		Sha256String(this.FqAddress),
-		Sha256String(this.Pin),
+		shaHex(this.Address, "dep address"),
+		shaHex(this.Contract, "dep contract"),
+		shaHex(this.FqAddress, "dep fqaddress"),
+		shaHex(this.Pin, "dep pin"),
+		shaHex(this.PinBlockHeight, "dep pin height"),
 	}
 }
 
@@ -157,11 +159,11 @@ func (this Dependencies) ToRLP() []interface{} {
 	return ProcessMap(this, func(placeholder string, contracts Contracts) interface{} {
 		contractRLP := ProcessMap(contracts, func(name string, networks Networks) interface{} {
 			networkRLP := ProcessMap(networks, func(networkName string, network Network) interface{} {
-				return []interface{}{Sha256String(networkName), network.ToRLP()}
+				return []interface{}{shaHex(networkName, "network"), network.ToRLP()}
 			})
-			return []interface{}{Sha256String(name), networkRLP}
+			return []interface{}{shaHex(name, "contract"), networkRLP}
 		})
-		return []interface{}{Sha256String(placeholder), contractRLP}
+		return []interface{}{shaHex(placeholder, "placeholder"), contractRLP}
 	})
 }
 
@@ -188,9 +190,9 @@ type Argument struct {
 func (this Argument) ToRLP() []interface{} {
 
 	list := []interface{}{
-		Sha256Int(this.Index),
-		Sha256String(this.Type),
-		Sha256String(this.Balance),
+		shaHex(this.Index, "argument index"),
+		shaHex(this.Type, "argument type"),
+		shaHex(this.Balance, "argument balance"),
 		this.Messages.ToRLP(),
 	}
 
@@ -208,7 +210,7 @@ template-arguments            = [ ...template-argument ] | []
 func (this Arguments) ToRLP() []interface{} {
 	return ProcessMap(this, func(label string, arg Argument) interface{} {
 		return []interface{}{
-			Sha256String(label),
+			shaHex(label, "argument label"),
 			arg.ToRLP(),
 		}
 
@@ -264,11 +266,11 @@ func (o *OverflowState) GeneratePin(address string, name string) (string, error)
 			return "", err
 		}
 		code := account.Contracts[name]
-		importHash = append(importHash, sha256Sum(code))
+		importHash = append(importHash, shaHex(code, ""))
 		deps := GetAddressImports(code, name)
 		horizen = append(horizen, deps...)
 	}
-	return Sha256String(strings.Join(importHash, "")), nil
+	return shaHex(strings.Join(importHash, ""), ""), nil
 }
 
 func GetAddressImports(code []byte, name string) []string {
@@ -297,7 +299,7 @@ func (o *OverflowState) GeneratePinDebthFirst(address string, name string) (stri
 	if err != nil {
 		return "", err
 	}
-	return Sha256String(strings.Join(pin, "")), nil
+	return shaHex(strings.Join(pin, ""), ""), nil
 }
 
 // https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/interaction-template-utils/generate-dependency-pin.js
@@ -318,7 +320,7 @@ func (o *OverflowState) GenerateDependentPin(address string, name string, cache 
 	location := common.StringLocation(name)
 	program, _ := cmd.PrepareProgram(code, location, codes)
 
-	hashes := []string{sha256Sum(code)}
+	hashes := []string{shaHex(code, "pin code")}
 	for _, imp := range program.ImportDeclarations() {
 		address, isAddressImport := imp.Location.(common.AddressLocation)
 		if isAddressImport {
@@ -351,35 +353,6 @@ func GenerateFlixID(flix FlowInteractionTemplate) (string, error) {
 	return hex.EncodeToString(shaOutput[:]), nil
 }
 
-func Sha256String(value string) string {
-	return sha256Sum([]byte(value))
-}
-
-func Sha256Int(value int) string {
-	return sha256Sum(intToBytes(value))
-}
-
-func Sha256Uint64(value uint64) string {
-	return sha256Sum(uint64ToBytes(value))
-}
-
-func sha256Sum(b []byte) string {
-	h := sha256.Sum256(b)
-	return hex.EncodeToString(h[:])
-}
-
-func intToBytes(num int) []byte {
-	buf := make([]byte, 8)
-	binary.BigEndian.PutUint64(buf, uint64(num))
-	return buf
-}
-
-func uint64ToBytes(num uint64) []byte {
-	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, num)
-	return b
-}
-
 func ProcessMap[M ~map[K]V, K string, V any](m M, fn func(key K, value V) interface{}) []interface{} {
 	keys := maps.Keys(m)
 	slices.Sort(keys)
@@ -390,4 +363,46 @@ func ProcessMap[M ~map[K]V, K string, V any](m M, fn func(key K, value V) interf
 		list = append(list, fn(key, value))
 	}
 	return list
+}
+
+func shaHex(value interface{}, debugKey string) string {
+
+	// Convert the value to a byte array
+	data, err := convertToBytes(value)
+	if err != nil {
+		if debugKey != "" {
+			fmt.Printf("%30s value=%v hex=%x\n", debugKey, value, err.Error())
+		}
+		return ""
+	}
+
+	// Calculate the SHA-3 hash
+	hash := sha3.Sum256(data)
+
+	// Convert the hash to a hexadecimal string
+	hashHex := hex.EncodeToString(hash[:])
+
+	if debugKey != "" {
+		fmt.Printf("%30s hex=%v value=%v \n", debugKey, hashHex, value)
+	}
+	return hashHex
+}
+
+func convertToBytes(value interface{}) ([]byte, error) {
+	switch v := value.(type) {
+	case []byte:
+		return v, nil
+	case string:
+		return []byte(v), nil
+	case int:
+		buf := make([]byte, 4)
+		binary.BigEndian.PutUint32(buf, uint32(v))
+		return buf, nil
+	case uint64:
+		buf := make([]byte, 8)
+		binary.BigEndian.PutUint64(buf, v)
+		return buf, nil
+	default:
+		return nil, fmt.Errorf("unsupported type %T", v)
+	}
 }
