@@ -10,6 +10,7 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 )
@@ -76,6 +77,9 @@ type OverflowInteractionBuilder struct {
 
 	//Options to use when printing results
 	PrintOptions *[]OverflowPrinterOption
+
+	//Query to use for running scripts
+	ScriptQuery *util.ScriptQuery
 }
 
 // get the contract code
@@ -313,6 +317,27 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 			}
 			oib.PayloadSigners = append(oib.PayloadSigners, account)
 		}
+	}
+}
+
+// set what block height to execute a script at! NB! if very old will not work on normal AN
+func WithExecuteScriptAtBlockHeight(height uint64) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.ScriptQuery = &util.ScriptQuery{Height: height}
+	}
+}
+
+// set what block height to execute a script at! NB! if very old will not work on normal AN
+func WithExecuteScriptAtBlockIdHex(blockId string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.ScriptQuery = &util.ScriptQuery{ID: flow.HexToID(blockId)}
+	}
+}
+
+// set what block height to execute a script at! NB! if very old will not work on normal AN
+func WithExecuteScriptAtBlockIdentifier(blockId flow.Identifier) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.ScriptQuery = &util.ScriptQuery{ID: blockId}
 	}
 }
 

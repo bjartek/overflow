@@ -11,7 +11,6 @@ import (
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
@@ -79,8 +78,7 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	o.Log.Reset()
 
 	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
-	//TODO: add support for executing at id/height
-	result, err := o.Services.Scripts.Execute(script, o.Network, &util.ScriptQuery{})
+	result, err := o.Services.Scripts.Execute(script, o.Network, fbi.ScriptQuery)
 
 	osc.Result = result
 	osc.Output = CadenceValueToInterface(result)

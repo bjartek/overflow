@@ -25,6 +25,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/project"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/pkg/errors"
@@ -582,6 +583,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NamedArgs:      map[string]interface{}{},
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
+		ScriptQuery:    &util.ScriptQuery{},
 	}
 
 	for _, opt := range opts {
