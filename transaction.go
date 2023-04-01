@@ -117,38 +117,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 
 }
 
-/**
-
-o := overflow.Overflow(overflow.WithNetwork("mainnet"), overflow.WithPrintResults())
-	if o.Error != nil {
-		panic(o.Error)
-	}
-
-	ctx := context.Background()
-
-	height := uint64(45219437)
-
-	overflowChannel := make(chan overflow.Transaction)
-
-	defer close(overflowChannel)
-
-	go func() {
-		o.StreamTransactions(ctx, height, overflowChannel)
-	}()
-
-	for res := range overflowChannel {
-		fmt.Println(lo.Keys(res.Events))
-	}
-
-**/
-/*
-
-
-- filter : joyride
-- classify: Deposit events, one transaction can have multiple items
-- bulk transform a given classification: transform all Deposit that have Views into NFTDIct
-- send to stream
-*/
+// This code is beta
 func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error {
 
 	latestKnownBlock, err := o.GetLatestBlock()
