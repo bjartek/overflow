@@ -136,7 +136,7 @@ func (o *OverflowState) AddContract(name string, contract *flowkit.Script, updat
 	if err != nil {
 		return err
 	}
-	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, update)
+	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, services.UpdateExisting(update))
 	return err
 
 }
@@ -439,7 +439,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 // InitializeContracts installs all contracts in the deployment block for the configured network
 func (o *OverflowState) InitializeContracts() *OverflowState {
 	o.Log.Reset()
-	contracts, err := o.Services.Project.Deploy(o.Network, true)
+	contracts, err := o.Services.Project.Deploy(o.Network, services.UpdateExisting(true))
 	if err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {

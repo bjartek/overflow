@@ -11,9 +11,11 @@ import (
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xeipuuv/gojsonpointer"
 )
 
@@ -77,7 +79,8 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	o.Log.Reset()
 
 	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
-	result, err := o.Services.Scripts.Execute(script, o.Network)
+	//TODO: add support for executing at id/height
+	result, err := o.Services.Scripts.Execute(script, o.Network, &util.ScriptQuery{})
 
 	osc.Result = result
 	osc.Output = CadenceValueToInterface(result)
@@ -200,8 +203,11 @@ func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer str
 // Assert that the length of a jsonPointer is equal to length
 func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer string, length int) *OverflowScriptResult {
 	t.Helper()
+
+	require.NoError(t, osr.Err)
+	osr.Print()
 	result, err := osr.GetWithPointer(pointer)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	switch res := result.(type) {
 	case []interface{}:
 		assert.Equal(t, length, len(res), litter.Sdump(osr.Output))
