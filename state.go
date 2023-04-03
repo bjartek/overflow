@@ -58,11 +58,6 @@ type OverflowClient interface {
 	GetLatestBlock() (*flow.Block, error)
 	GetBlockAtHeight(height uint64) (*flow.Block, error)
 	GetBlockById(blockId string) (*flow.Block, error)
-	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
-	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
-	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
-	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
-
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
 	UploadFile(filename string, accountName string) error
@@ -75,6 +70,15 @@ type OverflowClient interface {
 	FillUpStorage(accountName string) *OverflowState
 
 	SignUserMessage(account string, message string) (string, error)
+}
+
+// beta client with unstable features
+type OverflowBetaClient interface {
+	OverflowClient
+	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
+	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
+	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
 }
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
