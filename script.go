@@ -78,12 +78,20 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	o.Log.Reset()
 
 	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
-	result, err := o.Services.Scripts.Execute(script, o.Network, fbi.ScriptQuery)
-
-	osc.Result = result
-	osc.Output = CadenceValueToInterface(result)
-	if err != nil {
-		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+	if o.ArchiveScripts != nil {
+		result, err := o.ArchiveScripts.Execute(script, o.Network, fbi.ScriptQuery)
+		osc.Result = result
+		osc.Output = CadenceValueToInterface(result)
+		if err != nil {
+			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+		}
+	} else {
+		result, err := o.Services.Scripts.Execute(script, o.Network, fbi.ScriptQuery)
+		osc.Result = result
+		osc.Output = CadenceValueToInterface(result)
+		if err != nil {
+			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+		}
 	}
 
 	var logMessage []OverflowEmulatorLogMessage

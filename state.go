@@ -90,6 +90,8 @@ type OverflowState struct {
 	//the services from flowkit to performed operations on
 	Services *services.Services
 
+	ArchiveScripts *services.Scripts
+
 	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
 	Network                      string
 	PrependNetworkToAccountNames bool
