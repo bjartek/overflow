@@ -22,7 +22,7 @@ func TestErrorsInAccountCreation(t *testing.T) {
 	t.Run("Should give error on invalid env var in flow.json", func(t *testing.T) {
 		_, err := OverflowTesting(WithFlowConfig("testdata/invalid_env_flow.json"))
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "invalid private key for account: emulator-5")
+		assert.Contains(t, err.Error(), "required environment variable INVALID_ENV_VAR not set")
 	})
 
 	t.Run("Should give error on wrong account name", func(t *testing.T) {

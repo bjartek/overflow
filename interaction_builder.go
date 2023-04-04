@@ -1,7 +1,6 @@
 package overflow
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -11,6 +10,7 @@ import (
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 )
@@ -77,6 +77,9 @@ type OverflowInteractionBuilder struct {
 
 	//Options to use when printing results
 	PrintOptions *[]OverflowPrinterOption
+
+	//Query to use for running scripts
+	ScriptQuery *util.ScriptQuery
 }
 
 // get the contract code
@@ -317,6 +320,27 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 	}
 }
 
+// set what block height to execute a script at! NB! if very old will not work on normal AN
+func WithExecuteScriptAtBlockHeight(height uint64) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.ScriptQuery = &util.ScriptQuery{Height: height}
+	}
+}
+
+// set what block height to execute a script at! NB! if very old will not work on normal AN
+func WithExecuteScriptAtBlockIdHex(blockId string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.ScriptQuery = &util.ScriptQuery{ID: flow.HexToID(blockId)}
+	}
+}
+
+// set what block height to execute a script at! NB! if very old will not work on normal AN
+func WithExecuteScriptAtBlockIdentifier(blockId flow.Identifier) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.ScriptQuery = &util.ScriptQuery{ID: blockId}
+	}
+}
+
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{
@@ -357,7 +381,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	oib.Overflow.Log.Reset()
-	oib.Overflow.EmulatorLog.Reset()
 	/*
 		❗ Special case: if an account is both the payer and either a proposer or authorizer, it is only required to sign the envelope.
 	*/
@@ -418,29 +441,28 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	logMessage, err := oib.Overflow.readLog()
+
 	if err != nil {
 		result.Err = err
 	}
 	result.RawLog = logMessage
 
 	result.Meter = &OverflowMeter{}
-	var meter OverflowMeter
-	scanner := bufio.NewScanner(oib.Overflow.EmulatorLog)
-	for scanner.Scan() {
-		txt := scanner.Text()
-		if strings.Contains(txt, "transaction execution data") {
-			err = json.Unmarshal([]byte(txt), &meter)
+	messages := []string{}
+	for _, msg := range logMessage {
+		if strings.Contains(msg.Msg, "transaction execution data") {
+			var meter OverflowMeter
+			bytes, _ := json.Marshal(msg.Fields)
+			err = json.Unmarshal(bytes, &meter)
 			if err == nil {
 				result.Meter = &meter
 			}
+			continue
 		}
-	}
-	messages := []string{}
-	for _, msg := range logMessage {
 		if msg.ComputationUsed != 0 {
 			result.ComputationUsed = msg.ComputationUsed
 		}
-		messages = append(messages, msg.Msg)
+		messages = append(messages, msg.String())
 	}
 
 	result.EmulatorLog = messages
@@ -483,7 +505,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
-	oib.Overflow.EmulatorLog.Reset()
 	result.Err = res.Error
 	return result
 }

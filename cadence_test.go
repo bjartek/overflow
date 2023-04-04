@@ -161,7 +161,7 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 
 }
 
-func TestPrimitiveInptuToCadence(t *testing.T) {
+func TestPrimitiveInputToCadence(t *testing.T) {
 	tests := []struct {
 		name  string
 		value interface{}

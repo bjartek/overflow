@@ -2,6 +2,7 @@ package overflow
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -23,6 +25,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/project"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/pkg/errors"
@@ -55,7 +58,6 @@ type OverflowClient interface {
 	GetLatestBlock() (*flow.Block, error)
 	GetBlockAtHeight(height uint64) (*flow.Block, error)
 	GetBlockById(blockId string) (*flow.Block, error)
-
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
 	UploadFile(filename string, accountName string) error
@@ -70,6 +72,15 @@ type OverflowClient interface {
 	SignUserMessage(account string, message string) (string, error)
 }
 
+// beta client with unstable features
+type OverflowBetaClient interface {
+	OverflowClient
+	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
+	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
+	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
+}
+
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {
 
@@ -78,6 +89,8 @@ type OverflowState struct {
 
 	//the services from flowkit to performed operations on
 	Services *services.Services
+
+	ArchiveScripts *services.Scripts
 
 	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
 	Network                      string
@@ -90,10 +103,6 @@ type OverflowState struct {
 	Logger   output.Logger
 	Log      *bytes.Buffer
 	LogLevel int
-
-	//https://github.com/bjartek/overflow/issues/45
-	//This is not populated with anything yet since the emulator version that has this change is not in mainline yet
-	EmulatorLog *bytes.Buffer
 
 	//If there was an error starting overflow it is stored here
 	Error error
@@ -134,7 +143,7 @@ func (o *OverflowState) AddContract(name string, contract *flowkit.Script, updat
 	if err != nil {
 		return err
 	}
-	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, update)
+	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, services.UpdateExisting(update))
 	return err
 
 }
@@ -157,14 +166,14 @@ func (o *OverflowState) QualifiedIdentifierFromSnakeCase(typeName string) (strin
 // account can either be a name from  accounts or the raw value
 func (o *OverflowState) QualifiedIdentifier(contract string, name string) (string, error) {
 
-	flowContract, err := o.State.Contracts().ByNameAndNetwork(contract, o.Network)
-	if err != nil {
-		return "", err
-	}
+	flowContract := o.State.Contracts().ByName(contract)
 
 	//we found the contract specified in contracts section
-	if flowContract != nil && flowContract.Alias != "" {
-		return fmt.Sprintf("A.%s.%s.%s", strings.TrimPrefix(flowContract.Alias, "0x"), contract, name), nil
+	if flowContract != nil {
+		alias := flowContract.Aliases.ByNetwork(o.Network)
+		if alias != nil {
+			return fmt.Sprintf("A.%s.%s.%s", alias.Address.String(), contract, name), nil
+		}
 	}
 
 	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
@@ -337,9 +346,14 @@ func (o *OverflowState) Address(key string) string {
 		return fmt.Sprintf("0x%s", account.Address().String())
 	}
 
-	flowContract, err := o.State.Contracts().ByNameAndNetwork(key, o.Network)
-	if err == nil && flowContract != nil && flowContract.Alias != "" {
-		return flowContract.Alias
+	flowContract := o.State.Contracts().ByName(key)
+
+	//we found the contract specified in contracts section
+	if flowContract != nil {
+		alias := flowContract.Aliases.ByNetwork(o.Network)
+		if alias != nil {
+			return fmt.Sprintf("0x%s", alias.Address.String())
+		}
 	}
 
 	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
@@ -432,7 +446,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 // InitializeContracts installs all contracts in the deployment block for the configured network
 func (o *OverflowState) InitializeContracts() *OverflowState {
 	o.Log.Reset()
-	contracts, err := o.Services.Project.Deploy(o.Network, true)
+	contracts, err := o.Services.Project.Deploy(o.Network, services.UpdateExisting(true))
 	if err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
@@ -475,17 +489,28 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 	var logMessage []OverflowEmulatorLogMessage
 	dec := json.NewDecoder(o.Log)
 	for {
-		var doc OverflowEmulatorLogMessage
+		var msg map[string]interface{}
 
-		err := dec.Decode(&doc)
+		err := dec.Decode(&msg)
 		if err == io.EOF {
 			// all done
 			break
 		}
+
 		if err != nil {
 			return []OverflowEmulatorLogMessage{}, err
 		}
+		doc := OverflowEmulatorLogMessage{Msg: msg["message"].(string), Level: msg["level"].(string)}
 
+		delete(msg, "message")
+		delete(msg, "level")
+		rawCom, ok := msg["computationUsed"]
+		if ok {
+			field := rawCom.(float64)
+			doc.ComputationUsed = int(field)
+			delete(msg, "computationUsed")
+		}
+		doc.Fields = msg
 		logMessage = append(logMessage, doc)
 	}
 
@@ -564,6 +589,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NamedArgs:      map[string]interface{}{},
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
+		ScriptQuery:    &util.ScriptQuery{},
 	}
 
 	for _, opt := range opts {
