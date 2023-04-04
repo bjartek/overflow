@@ -24,6 +24,26 @@ type OverflowEvent struct {
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
 	Name          string                 `json:"name"`
+	Types         map[string]string      `json:"types"`
+}
+
+func (me OverflowEvent) GetStakeholders() map[string][]string {
+	stakeholder := map[string][]string{}
+	for field, value := range me.Types {
+
+		if value == "Address" {
+			fieldValue := me.Fields[field].(string)
+			existing, ok := stakeholder[fieldValue]
+			if !ok {
+				existing = []string{}
+			}
+
+			existing = append(existing, fmt.Sprintf("%s/%s", me.Name, field))
+			stakeholder[fieldValue] = existing
+		}
+
+	}
+	return stakeholder
 }
 
 // Check if an event exist in the other events
@@ -75,9 +95,11 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 		}
 
 		finalFields := map[string]interface{}{}
+		types := map[string]string{}
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
+			types[name] = field.Type().ID()
 			value := CadenceValueToInterface(field)
 			if value != nil {
 				finalFields[name] = value
@@ -92,6 +114,7 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			Fields:        finalFields,
 			Name:          event.Type,
 			TransactionId: event.TransactionID.String(),
+			Types:         types,
 		})
 		overflowEvents[event.Type] = events
 

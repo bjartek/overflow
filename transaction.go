@@ -29,7 +29,9 @@ type OverflowTransaction struct {
 	ExecutionEffort int
 	Status          string
 	Arguments       []interface{}
-	RawTx           flow.Transaction
+	//TOOD: dependencies
+	//TODO: stakeholders
+	RawTx flow.Transaction
 }
 
 func (o *OverflowState) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
