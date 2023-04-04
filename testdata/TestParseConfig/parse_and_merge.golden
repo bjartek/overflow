@@ -15,6 +15,20 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
+			"aScript": {
+				Code: `import FungibleToken from 0xee82856bf20e2aa6
+// This is a generic script
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": {
 				Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -53,6 +67,20 @@ pub fun main(): Type {
 					Parameters:     map[string]string{},
 				},
 			},
+			"zScript": {
+				Code: `import FungibleToken from 0xee82856bf20e2aa6
+// This is a generic script
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 		},
 		Transactions: map[string]overflow.OverflowCodeWithSpec{
 			"Foo": {
@@ -69,6 +97,17 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+				},
+			},
+			"aTransaction": {
+				Code: `import FungibleToken from 0xee82856bf20e2aa6
+
+transaction() {
+  // This is a generic transaction
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
 				},
 			},
 			"arguments": {
@@ -168,6 +207,17 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+				},
+			},
+			"zTransaction": {
+				Code: `import FungibleToken from 0xee82856bf20e2aa6
+
+transaction() {
+  // This is a generic transaction
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
 				},
 			},
 		},
@@ -245,6 +295,20 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
+			"aScript": {
+				Code: `import FungibleToken from 0xf233dcee88fe0abe
+// This is a mainnet specific script
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": {
 				Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -283,6 +347,20 @@ pub fun main(): Type {
 					Parameters:     map[string]string{},
 				},
 			},
+			"zScript": {
+				Code: `import FungibleToken from 0xf233dcee88fe0abe
+// This is a mainnet specific script
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 		},
 		Transactions: map[string]overflow.OverflowCodeWithSpec{
 			"Foo": {
@@ -299,6 +377,17 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+				},
+			},
+			"aTransaction": {
+				Code: `import FungibleToken from 0xf233dcee88fe0abe
+
+transaction() {
+  // This is a mainnet specific transaction
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
 				},
 			},
 			"arguments": {
@@ -398,6 +487,17 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+				},
+			},
+			"zTransaction": {
+				Code: `import FungibleToken from 0xf233dcee88fe0abe
+
+transaction() {
+  // This is a mainnet specific transaction
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
 				},
 			},
 		},
@@ -471,6 +571,20 @@ pub fun main(account: Address): String {
 					Parameters: map[string]string{"account": "Address"},
 				},
 			},
+			"aScript": {
+				Code: `import FungibleToken from 0x9a0766d93b6608b7
+// This is a generic script
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 			"block": {
 				Code: `// test script to ensure code is running
 pub fun main(): UInt64 {
@@ -509,6 +623,20 @@ pub fun main(): Type {
 					Parameters:     map[string]string{},
 				},
 			},
+			"zScript": {
+				Code: `import FungibleToken from 0x9a0766d93b6608b7
+// This is a generic script
+
+pub fun main(account: Address): String {
+    return getAccount(account).address.toString()
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{
+						"account",
+					},
+					Parameters: map[string]string{"account": "Address"},
+				},
+			},
 		},
 		Transactions: map[string]overflow.OverflowCodeWithSpec{
 			"Foo": {
@@ -525,6 +653,17 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+				},
+			},
+			"aTransaction": {
+				Code: `import FungibleToken from 0x9a0766d93b6608b7
+
+transaction() {
+  // This is a generic transaction
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
 				},
 			},
 			"arguments": {
@@ -624,6 +763,17 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+				},
+			},
+			"zTransaction": {
+				Code: `import FungibleToken from 0x9a0766d93b6608b7
+
+transaction() {
+  // This is a generic transaction
+}`,
+				Spec: &overflow.OverflowDeclarationInfo{
+					ParameterOrder: []string{},
+					Parameters:     map[string]string{},
 				},
 			},
 		},
