@@ -42,6 +42,7 @@ func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[s
 }
 
 type OverflowEvent struct {
+	Id            string                 `json:"id"`
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
 	Name          string                 `json:"name"`
@@ -108,7 +109,7 @@ func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
 func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
-	for _, event := range events {
+	for i, event := range events {
 
 		var fieldNames []string
 
@@ -133,6 +134,7 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			events = []OverflowEvent{}
 		}
 		events = append(events, OverflowEvent{
+			Id:            fmt.Sprintf("%s-%d", event.TransactionID.Hex(), i),
 			Fields:        finalFields,
 			Name:          event.Type,
 			TransactionId: event.TransactionID.String(),
