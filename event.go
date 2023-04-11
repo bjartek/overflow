@@ -20,6 +20,27 @@ type OverflowEventList []OverflowEvent
 // a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string]OverflowEventList
 
+// TODO: can the be done easier with LO?
+func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[string][]string {
+
+	for _, events := range me {
+		for _, event := range events {
+			eventStakeholders := event.GetStakeholders()
+			for stakeholder, roles := range eventStakeholders {
+
+				allRoles, ok := stakeholders[stakeholder]
+				if !ok {
+					allRoles = []string{}
+				}
+				allRoles = append(allRoles, roles...)
+				stakeholders[stakeholder] = allRoles
+			}
+		}
+	}
+
+	return stakeholders
+}
+
 type OverflowEvent struct {
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
@@ -37,6 +58,7 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 	return false
 }
 
+// list of address to a list of roles for that address
 func (me OverflowEvent) GetStakeholders() map[string][]string {
 	stakeholder := map[string][]string{}
 	for field, value := range me.Types {

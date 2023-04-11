@@ -22,14 +22,17 @@ type BlockResult struct {
 }
 
 type OverflowTransaction struct {
-	Id              flow.Identifier
-	Events          OverflowEvents
-	Error           error
-	Fee             float64
-	ExecutionEffort int
-	Status          string
-	Arguments       []interface{}
-	RawTx           flow.Transaction
+	Id               flow.Identifier
+	Events           OverflowEvents
+	Error            error
+	Fee              float64
+	ExecutionEffort  int
+	Status           string
+	Arguments        []interface{}
+	Stakeholders     map[string][]string
+	ProposerKeyIndex int
+	Script           []byte
+	RawTx            flow.Transaction
 }
 
 func (o *OverflowState) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
@@ -101,15 +104,41 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			}
 			args = append(args, CadenceValueToInterface(arg))
 		}
+
+		standardStakeholders := map[string][]string{}
+		for _, authorizer := range t.Authorizers {
+			standardStakeholders[authorizer.Hex()] = []string{"authorizer"}
+		}
+
+		payerRoles, ok := standardStakeholders[t.Payer.Hex()]
+		if !ok {
+			standardStakeholders[t.Payer.Hex()] = []string{"payer"}
+		} else {
+			payerRoles = append(payerRoles, "payer")
+			standardStakeholders[t.Payer.Hex()] = payerRoles
+		}
+
+		proposer, ok := standardStakeholders[t.ProposalKey.Address.Hex()]
+		if !ok {
+			standardStakeholders[t.ProposalKey.Address.Hex()] = []string{"proposer"}
+		} else {
+			proposer = append(proposer, "proposer")
+			standardStakeholders[t.ProposalKey.Address.Hex()] = proposer
+		}
+
+		eventsWithoutFees := events.FilterFees(feeAmount)
 		return []OverflowTransaction{{
-			Id:              r.TransactionID,
-			Status:          r.Status.String(),
-			Events:          events.FilterFees(feeAmount),
-			Error:           r.Error,
-			Arguments:       args,
-			Fee:             feeAmount,
-			ExecutionEffort: gas,
-			RawTx:           t,
+			Id:               r.TransactionID,
+			Status:           r.Status.String(),
+			Events:           eventsWithoutFees,
+			Stakeholders:     eventsWithoutFees.GetStakeholders(standardStakeholders),
+			Error:            r.Error,
+			Arguments:        args,
+			Fee:              feeAmount,
+			Script:           t.Script,
+			ProposerKeyIndex: t.ProposalKey.KeyIndex,
+			ExecutionEffort:  gas,
+			RawTx:            t,
 		}}
 	})
 
