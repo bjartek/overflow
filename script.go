@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xeipuuv/gojsonpointer"
 )
 
@@ -77,12 +78,20 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	o.Log.Reset()
 
 	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
-	result, err := o.Services.Scripts.Execute(script, o.Network)
-
-	osc.Result = result
-	osc.Output = CadenceValueToInterface(result)
-	if err != nil {
-		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+	if o.ArchiveScripts != nil {
+		result, err := o.ArchiveScripts.Execute(script, o.Network, fbi.ScriptQuery)
+		osc.Result = result
+		osc.Output = CadenceValueToInterface(result)
+		if err != nil {
+			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+		}
+	} else {
+		result, err := o.Services.Scripts.Execute(script, o.Network, fbi.ScriptQuery)
+		osc.Result = result
+		osc.Output = CadenceValueToInterface(result)
+		if err != nil {
+			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
+		}
 	}
 
 	var logMessage []OverflowEmulatorLogMessage
@@ -200,8 +209,11 @@ func (osr *OverflowScriptResult) AssertWithPointerWant(t *testing.T, pointer str
 // Assert that the length of a jsonPointer is equal to length
 func (osr *OverflowScriptResult) AssertLengthWithPointer(t *testing.T, pointer string, length int) *OverflowScriptResult {
 	t.Helper()
+
+	require.NoError(t, osr.Err)
+	osr.Print()
 	result, err := osr.GetWithPointer(pointer)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	switch res := result.(type) {
 	case []interface{}:
 		assert.Equal(t, length, len(res), litter.Sdump(osr.Output))

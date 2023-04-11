@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/onflow/cadence/runtime/ast"
@@ -79,6 +80,14 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 
 			valid := true
 			for _, networkName := range networkNames {
+				overwriteNetworkScriptName := fmt.Sprintf("%s%s", networkName, scriptName)
+				_, ok := s.Scripts[overwriteNetworkScriptName]
+				if ok {
+					if networkName == name {
+						valid = false
+						break
+					}
+				}
 				if strings.HasPrefix(scriptName, networkName) {
 					if networkName == name {
 						scriptName = strings.TrimPrefix(scriptName, networkName)
@@ -104,7 +113,14 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 			txName := rawTxName
 			txValid := true
 			for _, networkName := range networkNames {
-
+				overwriteNetworkTxName := fmt.Sprintf("%s%s", networkName, txName)
+				_, ok := s.Transactions[overwriteNetworkTxName]
+				if ok {
+					if networkName == name {
+						txValid = false
+						break
+					}
+				}
 				if strings.HasPrefix(txName, networkName) {
 					if networkName == name {
 						txName = strings.TrimPrefix(txName, networkName)

@@ -218,4 +218,29 @@ pub fun main(input: Address?): Address? {
 		assert.Equal(t, nil, res)
 	})
 
+	t.Run("Run script at previous height", func(t *testing.T) {
+		block, err := o.GetLatestBlock()
+		require.NoError(t, err)
+		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockHeight(block.Height-1)).GetAsInterface()
+		assert.NoError(t, err)
+		assert.Equal(t, "0x01cf0e2f2f715450", res)
+	})
+
+	t.Run("Run script at block", func(t *testing.T) {
+		block, err := o.GetLatestBlock()
+		require.NoError(t, err)
+		block, err = o.GetBlockAtHeight(block.Height - 1)
+		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockIdentifier(block.ID)).GetAsInterface()
+		assert.NoError(t, err)
+		assert.Equal(t, "0x01cf0e2f2f715450", res)
+	})
+	t.Run("Run script at block hex", func(t *testing.T) {
+		block, err := o.GetLatestBlock()
+		require.NoError(t, err)
+		block, err = o.GetBlockAtHeight(block.Height - 1)
+		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockIdHex(block.ID.Hex())).GetAsInterface()
+		assert.NoError(t, err)
+		assert.Equal(t, "0x01cf0e2f2f715450", res)
+	})
+
 }

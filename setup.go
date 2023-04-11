@@ -99,6 +99,7 @@ type OverflowBuilder struct {
 	NewAccountFlowAmount                float64
 	ReaderWriter                        flowkit.ReaderWriter
 	InputResolver                       *InputResolver
+	ArchiveNodeUrl                      string
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -201,6 +202,15 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow
 		}
 		overflow.Services = services.NewServices(gw, state, logger)
+
+		if o.ArchiveNodeUrl != "" {
+			gw, err := gateway.NewGrpcGateway(o.ArchiveNodeUrl)
+			if err != nil {
+				overflow.Error = err
+				return overflow
+			}
+			overflow.ArchiveScripts = services.NewScripts(gw, state, logger)
+		}
 	}
 
 	if o.InitializeAccounts {
@@ -459,6 +469,13 @@ func WithInputResolver(ir InputResolver) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.InputResolver = &ir
 	}
+}
+
+func WithArchiveNodeUrl(url string) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.ArchiveNodeUrl = url
+	}
+
 }
 
 type EmbedWrapper struct {

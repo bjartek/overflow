@@ -25,6 +25,7 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/project"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/pkg/flowkit/util"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/pkg/errors"
@@ -57,11 +58,6 @@ type OverflowClient interface {
 	GetLatestBlock() (*flow.Block, error)
 	GetBlockAtHeight(height uint64) (*flow.Block, error)
 	GetBlockById(blockId string) (*flow.Block, error)
-	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
-	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
-	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
-	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
-
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
 	UploadFile(filename string, accountName string) error
@@ -76,6 +72,15 @@ type OverflowClient interface {
 	SignUserMessage(account string, message string) (string, error)
 }
 
+// beta client with unstable features
+type OverflowBetaClient interface {
+	OverflowClient
+	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
+	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
+	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
+}
+
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {
 
@@ -84,6 +89,8 @@ type OverflowState struct {
 
 	//the services from flowkit to performed operations on
 	Services *services.Services
+
+	ArchiveScripts *services.Scripts
 
 	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
 	Network                      string
@@ -136,7 +143,7 @@ func (o *OverflowState) AddContract(name string, contract *flowkit.Script, updat
 	if err != nil {
 		return err
 	}
-	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, update)
+	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, services.UpdateExisting(update))
 	return err
 
 }
@@ -439,7 +446,7 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 // InitializeContracts installs all contracts in the deployment block for the configured network
 func (o *OverflowState) InitializeContracts() *OverflowState {
 	o.Log.Reset()
-	contracts, err := o.Services.Project.Deploy(o.Network, true)
+	contracts, err := o.Services.Project.Deploy(o.Network, services.UpdateExisting(true))
 	if err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
@@ -582,6 +589,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NamedArgs:      map[string]interface{}{},
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
+		ScriptQuery:    &util.ScriptQuery{},
 	}
 
 	for _, opt := range opts {
