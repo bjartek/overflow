@@ -122,7 +122,11 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
-			types[name] = field.Type().ID()
+			typ := field.Type()
+			//Not sure what to do with complex type here?
+			if typ != nil {
+				types[name] = typ.ID()
+			}
 			value := CadenceValueToInterface(field)
 			if value != nil {
 				finalFields[name] = value
