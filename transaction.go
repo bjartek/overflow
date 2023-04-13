@@ -204,6 +204,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				height = nextBlockToProcess
 				continue
 			}
+			logg = logg.With(zap.Int("tx", len(tx)))
 
 			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg}
 			height = nextBlockToProcess
