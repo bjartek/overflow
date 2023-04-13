@@ -46,7 +46,7 @@ type OverflowEvent struct {
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
 	Name          string                 `json:"name"`
-	Types         map[string]string      `json:"types"`
+	Addresses     map[string][]string    `json:"types"`
 }
 
 // Check if an event exist in the other events
@@ -62,19 +62,16 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 // list of address to a list of roles for that address
 func (me OverflowEvent) GetStakeholders() map[string][]string {
 	stakeholder := map[string][]string{}
-	for field, value := range me.Types {
+	for name, value := range me.Addresses {
+		for _, address := range value {
 
-		if value == "Address" {
-			fieldValue := me.Fields[field].(string)
-			existing, ok := stakeholder[fieldValue]
+			existing, ok := stakeholder[address]
 			if !ok {
 				existing = []string{}
 			}
-
-			existing = append(existing, fmt.Sprintf("%s/%s", me.Name, field))
-			stakeholder[fieldValue] = existing
+			existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
+			stakeholder[address] = existing
 		}
-
 	}
 	return stakeholder
 }
@@ -118,15 +115,12 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 		}
 
 		finalFields := map[string]interface{}{}
-		types := map[string]string{}
+		addresses := map[string][]string{}
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
-			typ := field.Type()
-			//Not sure what to do with complex type here?
-			if typ != nil {
-				types[name] = typ.ID()
-			}
+			//TODO: is this really the best way of doing this? lets experiment
+			addresses[name] = ExtractAddresses(field)
 			value := CadenceValueToInterface(field)
 			if value != nil {
 				finalFields[name] = value
@@ -142,7 +136,7 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			Fields:        finalFields,
 			Name:          event.Type,
 			TransactionId: event.TransactionID.String(),
-			Types:         types,
+			Addresses:     addresses,
 		})
 		overflowEvents[event.Type] = events
 
