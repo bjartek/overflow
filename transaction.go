@@ -111,23 +111,23 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		standardStakeholders := GetAddressImports(t.Script, "tx")
 
 		for _, authorizer := range t.Authorizers {
-			standardStakeholders[authorizer.Hex()] = []string{"authorizer"}
+			standardStakeholders[fmt.Sprintf("0x%s", authorizer.Hex())] = []string{"authorizer"}
 		}
 
-		payerRoles, ok := standardStakeholders[t.Payer.Hex()]
+		payerRoles, ok := standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())]
 		if !ok {
-			standardStakeholders[t.Payer.Hex()] = []string{"payer"}
+			standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())] = []string{"payer"}
 		} else {
 			payerRoles = append(payerRoles, "payer")
-			standardStakeholders[t.Payer.Hex()] = payerRoles
+			standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())] = payerRoles
 		}
 
-		proposer, ok := standardStakeholders[t.ProposalKey.Address.Hex()]
+		proposer, ok := standardStakeholders[fmt.Sprintf("0x%s", t.ProposalKey.Address.Hex())]
 		if !ok {
-			standardStakeholders[t.ProposalKey.Address.Hex()] = []string{"proposer"}
+			standardStakeholders[fmt.Sprintf("0x%s", t.ProposalKey.Address.Hex())] = []string{"proposer"}
 		} else {
 			proposer = append(proposer, "proposer")
-			standardStakeholders[t.ProposalKey.Address.Hex()] = proposer
+			standardStakeholders[fmt.Sprintf("0x%s", t.ProposalKey.Address.Hex())] = proposer
 		}
 
 		eventsWithoutFees := events.FilterFees(feeAmount)
