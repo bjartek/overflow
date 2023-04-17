@@ -227,14 +227,14 @@ func GetAddressImports(code []byte, name string) map[string][]string {
 	for _, imp := range program.ImportDeclarations() {
 		address, isAddressImport := imp.Location.(common.AddressLocation)
 		if isAddressImport {
-			adr := fmt.Sprintf("import 0x%s", address.Address.Hex())
+			adr := fmt.Sprintf("0x%s", address.Address.Hex())
 			old, ok := deps[adr]
 			if !ok {
 				old = []string{}
 			}
 
 			impName := imp.Identifiers[0].Identifier
-			old = append(old, impName)
+			old = append(old, fmt.Sprintf("import %s", impName))
 			deps[adr] = old
 		}
 	}
