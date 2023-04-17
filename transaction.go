@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/onflow/cadence/runtime/cmd"
+	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
@@ -106,7 +108,8 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			args = append(args, CadenceValueToInterface(arg))
 		}
 
-		standardStakeholders := map[string][]string{}
+		standardStakeholders := GetAddressImports(t.Script, "tx")
+
 		for _, authorizer := range t.Authorizers {
 			standardStakeholders[authorizer.Hex()] = []string{"authorizer"}
 		}
@@ -213,4 +216,27 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			return ctx.Err()
 		}
 	}
+}
+
+func GetAddressImports(code []byte, name string) map[string][]string {
+
+	deps := map[string][]string{}
+	codes := map[common.Location][]byte{}
+	location := common.StringLocation(name)
+	program, _ := cmd.PrepareProgram(code, location, codes)
+	for _, imp := range program.ImportDeclarations() {
+		address, isAddressImport := imp.Location.(common.AddressLocation)
+		if isAddressImport {
+			adr := fmt.Sprintf("import 0x%s", address.Address.Hex())
+			old, ok := deps[adr]
+			if !ok {
+				old = []string{}
+			}
+
+			impName := imp.Identifiers[0].Identifier
+			old = append(old, impName)
+			deps[adr] = old
+		}
+	}
+	return deps
 }
