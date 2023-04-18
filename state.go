@@ -22,6 +22,7 @@ import (
 	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/project"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
@@ -89,6 +90,9 @@ type OverflowState struct {
 
 	//the services from flowkit to performed operations on
 	Services *services.Services
+
+	//store this here
+	Emulator *gateway.EmulatorGateway
 
 	ArchiveScripts *services.Scripts
 
@@ -823,4 +827,12 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network string) 
 	}
 
 	return strings.TrimSpace(string(program2.Code())), nil
+}
+
+func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
+	return o.Emulator.GetCoverageReport()
+}
+
+func (o *OverflowState) RollbackToBlockHeight(height uint64) error {
+	return o.Emulator.RollbackToBlockHeight(height)
 }
