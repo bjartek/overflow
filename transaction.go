@@ -151,7 +151,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 }
 
 // This code is beta
-func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error {
+func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, endHeight *uint64, logger *zap.Logger, channel chan<- BlockResult) error {
 
 	latestKnownBlock, err := o.GetLatestBlock()
 	if err != nil {
@@ -211,6 +211,9 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 
 			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg}
 			height = nextBlockToProcess
+			if endHeight != nil && *endHeight == height {
+				return nil
+			}
 
 		case <-ctx.Done():
 			return ctx.Err()
