@@ -22,7 +22,6 @@ type BlockResult struct {
 	Block        flow.Block
 	Error        error
 	Logger       *zap.Logger
-	Done         bool
 }
 
 type OverflowTransaction struct {
@@ -152,7 +151,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 }
 
 // This code is beta
-func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, endHeight *uint64, logger *zap.Logger, channel chan<- BlockResult) error {
+func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error {
 
 	latestKnownBlock, err := o.GetLatestBlock()
 	if err != nil {
@@ -209,10 +208,8 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				continue
 			}
 			logg = logg.With(zap.Int("tx", len(tx)))
-
+			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg}
 			height = nextBlockToProcess
-			done := endHeight != nil && *endHeight == height
-			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg, Done: done}
 
 		case <-ctx.Done():
 			return ctx.Err()

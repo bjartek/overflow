@@ -1238,13 +1238,13 @@ func (_c *OverflowBetaClient_SignUserMessage_Call) RunAndReturn(run func(string,
 	return _c
 }
 
-// StreamTransactions provides a mock function with given fields: ctx, poll, height, endHeight, logger, channel
-func (_m *OverflowBetaClient) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, endHeight *uint64, logger *zap.Logger, channel chan<- overflow.BlockResult) error {
-	ret := _m.Called(ctx, poll, height, endHeight, logger, channel)
+// StreamTransactions provides a mock function with given fields: ctx, poll, height, logger, channel
+func (_m *OverflowBetaClient) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- overflow.BlockResult) error {
+	ret := _m.Called(ctx, poll, height, logger, channel)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, time.Duration, uint64, *uint64, *zap.Logger, chan<- overflow.BlockResult) error); ok {
-		r0 = rf(ctx, poll, height, endHeight, logger, channel)
+	if rf, ok := ret.Get(0).(func(context.Context, time.Duration, uint64, *zap.Logger, chan<- overflow.BlockResult) error); ok {
+		r0 = rf(ctx, poll, height, logger, channel)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1261,16 +1261,15 @@ type OverflowBetaClient_StreamTransactions_Call struct {
 //   - ctx context.Context
 //   - poll time.Duration
 //   - height uint64
-//   - endHeight *uint64
 //   - logger *zap.Logger
 //   - channel chan<- overflow.BlockResult
-func (_e *OverflowBetaClient_Expecter) StreamTransactions(ctx interface{}, poll interface{}, height interface{}, endHeight interface{}, logger interface{}, channel interface{}) *OverflowBetaClient_StreamTransactions_Call {
-	return &OverflowBetaClient_StreamTransactions_Call{Call: _e.mock.On("StreamTransactions", ctx, poll, height, endHeight, logger, channel)}
+func (_e *OverflowBetaClient_Expecter) StreamTransactions(ctx interface{}, poll interface{}, height interface{}, logger interface{}, channel interface{}) *OverflowBetaClient_StreamTransactions_Call {
+	return &OverflowBetaClient_StreamTransactions_Call{Call: _e.mock.On("StreamTransactions", ctx, poll, height, logger, channel)}
 }
 
-func (_c *OverflowBetaClient_StreamTransactions_Call) Run(run func(ctx context.Context, poll time.Duration, height uint64, endHeight *uint64, logger *zap.Logger, channel chan<- overflow.BlockResult)) *OverflowBetaClient_StreamTransactions_Call {
+func (_c *OverflowBetaClient_StreamTransactions_Call) Run(run func(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- overflow.BlockResult)) *OverflowBetaClient_StreamTransactions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(time.Duration), args[2].(uint64), args[3].(*uint64), args[4].(*zap.Logger), args[5].(chan<- overflow.BlockResult))
+		run(args[0].(context.Context), args[1].(time.Duration), args[2].(uint64), args[3].(*zap.Logger), args[4].(chan<- overflow.BlockResult))
 	})
 	return _c
 }
@@ -1280,7 +1279,7 @@ func (_c *OverflowBetaClient_StreamTransactions_Call) Return(_a0 error) *Overflo
 	return _c
 }
 
-func (_c *OverflowBetaClient_StreamTransactions_Call) RunAndReturn(run func(context.Context, time.Duration, uint64, *uint64, *zap.Logger, chan<- overflow.BlockResult) error) *OverflowBetaClient_StreamTransactions_Call {
+func (_c *OverflowBetaClient_StreamTransactions_Call) RunAndReturn(run func(context.Context, time.Duration, uint64, *zap.Logger, chan<- overflow.BlockResult) error) *OverflowBetaClient_StreamTransactions_Call {
 	_c.Call.Return(run)
 	return _c
 }

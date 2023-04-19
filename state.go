@@ -79,7 +79,7 @@ type OverflowBetaClient interface {
 	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
 	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
 	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
-	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, endHeight *uint64, logger *zap.Logger, channel chan<- BlockResult) error
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
 }
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
