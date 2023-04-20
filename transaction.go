@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
+	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
@@ -108,7 +108,11 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			args = append(args, CadenceValueToInterface(arg))
 		}
 
-		standardStakeholders := GetAddressImports(t.Script, "tx")
+		//not sure if we want this here anymore if we want to store contracts
+		standardStakeholders, err := GetAddressImports(t.Script, "tx")
+		if err != nil {
+			fmt.Println("[WARN]", err.Error())
+		}
 
 		for _, authorizer := range t.Authorizers {
 			standardStakeholders[fmt.Sprintf("0x%s", authorizer.Hex())] = []string{"authorizer"}
@@ -217,12 +221,14 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 	}
 }
 
-func GetAddressImports(code []byte, name string) map[string][]string {
+func GetAddressImports(code []byte, name string) (map[string][]string, error) {
 
 	deps := map[string][]string{}
-	codes := map[common.Location][]byte{}
-	location := common.StringLocation(name)
-	program, _ := cmd.PrepareProgram(code, location, codes)
+	program, err := parser.ParseProgram(nil, code, parser.Config{})
+	if err != nil {
+		return deps, err
+	}
+
 	for _, imp := range program.ImportDeclarations() {
 		address, isAddressImport := imp.Location.(common.AddressLocation)
 		if isAddressImport {
@@ -233,9 +239,9 @@ func GetAddressImports(code []byte, name string) map[string][]string {
 			}
 
 			impName := imp.Identifiers[0].Identifier
-			old = append(old, fmt.Sprintf("import %s", impName))
+			old = append(old, impName)
 			deps[adr] = old
 		}
 	}
-	return deps
+	return deps, nil
 }
