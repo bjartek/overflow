@@ -76,6 +76,7 @@ type OverflowClient interface {
 // beta client with unstable features
 type OverflowBetaClient interface {
 	OverflowClient
+	GetTransactionById(id flow.Identifier) (*flow.Transaction, error)
 	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
 	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
 	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)

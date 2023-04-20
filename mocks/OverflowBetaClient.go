@@ -751,6 +751,60 @@ func (_c *OverflowBetaClient_GetTransactionByBlockId_Call) RunAndReturn(run func
 	return _c
 }
 
+// GetTransactionById provides a mock function with given fields: id
+func (_m *OverflowBetaClient) GetTransactionById(id flow.Identifier) (*flow.Transaction, error) {
+	ret := _m.Called(id)
+
+	var r0 *flow.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(flow.Identifier) (*flow.Transaction, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(flow.Identifier) *flow.Transaction); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*flow.Transaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(flow.Identifier) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OverflowBetaClient_GetTransactionById_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionById'
+type OverflowBetaClient_GetTransactionById_Call struct {
+	*mock.Call
+}
+
+// GetTransactionById is a helper method to define mock.On call
+//   - id flow.Identifier
+func (_e *OverflowBetaClient_Expecter) GetTransactionById(id interface{}) *OverflowBetaClient_GetTransactionById_Call {
+	return &OverflowBetaClient_GetTransactionById_Call{Call: _e.mock.On("GetTransactionById", id)}
+}
+
+func (_c *OverflowBetaClient_GetTransactionById_Call) Run(run func(id flow.Identifier)) *OverflowBetaClient_GetTransactionById_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(flow.Identifier))
+	})
+	return _c
+}
+
+func (_c *OverflowBetaClient_GetTransactionById_Call) Return(_a0 *flow.Transaction, _a1 error) *OverflowBetaClient_GetTransactionById_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *OverflowBetaClient_GetTransactionById_Call) RunAndReturn(run func(flow.Identifier) (*flow.Transaction, error)) *OverflowBetaClient_GetTransactionById_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTransactionResultByBlockId provides a mock function with given fields: blockId
 func (_m *OverflowBetaClient) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
 	ret := _m.Called(blockId)
