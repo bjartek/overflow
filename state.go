@@ -345,9 +345,14 @@ func (o *OverflowState) AccountE(key string) (*accounts.Account, error) {
 
 // return the address of an given account
 func (o *OverflowState) Address(key string) string {
+	return fmt.Sprintf("0x%s", o.FlowAddress(key))
+}
+
+// return the flow Address of the given name
+func (o *OverflowState) FlowAddress(key string) flow.Address {
 	account, err := o.AccountE(key)
 	if err == nil {
-		return fmt.Sprintf("0x%s", account.Address.String())
+		return account.Address
 	}
 
 	flowContract, err := o.State.Contracts().ByName(key)
@@ -359,7 +364,7 @@ func (o *OverflowState) Address(key string) string {
 	if flowContract != nil {
 		alias := flowContract.Aliases.ByNetwork(o.Network.Name)
 		if alias != nil {
-			return fmt.Sprintf("0x%s", alias.Address.String())
+			return alias.Address
 		}
 	}
 
@@ -370,11 +375,10 @@ func (o *OverflowState) Address(key string) string {
 
 	for _, flowDeploymentContract := range flowDeploymentContracts {
 		if flowDeploymentContract.Name == key {
-			return fmt.Sprintf("0x%s", flowDeploymentContract.AccountAddress)
+			return flowDeploymentContract.AccountAddress
 		}
 	}
 	panic("Not valid user account, contract or deployment contract")
-
 }
 
 // return the account of a given account
