@@ -15,7 +15,7 @@ func (o *OverflowState) SignUserMessage(account string, message string) (string,
 		return "", err
 	}
 
-	signer, err := a.Key().Signer(context.Background())
+	signer, err := a.Key.Signer(context.Background())
 	if err != nil {
 		return "", err
 	}

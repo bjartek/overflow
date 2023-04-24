@@ -32,16 +32,8 @@ type OverflowTransaction struct {
 	RawTx           flow.Transaction
 }
 
-func (o *OverflowState) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
-	return o.Services.Transactions.GetTransactionResultsByBlockID(blockId)
-}
-
-func (o *OverflowState) GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error) {
-	return o.Services.Transactions.GetTransactionsByBlockID(blockId)
-}
-
-func (o *OverflowState) GetTransactionById(id flow.Identifier) (*flow.Transaction, error) {
-	tx, _, err := o.Services.Transactions.GetStatus(id, false)
+func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
+	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
 	return tx, err
 }
 
@@ -54,15 +46,9 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 	//we have to fetch the block again with transaction ids.
 	//in paralell loop over them and run GetStatus and create the transactions that way.
 
-	txR, err := o.GetTransactionResultByBlockId(id)
+	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting transaction results")
-	}
-
-	tx, err := o.GetTransactionByBlockId(id)
-
-	if err != nil {
-		return nil, errors.Wrap(err, "getting transactions by id")
 	}
 
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
@@ -120,7 +106,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 // This code is beta
 func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error {
 
-	latestKnownBlock, err := o.GetLatestBlock()
+	latestKnownBlock, err := o.GetLatestBlock(ctx)
 	if err != nil {
 		return err
 	}
@@ -140,13 +126,13 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			var block *flow.Block
 			if nextBlockToProcess < latestKnownBlock.Height {
 				//we are still processing historical blocks
-				block, err = o.GetBlockAtHeight(nextBlockToProcess)
+				block, err = o.GetBlockAtHeight(ctx, nextBlockToProcess)
 				if err != nil {
 					log.Println("[ERROR]", "fetching old block", err.Error())
 					continue
 				}
 			} else if nextBlockToProcess != latestKnownBlock.Height {
-				block, err = o.GetLatestBlock()
+				block, err = o.GetLatestBlock(ctx)
 				if err != nil {
 					log.Println("[ERROR]", "fetching latest block", err.Error())
 					continue

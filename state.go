@@ -21,13 +21,12 @@ import (
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
-	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/output"
-	"github.com/onflow/flow-cli/pkg/flowkit/project"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
-	"github.com/onflow/flow-cli/pkg/flowkit/util"
+	"github.com/onflow/flow-cli/flowkit"
+	"github.com/onflow/flow-cli/flowkit/accounts"
+	"github.com/onflow/flow-cli/flowkit/config"
+	"github.com/onflow/flow-cli/flowkit/output"
+	"github.com/onflow/flow-cli/flowkit/project"
 	"github.com/onflow/flow-go-sdk"
-	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/pkg/errors"
 	"golang.org/x/exp/slices"
 )
@@ -44,9 +43,9 @@ type OverflowClient interface {
 	AddContract(name string, contract *flowkit.Script, update bool) error
 
 	GetNetwork() string
-	AccountE(key string) (*flowkit.Account, error)
+	AccountE(key string) (*accounts.Account, error)
 	Address(key string) string
-	Account(key string) *flowkit.Account
+	Account(key string) *accounts.Account
 
 	//Note that this returns a flow account and not a flowkit account like the others, is this needed?
 	GetAccount(key string) (*flow.Account, error)
@@ -83,17 +82,14 @@ type OverflowBetaClient interface {
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {
-
-	//State is the current state of the configured overflow instance
 	State *flowkit.State
-
 	//the services from flowkit to performed operations on
-	Services *services.Services
+	Flowkit *flowkit.Flowkit
 
-	ArchiveScripts *services.Scripts
+	ArchiveFlowkit *flowkit.Flowkit
 
 	//Configured variables that are taken from the builder since we need them in the execution of overflow later on
-	Network                      string
+	Network                      config.Network
 	PrependNetworkToAccountNames bool
 	ServiceAccountSuffix         string
 	Gas                          int
@@ -138,17 +134,17 @@ type OverflowArgument struct {
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
 
-func (o *OverflowState) AddContract(name string, contract *flowkit.Script, update bool) error {
+func (o *OverflowState) AddContract(ctx context.Context, name string, script flowkit.Script, update bool) error {
 	account, err := o.AccountE(name)
 	if err != nil {
 		return err
 	}
-	_, _, err = o.Services.Accounts.AddContract(account, contract, o.Network, services.UpdateExisting(update))
+	_, _, err = o.Flowkit.AddContract(ctx, account, script, flowkit.UpdateExistingContract(update))
 	return err
 
 }
 func (o *OverflowState) GetNetwork() string {
-	return o.Network
+	return o.Network.Name
 }
 
 // Qualified identifier from a snakeCase string Account_Contract_Struct
@@ -166,11 +162,14 @@ func (o *OverflowState) QualifiedIdentifierFromSnakeCase(typeName string) (strin
 // account can either be a name from  accounts or the raw value
 func (o *OverflowState) QualifiedIdentifier(contract string, name string) (string, error) {
 
-	flowContract := o.State.Contracts().ByName(contract)
+	flowContract, err := o.State.Contracts().ByName(contract)
+	if err != nil {
+		return "", err
+	}
 
 	//we found the contract specified in contracts section
 	if flowContract != nil {
-		alias := flowContract.Aliases.ByNetwork(o.Network)
+		alias := flowContract.Aliases.ByNetwork(o.Network.Name)
 		if alias != nil {
 			return fmt.Sprintf("A.%s.%s.%s", alias.Address.String(), contract, name), nil
 		}
@@ -301,7 +300,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			account, _ := o.AccountE(argumentString)
 
 			if account != nil {
-				argumentString = account.Address().String()
+				argumentString = account.Address.String()
 			}
 
 			if !strings.Contains(argumentString, "0x") {
@@ -325,9 +324,9 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 // AccountE fetch an account from State
 // Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name across networks
-func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
+func (o *OverflowState) AccountE(key string) (*accounts.Account, error) {
 	if o.PrependNetworkToAccountNames {
-		key = fmt.Sprintf("%s-%s", o.Network, key)
+		key = fmt.Sprintf("%s-%s", o.Network.Name, key)
 	}
 
 	account, err := o.State.Accounts().ByName(key)
@@ -343,14 +342,17 @@ func (o *OverflowState) AccountE(key string) (*flowkit.Account, error) {
 func (o *OverflowState) Address(key string) string {
 	account, err := o.AccountE(key)
 	if err == nil {
-		return fmt.Sprintf("0x%s", account.Address().String())
+		return fmt.Sprintf("0x%s", account.Address.String())
 	}
 
-	flowContract := o.State.Contracts().ByName(key)
+	flowContract, err := o.State.Contracts().ByName(key)
+	if err != nil {
+		panic(err)
+	}
 
 	//we found the contract specified in contracts section
 	if flowContract != nil {
-		alias := flowContract.Aliases.ByNetwork(o.Network)
+		alias := flowContract.Aliases.ByNetwork(o.Network.Name)
 		if alias != nil {
 			return fmt.Sprintf("0x%s", alias.Address.String())
 		}
@@ -371,7 +373,7 @@ func (o *OverflowState) Address(key string) string {
 }
 
 // return the account of a given account
-func (o *OverflowState) Account(key string) *flowkit.Account {
+func (o *OverflowState) Account(key string) *accounts.Account {
 	account, err := o.AccountE(key)
 	if err != nil {
 		panic(err)
@@ -384,38 +386,39 @@ func (o *OverflowState) Account(key string) *flowkit.Account {
 // Note that if `PrependNetworkToAccountNames` is specified it is prefixed with the network so that you can use the same logical name across networks
 func (o *OverflowState) ServiceAccountName() string {
 	if o.PrependNetworkToAccountNames {
-		return fmt.Sprintf("%s-%s", o.Network, o.ServiceAccountSuffix)
+		return fmt.Sprintf("%s-%s", o.Network.Name, o.ServiceAccountSuffix)
 	}
 	return o.ServiceAccountSuffix
 }
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
-func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
+func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, error) {
 	p := o.State
 	signerAccount, err := p.Accounts().ByName(o.ServiceAccountName())
 	if err != nil {
 		return nil, err
 	}
 
-	accounts := p.AccountsForNetwork(o.Network)
+	acct := *p.AccountsForNetwork(o.Network)
 
-	sort.SliceStable(accounts, func(i, j int) bool {
-		return strings.Compare(accounts[i].Name(), accounts[j].Name()) < 1
+	sort.SliceStable(acct, func(i, j int) bool {
+		return strings.Compare(acct[i].Name, acct[j].Name) < 1
 	})
 
-	for _, account := range accounts {
-		if _, err := o.Services.Accounts.Get(account.Address()); err == nil {
+	for _, account := range acct {
+		if _, err := o.Flowkit.GetAccount(ctx, account.Address); err == nil {
 			continue
 		}
 
-		o.Logger.Info(fmt.Sprintf("Creating account %s", account.Name()))
-		_, err := o.Services.Accounts.Create(
-			signerAccount,
-			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
-			[]int{1000},
-			[]crypto.SignatureAlgorithm{account.Key().SigAlgo()},
-			[]crypto.HashAlgorithm{account.Key().HashAlgo()},
-			[]string{})
+		keys := []accounts.PublicKey{{
+			Public:   account.Key.ToConfig().PrivateKey.PublicKey(),
+			Weight:   1000,
+			SigAlgo:  account.Key.SigAlgo(),
+			HashAlgo: account.Key.HashAlgo(),
+		}}
+
+		o.Logger.Info(fmt.Sprintf("Creating account %s", account.Name))
+		_, _, err := o.Flowkit.CreateAccount(ctx, signerAccount, keys)
 		if err != nil {
 			return nil, err
 		}
@@ -423,13 +426,13 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 		messages := []string{
 			fmt.Sprintf("%v", emoji.Person),
 			"Created account:",
-			account.Name(),
+			account.Name,
 			"with address:",
-			account.Address().String(),
+			account.Address.String(),
 		}
 
-		if o.Network == "emulator" && o.NewUserFlowAmount != 0.0 {
-			res := o.MintFlowTokens(account.Address().String(), o.NewUserFlowAmount)
+		if o.Network.Name == "emulator" && o.NewUserFlowAmount != 0.0 {
+			res := o.MintFlowTokens(account.Address.String(), o.NewUserFlowAmount)
 			if res.Error != nil {
 				return nil, errors.Wrap(err, "could not mint flow tokens")
 			}
@@ -444,9 +447,9 @@ func (o *OverflowState) CreateAccountsE() (*OverflowState, error) {
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network
-func (o *OverflowState) InitializeContracts() *OverflowState {
+func (o *OverflowState) InitializeContracts(ctx context.Context) *OverflowState {
 	o.Log.Reset()
-	contracts, err := o.Services.Project.Deploy(o.Network, services.UpdateExisting(true))
+	contracts, err := o.Flowkit.DeployProject(ctx, flowkit.UpdateExistingContract(true))
 	if err != nil {
 		log, _ := o.readLog()
 		if len(log) != 0 {
@@ -475,13 +478,13 @@ func (o *OverflowState) InitializeContracts() *OverflowState {
 }
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
-func (o *OverflowState) GetAccount(key string) (*flow.Account, error) {
+func (o *OverflowState) GetAccount(ctx context.Context, key string) (*flow.Account, error) {
 	account, err := o.AccountE(key)
 	if err != nil {
 		return nil, err
 	}
-	rawAddress := account.Address()
-	return o.Services.Accounts.Get(rawAddress)
+	rawAddress := account.Address
+	return o.Flowkit.GetAccount(ctx, rawAddress)
 }
 
 func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
@@ -555,21 +558,26 @@ func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *
 }
 
 // get the latest block
-func (o *OverflowState) GetLatestBlock() (*flow.Block, error) {
-	block, _, _, err := o.Services.Blocks.GetBlock("latest", "", false)
-	return block, err
+func (o *OverflowState) GetLatestBlock(ctx context.Context) (*flow.Block, error) {
+
+	bc, err := flowkit.NewBlockQuery("latest")
+	if err != nil {
+		return nil, err
+	}
+	return o.Flowkit.GetBlock(ctx, bc)
 }
 
 // get block at a given height
-func (o *OverflowState) GetBlockAtHeight(height uint64) (*flow.Block, error) {
-	block, _, _, err := o.Services.Blocks.GetBlock(fmt.Sprintf("%d", height), "", false)
-	return block, err
+func (o *OverflowState) GetBlockAtHeight(ctx context.Context, height uint64) (*flow.Block, error) {
+	bc := flowkit.BlockQuery{Height: height}
+	return o.Flowkit.GetBlock(ctx, bc)
 }
 
 // blockId should be a hexadecimal string
-func (o *OverflowState) GetBlockById(blockId string) (*flow.Block, error) {
-	block, _, _, err := o.Services.Blocks.GetBlock(blockId, "", false)
-	return block, err
+func (o *OverflowState) GetBlockById(ctx context.Context, blockId string) (*flow.Block, error) {
+	bid := flow.HexToID(blockId)
+	bc := flowkit.BlockQuery{ID: &bid}
+	return o.Flowkit.GetBlock(ctx, bc)
 }
 
 // create a flowInteractionBuilder from the sent in options
@@ -583,13 +591,13 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		Overflow:       o,
 		Payer:          nil,
 		Arguments:      []cadence.Value{},
-		PayloadSigners: []*flowkit.Account{},
+		PayloadSigners: []*accounts.Account{},
 		GasLimit:       uint64(o.Gas),
 		BasePath:       path,
 		NamedArgs:      map[string]interface{}{},
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
-		ScriptQuery:    &util.ScriptQuery{},
+		ScriptQuery:    &flowkit.ScriptQuery{},
 	}
 
 	for _, opt := range opts {
@@ -714,7 +722,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	solutionNetworks := map[string]*OverflowSolutionNetwork{}
 	for _, nw := range *networks {
 
-		contractResult, err := o.contracts(nw.Name)
+		contractResult, err := o.contracts(nw)
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot find contracts for network %s", nw.Name)
 		}
@@ -725,7 +733,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			if err != nil {
 				return nil, err
 			}
-			result, err := o.Parse(path, code, nw.Name)
+			result, err := o.Parse(path, code, nw)
 			if err == nil {
 				scriptResult[name] = result
 			} else {
@@ -739,7 +747,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 			if err != nil {
 				return nil, err
 			}
-			result, err := o.Parse(path, code, nw.Name)
+			result, err := o.Parse(path, code, nw)
 			if err != nil {
 				warnings = append(warnings, fmt.Sprintf("Could not create transaction %s for network %s", path, nw.Name))
 			} else {
@@ -766,7 +774,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 	}, nil
 }
 
-func (o *OverflowState) contracts(network string) (map[string]string, error) {
+func (o *OverflowState) contracts(network config.Network) (map[string]string, error) {
 
 	contracts, err := o.State.DeploymentContractsByNetwork(network)
 	if err != nil {
@@ -795,10 +803,9 @@ func (o *OverflowState) contracts(network string) (map[string]string, error) {
 }
 
 // Parse a given file into a resolved version
-func (o *OverflowState) Parse(codeFileName string, code []byte, network string) (string, error) {
+func (o *OverflowState) Parse(codeFileName string, code []byte, network config.Network) (string, error) {
 
-	contract := flowkit.NewScript(code, []cadence.Value{}, codeFileName)
-	program, err := project.NewProgram(contract)
+	program, err := project.NewProgram(code, []cadence.Value{}, codeFileName)
 	if err != nil {
 		return "", err
 	}

@@ -7,17 +7,17 @@ package overflow
 
 import (
 	"bytes"
+	"context"
 	"embed"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
 
-	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/config"
-	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
-	"github.com/onflow/flow-cli/pkg/flowkit/output"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/onflow/flow-cli/flowkit"
+	"github.com/onflow/flow-cli/flowkit/config"
+	"github.com/onflow/flow-cli/flowkit/gateway"
+	"github.com/onflow/flow-cli/flowkit/output"
 	emulator "github.com/onflow/flow-emulator"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -78,6 +78,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
+	Ctx                                 context.Context
 	TransactionFees                     bool
 	Network                             string
 	InMemory                            bool
@@ -128,7 +129,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	}
 
 	overflow := &OverflowState{
-		Network:                             o.Network,
 		PrependNetworkToAccountNames:        o.PrependNetworkName,
 		ServiceAccountSuffix:                o.ServiceSuffix,
 		Gas:                                 o.GasLimit,
@@ -164,6 +164,14 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow.QualifiedIdentifierFromSnakeCase(name)
 		}
 	}
+
+	network, err := state.Networks().ByName(o.Network)
+	if err != nil {
+		overflow.Error = err
+		return overflow
+	}
+	overflow.Network = *network
+
 	logger := output.NewStdoutLogger(o.LogLevel)
 	overflow.Logger = logger
 	var memlog bytes.Buffer
@@ -183,26 +191,28 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		if o.TransactionFees {
 			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true))
 		}
-		gw := gateway.NewEmulatorGatewayWithOpts(acc,
+
+		pk, _ := acc.Key.PrivateKey()
+		emulatorKey := &gateway.EmulatorKey{
+			PublicKey: (*pk).PublicKey(),
+			SigAlgo:   acc.Key.SigAlgo(),
+			HashAlgo:  acc.Key.HashAlgo(),
+		}
+		gw := gateway.NewEmulatorGatewayWithOpts(emulatorKey,
 			gateway.WithLogger(&emulatorLogger),
 			gateway.WithEmulatorOptions(emulatorOptions...),
 		)
 
-		overflow.Services = services.NewServices(gw, state, logger)
+		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 	} else {
-		network, err := state.Networks().ByName(o.Network)
+		gw, err := gateway.NewGrpcGateway(*network)
 		if err != nil {
 			overflow.Error = err
 			return overflow
 		}
-		host := network.Host
-		gw, err := gateway.NewGrpcGateway(host)
-		if err != nil {
-			overflow.Error = err
-			return overflow
-		}
-		overflow.Services = services.NewServices(gw, state, logger)
+		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 
+		/* TODO: fix archive
 		if o.ArchiveNodeUrl != "" {
 			gw, err := gateway.NewGrpcGateway(o.ArchiveNodeUrl)
 			if err != nil {
@@ -211,10 +221,11 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			}
 			overflow.ArchiveScripts = services.NewScripts(gw, state, logger)
 		}
+		*/
 	}
 
 	if o.InitializeAccounts {
-		_, err := overflow.CreateAccountsE()
+		_, err := overflow.CreateAccountsE(o.Ctx)
 		if err != nil {
 			overflow.Error = errors.Wrap(err, "could not create accounts")
 			return overflow
@@ -222,7 +233,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	}
 
 	if o.DeployContracts {
-		overflow = overflow.InitializeContracts()
+		overflow = overflow.InitializeContracts(o.Ctx)
 		if overflow.Error != nil {
 			overflow.Error = errors.Wrap(overflow.Error, "could not deploy contracts")
 			return overflow
