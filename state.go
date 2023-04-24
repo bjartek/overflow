@@ -134,7 +134,12 @@ type OverflowArgument struct {
 type OverflowArguments map[string]OverflowArgument
 type OverflowArgumentList []OverflowArgument
 
-func (o *OverflowState) AddContract(ctx context.Context, name string, script flowkit.Script, update bool) error {
+func (o *OverflowState) AddContract(ctx context.Context, name string, code []byte, args []cadence.Value, filename string, update bool) error {
+	script := flowkit.Script{
+		Code:     code,
+		Args:     args,
+		Location: filename,
+	}
 	account, err := o.AccountE(name)
 	if err != nil {
 		return err
