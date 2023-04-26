@@ -12,6 +12,7 @@ import (
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/samber/lo"
 	"github.com/sanity-io/litter"
 	"golang.org/x/crypto/sha3"
 	"golang.org/x/exp/maps"
@@ -26,21 +27,6 @@ type FlowInteractionTemplate struct {
 }
 
 func (flix FlowInteractionTemplate) EncodeRLP(w io.Writer) (err error) {
-
-	/*
-		template-encoded              = RLP([
-			    sha3_256(template-f-type),
-			    sha3_256(template-f-version),
-			    sha3_256(template-type),
-			    sha3_256(template-interface),
-			    template-messages,
-			    sha3_256(template-cadence),
-			    template-dependencies,
-			    template-arguments
-			])
-
-	*/
-
 	input := []interface{}{
 		shaHex(flix.FType, "f-type"),
 		shaHex(flix.FVersion, "f-version"),
@@ -61,13 +47,12 @@ func (self FlowInteractionTemplate) IsTransaction() bool {
 	return self.Data.Type == "transaction"
 }
 
-type Title struct {
+type Message struct {
+	Key  string            `json:"key"`
 	I18N map[string]string `json:"i18n"`
 }
 
-//function som tar inn en map av K,V og returnerer interface{}
-
-func (this Title) ToRLP() []interface{} {
+func (this Message) ToRLP(_ int) []interface{} {
 
 	list := ProcessMap(this.I18N, func(lang string, content string) interface{} {
 		return []interface{}{
@@ -75,124 +60,77 @@ func (this Title) ToRLP() []interface{} {
 			shaHex(content, "message title content"),
 		}
 	})
-	return []interface{}{shaHex("title", "message title"), list}
+	return []interface{}{shaHex(this.Key, "message key"), list}
 }
 
-type Description struct {
-	I18N map[string]string `json:"i18n"`
-}
+type Messages []Message
 
-func (this Description) ToRLP() []interface{} {
-	list := ProcessMap(this.I18N, func(lang string, content string) interface{} {
-		return []interface{}{
-			shaHex(lang, "message description lang"),
-			shaHex(content, "message description content"),
-		}
-	})
-
-	return []interface{}{shaHex("description", "message description"), list}
-}
-
-type Messages struct {
-	Title       *Title       `json:"title,omitempty"`
-	Description *Description `json:"description,omitempty"`
-}
-
-/*
-template-argument-content-message-key-content   = UTF-8 string content of the message
-template-argument-content-message-key-bcp47-tag = BCP-47 language tag
-template-argument-content-message-translation   = [
-
-	sha3_256(template-argument-content-message-key-bcp47-tag),
-	sha3_256(template-argument-content-message-key-content)
-
-]
-template-argument-content-message-key           = Key for a template message (eg: "title", "description" etc)
-template-argument-content-message = [
-
-	sha3_256(template-argument-content-message-key),
-	[ ...template-argument-content-message-translation ]
-
-]
-*/
-func (this Messages) ToRLP() []interface{} {
-
-	parts := []interface{}{this.Title.ToRLP()}
-	if this.Description != nil {
-		parts = append(parts, this.Description.ToRLP())
-	}
-
-	return parts
+func (this Messages) ToRLP() [][]interface{} {
+	return lo.Map(this, Message.ToRLP)
 }
 
 type Network struct {
+	Network        string `json:"network"`
 	Address        string `json:"address"`
 	FqAddress      string `json:"fq_address"`
-	Contract       string `json:"contract"`
 	Pin            string `json:"pin"`
 	PinBlockHeight uint64 `json:"pin_block_height"`
 }
 
-/*
-template-dependency-contract-pin-block-height = Network block height the pin was generated against.
-template-dependency-contract-pin              = Pin of contract
-template-dependency-contract-fq-addr          = Fully qualified contract identifier
-template-dependency-network-address           = Address of an account
-template-dependency-network                   = "mainnet" | "testnet" | "emulator" | Custom Network Tag
-template-dependency-contract-network          = [
-
-*/
-
-func (this Network) ToRLP() []interface{} {
+func (this Network) ToRLP(_ int) []interface{} {
 
 	return []interface{}{
 		shaHex(this.Address, "dep address"),
-		shaHex(this.Contract, "dep contract"),
 		shaHex(this.FqAddress, "dep fqaddress"),
 		shaHex(this.Pin, "dep pin"),
 		shaHex(this.PinBlockHeight, "dep pin height"),
 	}
 }
 
-type Dependencies map[string]Contracts
-type Contracts map[string]Networks
-type Networks map[string]Network
+type Dependencies []Dependency
 
-func (this Dependencies) ToRLP() []interface{} {
-	return ProcessMap(this, func(placeholder string, contracts Contracts) interface{} {
-		contractRLP := ProcessMap(contracts, func(name string, networks Networks) interface{} {
-			networkRLP := ProcessMap(networks, func(networkName string, network Network) interface{} {
-				return []interface{}{shaHex(networkName, "network"), network.ToRLP()}
-			})
-			return []interface{}{shaHex(name, "contract"), networkRLP}
-		})
-		return []interface{}{shaHex(placeholder, "placeholder"), contractRLP}
-	})
+func (this Dependencies) ToRLP() [][]interface{} {
+	return lo.Map(this, Dependency.ToRLP)
 }
 
+type Dependency struct {
+	Address   string     `json:"address"`
+	Contracts []Contract `json:"contracts"`
+}
+
+func (this Dependency) ToRLP(_ int) []interface{} {
+	return []interface{}{
+		shaHex(this.Address, "dep address"),
+		lo.Map(this.Contracts, Contract.ToRLP),
+	}
+}
+
+type Contract struct {
+	Contract string    `json:"contract"`
+	Networks []Network `json:"networks"`
+}
+
+func (this Contract) ToRLP(_ int) []interface{} {
+	return []interface{}{
+		shaHex(this.Contract, "dep contract"),
+		lo.Map(this.Networks, Network.ToRLP),
+	}
+}
+
+type Networks []Network
+
 type Argument struct {
+	Key      string   `json:"key"`
 	Index    int      `json:"index"`
 	Type     string   `json:"type"`
 	Messages Messages `json:"messages"`
 	Balance  string   `json:"balance"`
 }
 
-/*
-	template-argument-content-index   = Cadence type of argument
-	template-argument-content-index   = Index of argument in cadence transaction or script
-	template-argument-content-balance = Fully qualified contract identifier of a token this argument acts upon | ""
-	template-argument-content         = [
-	    sha3_256(template-argument-content-index),
-	    sha3_256(template-argument-content-type),
-	    sha3_256(template-argument-content-balance),
-	    [ ...template-argument-content-message ]
-	]
-
-*/
-
-func (this Argument) ToRLP() []interface{} {
+func (this Argument) ToRLP(_ int) []interface{} {
 
 	list := []interface{}{
+		shaHex(this.Key, "argument key"),
 		shaHex(this.Index, "argument index"),
 		shaHex(this.Type, "argument type"),
 		shaHex(this.Balance, "argument balance"),
@@ -202,22 +140,10 @@ func (this Argument) ToRLP() []interface{} {
 	return list
 }
 
-type Arguments map[string]Argument
+type Arguments []Argument
 
-/*
-	template-argument-label         = Label for an argument
-
-template-argument               = [ sha3_256(template-argument-label), [ ...template-argument-content ]]
-template-arguments            = [ ...template-argument ] | []
-*/
-func (this Arguments) ToRLP() []interface{} {
-	return ProcessMap(this, func(label string, arg Argument) interface{} {
-		return []interface{}{
-			shaHex(label, "argument label"),
-			arg.ToRLP(),
-		}
-
-	})
+func (this Arguments) ToRLP() [][]interface{} {
+	return lo.Map(this, Argument.ToRLP)
 }
 
 type Data struct {
@@ -229,12 +155,15 @@ type Data struct {
 	Arguments    Arguments    `json:"arguments"`
 }
 
-func (self Data) ResolvedCadence(network string) string {
+func (self Data) ResolvedCadence(input string) string {
 	code := self.Cadence
-	for placeholder, dependency := range self.Dependencies {
-		for _, networks := range dependency {
-			address := networks[network].Address
-			code = strings.ReplaceAll(code, placeholder, address)
+	for _, dependency := range self.Dependencies {
+		for _, contract := range dependency.Contracts {
+			for _, network := range contract.Networks {
+				if network.Network == input {
+					code = strings.ReplaceAll(code, dependency.Address, network.Address)
+				}
+			}
 		}
 	}
 	return code
@@ -319,23 +248,16 @@ func (o *OverflowState) GenerateDependentPin(address string, name string, cache 
 	}
 	code := account.Contracts[name]
 
-	codes := map[common.Location][]byte{}
-	location := common.StringLocation(name)
-	program, _ := cmd.PrepareProgram(code, location, codes)
-
-	hashes := []string{shaHex(code, "pin code")}
-	for _, imp := range program.ImportDeclarations() {
-		address, isAddressImport := imp.Location.(common.AddressLocation)
-		if isAddressImport {
-			adr := address.Address.Hex()
-			impName := imp.Identifiers[0].Identifier
-			dep, err := o.GenerateDependentPin(adr, impName, cache)
-			if err != nil {
-				//TODO: gather up errors?
-				return nil, err
-			}
-			hashes = append(hashes, dep...)
+	imports := GetAddressImports(code, name)
+	hashes := []string{shaHex(code, "")}
+	for _, imp := range imports {
+		split := strings.Split(imp, ".")
+		address, name := split[0], split[1]
+		dep, err := o.GenerateDependentPin(address, name, cache)
+		if err != nil {
+			return nil, err
 		}
+		hashes = append(hashes, dep...)
 	}
 	cache[identifier] = hashes
 	return hashes, nil

@@ -15,11 +15,13 @@ require (
 	github.com/onflow/flow-go-sdk v0.29.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
+	github.com/samber/lo v1.38.1
 	github.com/sanity-io/litter v1.5.5
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/afero v1.9.2
 	github.com/stretchr/testify v1.8.1
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
+	golang.org/x/crypto v0.1.0
 	golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 )
 
@@ -163,7 +165,6 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.22.0 // indirect
-	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/mod v0.6.0 // indirect
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect

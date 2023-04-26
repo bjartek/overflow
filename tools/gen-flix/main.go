@@ -106,7 +106,7 @@ func main() {
 		Description: descriptionString,
 	}
 
-	flixArguments := map[string]overflow.Argument{}
+	flixArguments := []overflow.Argument{}
 	for i, arg := range data.ParameterOrder {
 
 		balance, _ := balance[arg]
@@ -114,70 +114,68 @@ func main() {
 			balance = fmt.Sprintf("0x%sADDRESS.%s", strings.ToUpper(balance), balance)
 		}
 
-		flixArguments[arg] = overflow.Argument{
+		flixArguments = append(flixArguments, overflow.Argument{
+			Key:      arg,
 			Index:    i,
 			Type:     data.Parameters[arg],
 			Messages: createMessages(argumentsMessage[arg]),
 			Balance:  balance,
-		}
+		})
 
 	}
+
+	latestBlock, err := o.GetLatestBlock()
+	if err != nil {
+		panic(err)
+	}
+
+	latestTestnetBlock, err := ot.GetLatestBlock()
+	if err != nil {
+		panic(err)
+	}
+
 	deps := overflow.Dependencies{}
-
-	for _, network := range *o.State.Networks() {
-		if network.Name == "emulator" {
-			continue
-		}
-		ovf := o
-		height := uint64(49419977)
-		if network.Name == "testnet" {
-			ovf = ot
-			height = 98123798
-		}
-
-		/*
-			latestBlock, err := ovf.GetLatestBlock()
-			if err != nil {
-				panic(err)
+	for name := range data.Imports {
+		networks := []overflow.Network{}
+		for _, network := range *o.State.Networks() {
+			if network.Name == "emulator" {
+				continue
 			}
-		*/
-
-		for name := range data.Imports {
+			ovf := o
+			block := latestBlock
+			if network.Name == "testnet" {
+				ovf = ot
+				block = latestTestnetBlock
+			}
 			address := ovf.Address(name)
 
-			pin, err := ovf.GeneratePin(address, name)
+			pin, err := ovf.GeneratePinDebthFirst(address, name)
 			if err != nil {
 				panic(err)
 			}
 
 			nw := overflow.Network{
+				Network:        network.Name,
 				Address:        address,
 				FqAddress:      fmt.Sprintf("A.%s.%s", strings.TrimPrefix(address, "0x"), name),
-				Contract:       name,
 				Pin:            pin,
-				PinBlockHeight: height, //latestBlock.Height,
+				PinBlockHeight: block.Height,
 			}
-
-			key1 := fmt.Sprintf("0x%s", strings.ToUpper(name))
-			key2 := name
-			key3 := network.Name
-
-			if deps[key1] == nil {
-
-				networks := overflow.Networks{
-					key3: nw,
-				}
-				contracts := overflow.Contracts{
-					key2: networks,
-				}
-				deps[key1] = contracts
-			}
-			deps[key1][key2][key3] = nw
+			networks = append(networks, nw)
 		}
+		contracts := []overflow.Contract{{
+			Contract: name,
+			Networks: networks,
+		}}
+		dep := overflow.Dependency{
+			Address:   fmt.Sprintf("0x%sADDRESS", strings.ToUpper(name)),
+			Contracts: contracts,
+		}
+		deps = append(deps, dep)
 	}
 	flix := overflow.FlowInteractionTemplate{
 		FType:    "InteractionTemplate",
-		FVersion: "1.0.0",
+		FVersion: "1.1.0",
 		Data: overflow.Data{
 			Type:         "transaction",
 			Interface:    flixInterface,
@@ -190,7 +188,7 @@ func main() {
 
 	flix.ID, err = overflow.GenerateFlixID(flix)
 
-	//	out, _ := json.Marshal(flix)
+	// out, _ := json.Marshal(flix)
 	out2, _ := json.MarshalIndent(flix, "", " ")
 
 	fmt.Println(string(out2))
@@ -218,16 +216,15 @@ func createMessages(messages map[string]InternationalisationMessage) overflow.Me
 		return msg
 	}
 
-	title := overflow.Title{
+	msg = append(msg, overflow.Message{
+		Key:  "title",
 		I18N: titles,
-	}
-	msg.Title = &title
-
+	})
 	if len(descriptions) > 0 {
-		desc := overflow.Description{
+		msg = append(msg, overflow.Message{
+			Key:  "description",
 			I18N: descriptions,
-		}
-		msg.Description = &desc
+		})
 	}
 
 	return msg

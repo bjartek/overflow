@@ -32,9 +32,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	for argName, arg := range flix.Data.Arguments {
+	for _, arg := range flix.Data.Arguments {
 		value := argsWithoutProg[arg.Index]
-		args = append(args, overflow.WithArg(argName, value))
+		args = append(args, overflow.WithArg(arg.Key, value))
 	}
 	if flix.Data.Type == "transaction" {
 		o.Tx(code, args...)
