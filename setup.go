@@ -205,6 +205,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			gateway.WithEmulatorOptions(emulatorOptions...),
 		)
 
+		overflow.EmulatorGatway = gw
 		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 	} else {
 		gw, err := gateway.NewGrpcGateway(*network)

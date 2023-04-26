@@ -24,6 +24,7 @@ import (
 	"github.com/onflow/flow-cli/flowkit"
 	"github.com/onflow/flow-cli/flowkit/accounts"
 	"github.com/onflow/flow-cli/flowkit/config"
+	"github.com/onflow/flow-cli/flowkit/gateway"
 	"github.com/onflow/flow-cli/flowkit/output"
 	"github.com/onflow/flow-cli/flowkit/project"
 	"github.com/onflow/flow-go-sdk"
@@ -85,6 +86,8 @@ type OverflowState struct {
 	State *flowkit.State
 	//the services from flowkit to performed operations on
 	Flowkit *flowkit.Flowkit
+
+	EmulatorGatway *gateway.EmulatorGateway
 
 	ArchiveFlowkit *flowkit.Flowkit
 
@@ -842,9 +845,9 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network config.N
 }
 
 func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
-	return o.Emulator.GetCoverageReport()
+	return o.EmulatorGatway.CoverageReport()
 }
 
 func (o *OverflowState) RollbackToBlockHeight(height uint64) error {
-	return o.Emulator.RollbackToBlockHeight(height)
+	return o.EmulatorGatway.RollbackToBlockHeight(height)
 }

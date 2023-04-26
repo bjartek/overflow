@@ -179,3 +179,5 @@ require (
 	modernc.org/sqlite v1.21.1 // indirect
 	mvdan.cc/gofumpt v0.4.0 // indirect
 )
+
+replace github.com/onflow/flow-cli/flowkit => github.com/bjartek/flow-cli/flowkit v0.0.0-20230426102910-814b3555c673
