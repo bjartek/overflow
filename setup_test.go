@@ -3,7 +3,7 @@ package overflow
 import (
 	"testing"
 
-	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/onflow/flow-cli/flowkit/output"
 	"github.com/stretchr/testify/assert"
 )
 

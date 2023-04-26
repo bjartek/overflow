@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,7 +41,7 @@ func TestGetAccount(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, g)
 		assert.NotNil(t, g)
-		account, err := g.GetAccount("account")
+		account, err := g.GetAccount(context.Background(), "account")
 		require.NoError(t, err)
 		assert.Equal(t, "f8d6e0586b0a20c7", account.Address.String())
 	})
@@ -49,7 +50,7 @@ func TestGetAccount(t *testing.T) {
 		g, err := OverflowTesting()
 		require.NotNil(t, g)
 		require.NoError(t, err)
-		_, err = g.GetAccount("doesnotexist")
+		_, err = g.GetAccount(context.Background(), "doesnotexist")
 		assert.ErrorContains(t, err, "could not find account with name emulator-doesnotexist in the configuration")
 
 	})

@@ -10,7 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/flowkit"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
@@ -77,7 +77,12 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 
 	o.Log.Reset()
 
-	script := flowkit.NewScript(fbi.TransactionCode, fbi.Arguments, filePath)
+	script := flowkit.Script{
+		Code:     fbi.TransactionCode,
+		Args:     fbi.Arguments,
+		Location: filePath,
+	}
+	/* TODO: acrhive scripts
 	if o.ArchiveScripts != nil {
 		result, err := o.ArchiveScripts.Execute(script, o.Network, fbi.ScriptQuery)
 		osc.Result = result
@@ -86,13 +91,14 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
 		}
 	} else {
-		result, err := o.Services.Scripts.Execute(script, o.Network, fbi.ScriptQuery)
-		osc.Result = result
-		osc.Output = CadenceValueToInterface(result)
-		if err != nil {
-			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
-		}
+	*/
+	result, err := o.Flowkit.ExecuteScript(fbi.Ctx, script, *fbi.ScriptQuery)
+	osc.Result = result
+	osc.Output = CadenceValueToInterface(result)
+	if err != nil {
+		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
 	}
+	//}
 
 	var logMessage []OverflowEmulatorLogMessage
 	dec := json.NewDecoder(o.Log)

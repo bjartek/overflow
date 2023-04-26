@@ -106,7 +106,7 @@ pub fun main(user:Address): UInt64{
 }
 
 func (o *OverflowState) MintFlowTokens(accountName string, amount float64) *OverflowState {
-	if o.Network != "emulator" {
+	if o.Network.Name != "emulator" {
 		o.Error = fmt.Errorf("Can only mint new flow on emulator")
 		return o
 	}
