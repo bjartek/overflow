@@ -538,17 +538,16 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 func (o *OverflowState) TxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction {
 
 	return func(filename string, opts ...OverflowInteractionOption) *OverflowResult {
-		outerOpts = append(outerOpts, opts...)
-		return o.Tx(filename, outerOpts...)
-
+		opts = append(opts, outerOpts...)
+		return o.Tx(filename, opts...)
 	}
 }
 
 func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction {
 
 	return func(opts ...OverflowInteractionOption) *OverflowResult {
-		outerOpts = append(outerOpts, opts...)
-		return o.Tx(filename, outerOpts...)
+		opts = append(opts, outerOpts...)
+		return o.Tx(filename, opts...)
 	}
 }
 
