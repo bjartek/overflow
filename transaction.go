@@ -33,6 +33,7 @@ type OverflowTransaction struct {
 	Status           string
 	Arguments        []interface{}
 	Stakeholders     map[string][]string
+	Imports          map[string][]string
 	ProposerKeyIndex int
 	Script           []byte
 	RawTx            flow.Transaction
@@ -109,9 +110,10 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		}
 
 		//not sure if we want this here anymore if we want to store contracts
-		standardStakeholders, err := GetAddressImports(t.Script, "tx")
-		if err != nil {
-			fmt.Println("[WARN]", err.Error())
+		standardStakeholders := map[string][]string{}
+		imports, err :=GetAddressImports(t.Script, "tx")
+		if err !nil {
+				fmt.Println("[WARN]", err.Error())
 		}
 
 		for _, authorizer := range t.Authorizers {
@@ -140,6 +142,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			Status:           r.Status.String(),
 			Events:           eventsWithoutFees,
 			Stakeholders:     eventsWithoutFees.GetStakeholders(standardStakeholders),
+			Imports: imports,
 			Error:            r.Error,
 			Arguments:        args,
 			Fee:              feeAmount,
