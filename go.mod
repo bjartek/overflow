@@ -9,7 +9,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v0.38.1
-	github.com/onflow/flow-cli/flowkit v1.0.1-0.20230425190809-6a954b22d83b
+	github.com/onflow/flow-cli/flowkit v1.0.2-0.20230426164813-321861ecaee8
 	github.com/onflow/flow-emulator v0.48.0
 	github.com/onflow/flow-go v0.30.1-0.20230419183628-e1fa8dba5ec5
 	github.com/onflow/flow-go-sdk v0.40.0
@@ -179,5 +179,3 @@ require (
 	modernc.org/sqlite v1.21.1 // indirect
 	mvdan.cc/gofumpt v0.4.0 // indirect
 )
-
-replace github.com/onflow/flow-cli/flowkit => github.com/bjartek/flow-cli/flowkit v0.0.0-20230426102910-814b3555c673
