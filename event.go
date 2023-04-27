@@ -118,7 +118,6 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
-			//TODO: is this really the best way of doing this? lets experiment
 			addresses[name] = ExtractAddresses(field)
 			value := CadenceValueToInterface(field)
 			if value != nil {
