@@ -161,7 +161,8 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, int64(0), progress)
 
-		res.ProgressWriteFunction()
+		err = res.ProgressWriteFunction()
+		require.NoError(t, err)
 
 		progress, err = readProgressFromFile(progressFile)
 		require.NoError(t, err)

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/onflow/flow-go/utils/io"
+	"github.com/stretchr/testify/require"
 )
 
 type OverflowTest struct {
@@ -13,15 +14,17 @@ type OverflowTest struct {
 	height uint64
 }
 
-func (ot *OverflowTest) Reset() {
-	ot.O.RollbackToBlockHeight(ot.height)
+func (ot *OverflowTest) Reset() error {
+	return ot.O.RollbackToBlockHeight(ot.height)
 }
 
 func (ot *OverflowTest) Run(t *testing.T, name string, f func(t *testing.T)) {
-	ot.Reset()
 	t.Helper()
+	err := ot.Reset()
+	require.NoError(t, err)
 	t.Run(name, f)
-	ot.Reset()
+	err = ot.Reset()
+	require.NoError(t, err)
 }
 
 func (ot *OverflowTest) Teardown() {

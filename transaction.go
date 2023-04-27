@@ -51,7 +51,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 	//if we get this error
 	//* rpc error: code = ResourceExhausted desc = grpc: trying to send message larger than max (22072361 vs. 20971520)
 	//we have to fetch the block again with transaction ids.
-	//in paralell loop over them and run GetStatus and create the transactions that way.
+	//in parallel loop over them and run GetStatus and create the transactions that way.
 
 	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
@@ -76,7 +76,11 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		events, fee := parseEvents(r.Events)
 		feeRaw, ok := fee.Fields["amount"]
 		if ok {
-			feeAmount = feeRaw.(float64)
+			feeAmount, ok = feeRaw.(float64)
+			if !ok {
+				panic("failed casting fee amount to float64")
+			}
+
 		}
 
 		executionEffort, ok := fee.Fields["executionEffort"].(float64)
