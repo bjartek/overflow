@@ -20,7 +20,6 @@ type OverflowEventList []OverflowEvent
 // a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string]OverflowEventList
 
-// TODO: can the be done easier with LO?
 func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[string][]string {
 
 	for _, events := range me {
