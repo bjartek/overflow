@@ -1,11 +1,14 @@
 package overflow
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/onflow/flow-cli/flowkit"
 )
 
 // Event fetching
@@ -34,6 +37,7 @@ func (self *InMemoryProgressKeeper) WriteProgress(progress int64) error {
 
 // OverflowEventFetcherBuilder builder to hold info about eventhook context.
 type OverflowEventFetcherBuilder struct {
+	Ctx                   context.Context
 	OverflowState         *OverflowState
 	EventsAndIgnoreFields OverflowEventFilter
 	FromIndex             int64
@@ -49,6 +53,7 @@ type OverflowEventFetcherBuilder struct {
 // Build an event fetcher builder from the sent in options
 func (o *OverflowState) buildEventInteraction(opts ...OverflowEventFetcherOption) *OverflowEventFetcherBuilder {
 	e := &OverflowEventFetcherBuilder{
+		Ctx:                   context.Background(),
 		OverflowState:         o,
 		EventsAndIgnoreFields: OverflowEventFilter{},
 		EndAtCurrentHeight:    true,
@@ -127,12 +132,12 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 
 	endIndex := e.EndIndex
 	if e.EndAtCurrentHeight {
-		blockHeight, err := e.OverflowState.Services.Blocks.GetLatestBlockHeight()
+		blockHeight, err := e.OverflowState.GetLatestBlock(e.Ctx)
 		if err != nil {
 			res.Error = err
 			return res
 		}
-		endIndex = blockHeight
+		endIndex = blockHeight.Height
 	}
 
 	fromIndex := e.FromIndex
@@ -154,7 +159,11 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 	if uint64(fromIndex) > endIndex {
 		return res
 	}
-	blockEvents, err := e.OverflowState.Services.Events.Get(events, uint64(fromIndex), endIndex, e.EventBatchSize, e.NumberOfWorkers)
+	ew := &flowkit.EventWorker{
+		Count:           e.NumberOfWorkers,
+		BlocksPerWorker: e.EventBatchSize,
+	}
+	blockEvents, err := e.OverflowState.Flowkit.GetEvents(e.Ctx, events, uint64(fromIndex), endIndex, ew)
 	if err != nil {
 		res.Error = err
 		return res
@@ -219,6 +228,13 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 func (o *OverflowState) FetchEvents(opts ...OverflowEventFetcherOption) ([]OverflowPastEvent, error) {
 	res := o.FetchEventsWithResult(opts...)
 	return res.Events, res.Error
+}
+
+// Set the Workers size for FetchEvents
+func WithEventFetcherContext(ctx context.Context) OverflowEventFetcherOption {
+	return func(e *OverflowEventFetcherBuilder) {
+		e.Ctx = ctx
+	}
 }
 
 // Set the Workers size for FetchEvents

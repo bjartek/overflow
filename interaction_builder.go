@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -8,9 +9,9 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flow-cli/pkg/flowkit"
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
-	"github.com/onflow/flow-cli/pkg/flowkit/util"
+	"github.com/onflow/flow-cli/flowkit"
+	"github.com/onflow/flow-cli/flowkit/accounts"
+	"github.com/onflow/flow-cli/flowkit/transactions"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 )
@@ -21,7 +22,7 @@ import (
 
 // OverflowInteractionBuilder used to create a builder pattern for an interaction
 type OverflowInteractionBuilder struct {
-
+	Ctx context.Context
 	//the name of the integration, for inline variants
 	Name string
 
@@ -44,15 +45,15 @@ type OverflowInteractionBuilder struct {
 
 	//The main signer used to sign the transaction
 	// Payer: the account paying for the transaction fees.
-	Payer *flowkit.Account
+	Payer *accounts.Account
 
 	//The propser account
 	//    Proposer: the account that specifies a proposal key.
-	Proposer *flowkit.Account
+	Proposer *accounts.Account
 
 	//The payload signers that will sign the payload
 	//Authorizers: zero or more accounts authorizing the transaction to mutate their state.
-	PayloadSigners []*flowkit.Account
+	PayloadSigners []*accounts.Account
 
 	//The gas limit to set for this given interaction
 	GasLimit uint64
@@ -79,7 +80,10 @@ type OverflowInteractionBuilder struct {
 	PrintOptions *[]OverflowPrinterOption
 
 	//Query to use for running scripts
-	ScriptQuery *util.ScriptQuery
+	ScriptQuery *flowkit.ScriptQuery
+
+	//
+	StopOnError *bool
 }
 
 // get the contract code
@@ -102,6 +106,12 @@ type OverflowInteractionOption func(*OverflowInteractionBuilder)
 func WithoutLog() OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.NoLog = true
+	}
+}
+
+func WithContext(ctx context.Context) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Ctx = ctx
 	}
 }
 
@@ -220,7 +230,7 @@ func WithAddresses(name string, value ...string) OverflowInteractionOption {
 				cadenceAddress := cadence.BytesToAddress(address.Bytes())
 				array = append(array, cadenceAddress)
 			} else {
-				cadenceAddress := cadence.BytesToAddress(account.Address().Bytes())
+				cadenceAddress := cadence.BytesToAddress(account.Address.Bytes())
 				array = append(array, cadenceAddress)
 			}
 		}
@@ -323,21 +333,27 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 // set what block height to execute a script at! NB! if very old will not work on normal AN
 func WithExecuteScriptAtBlockHeight(height uint64) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		oib.ScriptQuery = &util.ScriptQuery{Height: height}
+		oib.ScriptQuery = &flowkit.ScriptQuery{Height: height}
 	}
 }
 
 // set what block height to execute a script at! NB! if very old will not work on normal AN
 func WithExecuteScriptAtBlockIdHex(blockId string) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		oib.ScriptQuery = &util.ScriptQuery{ID: flow.HexToID(blockId)}
+		oib.ScriptQuery = &flowkit.ScriptQuery{ID: flow.HexToID(blockId)}
 	}
 }
 
 // set what block height to execute a script at! NB! if very old will not work on normal AN
 func WithExecuteScriptAtBlockIdentifier(blockId flow.Identifier) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		oib.ScriptQuery = &util.ScriptQuery{ID: blockId}
+		oib.ScriptQuery = &flowkit.ScriptQuery{ID: blockId}
+	}
+}
+
+func WithPanicInteractionOnError(stop bool) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.StopOnError = &stop
 	}
 }
 
@@ -358,6 +374,9 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		FeeGas:          0,
 		Name:            "",
 		Arguments:       oib.NamedCadenceArguments,
+	}
+	if oib.StopOnError != nil {
+		result.StopOnError = *oib.StopOnError
 	}
 	if oib.Error != nil {
 		result.Err = oib.Error
@@ -393,7 +412,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	var authorizers []flow.Address
 	for _, signer := range signers {
-		authorizers = append(authorizers, signer.Address())
+		authorizers = append(authorizers, signer.Address)
 	}
 
 	if oib.Payer == nil {
@@ -401,15 +420,24 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		signers = append(signers, oib.Proposer)
 	}
 
-	script := flowkit.NewScript(oib.TransactionCode, oib.Arguments, codeFileName)
-	addresses := services.NewTransactionAddresses(oib.Proposer.Address(), payer.Address(), authorizers)
+	script := flowkit.Script{
+		Code:     oib.TransactionCode,
+		Args:     oib.Arguments,
+		Location: codeFileName,
+	}
 
-	tx, err := oib.Overflow.Services.Transactions.Build(
+	addresses := transactions.AddressesRoles{
+		Proposer:    oib.Proposer.Address,
+		Authorizers: authorizers,
+		Payer:       payer.Address,
+	}
+
+	tx, err := oib.Overflow.Flowkit.BuildTransaction(
+		oib.Ctx,
 		addresses,
-		oib.Proposer.Key().Index(),
+		oib.Proposer.Key.Index(),
 		script,
 		oib.GasLimit,
-		oib.Overflow.Network,
 	)
 	if err != nil {
 		result.Err = err
@@ -432,7 +460,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	txId := tx.FlowTransaction().ID()
 	result.Id = txId
 
-	ftx, res, err := oib.Overflow.Services.Transactions.SendSigned(tx)
+	ftx, res, err := oib.Overflow.Flowkit.SendSignedTransaction(oib.Ctx, tx)
 	result.Transaction = ftx
 
 	if err != nil {
@@ -506,5 +534,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
 	result.Err = res.Error
+
+	if result.Err != nil && result.StopOnError {
+		panic(result.Err)
+	}
+
 	return result
 }

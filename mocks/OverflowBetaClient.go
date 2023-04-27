@@ -5,8 +5,11 @@ package mocks
 import (
 	context "context"
 
-	flowkit "github.com/onflow/flow-cli/pkg/flowkit"
+	accounts "github.com/onflow/flow-cli/flowkit/accounts"
+
 	flow "github.com/onflow/flow-go-sdk"
+
+	flowkit "github.com/onflow/flow-cli/flowkit"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -31,15 +34,15 @@ func (_m *OverflowBetaClient) EXPECT() *OverflowBetaClient_Expecter {
 }
 
 // Account provides a mock function with given fields: key
-func (_m *OverflowBetaClient) Account(key string) *flowkit.Account {
+func (_m *OverflowBetaClient) Account(key string) *accounts.Account {
 	ret := _m.Called(key)
 
-	var r0 *flowkit.Account
-	if rf, ok := ret.Get(0).(func(string) *flowkit.Account); ok {
+	var r0 *accounts.Account
+	if rf, ok := ret.Get(0).(func(string) *accounts.Account); ok {
 		r0 = rf(key)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*flowkit.Account)
+			r0 = ret.Get(0).(*accounts.Account)
 		}
 	}
 
@@ -64,30 +67,30 @@ func (_c *OverflowBetaClient_Account_Call) Run(run func(key string)) *OverflowBe
 	return _c
 }
 
-func (_c *OverflowBetaClient_Account_Call) Return(_a0 *flowkit.Account) *OverflowBetaClient_Account_Call {
+func (_c *OverflowBetaClient_Account_Call) Return(_a0 *accounts.Account) *OverflowBetaClient_Account_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *OverflowBetaClient_Account_Call) RunAndReturn(run func(string) *flowkit.Account) *OverflowBetaClient_Account_Call {
+func (_c *OverflowBetaClient_Account_Call) RunAndReturn(run func(string) *accounts.Account) *OverflowBetaClient_Account_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // AccountE provides a mock function with given fields: key
-func (_m *OverflowBetaClient) AccountE(key string) (*flowkit.Account, error) {
+func (_m *OverflowBetaClient) AccountE(key string) (*accounts.Account, error) {
 	ret := _m.Called(key)
 
-	var r0 *flowkit.Account
+	var r0 *accounts.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*flowkit.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*accounts.Account, error)); ok {
 		return rf(key)
 	}
-	if rf, ok := ret.Get(0).(func(string) *flowkit.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *accounts.Account); ok {
 		r0 = rf(key)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*flowkit.Account)
+			r0 = ret.Get(0).(*accounts.Account)
 		}
 	}
 
@@ -118,12 +121,12 @@ func (_c *OverflowBetaClient_AccountE_Call) Run(run func(key string)) *OverflowB
 	return _c
 }
 
-func (_c *OverflowBetaClient_AccountE_Call) Return(_a0 *flowkit.Account, _a1 error) *OverflowBetaClient_AccountE_Call {
+func (_c *OverflowBetaClient_AccountE_Call) Return(_a0 *accounts.Account, _a1 error) *OverflowBetaClient_AccountE_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *OverflowBetaClient_AccountE_Call) RunAndReturn(run func(string) (*flowkit.Account, error)) *OverflowBetaClient_AccountE_Call {
+func (_c *OverflowBetaClient_AccountE_Call) RunAndReturn(run func(string) (*accounts.Account, error)) *OverflowBetaClient_AccountE_Call {
 	_c.Call.Return(run)
 	return _c
 }
