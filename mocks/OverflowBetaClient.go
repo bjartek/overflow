@@ -3,13 +3,12 @@
 package mocks
 
 import (
-	context "context"
-
+	cadence "github.com/onflow/cadence"
 	accounts "github.com/onflow/flow-cli/flowkit/accounts"
 
-	flow "github.com/onflow/flow-go-sdk"
+	context "context"
 
-	flowkit "github.com/onflow/flow-cli/flowkit"
+	flow "github.com/onflow/flow-go-sdk"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -131,13 +130,13 @@ func (_c *OverflowBetaClient_AccountE_Call) RunAndReturn(run func(string) (*acco
 	return _c
 }
 
-// AddContract provides a mock function with given fields: name, contract, update
-func (_m *OverflowBetaClient) AddContract(name string, contract *flowkit.Script, update bool) error {
-	ret := _m.Called(name, contract, update)
+// AddContract provides a mock function with given fields: ctx, name, code, args, filename, update
+func (_m *OverflowBetaClient) AddContract(ctx context.Context, name string, code []byte, args []cadence.Value, filename string, update bool) error {
+	ret := _m.Called(ctx, name, code, args, filename, update)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, *flowkit.Script, bool) error); ok {
-		r0 = rf(name, contract, update)
+	if rf, ok := ret.Get(0).(func(context.Context, string, []byte, []cadence.Value, string, bool) error); ok {
+		r0 = rf(ctx, name, code, args, filename, update)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -151,16 +150,19 @@ type OverflowBetaClient_AddContract_Call struct {
 }
 
 // AddContract is a helper method to define mock.On call
+//   - ctx context.Context
 //   - name string
-//   - contract *flowkit.Script
+//   - code []byte
+//   - args []cadence.Value
+//   - filename string
 //   - update bool
-func (_e *OverflowBetaClient_Expecter) AddContract(name interface{}, contract interface{}, update interface{}) *OverflowBetaClient_AddContract_Call {
-	return &OverflowBetaClient_AddContract_Call{Call: _e.mock.On("AddContract", name, contract, update)}
+func (_e *OverflowBetaClient_Expecter) AddContract(ctx interface{}, name interface{}, code interface{}, args interface{}, filename interface{}, update interface{}) *OverflowBetaClient_AddContract_Call {
+	return &OverflowBetaClient_AddContract_Call{Call: _e.mock.On("AddContract", ctx, name, code, args, filename, update)}
 }
 
-func (_c *OverflowBetaClient_AddContract_Call) Run(run func(name string, contract *flowkit.Script, update bool)) *OverflowBetaClient_AddContract_Call {
+func (_c *OverflowBetaClient_AddContract_Call) Run(run func(ctx context.Context, name string, code []byte, args []cadence.Value, filename string, update bool)) *OverflowBetaClient_AddContract_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(*flowkit.Script), args[2].(bool))
+		run(args[0].(context.Context), args[1].(string), args[2].([]byte), args[3].([]cadence.Value), args[4].(string), args[5].(bool))
 	})
 	return _c
 }
@@ -170,7 +172,7 @@ func (_c *OverflowBetaClient_AddContract_Call) Return(_a0 error) *OverflowBetaCl
 	return _c
 }
 
-func (_c *OverflowBetaClient_AddContract_Call) RunAndReturn(run func(string, *flowkit.Script, bool) error) *OverflowBetaClient_AddContract_Call {
+func (_c *OverflowBetaClient_AddContract_Call) RunAndReturn(run func(context.Context, string, []byte, []cadence.Value, string, bool) error) *OverflowBetaClient_AddContract_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -402,25 +404,25 @@ func (_c *OverflowBetaClient_FillUpStorage_Call) RunAndReturn(run func(string) *
 	return _c
 }
 
-// GetAccount provides a mock function with given fields: key
-func (_m *OverflowBetaClient) GetAccount(key string) (*flow.Account, error) {
-	ret := _m.Called(key)
+// GetAccount provides a mock function with given fields: ctx, key
+func (_m *OverflowBetaClient) GetAccount(ctx context.Context, key string) (*flow.Account, error) {
+	ret := _m.Called(ctx, key)
 
 	var r0 *flow.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*flow.Account, error)); ok {
-		return rf(key)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*flow.Account, error)); ok {
+		return rf(ctx, key)
 	}
-	if rf, ok := ret.Get(0).(func(string) *flow.Account); ok {
-		r0 = rf(key)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *flow.Account); ok {
+		r0 = rf(ctx, key)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*flow.Account)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(key)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, key)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -434,14 +436,15 @@ type OverflowBetaClient_GetAccount_Call struct {
 }
 
 // GetAccount is a helper method to define mock.On call
+//   - ctx context.Context
 //   - key string
-func (_e *OverflowBetaClient_Expecter) GetAccount(key interface{}) *OverflowBetaClient_GetAccount_Call {
-	return &OverflowBetaClient_GetAccount_Call{Call: _e.mock.On("GetAccount", key)}
+func (_e *OverflowBetaClient_Expecter) GetAccount(ctx interface{}, key interface{}) *OverflowBetaClient_GetAccount_Call {
+	return &OverflowBetaClient_GetAccount_Call{Call: _e.mock.On("GetAccount", ctx, key)}
 }
 
-func (_c *OverflowBetaClient_GetAccount_Call) Run(run func(key string)) *OverflowBetaClient_GetAccount_Call {
+func (_c *OverflowBetaClient_GetAccount_Call) Run(run func(ctx context.Context, key string)) *OverflowBetaClient_GetAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -451,30 +454,30 @@ func (_c *OverflowBetaClient_GetAccount_Call) Return(_a0 *flow.Account, _a1 erro
 	return _c
 }
 
-func (_c *OverflowBetaClient_GetAccount_Call) RunAndReturn(run func(string) (*flow.Account, error)) *OverflowBetaClient_GetAccount_Call {
+func (_c *OverflowBetaClient_GetAccount_Call) RunAndReturn(run func(context.Context, string) (*flow.Account, error)) *OverflowBetaClient_GetAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetBlockAtHeight provides a mock function with given fields: height
-func (_m *OverflowBetaClient) GetBlockAtHeight(height uint64) (*flow.Block, error) {
-	ret := _m.Called(height)
+// GetBlockAtHeight provides a mock function with given fields: ctx, height
+func (_m *OverflowBetaClient) GetBlockAtHeight(ctx context.Context, height uint64) (*flow.Block, error) {
+	ret := _m.Called(ctx, height)
 
 	var r0 *flow.Block
 	var r1 error
-	if rf, ok := ret.Get(0).(func(uint64) (*flow.Block, error)); ok {
-		return rf(height)
+	if rf, ok := ret.Get(0).(func(context.Context, uint64) (*flow.Block, error)); ok {
+		return rf(ctx, height)
 	}
-	if rf, ok := ret.Get(0).(func(uint64) *flow.Block); ok {
-		r0 = rf(height)
+	if rf, ok := ret.Get(0).(func(context.Context, uint64) *flow.Block); ok {
+		r0 = rf(ctx, height)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*flow.Block)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(uint64) error); ok {
-		r1 = rf(height)
+	if rf, ok := ret.Get(1).(func(context.Context, uint64) error); ok {
+		r1 = rf(ctx, height)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -488,14 +491,15 @@ type OverflowBetaClient_GetBlockAtHeight_Call struct {
 }
 
 // GetBlockAtHeight is a helper method to define mock.On call
+//   - ctx context.Context
 //   - height uint64
-func (_e *OverflowBetaClient_Expecter) GetBlockAtHeight(height interface{}) *OverflowBetaClient_GetBlockAtHeight_Call {
-	return &OverflowBetaClient_GetBlockAtHeight_Call{Call: _e.mock.On("GetBlockAtHeight", height)}
+func (_e *OverflowBetaClient_Expecter) GetBlockAtHeight(ctx interface{}, height interface{}) *OverflowBetaClient_GetBlockAtHeight_Call {
+	return &OverflowBetaClient_GetBlockAtHeight_Call{Call: _e.mock.On("GetBlockAtHeight", ctx, height)}
 }
 
-func (_c *OverflowBetaClient_GetBlockAtHeight_Call) Run(run func(height uint64)) *OverflowBetaClient_GetBlockAtHeight_Call {
+func (_c *OverflowBetaClient_GetBlockAtHeight_Call) Run(run func(ctx context.Context, height uint64)) *OverflowBetaClient_GetBlockAtHeight_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(uint64))
+		run(args[0].(context.Context), args[1].(uint64))
 	})
 	return _c
 }
@@ -505,30 +509,30 @@ func (_c *OverflowBetaClient_GetBlockAtHeight_Call) Return(_a0 *flow.Block, _a1 
 	return _c
 }
 
-func (_c *OverflowBetaClient_GetBlockAtHeight_Call) RunAndReturn(run func(uint64) (*flow.Block, error)) *OverflowBetaClient_GetBlockAtHeight_Call {
+func (_c *OverflowBetaClient_GetBlockAtHeight_Call) RunAndReturn(run func(context.Context, uint64) (*flow.Block, error)) *OverflowBetaClient_GetBlockAtHeight_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetBlockById provides a mock function with given fields: blockId
-func (_m *OverflowBetaClient) GetBlockById(blockId string) (*flow.Block, error) {
-	ret := _m.Called(blockId)
+// GetBlockById provides a mock function with given fields: ctx, blockId
+func (_m *OverflowBetaClient) GetBlockById(ctx context.Context, blockId string) (*flow.Block, error) {
+	ret := _m.Called(ctx, blockId)
 
 	var r0 *flow.Block
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*flow.Block, error)); ok {
-		return rf(blockId)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*flow.Block, error)); ok {
+		return rf(ctx, blockId)
 	}
-	if rf, ok := ret.Get(0).(func(string) *flow.Block); ok {
-		r0 = rf(blockId)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *flow.Block); ok {
+		r0 = rf(ctx, blockId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*flow.Block)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(blockId)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, blockId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -542,14 +546,15 @@ type OverflowBetaClient_GetBlockById_Call struct {
 }
 
 // GetBlockById is a helper method to define mock.On call
+//   - ctx context.Context
 //   - blockId string
-func (_e *OverflowBetaClient_Expecter) GetBlockById(blockId interface{}) *OverflowBetaClient_GetBlockById_Call {
-	return &OverflowBetaClient_GetBlockById_Call{Call: _e.mock.On("GetBlockById", blockId)}
+func (_e *OverflowBetaClient_Expecter) GetBlockById(ctx interface{}, blockId interface{}) *OverflowBetaClient_GetBlockById_Call {
+	return &OverflowBetaClient_GetBlockById_Call{Call: _e.mock.On("GetBlockById", ctx, blockId)}
 }
 
-func (_c *OverflowBetaClient_GetBlockById_Call) Run(run func(blockId string)) *OverflowBetaClient_GetBlockById_Call {
+func (_c *OverflowBetaClient_GetBlockById_Call) Run(run func(ctx context.Context, blockId string)) *OverflowBetaClient_GetBlockById_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -559,7 +564,7 @@ func (_c *OverflowBetaClient_GetBlockById_Call) Return(_a0 *flow.Block, _a1 erro
 	return _c
 }
 
-func (_c *OverflowBetaClient_GetBlockById_Call) RunAndReturn(run func(string) (*flow.Block, error)) *OverflowBetaClient_GetBlockById_Call {
+func (_c *OverflowBetaClient_GetBlockById_Call) RunAndReturn(run func(context.Context, string) (*flow.Block, error)) *OverflowBetaClient_GetBlockById_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -606,25 +611,25 @@ func (_c *OverflowBetaClient_GetFreeCapacity_Call) RunAndReturn(run func(string)
 	return _c
 }
 
-// GetLatestBlock provides a mock function with given fields:
-func (_m *OverflowBetaClient) GetLatestBlock() (*flow.Block, error) {
-	ret := _m.Called()
+// GetLatestBlock provides a mock function with given fields: ctx
+func (_m *OverflowBetaClient) GetLatestBlock(ctx context.Context) (*flow.Block, error) {
+	ret := _m.Called(ctx)
 
 	var r0 *flow.Block
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*flow.Block, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context) (*flow.Block, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func() *flow.Block); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) *flow.Block); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*flow.Block)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -638,13 +643,14 @@ type OverflowBetaClient_GetLatestBlock_Call struct {
 }
 
 // GetLatestBlock is a helper method to define mock.On call
-func (_e *OverflowBetaClient_Expecter) GetLatestBlock() *OverflowBetaClient_GetLatestBlock_Call {
-	return &OverflowBetaClient_GetLatestBlock_Call{Call: _e.mock.On("GetLatestBlock")}
+//   - ctx context.Context
+func (_e *OverflowBetaClient_Expecter) GetLatestBlock(ctx interface{}) *OverflowBetaClient_GetLatestBlock_Call {
+	return &OverflowBetaClient_GetLatestBlock_Call{Call: _e.mock.On("GetLatestBlock", ctx)}
 }
 
-func (_c *OverflowBetaClient_GetLatestBlock_Call) Run(run func()) *OverflowBetaClient_GetLatestBlock_Call {
+func (_c *OverflowBetaClient_GetLatestBlock_Call) Run(run func(ctx context.Context)) *OverflowBetaClient_GetLatestBlock_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(context.Context))
 	})
 	return _c
 }
@@ -654,7 +660,7 @@ func (_c *OverflowBetaClient_GetLatestBlock_Call) Return(_a0 *flow.Block, _a1 er
 	return _c
 }
 
-func (_c *OverflowBetaClient_GetLatestBlock_Call) RunAndReturn(run func() (*flow.Block, error)) *OverflowBetaClient_GetLatestBlock_Call {
+func (_c *OverflowBetaClient_GetLatestBlock_Call) RunAndReturn(run func(context.Context) (*flow.Block, error)) *OverflowBetaClient_GetLatestBlock_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -700,79 +706,25 @@ func (_c *OverflowBetaClient_GetNetwork_Call) RunAndReturn(run func() string) *O
 	return _c
 }
 
-// GetTransactionByBlockId provides a mock function with given fields: blockId
-func (_m *OverflowBetaClient) GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error) {
-	ret := _m.Called(blockId)
-
-	var r0 []*flow.Transaction
-	var r1 error
-	if rf, ok := ret.Get(0).(func(flow.Identifier) ([]*flow.Transaction, error)); ok {
-		return rf(blockId)
-	}
-	if rf, ok := ret.Get(0).(func(flow.Identifier) []*flow.Transaction); ok {
-		r0 = rf(blockId)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*flow.Transaction)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(flow.Identifier) error); ok {
-		r1 = rf(blockId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// OverflowBetaClient_GetTransactionByBlockId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionByBlockId'
-type OverflowBetaClient_GetTransactionByBlockId_Call struct {
-	*mock.Call
-}
-
-// GetTransactionByBlockId is a helper method to define mock.On call
-//   - blockId flow.Identifier
-func (_e *OverflowBetaClient_Expecter) GetTransactionByBlockId(blockId interface{}) *OverflowBetaClient_GetTransactionByBlockId_Call {
-	return &OverflowBetaClient_GetTransactionByBlockId_Call{Call: _e.mock.On("GetTransactionByBlockId", blockId)}
-}
-
-func (_c *OverflowBetaClient_GetTransactionByBlockId_Call) Run(run func(blockId flow.Identifier)) *OverflowBetaClient_GetTransactionByBlockId_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(flow.Identifier))
-	})
-	return _c
-}
-
-func (_c *OverflowBetaClient_GetTransactionByBlockId_Call) Return(_a0 []*flow.Transaction, _a1 error) *OverflowBetaClient_GetTransactionByBlockId_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *OverflowBetaClient_GetTransactionByBlockId_Call) RunAndReturn(run func(flow.Identifier) ([]*flow.Transaction, error)) *OverflowBetaClient_GetTransactionByBlockId_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTransactionById provides a mock function with given fields: id
-func (_m *OverflowBetaClient) GetTransactionById(id flow.Identifier) (*flow.Transaction, error) {
-	ret := _m.Called(id)
+// GetTransactionById provides a mock function with given fields: ctx, id
+func (_m *OverflowBetaClient) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
+	ret := _m.Called(ctx, id)
 
 	var r0 *flow.Transaction
 	var r1 error
-	if rf, ok := ret.Get(0).(func(flow.Identifier) (*flow.Transaction, error)); ok {
-		return rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier) (*flow.Transaction, error)); ok {
+		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(flow.Identifier) *flow.Transaction); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier) *flow.Transaction); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*flow.Transaction)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(flow.Identifier) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, flow.Identifier) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -786,14 +738,15 @@ type OverflowBetaClient_GetTransactionById_Call struct {
 }
 
 // GetTransactionById is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id flow.Identifier
-func (_e *OverflowBetaClient_Expecter) GetTransactionById(id interface{}) *OverflowBetaClient_GetTransactionById_Call {
-	return &OverflowBetaClient_GetTransactionById_Call{Call: _e.mock.On("GetTransactionById", id)}
+func (_e *OverflowBetaClient_Expecter) GetTransactionById(ctx interface{}, id interface{}) *OverflowBetaClient_GetTransactionById_Call {
+	return &OverflowBetaClient_GetTransactionById_Call{Call: _e.mock.On("GetTransactionById", ctx, id)}
 }
 
-func (_c *OverflowBetaClient_GetTransactionById_Call) Run(run func(id flow.Identifier)) *OverflowBetaClient_GetTransactionById_Call {
+func (_c *OverflowBetaClient_GetTransactionById_Call) Run(run func(ctx context.Context, id flow.Identifier)) *OverflowBetaClient_GetTransactionById_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(flow.Identifier))
+		run(args[0].(context.Context), args[1].(flow.Identifier))
 	})
 	return _c
 }
@@ -803,61 +756,7 @@ func (_c *OverflowBetaClient_GetTransactionById_Call) Return(_a0 *flow.Transacti
 	return _c
 }
 
-func (_c *OverflowBetaClient_GetTransactionById_Call) RunAndReturn(run func(flow.Identifier) (*flow.Transaction, error)) *OverflowBetaClient_GetTransactionById_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTransactionResultByBlockId provides a mock function with given fields: blockId
-func (_m *OverflowBetaClient) GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error) {
-	ret := _m.Called(blockId)
-
-	var r0 []*flow.TransactionResult
-	var r1 error
-	if rf, ok := ret.Get(0).(func(flow.Identifier) ([]*flow.TransactionResult, error)); ok {
-		return rf(blockId)
-	}
-	if rf, ok := ret.Get(0).(func(flow.Identifier) []*flow.TransactionResult); ok {
-		r0 = rf(blockId)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*flow.TransactionResult)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(flow.Identifier) error); ok {
-		r1 = rf(blockId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// OverflowBetaClient_GetTransactionResultByBlockId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionResultByBlockId'
-type OverflowBetaClient_GetTransactionResultByBlockId_Call struct {
-	*mock.Call
-}
-
-// GetTransactionResultByBlockId is a helper method to define mock.On call
-//   - blockId flow.Identifier
-func (_e *OverflowBetaClient_Expecter) GetTransactionResultByBlockId(blockId interface{}) *OverflowBetaClient_GetTransactionResultByBlockId_Call {
-	return &OverflowBetaClient_GetTransactionResultByBlockId_Call{Call: _e.mock.On("GetTransactionResultByBlockId", blockId)}
-}
-
-func (_c *OverflowBetaClient_GetTransactionResultByBlockId_Call) Run(run func(blockId flow.Identifier)) *OverflowBetaClient_GetTransactionResultByBlockId_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(flow.Identifier))
-	})
-	return _c
-}
-
-func (_c *OverflowBetaClient_GetTransactionResultByBlockId_Call) Return(_a0 []*flow.TransactionResult, _a1 error) *OverflowBetaClient_GetTransactionResultByBlockId_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *OverflowBetaClient_GetTransactionResultByBlockId_Call) RunAndReturn(run func(flow.Identifier) ([]*flow.TransactionResult, error)) *OverflowBetaClient_GetTransactionResultByBlockId_Call {
+func (_c *OverflowBetaClient_GetTransactionById_Call) RunAndReturn(run func(context.Context, flow.Identifier) (*flow.Transaction, error)) *OverflowBetaClient_GetTransactionById_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -42,7 +42,7 @@ type OverflowClient interface {
 	QualifiedIdentifierFromSnakeCase(typeName string) (string, error)
 	QualifiedIdentifier(contract string, name string) (string, error)
 
-	AddContract(name string, contract *flowkit.Script, update bool) error
+	AddContract(ctx context.Context, name string, code []byte, args []cadence.Value, filename string, update bool) error
 
 	GetNetwork() string
 	AccountE(key string) (*accounts.Account, error)
@@ -50,15 +50,15 @@ type OverflowClient interface {
 	Account(key string) *accounts.Account
 
 	//Note that this returns a flow account and not a flowkit account like the others, is this needed?
-	GetAccount(key string) (*flow.Account, error)
+	GetAccount(ctx context.Context, key string) (*flow.Account, error)
 
 	Tx(filename string, opts ...OverflowInteractionOption) *OverflowResult
 	TxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction
 	TxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction
 
-	GetLatestBlock() (*flow.Block, error)
-	GetBlockAtHeight(height uint64) (*flow.Block, error)
-	GetBlockById(blockId string) (*flow.Block, error)
+	GetLatestBlock(ctx context.Context) (*flow.Block, error)
+	GetBlockAtHeight(ctx context.Context, height uint64) (*flow.Block, error)
+	GetBlockById(ctx context.Context, blockId string) (*flow.Block, error)
 	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
 	UploadFile(filename string, accountName string) error
@@ -76,12 +76,13 @@ type OverflowClient interface {
 // beta client with unstable features
 type OverflowBetaClient interface {
 	OverflowClient
-	GetTransactionById(id flow.Identifier) (*flow.Transaction, error)
-	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
-	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
+	GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error)
 	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
 	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
 }
+
+var _ OverflowClient = (*OverflowState)(nil)
+var _ OverflowBetaClient = (*OverflowState)(nil)
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {
