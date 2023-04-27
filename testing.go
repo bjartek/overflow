@@ -3,6 +3,7 @@ package overflow
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/onflow/flow-go/utils/io"
@@ -15,7 +16,15 @@ type OverflowTest struct {
 }
 
 func (ot *OverflowTest) Reset() error {
-	return ot.O.RollbackToBlockHeight(ot.height)
+	block, err := ot.O.GetLatestBlock(context.Background())
+	if err != nil {
+		return err
+	}
+	height := block.Height
+	if ot.height != height {
+		return ot.O.RollbackToBlockHeight(ot.height)
+	}
+	return nil
 }
 
 func (ot *OverflowTest) Run(t *testing.T, name string, f func(t *testing.T)) {
@@ -69,6 +78,7 @@ func SetupTest(opts []OverflowOption, setup func(o *OverflowState) error) (*Over
 	}
 	height := block.Height
 
+	fmt.Printf("Sat height to %d\n", height)
 	ot := &OverflowTest{O: o, height: height}
 	return ot, nil
 }
