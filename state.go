@@ -29,6 +29,7 @@ import (
 	"github.com/onflow/flow-cli/flowkit/project"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
 )
 
@@ -75,10 +76,11 @@ type OverflowClient interface {
 // beta client with unstable features
 type OverflowBetaClient interface {
 	OverflowClient
+	GetTransactionById(id flow.Identifier) (*flow.Transaction, error)
 	GetTransactionResultByBlockId(blockId flow.Identifier) ([]*flow.TransactionResult, error)
 	GetTransactionByBlockId(blockId flow.Identifier) ([]*flow.Transaction, error)
 	GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error)
-	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, channel chan<- BlockResult) error
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
 }
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
