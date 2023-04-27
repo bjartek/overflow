@@ -8,6 +8,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+/*
+* OverflowTesting
+*  - state
+*  - testing
+*  - func to setup overflow
+*  - store the height
+*  - run method that will revert to height before run method and revert again
+*  - at the end of TestMain expose coverage report to file, if we start with coverage flag
+ */
+
 func TestTransaction(t *testing.T) {
 	o, err := OverflowTesting()
 	require.NotNil(t, o)

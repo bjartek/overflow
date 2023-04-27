@@ -3,6 +3,7 @@ package overflow
 import (
 	"testing"
 
+	"github.com/onflow/flow-go/utils/io"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +17,7 @@ func TestTransactionIntegration(t *testing.T) {
 	customResolver := func(input string) (string, error) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
-	o, err := OverflowTesting()
+	o, err := OverflowTesting(WithCoverageReport())
 	require.NoError(t, err)
 	require.NotNil(t, o)
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
@@ -52,6 +53,8 @@ func TestTransactionIntegration(t *testing.T) {
 			)
 		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
 
+		report := o.GetCoverageReport()
+		assert.Equal(t, "17.6%", report.Summary().Coverage)
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {
@@ -291,6 +294,12 @@ func TestTransactionIntegration(t *testing.T) {
 		).AssertSuccess(t)
 
 	})
+
+	bytes, err := o.GetCoverageReport().MarshalJSON()
+	require.NoError(t, err)
+	err = io.WriteFile("coverage-report.json", bytes)
+	require.NoError(t, err)
+
 }
 
 func TestTransactionEventFiltering(t *testing.T) {

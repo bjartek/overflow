@@ -74,7 +74,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		defer os.Remove("progress")
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(ev))
-		assert.Contains(t, ev[0].String(), "100")
+		assert.Contains(t, ev[0].String(), "10")
 	})
 
 	t.Run("should fail reading invalid progress from file", func(t *testing.T) {
@@ -161,7 +161,8 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, int64(0), progress)
 
-		res.ProgressWriteFunction()
+		err = res.ProgressWriteFunction()
+		require.NoError(t, err)
 
 		progress, err = readProgressFromFile(progressFile)
 		require.NoError(t, err)

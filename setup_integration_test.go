@@ -10,12 +10,12 @@ func TestSetupIntegration(t *testing.T) {
 
 	o := Overflow()
 	t.Run("Should create inmemory emulator client", func(t *testing.T) {
-		assert.Equal(t, "emulator", o.Network)
+		assert.Equal(t, "emulator", o.Network.Name)
 	})
 
 	t.Run("should get account", func(t *testing.T) {
 		account := o.Account("first")
-		assert.Equal(t, "01cf0e2f2f715450", account.Address().String())
+		assert.Equal(t, "01cf0e2f2f715450", account.Address.String())
 	})
 
 	t.Run("should get address", func(t *testing.T) {

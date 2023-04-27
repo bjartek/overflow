@@ -20,10 +20,32 @@ type OverflowEventList []OverflowEvent
 // a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string]OverflowEventList
 
+func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[string][]string {
+
+	for _, events := range me {
+		for _, event := range events {
+			eventStakeholders := event.GetStakeholders()
+			for stakeholder, roles := range eventStakeholders {
+
+				allRoles, ok := stakeholders[stakeholder]
+				if !ok {
+					allRoles = []string{}
+				}
+				allRoles = append(allRoles, roles...)
+				stakeholders[stakeholder] = allRoles
+			}
+		}
+	}
+
+	return stakeholders
+}
+
 type OverflowEvent struct {
+	Id            string                 `json:"id"`
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
 	Name          string                 `json:"name"`
+	Addresses     map[string][]string    `json:"types"`
 }
 
 // Check if an event exist in the other events
@@ -34,6 +56,23 @@ func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 		}
 	}
 	return false
+}
+
+// list of address to a list of roles for that address
+func (me OverflowEvent) GetStakeholders() map[string][]string {
+	stakeholder := map[string][]string{}
+	for name, value := range me.Addresses {
+		for _, address := range value {
+
+			existing, ok := stakeholder[address]
+			if !ok {
+				existing = []string{}
+			}
+			existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
+			stakeholder[address] = existing
+		}
+	}
+	return stakeholder
 }
 
 func (e OverflowEventList) MarshalAs(marshalTo interface{}) error {
@@ -66,7 +105,7 @@ func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
 func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
-	for _, event := range events {
+	for i, event := range events {
 
 		var fieldNames []string
 
@@ -75,9 +114,11 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 		}
 
 		finalFields := map[string]interface{}{}
+		addresses := map[string][]string{}
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
+			addresses[name] = ExtractAddresses(field)
 			value := CadenceValueToInterface(field)
 			if value != nil {
 				finalFields[name] = value
@@ -89,9 +130,11 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			events = []OverflowEvent{}
 		}
 		events = append(events, OverflowEvent{
+			Id:            fmt.Sprintf("%s-%d", event.TransactionID.Hex(), i),
 			Fields:        finalFields,
 			Name:          event.Type,
 			TransactionId: event.TransactionID.String(),
+			Addresses:     addresses,
 		})
 		overflowEvents[event.Type] = events
 
