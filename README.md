@@ -70,6 +70,7 @@ import (
 func main() {
 
 	//start an in memory emulator by default
+  // there are two interfaces published for Overflow, `OverflowClient` and `OverrflowBetaClient` that has unstable api, I urge you to store this as the client and not the impl. Currenly the Overflow method returns the impl so you can choose.
 	o := Overflow()
 	
 	//the Tx DSL runs an transaction
