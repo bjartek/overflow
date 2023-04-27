@@ -23,6 +23,7 @@ For a standalone example on how overflow can be used look at https://github.com/
 - transform all interactions into a NPM module that can be published for the frontend to use. this json file that is generate has the option to filter out certain interactions and to strip away network suffixes if you have multiple local interactions that should map to the same logical name in the client for each network
 - the interaction (script/tx) dsl has a rich set of assertions 
 - arguments to interactions are all _named_ that is the same name in that is in the argument must be used with the `Arg("name", "value")` builder. The `value` in this example can be either a primitive go value or a `cadence.Value`. 
+- supports shared instance in test to collect coverage report and rollback after/before each test. See `example` folder.
 
 ## Gotchas
 
