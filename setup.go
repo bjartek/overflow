@@ -74,6 +74,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	PrintOptions:                        &[]OverflowPrinterOption{},
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
+	Coverage:                            false,
 }
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
@@ -101,6 +102,7 @@ type OverflowBuilder struct {
 	ReaderWriter                        flowkit.ReaderWriter
 	InputResolver                       *InputResolver
 	ArchiveNodeUrl                      string
+	Coverage                            bool
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -189,7 +191,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		}
 
 		if o.TransactionFees {
-			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true))
+			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true), emulator.WithCoverageReportingEnabled(o.Coverage))
 		}
 
 		pk, _ := acc.Key.PrivateKey()
@@ -203,6 +205,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			gateway.WithEmulatorOptions(emulatorOptions...),
 		)
 
+		overflow.EmulatorGatway = gw
 		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 	} else {
 		gw, err := gateway.NewGrpcGateway(*network)
@@ -485,6 +488,12 @@ func WithInputResolver(ir InputResolver) OverflowOption {
 func WithArchiveNodeUrl(url string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.ArchiveNodeUrl = url
+	}
+
+}
+func WithCoverageReport() OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.Coverage = true
 	}
 
 }

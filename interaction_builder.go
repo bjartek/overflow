@@ -81,6 +81,9 @@ type OverflowInteractionBuilder struct {
 
 	//Query to use for running scripts
 	ScriptQuery *flowkit.ScriptQuery
+
+	//
+	StopOnError *bool
 }
 
 // get the contract code
@@ -348,6 +351,12 @@ func WithExecuteScriptAtBlockIdentifier(blockId flow.Identifier) OverflowInterac
 	}
 }
 
+func WithPanicInteractionOnError(stop bool) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.StopOnError = &stop
+	}
+}
+
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{
@@ -365,6 +374,9 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		FeeGas:          0,
 		Name:            "",
 		Arguments:       oib.NamedCadenceArguments,
+	}
+	if oib.StopOnError != nil {
+		result.StopOnError = *oib.StopOnError
 	}
 	if oib.Error != nil {
 		result.Err = oib.Error
@@ -522,5 +534,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
 	result.Err = res.Error
+
+	if result.Err != nil && result.StopOnError {
+		panic(result.Err)
+	}
+
 	return result
 }
