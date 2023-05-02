@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -92,7 +93,19 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 		}
 	} else {
 	*/
-	result, err := o.Flowkit.ExecuteScript(fbi.Ctx, script, *fbi.ScriptQuery)
+
+	sc := fbi.ScriptQuery
+	if fbi.ScriptQuery == nil {
+		block, err := o.GetLatestBlock(context.Background())
+		if err != nil {
+			osc.Err = err
+			return osc
+		}
+		sc = &flowkit.ScriptQuery{
+			Height: block.Height,
+		}
+	}
+	result, err := o.Flowkit.ExecuteScript(fbi.Ctx, script, *sc)
 	osc.Result = result
 	osc.Output = CadenceValueToInterface(result)
 	if err != nil {

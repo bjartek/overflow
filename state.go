@@ -611,7 +611,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NamedArgs:      map[string]interface{}{},
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
-		ScriptQuery:    &flowkit.ScriptQuery{},
+		ScriptQuery:    nil,
 	}
 
 	for _, opt := range opts {
