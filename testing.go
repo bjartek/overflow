@@ -3,7 +3,6 @@ package overflow
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/onflow/flow-go/utils/io"
