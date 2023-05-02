@@ -78,7 +78,6 @@ func SetupTest(opts []OverflowOption, setup func(o *OverflowState) error) (*Over
 	}
 	height := block.Height
 
-	fmt.Printf("Sat height to %d\n", height)
 	ot := &OverflowTest{O: o, height: height}
 	return ot, nil
 }
