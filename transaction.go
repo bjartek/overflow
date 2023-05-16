@@ -34,14 +34,15 @@ type OverflowTransaction struct {
 	Events                 OverflowEvents
 	Error                  error
 	Fee                    float64
-	ExecutionEffort        int
 	Status                 string
 	Arguments              []Argument
 	Stakeholders           map[string][]string
 	Imports                map[string][]string
 	ProposerKeyIndex       int
 	ProposerSequenceNumber uint64
-	MaxGas                 uint64
+	GasLimit               uint64
+	GasUsed                uint64
+	ExecutionEffort        float64
 	Script                 []byte
 	RawTx                  flow.Transaction
 }
@@ -151,8 +152,9 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			Script:                 t.Script,
 			ProposerKeyIndex:       t.ProposalKey.KeyIndex,
 			ProposerSequenceNumber: t.ProposalKey.SequenceNumber,
-			MaxGas:                 t.GasLimit,
-			ExecutionEffort:        gas,
+			GasLimit:               t.GasLimit,
+			GasUsed:                uint64(gas),
+			ExecutionEffort:        executionEffort,
 			RawTx:                  t,
 		}}
 	})
