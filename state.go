@@ -714,7 +714,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if err != nil {
 			return nil, err
 		}
-		info := declarationInfo(path, code)
+		info := declarationInfo(code)
 		if info != nil {
 			transactionDeclarations[name] = info
 		}
@@ -726,7 +726,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot read file at path %s", path)
 		}
-		info := declarationInfo(path, code)
+		info := declarationInfo(code)
 		if info != nil {
 			scriptDeclarations[name] = info
 		}
