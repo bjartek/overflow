@@ -30,21 +30,21 @@ type Argument struct {
 }
 
 type OverflowTransaction struct {
-	Id                     flow.Identifier
-	Events                 OverflowEvents
-	Error                  error
-	Fee                    float64
-	Status                 string
-	Arguments              []Argument
-	Stakeholders           map[string][]string
-	Imports                map[string][]string
-	ProposerKeyIndex       int
-	ProposerSequenceNumber uint64
-	GasLimit               uint64
-	GasUsed                uint64
-	ExecutionEffort        float64
-	Script                 []byte
-	RawTx                  flow.Transaction
+	Id              flow.Identifier
+	BlockId         flow.Identifier
+	Events          []OverflowEvent
+	Error           error
+	Fee             float64
+	Status          string
+	Arguments       []Argument
+	Stakeholders    map[string][]string
+	Imports         []Import
+	Payer           string
+	ProposalKey     flow.ProposalKey
+	GasLimit        uint64
+	GasUsed         uint64
+	ExecutionEffort float64
+	Script          []byte
 }
 
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
@@ -140,22 +140,28 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		}
 
 		eventsWithoutFees := events.FilterFees(feeAmount)
+
+		eventList := []OverflowEvent{}
+		for _, evList := range eventsWithoutFees {
+			eventList = append(eventList, evList...)
+		}
+
 		return []OverflowTransaction{{
-			Id:                     r.TransactionID,
-			Status:                 r.Status.String(),
-			Events:                 eventsWithoutFees,
-			Stakeholders:           eventsWithoutFees.GetStakeholders(standardStakeholders),
-			Imports:                imports,
-			Error:                  r.Error,
-			Arguments:              args,
-			Fee:                    feeAmount,
-			Script:                 t.Script,
-			ProposerKeyIndex:       t.ProposalKey.KeyIndex,
-			ProposerSequenceNumber: t.ProposalKey.SequenceNumber,
-			GasLimit:               t.GasLimit,
-			GasUsed:                uint64(gas),
-			ExecutionEffort:        executionEffort,
-			RawTx:                  t,
+			Id:              r.TransactionID,
+			BlockId:         id,
+			Status:          r.Status.String(),
+			Events:          eventList,
+			Stakeholders:    eventsWithoutFees.GetStakeholders(standardStakeholders),
+			Imports:         imports,
+			Error:           r.Error,
+			Arguments:       args,
+			Fee:             feeAmount,
+			Script:          t.Script,
+			Payer:           fmt.Sprintf("0x%s", t.Payer.String()),
+			ProposalKey:     t.ProposalKey,
+			GasLimit:        t.GasLimit,
+			GasUsed:         uint64(gas),
+			ExecutionEffort: executionEffort,
 		}}
 	})
 
@@ -230,9 +236,9 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 	}
 }
 
-func GetAddressImports(code []byte) (map[string][]string, error) {
+func GetAddressImports(code []byte) ([]Import, error) {
 
-	deps := map[string][]string{}
+	deps := []Import{}
 	program, err := parser.ParseProgram(nil, code, parser.Config{})
 	if err != nil {
 		return deps, err
@@ -241,16 +247,24 @@ func GetAddressImports(code []byte) (map[string][]string, error) {
 	for _, imp := range program.ImportDeclarations() {
 		address, isAddressImport := imp.Location.(common.AddressLocation)
 		if isAddressImport {
-			adr := fmt.Sprintf("0x%s", address.Address.Hex())
-			old, ok := deps[adr]
-			if !ok {
-				old = []string{}
-			}
+			for _, id := range imp.Identifiers {
 
-			impName := imp.Identifiers[0].Identifier
-			old = append(old, impName)
-			deps[adr] = old
+				deps = append(deps, Import{
+					Address: fmt.Sprintf("0x%s", address.Address.Hex()),
+					Name:    id.Identifier,
+				})
+			}
 		}
 	}
 	return deps, nil
+}
+
+type Import struct {
+	Address string
+	Name    string
+}
+
+func (i Import) Identifier() string {
+	return fmt.Sprintf("A.%s.%s", strings.TrimPrefix("0x", i.Address), i.Name)
+
 }

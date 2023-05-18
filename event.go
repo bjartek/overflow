@@ -137,7 +137,6 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			Addresses:     addresses,
 		})
 		overflowEvents[event.Type] = events
-
 		if strings.HasSuffix(event.Type, "FlowFees.FeesDeducted") {
 			fee = OverflowEvent{
 				Fields:        finalFields,
