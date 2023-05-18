@@ -32,7 +32,7 @@ type Argument struct {
 type OverflowTransaction struct {
 	Id              flow.Identifier
 	BlockId         flow.Identifier
-	Events          OverflowEvents
+	Events          []OverflowEvent
 	Error           error
 	Fee             float64
 	Status          string
@@ -40,7 +40,7 @@ type OverflowTransaction struct {
 	Stakeholders    map[string][]string
 	Imports         []Import
 	Payer           string
-	ProposerKey     flow.ProposalKey
+	ProposalKey     flow.ProposalKey
 	GasLimit        uint64
 	GasUsed         uint64
 	ExecutionEffort float64
@@ -140,11 +140,17 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 		}
 
 		eventsWithoutFees := events.FilterFees(feeAmount)
+
+		eventList := []OverflowEvent{}
+		for _, evList := range eventsWithoutFees {
+			eventList = append(eventList, evList...)
+		}
+
 		return []OverflowTransaction{{
 			Id:              r.TransactionID,
 			BlockId:         id,
 			Status:          r.Status.String(),
-			Events:          eventsWithoutFees,
+			Events:          eventList,
 			Stakeholders:    eventsWithoutFees.GetStakeholders(standardStakeholders),
 			Imports:         imports,
 			Error:           r.Error,
@@ -152,7 +158,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			Fee:             feeAmount,
 			Script:          t.Script,
 			Payer:           fmt.Sprintf("0x%s", t.Payer.String()),
-			ProposerKey:     t.ProposalKey,
+			ProposalKey:     t.ProposalKey,
 			GasLimit:        t.GasLimit,
 			GasUsed:         uint64(gas),
 			ExecutionEffort: executionEffort,
