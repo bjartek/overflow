@@ -5,8 +5,7 @@ import (
 	"strings"
 
 	"github.com/onflow/cadence/runtime/ast"
-	"github.com/onflow/cadence/runtime/cmd"
-	"github.com/onflow/cadence/runtime/common"
+	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/cadence/runtime/sema"
 )
 
@@ -150,8 +149,8 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 	return &OverflowSolutionMerged{Networks: networks}
 }
 
-func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo {
-	params := params(codeFileName, code)
+func declarationInfo(code []byte) *OverflowDeclarationInfo {
+	params := params(code)
 	if params == nil {
 		return &OverflowDeclarationInfo{
 			ParameterOrder: []string{},
@@ -176,11 +175,12 @@ func declarationInfo(codeFileName string, code []byte) *OverflowDeclarationInfo 
 	}
 }
 
-func params(fileName string, code []byte) *ast.ParameterList {
+func params(code []byte) *ast.ParameterList {
 
-	codes := map[common.Location][]byte{}
-	location := common.StringLocation(fileName)
-	program, _ := cmd.PrepareProgram(code, location, codes)
+	program, err := parser.ParseProgram(nil, code, parser.Config{})
+	if err != nil {
+		panic(err)
+	}
 
 	transactionDeclaration := program.SoleTransactionDeclaration()
 	if transactionDeclaration != nil {

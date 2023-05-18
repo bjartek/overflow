@@ -24,19 +24,27 @@ type BlockResult struct {
 	Logger       *zap.Logger
 }
 
+type Argument struct {
+	Key   string
+	Value interface{}
+}
+
 type OverflowTransaction struct {
-	Id               flow.Identifier
-	Events           OverflowEvents
-	Error            error
-	Fee              float64
-	ExecutionEffort  int
-	Status           string
-	Arguments        []interface{}
-	Stakeholders     map[string][]string
-	Imports          map[string][]string
-	ProposerKeyIndex int
-	Script           []byte
-	RawTx            flow.Transaction
+	Id                     flow.Identifier
+	Events                 OverflowEvents
+	Error                  error
+	Fee                    float64
+	Status                 string
+	Arguments              []Argument
+	Stakeholders           map[string][]string
+	Imports                map[string][]string
+	ProposerKeyIndex       int
+	ProposerSequenceNumber uint64
+	GasLimit               uint64
+	GasUsed                uint64
+	ExecutionEffort        float64
+	Script                 []byte
+	RawTx                  flow.Transaction
 }
 
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
@@ -90,17 +98,23 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			gas = int(math.Round(executionEffort * float64(factor)))
 		}
 
-		args := []interface{}{}
+		args := []Argument{}
+		argInfo := declarationInfo(t.Script)
+
 		for i := range t.Arguments {
 			arg, err := t.Argument(i)
 			if err != nil {
 				fmt.Println("[WARN]", err.Error())
 			}
-			args = append(args, CadenceValueToInterface(arg))
+			argStruct := Argument{
+				Key:   argInfo.ParameterOrder[i],
+				Value: CadenceValueToInterface(arg),
+			}
+			args = append(args, argStruct)
 		}
 
 		standardStakeholders := map[string][]string{}
-		imports, err := GetAddressImports(t.Script, "tx")
+		imports, err := GetAddressImports(t.Script)
 		if err != nil {
 			fmt.Println("[WARN]", err.Error())
 		}
@@ -127,18 +141,21 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 
 		eventsWithoutFees := events.FilterFees(feeAmount)
 		return []OverflowTransaction{{
-			Id:               r.TransactionID,
-			Status:           r.Status.String(),
-			Events:           eventsWithoutFees,
-			Stakeholders:     eventsWithoutFees.GetStakeholders(standardStakeholders),
-			Imports:          imports,
-			Error:            r.Error,
-			Arguments:        args,
-			Fee:              feeAmount,
-			Script:           t.Script,
-			ProposerKeyIndex: t.ProposalKey.KeyIndex,
-			ExecutionEffort:  gas,
-			RawTx:            t,
+			Id:                     r.TransactionID,
+			Status:                 r.Status.String(),
+			Events:                 eventsWithoutFees,
+			Stakeholders:           eventsWithoutFees.GetStakeholders(standardStakeholders),
+			Imports:                imports,
+			Error:                  r.Error,
+			Arguments:              args,
+			Fee:                    feeAmount,
+			Script:                 t.Script,
+			ProposerKeyIndex:       t.ProposalKey.KeyIndex,
+			ProposerSequenceNumber: t.ProposalKey.SequenceNumber,
+			GasLimit:               t.GasLimit,
+			GasUsed:                uint64(gas),
+			ExecutionEffort:        executionEffort,
+			RawTx:                  t,
 		}}
 	})
 
@@ -213,7 +230,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 	}
 }
 
-func GetAddressImports(code []byte, name string) (map[string][]string, error) {
+func GetAddressImports(code []byte) (map[string][]string, error) {
 
 	deps := map[string][]string{}
 	program, err := parser.ParseProgram(nil, code, parser.Config{})
