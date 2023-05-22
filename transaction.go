@@ -265,6 +265,6 @@ type Import struct {
 }
 
 func (i Import) Identifier() string {
-	return fmt.Sprintf("A.%s.%s", strings.TrimPrefix("0x", i.Address), i.Name)
+	return fmt.Sprintf("A.%s.%s", strings.TrimPrefix(i.Address, "0x"), i.Name)
 
 }
