@@ -88,7 +88,6 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			if !ok {
 				panic("failed casting fee amount to float64")
 			}
-
 		}
 
 		executionEffort, ok := fee.Fields["executionEffort"].(float64)
@@ -100,7 +99,6 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 
 		args := []Argument{}
 		argInfo := declarationInfo(t.Script)
-
 		for i := range t.Arguments {
 			arg, err := t.Argument(i)
 			if err != nil {

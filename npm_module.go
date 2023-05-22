@@ -179,14 +179,12 @@ func params(code []byte) *ast.ParameterList {
 
 	program, err := parser.ParseProgram(nil, code, parser.Config{})
 	if err != nil {
-		panic(err)
+		return nil
 	}
 
-	transactionDeclaration := program.SoleTransactionDeclaration()
-	if transactionDeclaration != nil {
-		if transactionDeclaration.ParameterList != nil {
-			return transactionDeclaration.ParameterList
-		}
+	//if we have any transtion declaration then return it
+	for _, txd := range program.TransactionDeclarations() {
+		return txd.ParameterList
 	}
 
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
