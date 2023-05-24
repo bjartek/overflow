@@ -63,7 +63,11 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 
 	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
-		return nil, errors.Wrap(err, "getting transaction results")
+		time.Sleep(time.Millisecond * 200)
+		tx, txR, err = o.Flowkit.GetTransactionsByBlockID(ctx, id)
+		if err != nil {
+			return nil, errors.Wrap(err, "getting transaction results")
+		}
 	}
 
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
