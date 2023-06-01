@@ -37,6 +37,7 @@ type OverflowTransaction struct {
 	Fee             float64
 	Status          string
 	Arguments       []Argument
+	Authorizers     []string
 	Stakeholders    map[string][]string
 	Imports         []Import
 	Payer           string
@@ -117,8 +118,11 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			fmt.Println("[WARN]", err.Error())
 		}
 
+		authorizers := []string{}
 		for _, authorizer := range t.Authorizers {
-			standardStakeholders[fmt.Sprintf("0x%s", authorizer.Hex())] = []string{"authorizer"}
+			auth := fmt.Sprintf("0x%s", authorizer.Hex())
+			authorizers = append(authorizers, auth)
+			standardStakeholders[auth] = []string{"authorizer"}
 		}
 
 		payerRoles, ok := standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())]
@@ -160,6 +164,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			GasLimit:        t.GasLimit,
 			GasUsed:         uint64(gas),
 			ExecutionEffort: executionEffort,
+			Authorizers:     authorizers,
 		}}
 	})
 
