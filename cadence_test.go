@@ -92,6 +92,16 @@ func TestCadenceValueToInterface(t *testing.T) {
 			tc.want.Equal(t, value)
 		})
 	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%s-goValue", tc.want.Name()), func(t *testing.T) {
+			value := CadenceValueToInterface(tc.input)
+			if tc.input != nil {
+				assert.Equal(t, value, tc.input.ToGoValue())
+			}
+		})
+	}
+
 }
 
 func TestCadenceValueToJson(t *testing.T) {
