@@ -140,12 +140,19 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 
 }
 
-func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error) {
+func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error) {
 	tx, txr, err := o.Flowkit.GetTransactionByID(ctx, id, false)
 	if err != nil {
 		return nil, err
 	}
 	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx)
+}
+func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
+	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
+	if err != nil {
+		return nil, err
+	}
+	return tx, nil
 }
 
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
