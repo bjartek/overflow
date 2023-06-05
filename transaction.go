@@ -140,9 +140,12 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 
 }
 
-func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
-	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
-	return tx, err
+func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error) {
+	tx, txr, err := o.Flowkit.GetTransactionByID(ctx, id, false)
+	if err != nil {
+		return nil, err
+	}
+	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx)
 }
 
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
@@ -177,91 +180,11 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			return []OverflowTransaction{}
 		}
 
-		feeAmount := 0.0
-		events, fee := parseEvents(r.Events)
-		feeRaw, ok := fee.Fields["amount"]
-		if ok {
-			feeAmount, ok = feeRaw.(float64)
-			if !ok {
-				panic("failed casting fee amount to float64")
-			}
-		}
-
-		executionEffort, ok := fee.Fields["executionEffort"].(float64)
-		gas := 0
-		if ok {
-			factor := 100000000
-			gas = int(math.Round(executionEffort * float64(factor)))
-		}
-
-		args := []Argument{}
-		argInfo := declarationInfo(t.Script)
-		for i := range t.Arguments {
-			arg, err := t.Argument(i)
-			if err != nil {
-				fmt.Println("[WARN]", err.Error())
-			}
-			argStruct := Argument{
-				Key:   argInfo.ParameterOrder[i],
-				Value: CadenceValueToInterface(arg),
-			}
-			args = append(args, argStruct)
-		}
-
-		standardStakeholders := map[string][]string{}
-		imports, err := GetAddressImports(t.Script)
+		ot, err := CreateOverflowTransactions(id.String(), r, t)
 		if err != nil {
-			fmt.Println("[WARN]", err.Error())
+			panic(err)
 		}
-
-		authorizers := []string{}
-		for _, authorizer := range t.Authorizers {
-			auth := fmt.Sprintf("0x%s", authorizer.Hex())
-			authorizers = append(authorizers, auth)
-			standardStakeholders[auth] = []string{"authorizer"}
-		}
-
-		payerRoles, ok := standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())]
-		if !ok {
-			standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())] = []string{"payer"}
-		} else {
-			payerRoles = append(payerRoles, "payer")
-			standardStakeholders[fmt.Sprintf("0x%s", t.Payer.Hex())] = payerRoles
-		}
-
-		proposer, ok := standardStakeholders[fmt.Sprintf("0x%s", t.ProposalKey.Address.Hex())]
-		if !ok {
-			standardStakeholders[fmt.Sprintf("0x%s", t.ProposalKey.Address.Hex())] = []string{"proposer"}
-		} else {
-			proposer = append(proposer, "proposer")
-			standardStakeholders[fmt.Sprintf("0x%s", t.ProposalKey.Address.Hex())] = proposer
-		}
-
-		eventsWithoutFees := events.FilterFees(feeAmount)
-
-		eventList := []OverflowEvent{}
-		for _, evList := range eventsWithoutFees {
-			eventList = append(eventList, evList...)
-		}
-
-		return []OverflowTransaction{{
-			Id:              r.TransactionID,
-			BlockId:         id,
-			Status:          r.Status.String(),
-			Events:          eventList,
-			Stakeholders:    eventsWithoutFees.GetStakeholders(standardStakeholders),
-			Imports:         imports,
-			Error:           r.Error,
-			Arguments:       args,
-			Fee:             feeAmount,
-			Script:          t.Script,
-			Payer:           fmt.Sprintf("0x%s", t.Payer.String()),
-			ProposalKey:     t.ProposalKey,
-			GasLimit:        t.GasLimit,
-			GasUsed:         uint64(gas),
-			ExecutionEffort: executionEffort,
-			Authorizers:     authorizers,
-		}}
+		return []OverflowTransaction{*ot}
 	})
 
 	return result, nil
