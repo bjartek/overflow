@@ -12,6 +12,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
+	"github.com/sanity-io/litter"
 	"go.uber.org/zap"
 )
 
@@ -155,6 +156,7 @@ func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifi
 	return tx, nil
 }
 
+// this is get from block, needs to return system chunk information
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, error) {
 
 	//sometimes this will become too complex.
@@ -176,11 +178,12 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
 
+		t := *tx[i]
 		if r.TransactionID.String() == "f31815934bff124e332b3c8be5e1c7a949532707251a9f2f81def8cc9f3d1458" {
+			litter.Dump(r)
+			litter.Dump(t)
 			return []OverflowTransaction{}
 		}
-
-		t := *tx[i]
 
 		//for some reason we get epoch heartbeat
 		if len(t.EnvelopeSignatures) == 0 {
