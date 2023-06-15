@@ -478,6 +478,10 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result.Meter = &OverflowMeter{}
 	messages := []string{}
 	for _, msg := range logMessage {
+
+		if msg.ComputationUsed != 0 {
+			result.ComputationUsed = msg.ComputationUsed
+		}
 		if strings.Contains(msg.Msg, "transaction execution data") {
 			var meter OverflowMeter
 			bytes, _ := json.Marshal(msg.Fields)
@@ -487,12 +491,9 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 			}
 			continue
 		}
-		if msg.ComputationUsed != 0 {
-			result.ComputationUsed = msg.ComputationUsed
-		}
+
 		messages = append(messages, msg.String())
 	}
-
 	result.EmulatorLog = messages
 
 	result.RawEvents = res.Events

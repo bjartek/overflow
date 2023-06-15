@@ -14,11 +14,12 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flow-cli/flowkit"
 	"github.com/onflow/flow-cli/flowkit/config"
 	"github.com/onflow/flow-cli/flowkit/gateway"
 	"github.com/onflow/flow-cli/flowkit/output"
-	emulator "github.com/onflow/flow-emulator"
+	"github.com/onflow/flow-emulator/emulator"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
@@ -74,7 +75,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	PrintOptions:                        &[]OverflowPrinterOption{},
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
-	Coverage:                            false,
+	Coverage:                            nil,
 }
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
@@ -102,7 +103,7 @@ type OverflowBuilder struct {
 	ReaderWriter                        flowkit.ReaderWriter
 	InputResolver                       *InputResolver
 	ArchiveNodeUrl                      string
-	Coverage                            bool
+	Coverage                            *runtime.CoverageReport
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -144,6 +145,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		PrintOptions:                        o.PrintOptions,
 		NewUserFlowAmount:                   o.NewAccountFlowAmount,
 		LogLevel:                            o.LogLevel,
+		CoverageReport:                      o.Coverage,
 	}
 
 	loader := o.ReaderWriter
@@ -191,7 +193,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		}
 
 		if o.TransactionFees {
-			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true), emulator.WithCoverageReportingEnabled(o.Coverage))
+			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true), emulator.WithCoverageReport(o.Coverage))
 		}
 
 		pk, _ := acc.Key.PrivateKey()
@@ -493,7 +495,7 @@ func WithArchiveNodeUrl(url string) OverflowOption {
 }
 func WithCoverageReport() OverflowOption {
 	return func(o *OverflowBuilder) {
-		o.Coverage = true
+		o.Coverage = runtime.NewCoverageReport()
 	}
 
 }

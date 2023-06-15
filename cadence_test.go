@@ -58,7 +58,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 	stringType := cadence.NewStringType()
 	stringTypeValue := cadence.NewTypeValue(&stringType)
 	ufix, _ := cadence.NewUFix64("42.0")
-	path := cadence.Path{Domain: "storage", Identifier: "foo"}
+	path := cadence.Path{Domain: common.PathDomainStorage, Identifier: "foo"}
 
 	testCases := []Cadencetest{
 		{autogold.Want("EmptyString", nil), cadenceString("")},

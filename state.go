@@ -129,6 +129,9 @@ type OverflowState struct {
 	NewUserFlowAmount float64
 
 	InputResolver InputResolver
+
+	//the coverage report if any
+	CoverageReport *runtime.CoverageReport
 }
 
 type OverflowArgument struct {
@@ -847,7 +850,7 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network config.N
 }
 
 func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
-	return o.EmulatorGatway.CoverageReport()
+	return o.CoverageReport
 }
 
 func (o *OverflowState) RollbackToBlockHeight(height uint64) error {
