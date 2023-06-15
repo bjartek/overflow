@@ -178,6 +178,7 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 					Name:        name,
 					Time:        blockEvent.BlockTimestamp,
 					BlockHeight: blockEvent.Height,
+					BlockID:     blockEvent.BlockID.String(),
 					Event:       instance,
 				})
 			}
@@ -342,6 +343,7 @@ func WithReturnProgressWriter() OverflowEventFetcherOption {
 type OverflowPastEvent struct {
 	Name        string        `json:"name"`
 	BlockHeight uint64        `json:"blockHeight,omitempty"`
+	BlockID     string        `json:"blockID,omnitEmpty"`
 	Time        time.Time     `json:"time,omitempty"`
 	Event       OverflowEvent `json:"event"`
 }

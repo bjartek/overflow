@@ -45,7 +45,7 @@ type OverflowEvent struct {
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
 	Name          string                 `json:"name"`
-	Addresses     map[string][]string    `json:"types"`
+	Addresses     map[string][]string    `json:"addresses"`
 }
 
 // Check if an event exist in the other events
@@ -118,7 +118,11 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
-			addresses[name] = ExtractAddresses(field)
+
+			adr := ExtractAddresses(field)
+			if len(adr) > 0 {
+				addresses[name] = adr
+			}
 			value := CadenceValueToInterface(field)
 			if value != nil {
 				finalFields[name] = value
