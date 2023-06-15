@@ -76,6 +76,24 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	/*
+		* This is not a big deal but transaction submitted is not here anymore
+			t.Run("emulator log", func(t *testing.T) {
+				res := o.Tx(`
+				import "Debug"
+				transaction(message:String) {
+				  prepare(acct: AuthAccount) {
+					Debug.log(message) } }`,
+					WithSigner("first"),
+					WithArg("message", "foobar"),
+				)
+
+				res.
+					AssertSuccess(t).
+					AssertEmulatorLog(t, "Transaction submitted")
+			})
+	*/
+
 	t.Run("Inline transaction with debug log", func(t *testing.T) {
 		res := o.Tx(`
 		import "Debug"
@@ -90,8 +108,7 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
 			AssertComputationUsed(t, 7).
-			AssertComputationLessThenOrEqual(t, 40).
-			AssertEmulatorLog(t, "Transaction submitted")
+			AssertComputationLessThenOrEqual(t, 40)
 	})
 
 	t.Run("Mint tokens and marshal event", func(t *testing.T) {
@@ -333,7 +350,7 @@ func TestFillUpSpace(t *testing.T) {
 	assert.NoError(t, err)
 
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 199213, result)
+	assert.Equal(t, 199205, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 

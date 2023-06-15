@@ -130,6 +130,9 @@ type OverflowState struct {
 	NewUserFlowAmount float64
 
 	InputResolver InputResolver
+
+	//the coverage report if any
+	CoverageReport *runtime.CoverageReport
 }
 
 type OverflowArgument struct {
@@ -542,7 +545,8 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 func (o *OverflowState) TxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction {
 
 	return func(filename string, opts ...OverflowInteractionOption) *OverflowResult {
-		opts = append(opts, outerOpts...)
+		//outer has to be first since we need to be able to overwrite
+		opts = append(outerOpts, opts...)
 		return o.Tx(filename, opts...)
 	}
 }
@@ -550,7 +554,8 @@ func (o *OverflowState) TxFN(outerOpts ...OverflowInteractionOption) OverflowTra
 func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction {
 
 	return func(opts ...OverflowInteractionOption) *OverflowResult {
-		opts = append(opts, outerOpts...)
+		//outer has to be first since we need to be able to overwrite
+		opts = append(outerOpts, opts...)
 		return o.Tx(filename, opts...)
 	}
 }
@@ -848,7 +853,7 @@ func (o *OverflowState) Parse(codeFileName string, code []byte, network config.N
 }
 
 func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
-	return o.EmulatorGatway.CoverageReport()
+	return o.CoverageReport
 }
 
 func (o *OverflowState) RollbackToBlockHeight(height uint64) error {

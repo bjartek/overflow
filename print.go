@@ -113,11 +113,6 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 		opb(printOpts)
 	}
 
-	if o.Err != nil {
-		color.Red("%v Error executing transaction: %s error:%v", emoji.PileOfPoo, o.Name, o.Err)
-		return o //is it best to return here or not?
-	}
-
 	messages := []string{}
 
 	nameMessage := fmt.Sprintf("Tx:%s", o.Name)
@@ -138,7 +133,13 @@ func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
 		messages = append(messages, fmt.Sprintf("id:%s", o.Id.String()))
 	}
 
-	fmt.Printf("%v %s\n", emoji.OkHand, strings.Join(messages, " "))
+	icon := emoji.OkHand.String()
+	if o.Err != nil {
+		color.Red("%v Error executing transaction: %s error:%v", emoji.PileOfPoo, o.Name, o.Err)
+		icon = emoji.PileOfPoo.String()
+	}
+
+	fmt.Printf("%v %s\n", icon, strings.Join(messages, " "))
 
 	if printOpts.TransactionUrl {
 		fmt.Printf("https://flowscan.org/transaction/%s\n", o.Id)
