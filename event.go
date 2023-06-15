@@ -8,6 +8,7 @@ import (
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
+	"golang.org/x/exp/slices"
 )
 
 // Event parsing
@@ -189,8 +190,10 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 	return filteredEvents
 }
 
+var feeReceipients = []string{"0xf919ee77447b7497", "0x912d5440f7e3769e", "0xe5a8b7f23e8b548f"}
+
 // Filtter out fee events
-func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
+func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) OverflowEvents {
 
 	filteredEvents := overflowEvents
 	for name, events := range overflowEvents {
@@ -202,9 +205,15 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
-				if value.Fields["amount"].(float64) != fee {
-					withDrawnEvents = append(withDrawnEvents, value)
+
+				amount := value.Fields["amount"].(float64)
+				from := value.Fields["from"].(string)
+
+				if amount == fee && from == payer {
+					continue
 				}
+
+				withDrawnEvents = append(withDrawnEvents, value)
 			}
 			if len(withDrawnEvents) != 0 {
 				filteredEvents[name] = withDrawnEvents
@@ -216,9 +225,14 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64) OverflowEvents {
 		if strings.HasSuffix(name, "FlowToken.TokensDeposited") {
 			depositEvents := []OverflowEvent{}
 			for _, value := range events {
-				if value.Fields["amount"].(float64) != fee {
-					depositEvents = append(depositEvents, value)
+
+				amount := value.Fields["amount"].(float64)
+				to := value.Fields["to"].(string)
+
+				if amount == fee && slices.Contains(feeReceipients, to) {
+					continue
 				}
+				depositEvents = append(depositEvents, value)
 			}
 			if len(depositEvents) != 0 {
 				filteredEvents[name] = depositEvents

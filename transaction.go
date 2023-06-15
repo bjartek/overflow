@@ -113,7 +113,7 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		standardStakeholders[fmt.Sprintf("0x%s", transaction.ProposalKey.Address.Hex())] = proposer
 	}
 
-	eventsWithoutFees := events.FilterFees(feeAmount)
+	eventsWithoutFees := events.FilterFees(feeAmount, fmt.Sprintf("0x%s", transaction.Payer.Hex()))
 
 	eventList := []OverflowEvent{}
 	for _, evList := range eventsWithoutFees {
