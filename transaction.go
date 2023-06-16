@@ -31,26 +31,28 @@ type Argument struct {
 }
 
 type OverflowTransaction struct {
-	Id              string
-	BlockId         string
-	Events          []OverflowEvent
-	Error           error
-	Fee             float64
-	Status          string
-	Arguments       []Argument
-	Authorizers     []string
-	Stakeholders    map[string][]string
-	Imports         []Import
-	Payer           string
-	ProposalKey     flow.ProposalKey
-	GasLimit        uint64
-	GasUsed         uint64
-	ExecutionEffort float64
-	Script          []byte
+	Id               string
+	TransactionIndex int
+	BlockId          string
+	Events           []OverflowEvent
+	Error            error
+	Fee              float64
+	Status           string
+	Arguments        []Argument
+	Authorizers      []string
+	Stakeholders     map[string][]string
+	Imports          []Import
+	Payer            string
+	ProposalKey      flow.ProposalKey
+	GasLimit         uint64
+	GasUsed          uint64
+	ExecutionEffort  float64
+	Script           []byte
 }
 
 func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction) (*OverflowTransaction, error) {
 
+	txIndex := transactionResult.Events[0].TransactionIndex
 	feeAmount := 0.0
 	events, fee := parseEvents(transactionResult.Events)
 	feeRaw, ok := fee.Fields["amount"]
@@ -121,22 +123,23 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 	}
 
 	return &OverflowTransaction{
-		Id:              transactionResult.TransactionID.String(),
-		BlockId:         blockId,
-		Status:          transactionResult.Status.String(),
-		Events:          eventList,
-		Stakeholders:    eventsWithoutFees.GetStakeholders(standardStakeholders),
-		Imports:         imports,
-		Error:           transactionResult.Error,
-		Arguments:       args,
-		Fee:             feeAmount,
-		Script:          transaction.Script,
-		Payer:           fmt.Sprintf("0x%s", transaction.Payer.String()),
-		ProposalKey:     transaction.ProposalKey,
-		GasLimit:        transaction.GasLimit,
-		GasUsed:         uint64(gas),
-		ExecutionEffort: executionEffort,
-		Authorizers:     authorizers,
+		Id:               transactionResult.TransactionID.String(),
+		TransactionIndex: txIndex,
+		BlockId:          blockId,
+		Status:           transactionResult.Status.String(),
+		Events:           eventList,
+		Stakeholders:     eventsWithoutFees.GetStakeholders(standardStakeholders),
+		Imports:          imports,
+		Error:            transactionResult.Error,
+		Arguments:        args,
+		Fee:              feeAmount,
+		Script:           transaction.Script,
+		Payer:            fmt.Sprintf("0x%s", transaction.Payer.String()),
+		ProposalKey:      transaction.ProposalKey,
+		GasLimit:         transaction.GasLimit,
+		GasUsed:          uint64(gas),
+		ExecutionEffort:  executionEffort,
+		Authorizers:      authorizers,
 	}, nil
 
 }
