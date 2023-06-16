@@ -52,6 +52,9 @@ type OverflowTransaction struct {
 
 func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction) (*OverflowTransaction, error) {
 
+	if len(transactionResult.Events) == 0 {
+		fmt.Println(transaction.ID().Hex())
+	}
 	txIndex := transactionResult.Events[0].TransactionIndex
 	feeAmount := 0.0
 	events, fee := parseEvents(transactionResult.Events)
