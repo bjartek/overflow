@@ -50,12 +50,7 @@ type OverflowTransaction struct {
 	Script           []byte
 }
 
-func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction) (*OverflowTransaction, error) {
-
-	if len(transactionResult.Events) == 0 {
-		fmt.Println(transaction.ID().Hex())
-	}
-	txIndex := transactionResult.Events[0].TransactionIndex
+func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
 	feeAmount := 0.0
 	events, fee := parseEvents(transactionResult.Events)
 	feeRaw, ok := fee.Fields["amount"]
@@ -152,7 +147,11 @@ func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.
 	if err != nil {
 		return nil, err
 	}
-	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx)
+	txIndex := 0
+	if len(txr.Events) > 0 {
+		txIndex = txr.Events[0].TransactionIndex
+	}
+	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx, txIndex)
 }
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
 	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
@@ -196,7 +195,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 			return []OverflowTransaction{}
 		}
 
-		ot, err := CreateOverflowTransactions(id.String(), r, t)
+		ot, err := CreateOverflowTransactions(id.String(), r, t, i)
 		if err != nil {
 			panic(err)
 		}
