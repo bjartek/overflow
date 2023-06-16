@@ -207,9 +207,9 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			for _, value := range events {
 
 				amount := value.Fields["amount"].(float64)
-				from := value.Fields["from"].(string)
+				from, ok := value.Fields["from"].(string)
 
-				if amount == fee && from == payer {
+				if ok && amount == fee && from == payer {
 					continue
 				}
 
@@ -227,9 +227,9 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			for _, value := range events {
 
 				amount := value.Fields["amount"].(float64)
-				to := value.Fields["to"].(string)
+				to, ok := value.Fields["to"].(string)
 
-				if amount == fee && slices.Contains(feeReceipients, to) {
+				if ok && amount == fee && slices.Contains(feeReceipients, to) {
 					continue
 				}
 				depositEvents = append(depositEvents, value)
