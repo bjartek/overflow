@@ -77,8 +77,14 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		if err != nil {
 			status = fmt.Sprintf("%s failed getting argument at index %d", status, i)
 		}
+		var key string
+		if len(argInfo.ParameterOrder) <= i {
+			key = "invalid"
+		} else {
+			key = argInfo.ParameterOrder[i]
+		}
 		argStruct := Argument{
-			Key:   argInfo.ParameterOrder[i],
+			Key:   key,
 			Value: CadenceValueToInterface(arg),
 		}
 		args = append(args, argStruct)
