@@ -45,6 +45,7 @@ type OverflowEvent struct {
 	Id            string                 `json:"id"`
 	Fields        map[string]interface{} `json:"fields"`
 	TransactionId string                 `json:"transactionID"`
+	EventIndex    uint32                 `json:"eventIndex"`
 	Name          string                 `json:"name"`
 	Addresses     map[string][]string    `json:"addresses"`
 }
@@ -139,6 +140,7 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			Fields:        finalFields,
 			Name:          event.Type,
 			TransactionId: event.TransactionID.String(),
+			EventIndex:    uint32(event.EventIndex),
 			Addresses:     addresses,
 		})
 		overflowEvents[event.Type] = events
