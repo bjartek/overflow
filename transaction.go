@@ -168,7 +168,7 @@ func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifi
 }
 
 // this is get from block, needs to return system chunk information
-func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier) ([]OverflowTransaction, OverflowEvents, error) {
+func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error) {
 
 	//sometimes this will become too complex.
 
@@ -179,6 +179,9 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 
 	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
+		if logg != nil {
+			logg.Debug("retry getting transactions")
+		}
 		time.Sleep(time.Millisecond * 200)
 		tx, txR, err = o.Flowkit.GetTransactionsByBlockID(ctx, id)
 		if err != nil {
@@ -190,6 +193,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier)
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
 
+		//This is different for testnet and mainnet
 		if r.TransactionID.String() == "f31815934bff124e332b3c8be5e1c7a949532707251a9f2f81def8cc9f3d1458" {
 			systemChunkEvents, _ = parseEvents(r.Events)
 			return []OverflowTransaction{}
@@ -231,7 +235,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				nextBlockToProcess = latestKnownBlock.Height
 				height = latestKnownBlock.Height
 			}
-			logg := logger.With(zap.Uint64("height", height), zap.Uint64("nextBlockToProcess", nextBlockToProcess), zap.Uint64("latestKnownBlock", latestKnownBlock.Height))
+			logg := logger.With(zap.Uint64("height", height), zap.Uint64("latestKnownBlock", latestKnownBlock.Height))
 
 			var block *flow.Block
 			if nextBlockToProcess < latestKnownBlock.Height {
@@ -259,7 +263,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			} else {
 				block = latestKnownBlock
 			}
-			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID)
+			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
 			if err != nil {
 				logg.Debug("getting transaction", zap.Error(err))
 				if strings.Contains(err.Error(), "could not retrieve collection: key not found") {
