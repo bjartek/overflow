@@ -23,6 +23,8 @@ type BlockResult struct {
 	Block             flow.Block
 	Error             error
 	Logger            *zap.Logger
+	//until we have view in flow.Block we add this here
+	View uint64
 }
 
 type Argument struct {
@@ -263,18 +265,27 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			} else {
 				block = latestKnownBlock
 			}
+
+			var view uint64
+			err := o.Script(`pub fun main():  UInt64 {
+    return getCurrentBlock().view
+}`).MarshalAs(&view)
+			if err != nil {
+				logg.Debug("error fetching view", zap.Error(err))
+				continue
+			}
 			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
 			if err != nil {
 				logg.Debug("getting transaction", zap.Error(err))
 				if strings.Contains(err.Error(), "could not retrieve collection: key not found") {
 					continue
 				}
-				channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg}
+				channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: view}
 				height = nextBlockToProcess
 				continue
 			}
 			logg = logg.With(zap.Int("tx", len(tx)))
-			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg}
+			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg, View: view}
 			height = nextBlockToProcess
 
 		case <-ctx.Done():
