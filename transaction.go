@@ -218,6 +218,20 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 
 }
 
+func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg *zap.Logger) (*BlockResult, error) {
+
+	block, err := o.GetBlockAtHeight(ctx, height)
+	if block != nil {
+		return nil, err
+	}
+	tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0}, nil
+}
+
 // This code is beta
 func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error {
 
@@ -285,7 +299,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				continue
 			}
 			logg = logg.With(zap.Int("tx", len(tx)))
-			channel <- BlockResult{Block: *block, Transactions: tx, Logger: logg, View: view}
+			channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: view}
 			height = nextBlockToProcess
 
 		case <-ctx.Done():
