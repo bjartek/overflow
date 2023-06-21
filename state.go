@@ -80,6 +80,7 @@ type OverflowBetaClient interface {
 	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
 	GetTransactions(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
 	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
+	GetBlockResult(ctx context.Context, height uint64, logger *zap.Logger) (*BlockResult, error)
 }
 
 var _ OverflowClient = (*OverflowState)(nil)
