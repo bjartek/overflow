@@ -221,7 +221,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg *zap.Logger) (*BlockResult, error) {
 
 	block, err := o.GetBlockAtHeight(ctx, height)
-	if block != nil {
+	if err != nil {
 		return nil, err
 	}
 	tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
