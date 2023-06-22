@@ -191,6 +191,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 		}
 	}
 
+	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)-1))
 	var systemChunkEvents OverflowEvents
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
@@ -251,10 +252,12 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				nextBlockToProcess = latestKnownBlock.Height
 				height = latestKnownBlock.Height
 			}
-			logg := logger.With(zap.Uint64("height", height), zap.Uint64("latestKnownBlock", latestKnownBlock.Height))
+			logg := logger.With(zap.Uint64("height", nextBlockToProcess), zap.Uint64("latestKnownBlock", latestKnownBlock.Height))
+			logg.Debug("tick")
 
 			var block *flow.Block
 			if nextBlockToProcess < latestKnownBlock.Height {
+				logg.Debug("next block is smaller then latest known block")
 				//we are still processing historical blocks
 				block, err = o.GetBlockAtHeight(ctx, nextBlockToProcess)
 				if err != nil {
@@ -262,6 +265,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 					continue
 				}
 			} else if nextBlockToProcess != latestKnownBlock.Height {
+				logg.Debug("next block is not equal to latest block")
 				block, err = o.GetLatestBlock(ctx)
 				if err != nil {
 					logg.Debug("error fetching latest block", zap.Error(err))
@@ -280,26 +284,20 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				block = latestKnownBlock
 			}
 
-			var view uint64
-			err := o.Script(`pub fun main():  UInt64 {
-    return getCurrentBlock().view
-}`).MarshalAs(&view)
-			if err != nil {
-				logg.Debug("error fetching view", zap.Error(err))
-				continue
-			}
+			logg.Debug("processing block", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height))
 			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
+			logg.Debug("fetched transactions", zap.Int("tx", len(tx)))
 			if err != nil {
 				logg.Debug("getting transaction", zap.Error(err))
 				if strings.Contains(err.Error(), "could not retrieve collection: key not found") {
 					continue
 				}
-				channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: view}
+				channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: 0}
 				height = nextBlockToProcess
 				continue
 			}
 			logg = logg.With(zap.Int("tx", len(tx)))
-			channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: view}
+			channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0}
 			height = nextBlockToProcess
 
 		case <-ctx.Done():
