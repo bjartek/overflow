@@ -292,13 +292,22 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				if strings.Contains(err.Error(), "could not retrieve collection: key not found") {
 					continue
 				}
-				channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: 0}
-				height = nextBlockToProcess
+
+				select {
+				case channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: 0}:
+					height = nextBlockToProcess
+				case <-ctx.Done():
+					return ctx.Err()
+				}
 				continue
 			}
 			logg = logg.With(zap.Int("tx", len(tx)))
-			channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0}
-			height = nextBlockToProcess
+			select {
+			case channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0}:
+				height = nextBlockToProcess
+			case <-ctx.Done():
+				return ctx.Err()
+			}
 
 		case <-ctx.Done():
 			return ctx.Err()
