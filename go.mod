@@ -73,7 +73,9 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/hexops/valast v1.4.3 // indirect
+	github.com/iancoleman/orderedmap v0.0.0-20190318233801-ac98e3ecb4b0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/invopop/jsonschema v0.7.0 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/go-block-format v0.0.3 // indirect
 	github.com/ipfs/go-cid v0.3.2 // indirect
@@ -125,7 +127,6 @@ require (
 	github.com/onflow/sdks v0.5.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
-	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -182,7 +183,6 @@ require (
 	google.golang.org/grpc v1.53.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
 	modernc.org/libc v1.22.3 // indirect
@@ -191,3 +191,5 @@ require (
 	modernc.org/sqlite v1.21.1 // indirect
 	mvdan.cc/gofumpt v0.4.0 // indirect
 )
+
+replace github.com/onflow/flow-cli/flowkit => github.com/findonflow/flow-cli/flowkit v0.0.0-20230704221319-c278fffb9d6a
