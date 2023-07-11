@@ -20,6 +20,8 @@ import (
 	"github.com/onflow/flow-cli/flowkit/gateway"
 	"github.com/onflow/flow-cli/flowkit/output"
 	"github.com/onflow/flow-emulator/emulator"
+	"github.com/onflow/flow-go/fvm/blueprints"
+	fm "github.com/onflow/flow-go/model/flow"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
@@ -168,6 +170,22 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow.QualifiedIdentifierFromSnakeCase(name)
 		}
 	}
+
+	//This is different for testnet and mainnet
+	//TODO: fix this for testnet
+
+	chain := fm.Mainnet.Chain()
+	if o.Network == "testnet" {
+		chain = fm.Testnet.Chain()
+	}
+
+	systemChunkTx, err := blueprints.SystemChunkTransaction(chain)
+	if err != nil {
+		overflow.Error = err
+		return overflow
+	}
+	systemChunkId := systemChunkTx.ID().String()
+	overflow.SystemChunkTransactionid = systemChunkId
 
 	network, err := state.Networks().ByName(o.Network)
 	if err != nil {

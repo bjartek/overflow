@@ -54,7 +54,7 @@ type OverflowTransaction struct {
 
 func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
 	feeAmount := 0.0
-	events, fee := parseEvents(transactionResult.Events)
+	events, fee := parseEvents(transactionResult.Events, "")
 	feeRaw, ok := fee.Fields["amount"]
 	if ok {
 		feeAmount, ok = feeRaw.(float64)
@@ -195,10 +195,8 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 	var systemChunkEvents OverflowEvents
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
-
-		//This is different for testnet and mainnet
-		if r.TransactionID.String() == "f31815934bff124e332b3c8be5e1c7a949532707251a9f2f81def8cc9f3d1458" {
-			systemChunkEvents, _ = parseEvents(r.Events)
+		if r.TransactionID.String() == o.SystemChunkTransactionId {
+			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
 			return []OverflowTransaction{}
 		}
 		t := *tx[i]
