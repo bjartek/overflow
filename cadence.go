@@ -160,7 +160,17 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 	case cadence.Fix64:
 		float, _ := strconv.ParseFloat(field.String(), 64)
 		return float
+	case cadence.Event:
+		result := map[string]interface{}{}
 
+		for i, subField := range field.Fields {
+			value := CadenceValueToInterface(subField)
+			if value != nil {
+				result[field.EventType.Fields[i].Identifier] = value
+			}
+		}
+
+		return result
 	default:
 		//fmt.Println("is fallthrough ", field.ToGoValue(), " ", field.String())
 
