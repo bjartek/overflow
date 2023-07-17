@@ -185,7 +185,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		return overflow
 	}
 	systemChunkId := systemChunkTx.ID().String()
-	overflow.SystemChunkTransactionid = systemChunkId
+	overflow.SystemChunkTransactionId = systemChunkId
 
 	network, err := state.Networks().ByName(o.Network)
 	if err != nil {
