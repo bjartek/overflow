@@ -104,7 +104,7 @@ func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
 }
 
 // Parse raw flow events into a list of events and a fee event
-func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
+func parseEvents(events []flow.Event, idPrefix string) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
 	for i, event := range events {
@@ -136,7 +136,7 @@ func parseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
 			events = []OverflowEvent{}
 		}
 		events = append(events, OverflowEvent{
-			Id:            fmt.Sprintf("%s-%d", event.TransactionID.Hex(), i),
+			Id:            fmt.Sprintf("%s%s-%d", idPrefix, event.TransactionID.Hex(), i),
 			Fields:        finalFields,
 			Name:          event.Type,
 			TransactionId: event.TransactionID.String(),
