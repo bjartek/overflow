@@ -197,6 +197,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 		r := *rp
 		if r.TransactionID.String() == o.SystemChunkTransactionId {
 			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
+			logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
 			return []OverflowTransaction{}
 		}
 		t := *tx[i]
