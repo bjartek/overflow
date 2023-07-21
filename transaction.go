@@ -52,26 +52,9 @@ type OverflowTransaction struct {
 	Script           []byte
 }
 
-func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
-	feeAmount := 0.0
-	events, fee := parseEvents(transactionResult.Events, "")
-	feeRaw, ok := fee.Fields["amount"]
-	if ok {
-		feeAmount, ok = feeRaw.(float64)
-		if !ok {
-			return nil, fmt.Errorf("failed casting fee amount to float64")
-		}
-	}
+func CreateOverflowTransactions(blockId string, transactionResult *flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
 
-	executionEffort, ok := fee.Fields["executionEffort"].(float64)
-	gas := 0
-	if ok {
-		factor := 100000000
-		gas = int(math.Round(executionEffort * float64(factor)))
-	}
-
-	status := transactionResult.Status.String()
-
+	status := "pending"
 	args := []Argument{}
 	argInfo := declarationInfo(transaction.Script)
 	for i := range transaction.Arguments {
@@ -121,6 +104,41 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		standardStakeholders[fmt.Sprintf("0x%s", transaction.ProposalKey.Address.Hex())] = proposer
 	}
 
+	if transactionResult == nil {
+		return &OverflowTransaction{
+			Id:               transaction.ID().String(),
+			TransactionIndex: txIndex,
+			BlockId:          blockId,
+			Status:           status,
+			Stakeholders:     standardStakeholders,
+			Imports:          imports,
+			Arguments:        args,
+			Script:           transaction.Script,
+			Payer:            fmt.Sprintf("0x%s", transaction.Payer.String()),
+			ProposalKey:      transaction.ProposalKey,
+			GasLimit:         transaction.GasLimit,
+			Authorizers:      authorizers,
+		}, nil
+	}
+
+	feeAmount := 0.0
+	events, fee := parseEvents(transactionResult.Events, "")
+	feeRaw, ok := fee.Fields["amount"]
+	if ok {
+		feeAmount, ok = feeRaw.(float64)
+		if !ok {
+			return nil, fmt.Errorf("failed casting fee amount to float64")
+		}
+	}
+
+	executionEffort, ok := fee.Fields["executionEffort"].(float64)
+	gas := 0
+	if ok {
+		factor := 100000000
+		gas = int(math.Round(executionEffort * float64(factor)))
+	}
+	status = transactionResult.Status.String()
+
 	eventsWithoutFees := events.FilterFees(feeAmount, fmt.Sprintf("0x%s", transaction.Payer.Hex()))
 
 	eventList := []OverflowEvent{}
@@ -159,7 +177,7 @@ func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.
 	if len(txr.Events) > 0 {
 		txIndex = txr.Events[0].TransactionIndex
 	}
-	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx, txIndex)
+	return CreateOverflowTransactions(txr.BlockID.String(), txr, *tx, txIndex)
 }
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
 	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
@@ -207,7 +225,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 			return []OverflowTransaction{}
 		}
 
-		ot, err := CreateOverflowTransactions(id.String(), r, t, i)
+		ot, err := CreateOverflowTransactions(id.String(), &r, t, i)
 		if err != nil {
 			panic(err)
 		}
