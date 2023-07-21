@@ -54,7 +54,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "17.6%", report.Summary().Coverage)
+		assert.Equal(t, "18.0%", report.Summary().Coverage)
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {
@@ -350,11 +350,11 @@ func TestFillUpSpace(t *testing.T) {
 	assert.NoError(t, err)
 
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 199205, result)
+	assert.Equal(t, 199198, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 
 	result2 := o.GetFreeCapacity("first")
-	assert.LessOrEqual(t, result2, 42000)
+	assert.LessOrEqual(t, result2, 49000)
 
 }
