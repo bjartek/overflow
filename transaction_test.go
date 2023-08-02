@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -39,12 +40,13 @@ func TestTransaction(t *testing.T) {
 
 	t.Run("Run simple tx with sa proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposerServiceAccount())
-		assert.Contains(t, res.EmulatorLog[0], "0x01cf0e2f2f715450")
+		assert.Contains(t, res.EmulatorLog[2], "0x01cf0e2f2f715450")
 	})
 
 	t.Run("Run simple tx with custom proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposer("account"))
-		assert.Contains(t, res.EmulatorLog[0], "0x01cf0e2f2f715450")
+		litter.Dump(res.EmulatorLog)
+		assert.Contains(t, res.EmulatorLog[2], "0x01cf0e2f2f715450")
 	})
 	t.Run("Fail when invalid proposer", func(t *testing.T) {
 		res := o.Tx("arguments", WithArg("test", "foo"), WithPayloadSigner("first"), WithProposer("account2"))
