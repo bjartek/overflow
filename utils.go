@@ -42,14 +42,15 @@ func parseTime(timeString string, location string) (string, error) {
 
 func getAndUnquoteString(value cadence.Value) string {
 	result, err := strconv.Unquote(value.String())
+
 	if err != nil {
 		result = value.String()
 		if strings.Contains(result, "\\u") || strings.Contains(result, "\\U") {
-			return value.ToGoValue().(string)
+			result = value.ToGoValue().(string)
 		}
 	}
 
-	return result
+	return strings.Replace(result, "\x00", "", -1)
 }
 
 func exists(path string) (bool, error) {
