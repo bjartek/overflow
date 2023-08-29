@@ -8,11 +8,11 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.1
-	github.com/onflow/cadence v0.39.14
-	github.com/onflow/flow-cli/flowkit v1.3.4
-	github.com/onflow/flow-emulator v0.53.0
-	github.com/onflow/flow-go v0.31.1-0.20230720190804-2782d45706ac
-	github.com/onflow/flow-go-sdk v0.41.9
+	github.com/onflow/cadence v0.40.0
+	github.com/onflow/flow-cli/flowkit v1.4.0
+	github.com/onflow/flow-emulator v0.54.0
+	github.com/onflow/flow-go v0.31.1-0.20230808172820-f074502a67e3
+	github.com/onflow/flow-go-sdk v0.41.10
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/samber/lo v1.38.1
@@ -119,8 +119,7 @@ require (
 	github.com/onflow/flow-ft/lib/go/contracts v0.7.0 // indirect
 	github.com/onflow/flow-go/crypto v0.24.9 // indirect
 	github.com/onflow/flow-nft/lib/go/contracts v1.1.0 // indirect
-	github.com/onflow/flow/protobuf/go/flow v0.3.2-0.20230602212908-08fc6536d391 // indirect
-	github.com/onflow/fusd/lib/go/contracts v0.0.0-20211021081023-ae9de8fb2c7e // indirect
+	github.com/onflow/flow/protobuf/go/flow v0.3.2-0.20230628215638-83439d22e0ce // indirect
 	github.com/onflow/nft-storefront/lib/go/contracts v0.0.0-20221222181731-14b90207cead // indirect
 	github.com/onflow/sdks v0.5.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
@@ -128,10 +127,10 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
+	github.com/prometheus/client_golang v1.16.0 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
-	github.com/prometheus/procfs v0.9.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/psiemens/graceland v1.0.0 // indirect
 	github.com/psiemens/sconfig v0.1.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
