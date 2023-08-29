@@ -259,4 +259,5 @@ transaction(test:UFix64) {
 		assert.True(t, res.IgnoreGlobalEventFilters)
 		assert.Equal(t, 1, len(res.EventFilter))
 	})
+
 }
