@@ -496,6 +496,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	ftx, res, err := oib.Overflow.Flowkit.SendSignedTransaction(oib.Ctx, tx)
 	result.Transaction = ftx
+	result.TransactionResult = res
 
 	if err != nil {
 		result.Err = err
