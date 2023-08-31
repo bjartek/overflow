@@ -43,7 +43,7 @@ func TestIntegrationEvents(t *testing.T) {
 			AssertEventCount(t, 3)
 		ev, err := g.FetchEvents(WithLastBlocks(2), WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"))
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(ev))
+		assert.Equal(t, 2, len(ev))
 	})
 
 	t.Run("Fetch last events and sort them ", func(t *testing.T) {

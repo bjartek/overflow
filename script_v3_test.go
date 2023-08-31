@@ -53,7 +53,7 @@ func TestScript(t *testing.T) {
 
 	t.Run("Run script inline", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(): String {
+access(all) fun main(): String {
 	return "foo"
 }
 `).GetAsJson()
@@ -70,7 +70,7 @@ pub fun main(): String {
 	t.Run("Run script with string array", func(t *testing.T) {
 		input := []string{"test", "foo"}
 		res, err := o.Script(`
-pub fun main(input: [String]): [String] {
+access(all) fun main(input: [String]): [String] {
 	return input
 }
 
@@ -83,7 +83,7 @@ pub fun main(input: [String]): [String] {
 	t.Run("Run script with string map", func(t *testing.T) {
 		input := `{"test": "foo", "test2": "bar"}`
 		res, err := o.Script(`
-pub fun main(input: {String : String}): {String: String} {
+access(all) fun main(input: {String : String}): {String: String} {
 	return input
 }
 
@@ -98,7 +98,7 @@ pub fun main(input: {String : String}): {String: String} {
 			"test2": "bar",
 		}
 		res, err := o.Script(`
-pub fun main(input: {String : String}): {String: String} {
+access(all) fun main(input: {String : String}): {String: String} {
 	return input
 }
 
@@ -113,7 +113,7 @@ pub fun main(input: {String : String}): {String: String} {
 			"test2": 2.0,
 		}
 		res, err := o.Script(`
-pub fun main(input: {String : UFix64}): {String: UFix64} {
+access(all) fun main(input: {String : UFix64}): {String: UFix64} {
 	return input
 }
 
@@ -128,7 +128,7 @@ pub fun main(input: {String : UFix64}): {String: UFix64} {
 			"test2": 2,
 		}
 		res, err := o.Script(`
-pub fun main(input: {String : UInt64}): {String: UInt64} {
+access(all) fun main(input: {String : UInt64}): {String: UInt64} {
 	return input
 }
 
@@ -139,7 +139,7 @@ pub fun main(input: {String : UInt64}): {String: UInt64} {
 
 	t.Run("Run script with ufix64 array as string", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: [UFix64]): [UFix64] {
+access(all) fun main(input: [UFix64]): [UFix64] {
 	return input
 }
 
@@ -150,7 +150,7 @@ pub fun main(input: [UFix64]): [UFix64] {
 
 	t.Run("Run script with ufix64 array", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: [UFix64]): [UFix64] {
+access(all) fun main(input: [UFix64]): [UFix64] {
 	return input
 }
 
@@ -161,7 +161,7 @@ pub fun main(input: [UFix64]): [UFix64] {
 
 	t.Run("Run script with fix64 array", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: [Fix64]): [Fix64] {
+access(all) fun main(input: [Fix64]): [Fix64] {
 	return input
 }
 
@@ -173,7 +173,7 @@ pub fun main(input: [Fix64]): [Fix64] {
 
 	t.Run("Run script with uint64 array as string", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: [UInt64]): [UInt64] {
+access(all) fun main(input: [UInt64]): [UInt64] {
 	return input
 }
 
@@ -185,7 +185,7 @@ pub fun main(input: [UInt64]): [UInt64] {
 
 	t.Run("Run script with uint64 array", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: [UInt64]): [UInt64] {
+access(all) fun main(input: [UInt64]): [UInt64] {
 	return input
 }
 
@@ -197,7 +197,7 @@ pub fun main(input: [UInt64]): [UInt64] {
 
 	t.Run("Run script with optional Address some", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: Address?): Address? {
+access(all) fun main(input: Address?): Address? {
 	return input
 }
 
@@ -209,7 +209,7 @@ pub fun main(input: Address?): Address? {
 
 	t.Run("Run script with optional Address empty", func(t *testing.T) {
 		res, err := o.Script(`
-pub fun main(input: Address?): Address? {
+access(all) fun main(input: Address?): Address? {
 	return input
 }
 

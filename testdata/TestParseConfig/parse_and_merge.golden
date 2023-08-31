@@ -5,7 +5,7 @@
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -19,7 +19,7 @@ pub fun main(account: Address): String {
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 // This is a generic script
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -31,7 +31,7 @@ pub fun main(account: Address): String {
 			},
 			"block": {
 				Code: `// test script to ensure code is running
-pub fun main(): UInt64 {
+access(all) fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
@@ -45,7 +45,7 @@ pub fun main(): UInt64 {
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -59,8 +59,8 @@ pub fun main(account: Address): String {
 				Code: `// test script to ensure code is running
 import FlowToken from 0x0ae53cb6e3f42a79
 
-pub fun main(): Type {
-        return Type<@FlowToken.Vault>()
+access(all) fun main(): Type {
+    return Type<@FlowToken.Vault>()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{},
@@ -71,7 +71,7 @@ pub fun main(): Type {
 				Code: `import FungibleToken from 0xee82856bf20e2aa6
 // This is a generic script
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -221,63 +221,59 @@ transaction() {
 				},
 			},
 		},
-		Contracts: &map[string]string{
-			"Debug": `import NonFungibleToken from 0xf8d6e0586b0a20c7
+		Contracts: &map[string]string{"Debug": `import NonFungibleToken from 0xf8d6e0586b0a20c7
 
-pub contract Debug {
+access(all) contract Debug {
 
-pub struct FooListBar {
-	pub let foo:[Foo2]
-	pub let bar:String
+    access(all) struct FooListBar {
+        access(all) let foo:[Foo2]
+        access(all) let bar:String
 
-	init(foo:[Foo2], bar:String) {
-		self.foo=foo
-		self.bar=bar
-	}
-}
-pub struct FooBar {
-	pub let foo:Foo
-	pub let bar:String
+        init(foo:[Foo2], bar:String) {
+            self.foo=foo
+            self.bar=bar
+        }
+    }
+    access(all) struct FooBar {
+        access(all) let foo:Foo
+        access(all) let bar:String
 
-	init(foo:Foo, bar:String) {
-		self.foo=foo
-		self.bar=bar
-	}
-}
+        init(foo:Foo, bar:String) {
+            self.foo=foo
+            self.bar=bar
+        }
+    }
 
 
-pub struct Foo2{
-	pub let bar: Address
+    access(all) struct Foo2{
+        access(all) let bar: Address
 
-	init(bar: Address) {
-		self.bar=bar
-	}
-}
+        init(bar: Address) {
+            self.bar=bar
+        }
+    }
 
-pub struct Foo{
-	pub let bar: String
+    access(all) struct Foo{
+        access(all) let bar: String
 
-	init(bar: String) {
-		self.bar=bar
-	}
-}
+        init(bar: String) {
+            self.bar=bar
+        }
+    }
 
-pub event Log(msg: String)
-pub event LogNum(id: UInt64)
+    access(all) event Log(msg: String)
+    access(all) event LogNum(id: UInt64)
 
-pub fun id(_ id:UInt64) {
-	emit LogNum(id:id)
-}
+    access(all) fun id(_ id:UInt64) {
+        emit LogNum(id:id)
+    }
 
-pub fun log(_ msg: String) : String {
-	emit Log(msg: msg)
-	return msg
-}
+    access(all) fun log(_ msg: String) : String {
+        emit Log(msg: msg)
+        return msg
+    }
 
-}`,
-			"MetadataViews":    "import FungibleToken from 0xee82856bf20e2aa6\nimport NonFungibleToken from 0xf8d6e0586b0a20c7\n\n/// This contract implements the metadata standard proposed\n/// in FLIP-0636.\n///\n/// Ref: https://github.com/onflow/flips/blob/main/application/20210916-nft-metadata.md\n///\n/// Structs and resources can implement one or more\n/// metadata types, called views. Each view type represents\n/// a different kind of metadata, such as a creator biography\n/// or a JPEG image file.\n///\npub contract MetadataViews {\n\n    /// Provides access to a set of metadata views. A struct or\n    /// resource (e.g. an NFT) can implement this interface to provide access to\n    /// the views that it supports.\n    ///\n    pub resource interface Resolver {\n        pub fun getViews(): [Type]\n        pub fun resolveView(_ view: Type): AnyStruct?\n    }\n\n    /// A group of view resolvers indexed by ID.\n    ///\n    pub resource interface ResolverCollection {\n        pub fun borrowViewResolver(id: UInt64): &{Resolver}\n        pub fun getIDs(): [UInt64]\n    }\n\n    /// NFTView wraps all Core views along `id` and `uuid` fields, and is used\n    /// to give a complete picture of an NFT. Most NFTs should implement this\n    /// view.\n    ///\n    pub struct NFTView {\n        pub let id: UInt64\n        pub let uuid: UInt64\n        pub let display: Display?\n        pub let externalURL: ExternalURL?\n        pub let collectionData: NFTCollectionData?\n        pub let collectionDisplay: NFTCollectionDisplay?\n        pub let royalties: Royalties?\n        pub let traits: Traits?\n\n        init(\n            id : UInt64,\n            uuid : UInt64,\n            display : Display?,\n            externalURL : ExternalURL?,\n            collectionData : NFTCollectionData?,\n            collectionDisplay : NFTCollectionDisplay?,\n            royalties : Royalties?,\n            traits: Traits?\n        ) {\n            self.id = id\n            self.uuid = uuid\n            self.display = display\n            self.externalURL = externalURL\n            self.collectionData = collectionData\n            self.collectionDisplay = collectionDisplay\n            self.royalties = royalties\n            self.traits = traits\n        }\n    }\n\n    /// Helper to get an NFT view\n    ///\n    /// @param id: The NFT id\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A NFTView struct\n    ///\n    pub fun getNFTView(id: UInt64, viewResolver: &{Resolver}) : NFTView {\n        let nftView = viewResolver.resolveView(Type<NFTView>())\n        if nftView != nil {\n            return nftView! as! NFTView\n        }\n\n        return NFTView(\n            id : id,\n            uuid: viewResolver.uuid,\n            display: self.getDisplay(viewResolver),\n            externalURL : self.getExternalURL(viewResolver),\n            collectionData : self.getNFTCollectionData(viewResolver),\n            collectionDisplay : self.getNFTCollectionDisplay(viewResolver),\n            royalties : self.getRoyalties(viewResolver),\n            traits : self.getTraits(viewResolver)\n        )\n    }\n\n    /// Display is a basic view that includes the name, description and\n    /// thumbnail for an object. Most objects should implement this view.\n    ///\n    pub struct Display {\n\n        /// The name of the object.\n        ///\n        /// This field will be displayed in lists and therefore should\n        /// be short an concise.\n        ///\n        pub let name: String\n\n        /// A written description of the object.\n        ///\n        /// This field will be displayed in a detailed view of the object,\n        /// so can be more verbose (e.g. a paragraph instead of a single line).\n        ///\n        pub let description: String\n\n        /// A small thumbnail representation of the object.\n        ///\n        /// This field should be a web-friendly file (i.e JPEG, PNG)\n        /// that can be displayed in lists, link previews, etc.\n        ///\n        pub let thumbnail: AnyStruct{File}\n\n        init(\n            name: String,\n            description: String,\n            thumbnail: AnyStruct{File}\n        ) {\n            self.name = name\n            self.description = description\n            self.thumbnail = thumbnail\n        }\n    }\n\n    /// Helper to get Display in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return An optional Display struct\n    ///\n    pub fun getDisplay(_ viewResolver: &{Resolver}) : Display? {\n        if let view = viewResolver.resolveView(Type<Display>()) {\n            if let v = view as? Display {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// Generic interface that represents a file stored on or off chain. Files\n    /// can be used to references images, videos and other media.\n    ///\n    pub struct interface File {\n        pub fun uri(): String\n    }\n\n    /// View to expose a file that is accessible at an HTTP (or HTTPS) URL.\n    ///\n    pub struct HTTPFile: File {\n        pub let url: String\n\n        init(url: String) {\n            self.url = url\n        }\n\n        pub fun uri(): String {\n            return self.url\n        }\n    }\n\n    /// View to expose a file stored on IPFS.\n    /// IPFS images are referenced by their content identifier (CID)\n    /// rather than a direct URI. A client application can use this CID\n    /// to find and load the image via an IPFS gateway.\n    ///\n    pub struct IPFSFile: File {\n\n        /// CID is the content identifier for this IPFS file.\n        ///\n        /// Ref: https://docs.ipfs.io/concepts/content-addressing/\n        ///\n        pub let cid: String\n\n        /// Path is an optional path to the file resource in an IPFS directory.\n        ///\n        /// This field is only needed if the file is inside a directory.\n        ///\n        /// Ref: https://docs.ipfs.io/concepts/file-systems/\n        ///\n        pub let path: String?\n\n        init(cid: String, path: String?) {\n            self.cid = cid\n            self.path = path\n        }\n\n        /// This function returns the IPFS native URL for this file.\n        /// Ref: https://docs.ipfs.io/how-to/address-ipfs-on-web/#native-urls\n        ///\n        /// @return The string containing the file uri\n        ///\n        pub fun uri(): String {\n            if let path = self.path {\n                return \"ipfs://\".concat(self.cid).concat(\"/\").concat(path)\n            }\n\n            return \"ipfs://\".concat(self.cid)\n        }\n    }\n\n    /// Optional view for collections that issue multiple objects\n    /// with the same or similar metadata, for example an X of 100 set. This\n    /// information is useful for wallets and marketplaces.\n    /// An NFT might be part of multiple editions, which is why the edition\n    /// information is returned as an arbitrary sized array\n    ///\n    pub struct Edition {\n\n        /// The name of the edition\n        /// For example, this could be Set, Play, Series,\n        /// or any other way a project could classify its editions\n        pub let name: String?\n\n        /// The edition number of the object.\n        /// For an \"24 of 100 (#24/100)\" item, the number is 24.\n        pub let number: UInt64\n\n        /// The max edition number of this type of objects.\n        /// This field should only be provided for limited-editioned objects.\n        /// For an \"24 of 100 (#24/100)\" item, max is 100.\n        /// For an item with unlimited edition, max should be set to nil.\n        ///\n        pub let max: UInt64?\n\n        init(name: String?, number: UInt64, max: UInt64?) {\n            if max != nil {\n                assert(number <= max!, message: \"The number cannot be greater than the max number!\")\n            }\n            self.name = name\n            self.number = number\n            self.max = max\n        }\n    }\n\n    /// Wrapper view for multiple Edition views\n    ///\n    pub struct Editions {\n\n        /// An arbitrary-sized list for any number of editions\n        /// that the NFT might be a part of\n        pub let infoList: [Edition]\n\n        init(_ infoList: [Edition]) {\n            self.infoList = infoList\n        }\n    }\n\n    /// Helper to get Editions in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return An optional Editions struct\n    ///\n    pub fun getEditions(_ viewResolver: &{Resolver}) : Editions? {\n        if let view = viewResolver.resolveView(Type<Editions>()) {\n            if let v = view as? Editions {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View representing a project-defined serial number for a specific NFT\n    /// Projects have different definitions for what a serial number should be\n    /// Some may use the NFTs regular ID and some may use a different\n    /// classification system. The serial number is expected to be unique among\n    /// other NFTs within that project\n    ///\n    pub struct Serial {\n        pub let number: UInt64\n\n        init(_ number: UInt64) {\n            self.number = number\n        }\n    }\n\n    /// Helper to get Serial in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return An optional Serial struct\n    ///\n    pub fun getSerial(_ viewResolver: &{Resolver}) : Serial? {\n        if let view = viewResolver.resolveView(Type<Serial>()) {\n            if let v = view as? Serial {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View that defines the composable royalty standard that gives marketplaces a\n    /// unified interface to support NFT royalties.\n    ///\n    pub struct Royalty {\n\n        /// Generic FungibleToken Receiver for the beneficiary of the royalty\n        /// Can get the concrete type of the receiver with receiver.getType()\n        /// Recommendation - Users should create a new link for a FlowToken\n        /// receiver for this using `getRoyaltyReceiverPublicPath()`, and not\n        /// use the default FlowToken receiver. This will allow users to update\n        /// the capability in the future to use a more generic capability\n        pub let receiver: Capability<&AnyResource{FungibleToken.Receiver}>\n\n        /// Multiplier used to calculate the amount of sale value transferred to\n        /// royalty receiver. Note - It should be between 0.0 and 1.0\n        /// Ex - If the sale value is x and multiplier is 0.56 then the royalty\n        /// value would be 0.56 * x.\n        /// Generally percentage get represented in terms of basis points\n        /// in solidity based smart contracts while cadence offers `UFix64`\n        /// that already supports the basis points use case because its\n        /// operations are entirely deterministic integer operations and support\n        /// up to 8 points of precision.\n        pub let cut: UFix64\n\n        /// Optional description: This can be the cause of paying the royalty,\n        /// the relationship between the `wallet` and the NFT, or anything else\n        /// that the owner might want to specify.\n        pub let description: String\n\n        init(receiver: Capability<&AnyResource{FungibleToken.Receiver}>, cut: UFix64, description: String) {\n            pre {\n                cut >= 0.0 && cut <= 1.0 : \"Cut value should be in valid range i.e [0,1]\"\n            }\n            self.receiver = receiver\n            self.cut = cut\n            self.description = description\n        }\n    }\n\n    /// Wrapper view for multiple Royalty views.\n    /// Marketplaces can query this `Royalties` struct from NFTs\n    /// and are expected to pay royalties based on these specifications.\n    ///\n    pub struct Royalties {\n\n        /// Array that tracks the individual royalties\n        access(self) let cutInfos: [Royalty]\n\n        pub init(_ cutInfos: [Royalty]) {\n            // Validate that sum of all cut multipliers should not be greater than 1.0\n            var totalCut = 0.0\n            for royalty in cutInfos {\n                totalCut = totalCut + royalty.cut\n            }\n            assert(totalCut <= 1.0, message: \"Sum of cutInfos multipliers should not be greater than 1.0\")\n            // Assign the cutInfos\n            self.cutInfos = cutInfos\n        }\n\n        /// Return the cutInfos list\n        ///\n        /// @return An array containing all the royalties structs\n        ///\n        pub fun getRoyalties(): [Royalty] {\n            return self.cutInfos\n        }\n    }\n\n    /// Helper to get Royalties in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional Royalties struct\n    ///\n    pub fun getRoyalties(_ viewResolver: &{Resolver}) : Royalties? {\n        if let view = viewResolver.resolveView(Type<Royalties>()) {\n            if let v = view as? Royalties {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// Get the path that should be used for receiving royalties\n    /// This is a path that will eventually be used for a generic switchboard receiver,\n    /// hence the name but will only be used for royalties for now.\n    ///\n    /// @return The PublicPath for the generic FT receiver\n    ///\n    pub fun getRoyaltyReceiverPublicPath(): PublicPath {\n        return /public/GenericFTReceiver\n    }\n\n    /// View to represent, a file with an correspoiding mediaType.\n    ///\n    pub struct Media {\n\n        /// File for the media\n        ///\n        pub let file: AnyStruct{File}\n\n        /// media-type comes on the form of type/subtype as described here\n        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types\n        ///\n        pub let mediaType: String\n\n        init(file: AnyStruct{File}, mediaType: String) {\n          self.file=file\n          self.mediaType=mediaType\n        }\n    }\n\n    /// Wrapper view for multiple media views\n    ///\n    pub struct Medias {\n\n        /// An arbitrary-sized list for any number of Media items\n        pub let items: [Media]\n\n        init(_ items: [Media]) {\n            self.items = items\n        }\n    }\n\n    /// Helper to get Medias in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional Medias struct\n    ///\n    pub fun getMedias(_ viewResolver: &{Resolver}) : Medias? {\n        if let view = viewResolver.resolveView(Type<Medias>()) {\n            if let v = view as? Medias {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View to represent a license according to https://spdx.org/licenses/\n    /// This view can be used if the content of an NFT is licensed.\n    ///\n    pub struct License {\n        pub let spdxIdentifier: String\n\n        init(_ identifier: String) {\n            self.spdxIdentifier = identifier\n        }\n    }\n\n    /// Helper to get License in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional License struct\n    ///\n    pub fun getLicense(_ viewResolver: &{Resolver}) : License? {\n        if let view = viewResolver.resolveView(Type<License>()) {\n            if let v = view as? License {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View to expose a URL to this item on an external site.\n    /// This can be used by applications like .find and Blocto to direct users\n    /// to the original link for an NFT or a project page that describes the NFT collection.\n    /// eg https://www.my-nft-project.com/overview-of-nft-collection\n    ///\n    pub struct ExternalURL {\n        pub let url: String\n\n        init(_ url: String) {\n            self.url=url\n        }\n    }\n\n    /// Helper to get ExternalURL in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional ExternalURL struct\n    ///\n    pub fun getExternalURL(_ viewResolver: &{Resolver}) : ExternalURL? {\n        if let view = viewResolver.resolveView(Type<ExternalURL>()) {\n            if let v = view as? ExternalURL {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View to expose the information needed store and retrieve an NFT.\n    /// This can be used by applications to setup a NFT collection with proper\n    /// storage and public capabilities.\n    ///\n    pub struct NFTCollectionData {\n        /// Path in storage where this NFT is recommended to be stored.\n        pub let storagePath: StoragePath\n\n        /// Public path which must be linked to expose public capabilities of this NFT\n        /// including standard NFT interfaces and metadataviews interfaces\n        pub let publicPath: PublicPath\n\n        /// Private path which should be linked to expose the provider\n        /// capability to withdraw NFTs from the collection holding NFTs\n        pub let providerPath: PrivatePath\n\n        /// Public collection type that is expected to provide sufficient read-only access to standard\n        /// functions (deposit + getIDs + borrowNFT)\n        /// This field is for backwards compatibility with collections that have not used the standard\n        /// NonFungibleToken.CollectionPublic interface when setting up collections. For new\n        /// collections, this may be set to be equal to the type specified in `publicLinkedType`.\n        pub let publicCollection: Type\n\n        /// Type that should be linked at the aforementioned public path. This is normally a\n        /// restricted type with many interfaces. Notably the `NFT.CollectionPublic`,\n        /// `NFT.Receiver`, and `MetadataViews.ResolverCollection` interfaces are required.\n        pub let publicLinkedType: Type\n\n        /// Type that should be linked at the aforementioned private path. This is normally\n        /// a restricted type with at a minimum the `NFT.Provider` interface\n        pub let providerLinkedType: Type\n\n        /// Function that allows creation of an empty NFT collection that is intended to store\n        /// this NFT.\n        pub let createEmptyCollection: ((): @NonFungibleToken.Collection)\n\n        init(\n            storagePath: StoragePath,\n            publicPath: PublicPath,\n            providerPath: PrivatePath,\n            publicCollection: Type,\n            publicLinkedType: Type,\n            providerLinkedType: Type,\n            createEmptyCollectionFunction: ((): @NonFungibleToken.Collection)\n        ) {\n            pre {\n                publicLinkedType.isSubtype(of: Type<&{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, MetadataViews.ResolverCollection}>()): \"Public type must include NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, and MetadataViews.ResolverCollection interfaces.\"\n                providerLinkedType.isSubtype(of: Type<&{NonFungibleToken.Provider, NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection}>()): \"Provider type must include NonFungibleToken.Provider, NonFungibleToken.CollectionPublic, and MetadataViews.ResolverCollection interface.\"\n            }\n            self.storagePath=storagePath\n            self.publicPath=publicPath\n            self.providerPath = providerPath\n            self.publicCollection=publicCollection\n            self.publicLinkedType=publicLinkedType\n            self.providerLinkedType = providerLinkedType\n            self.createEmptyCollection=createEmptyCollectionFunction\n        }\n    }\n\n    /// Helper to get NFTCollectionData in a way that will return an typed Optional\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional NFTCollectionData struct\n    ///\n    pub fun getNFTCollectionData(_ viewResolver: &{Resolver}) : NFTCollectionData? {\n        if let view = viewResolver.resolveView(Type<NFTCollectionData>()) {\n            if let v = view as? NFTCollectionData {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View to expose the information needed to showcase this NFT's\n    /// collection. This can be used by applications to give an overview and\n    /// graphics of the NFT collection this NFT belongs to.\n    ///\n    pub struct NFTCollectionDisplay {\n        // Name that should be used when displaying this NFT collection.\n        pub let name: String\n\n        // Description that should be used to give an overview of this collection.\n        pub let description: String\n\n        // External link to a URL to view more information about this collection.\n        pub let externalURL: ExternalURL\n\n        // Square-sized image to represent this collection.\n        pub let squareImage: Media\n\n        // Banner-sized image for this collection, recommended to have a size near 1200x630.\n        pub let bannerImage: Media\n\n        // Social links to reach this collection's social homepages.\n        // Possible keys may be \"instagram\", \"twitter\", \"discord\", etc.\n        pub let socials: {String: ExternalURL}\n\n        init(\n            name: String,\n            description: String,\n            externalURL: ExternalURL,\n            squareImage: Media,\n            bannerImage: Media,\n            socials: {String: ExternalURL}\n        ) {\n            self.name = name\n            self.description = description\n            self.externalURL = externalURL\n            self.squareImage = squareImage\n            self.bannerImage = bannerImage\n            self.socials = socials\n        }\n    }\n\n    /// Helper to get NFTCollectionDisplay in a way that will return a typed\n    /// Optional\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional NFTCollection struct\n    ///\n    pub fun getNFTCollectionDisplay(_ viewResolver: &{Resolver}) : NFTCollectionDisplay? {\n        if let view = viewResolver.resolveView(Type<NFTCollectionDisplay>()) {\n            if let v = view as? NFTCollectionDisplay {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View to expose rarity information for a single rarity\n    /// Note that a rarity needs to have either score or description but it can\n    /// have both\n    ///\n    pub struct Rarity {\n        /// The score of the rarity as a number\n        pub let score: UFix64?\n\n        /// The maximum value of score\n        pub let max: UFix64?\n\n        /// The description of the rarity as a string.\n        ///\n        /// This could be Legendary, Epic, Rare, Uncommon, Common or any other string value\n        pub let description: String?\n\n        init(score: UFix64?, max: UFix64?, description: String?) {\n            if score == nil && description == nil {\n                panic(\"A Rarity needs to set score, description or both\")\n            }\n\n            self.score = score\n            self.max = max\n            self.description = description\n        }\n    }\n\n    /// Helper to get Rarity view in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional Rarity struct\n    ///\n    pub fun getRarity(_ viewResolver: &{Resolver}) : Rarity? {\n        if let view = viewResolver.resolveView(Type<Rarity>()) {\n            if let v = view as? Rarity {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// View to represent a single field of metadata on an NFT.\n    /// This is used to get traits of individual key/value pairs along with some\n    /// contextualized data about the trait\n    ///\n    pub struct Trait {\n        // The name of the trait. Like Background, Eyes, Hair, etc.\n        pub let name: String\n\n        // The underlying value of the trait, the rest of the fields of a trait provide context to the value.\n        pub let value: AnyStruct\n\n        // displayType is used to show some context about what this name and value represent\n        // for instance, you could set value to a unix timestamp, and specify displayType as \"Date\" to tell\n        // platforms to consume this trait as a date and not a number\n        pub let displayType: String?\n\n        // Rarity can also be used directly on an attribute.\n        //\n        // This is optional because not all attributes need to contribute to the NFT's rarity.\n        pub let rarity: Rarity?\n\n        init(name: String, value: AnyStruct, displayType: String?, rarity: Rarity?) {\n            self.name = name\n            self.value = value\n            self.displayType = displayType\n            self.rarity = rarity\n        }\n    }\n\n    /// Wrapper view to return all the traits on an NFT.\n    /// This is used to return traits as individual key/value pairs along with\n    /// some contextualized data about each trait.\n    pub struct Traits {\n        pub let traits: [Trait]\n\n        init(_ traits: [Trait]) {\n            self.traits = traits\n        }\n\n        /// Adds a single Trait to the Traits view\n        ///\n        /// @param Trait: The trait struct to be added\n        ///\n        pub fun addTrait(_ t: Trait) {\n            self.traits.append(t)\n        }\n    }\n\n    /// Helper to get Traits view in a typesafe way\n    ///\n    /// @param viewResolver: A reference to the resolver resource\n    /// @return A optional Traits struct\n    ///\n    pub fun getTraits(_ viewResolver: &{Resolver}) : Traits? {\n        if let view = viewResolver.resolveView(Type<Traits>()) {\n            if let v = view as? Traits {\n                return v\n            }\n        }\n        return nil\n    }\n\n    /// Helper function to easily convert a dictionary to traits. For NFT\n    /// collections that do not need either of the optional values of a Trait,\n    /// this method should suffice to give them an array of valid traits.\n    ///\n    /// @param dict: The dictionary to be converted to Traits\n    /// @param excludedNames: An optional String array specifying the `dict`\n    ///         keys that are not wanted to become `Traits`\n    /// @return The generated Traits view\n    ///\n    pub fun dictToTraits(dict: {String: AnyStruct}, excludedNames: [String]?): Traits {\n        // Collection owners might not want all the fields in their metadata included.\n        // They might want to handle some specially, or they might just not want them included at all.\n        if excludedNames != nil {\n            for k in excludedNames! {\n                dict.remove(key: k)\n            }\n        }\n\n        let traits: [Trait] = []\n        for k in dict.keys {\n            let trait = Trait(name: k, value: dict[k]!, displayType: nil, rarity: nil)\n            traits.append(trait)\n        }\n\n        return Traits(traits)\n    }\n\n}",
-			"NonFungibleToken": "/**\n\n## The Flow Non-Fungible Token standard\n\n## `NonFungibleToken` contract interface\n\nThe interface that all non-fungible token contracts could conform to.\nIf a user wants to deploy a new nft contract, their contract would need\nto implement the NonFungibleToken interface.\n\nTheir contract would have to follow all the rules and naming\nthat the interface specifies.\n\n## `NFT` resource\n\nThe core resource type that represents an NFT in the smart contract.\n\n## `Collection` Resource\n\nThe resource that stores a user's NFT collection.\nIt includes a few functions to allow the owner to easily\nmove tokens in and out of the collection.\n\n## `Provider` and `Receiver` resource interfaces\n\nThese interfaces declare functions with some pre and post conditions\nthat require the Collection to follow certain naming and behavior standards.\n\nThey are separate because it gives the user the ability to share a reference\nto their Collection that only exposes the fields and functions in one or more\nof the interfaces. It also gives users the ability to make custom resources\nthat implement these interfaces to do various things with the tokens.\n\nBy using resources and interfaces, users of NFT smart contracts can send\nand receive tokens peer-to-peer, without having to interact with a central ledger\nsmart contract.\n\nTo send an NFT to another user, a user would simply withdraw the NFT\nfrom their Collection, then call the deposit function on another user's\nCollection to complete the transfer.\n\n*/\n\n// The main NFT contract interface. Other NFT contracts will\n// import and implement this interface\n//\npub contract interface NonFungibleToken {\n\n    // The total number of tokens of this type in existence\n    pub var totalSupply: UInt64\n\n    // Event that emitted when the NFT contract is initialized\n    //\n    pub event ContractInitialized()\n\n    // Event that is emitted when a token is withdrawn,\n    // indicating the owner of the collection that it was withdrawn from.\n    //\n    // If the collection is not in an account's storage, `from` will be `nil`.\n    //\n    pub event Withdraw(id: UInt64, from: Address?)\n\n    // Event that emitted when a token is deposited to a collection.\n    //\n    // It indicates the owner of the collection that it was deposited to.\n    //\n    pub event Deposit(id: UInt64, to: Address?)\n\n    // Interface that the NFTs have to conform to\n    //\n    pub resource interface INFT {\n        // The unique ID that each NFT has\n        pub let id: UInt64\n    }\n\n    // Requirement that all conforming NFT smart contracts have\n    // to define a resource called NFT that conforms to INFT\n    pub resource NFT: INFT {\n        pub let id: UInt64\n    }\n\n    // Interface to mediate withdraws from the Collection\n    //\n    pub resource interface Provider {\n        // withdraw removes an NFT from the collection and moves it to the caller\n        pub fun withdraw(withdrawID: UInt64): @NFT {\n            post {\n                result.id == withdrawID: \"The ID of the withdrawn token must be the same as the requested ID\"\n            }\n        }\n    }\n\n    // Interface to mediate deposits to the Collection\n    //\n    pub resource interface Receiver {\n\n        // deposit takes an NFT as an argument and adds it to the Collection\n        //\n        pub fun deposit(token: @NFT)\n    }\n\n    // Interface that an account would commonly \n    // publish for their collection\n    pub resource interface CollectionPublic {\n        pub fun deposit(token: @NFT)\n        pub fun getIDs(): [UInt64]\n        pub fun borrowNFT(id: UInt64): &NFT\n    }\n\n    // Requirement for the the concrete resource type\n    // to be declared in the implementing contract\n    //\n    pub resource Collection: Provider, Receiver, CollectionPublic {\n\n        // Dictionary to hold the NFTs in the Collection\n        pub var ownedNFTs: @{UInt64: NFT}\n\n        // withdraw removes an NFT from the collection and moves it to the caller\n        pub fun withdraw(withdrawID: UInt64): @NFT\n\n        // deposit takes a NFT and adds it to the collections dictionary\n        // and adds the ID to the id array\n        pub fun deposit(token: @NFT)\n\n        // getIDs returns an array of the IDs that are in the collection\n        pub fun getIDs(): [UInt64]\n\n        // Returns a borrowed reference to an NFT in the collection\n        // so that the caller can read data and call methods from it\n        pub fun borrowNFT(id: UInt64): &NFT {\n            pre {\n                self.ownedNFTs[id] != nil: \"NFT does not exist in the collection!\"\n            }\n        }\n    }\n\n    // createEmptyCollection creates an empty Collection\n    // and returns it to the caller so that they can own NFTs\n    pub fun createEmptyCollection(): @Collection {\n        post {\n            result.getIDs().length == 0: \"The created collection must be empty!\"\n        }\n    }\n}",
-		},
+}`},
 	},
 	"mainnet": {
 		Scripts: map[string]overflow.OverflowCodeWithSpec{
@@ -285,7 +281,7 @@ pub fun log(_ msg: String) : String {
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -299,7 +295,7 @@ pub fun main(account: Address): String {
 				Code: `import FungibleToken from 0xf233dcee88fe0abe
 // This is a mainnet specific script
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -311,7 +307,7 @@ pub fun main(account: Address): String {
 			},
 			"block": {
 				Code: `// test script to ensure code is running
-pub fun main(): UInt64 {
+access(all) fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
@@ -325,7 +321,7 @@ pub fun main(): UInt64 {
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x1d7e57aa55817448
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -339,8 +335,8 @@ pub fun main(account: Address): String {
 				Code: `// test script to ensure code is running
 import FlowToken from 0x1654653399040a61
 
-pub fun main(): Type {
-        return Type<@FlowToken.Vault>()
+access(all) fun main(): Type {
+    return Type<@FlowToken.Vault>()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{},
@@ -351,7 +347,7 @@ pub fun main(): Type {
 				Code: `import FungibleToken from 0xf233dcee88fe0abe
 // This is a mainnet specific script
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -503,55 +499,55 @@ transaction() {
 		},
 		Contracts: &map[string]string{"Debug": `import NonFungibleToken from 0x1d7e57aa55817448
 
-pub contract Debug {
+access(all) contract Debug {
 
-pub struct FooListBar {
-	pub let foo:[Foo2]
-	pub let bar:String
+    access(all) struct FooListBar {
+        access(all) let foo:[Foo2]
+        access(all) let bar:String
 
-	init(foo:[Foo2], bar:String) {
-		self.foo=foo
-		self.bar=bar
-	}
-}
-pub struct FooBar {
-	pub let foo:Foo
-	pub let bar:String
+        init(foo:[Foo2], bar:String) {
+            self.foo=foo
+            self.bar=bar
+        }
+    }
+    access(all) struct FooBar {
+        access(all) let foo:Foo
+        access(all) let bar:String
 
-	init(foo:Foo, bar:String) {
-		self.foo=foo
-		self.bar=bar
-	}
-}
+        init(foo:Foo, bar:String) {
+            self.foo=foo
+            self.bar=bar
+        }
+    }
 
 
-pub struct Foo2{
-	pub let bar: Address
+    access(all) struct Foo2{
+        access(all) let bar: Address
 
-	init(bar: Address) {
-		self.bar=bar
-	}
-}
+        init(bar: Address) {
+            self.bar=bar
+        }
+    }
 
-pub struct Foo{
-	pub let bar: String
+    access(all) struct Foo{
+        access(all) let bar: String
 
-	init(bar: String) {
-		self.bar=bar
-	}
-}
+        init(bar: String) {
+            self.bar=bar
+        }
+    }
 
-pub event Log(msg: String)
-pub event LogNum(id: UInt64)
+    access(all) event Log(msg: String)
+    access(all) event LogNum(id: UInt64)
 
-pub fun id(_ id:UInt64) {
-	emit LogNum(id:id)
-}
+    access(all) fun id(_ id:UInt64) {
+        emit LogNum(id:id)
+    }
 
-pub fun log(_ msg: String) : String {
-	emit Log(msg: msg)
-	return msg
-}
+    access(all) fun log(_ msg: String) : String {
+        emit Log(msg: msg)
+        return msg
+    }
 
 }`},
 	},
@@ -561,7 +557,7 @@ pub fun log(_ msg: String) : String {
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -575,7 +571,7 @@ pub fun main(account: Address): String {
 				Code: `import FungibleToken from 0x9a0766d93b6608b7
 // This is a generic script
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -587,7 +583,7 @@ pub fun main(account: Address): String {
 			},
 			"block": {
 				Code: `// test script to ensure code is running
-pub fun main(): UInt64 {
+access(all) fun main(): UInt64 {
     let height = getCurrentBlock().height
     log(height)
     return height
@@ -601,7 +597,7 @@ pub fun main(): UInt64 {
 				Code: `// test script to ensure code is running
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -615,8 +611,8 @@ pub fun main(account: Address): String {
 				Code: `// test script to ensure code is running
 import FlowToken from 0x7e60df042a9c0868
 
-pub fun main(): Type {
-        return Type<@FlowToken.Vault>()
+access(all) fun main(): Type {
+    return Type<@FlowToken.Vault>()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{},
@@ -627,7 +623,7 @@ pub fun main(): Type {
 				Code: `import FungibleToken from 0x9a0766d93b6608b7
 // This is a generic script
 
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
@@ -779,55 +775,55 @@ transaction() {
 		},
 		Contracts: &map[string]string{"Debug": `import NonFungibleToken from 0x631e88ae7f1d7c20
 
-pub contract Debug {
+access(all) contract Debug {
 
-pub struct FooListBar {
-	pub let foo:[Foo2]
-	pub let bar:String
+    access(all) struct FooListBar {
+        access(all) let foo:[Foo2]
+        access(all) let bar:String
 
-	init(foo:[Foo2], bar:String) {
-		self.foo=foo
-		self.bar=bar
-	}
-}
-pub struct FooBar {
-	pub let foo:Foo
-	pub let bar:String
+        init(foo:[Foo2], bar:String) {
+            self.foo=foo
+            self.bar=bar
+        }
+    }
+    access(all) struct FooBar {
+        access(all) let foo:Foo
+        access(all) let bar:String
 
-	init(foo:Foo, bar:String) {
-		self.foo=foo
-		self.bar=bar
-	}
-}
+        init(foo:Foo, bar:String) {
+            self.foo=foo
+            self.bar=bar
+        }
+    }
 
 
-pub struct Foo2{
-	pub let bar: Address
+    access(all) struct Foo2{
+        access(all) let bar: Address
 
-	init(bar: Address) {
-		self.bar=bar
-	}
-}
+        init(bar: Address) {
+            self.bar=bar
+        }
+    }
 
-pub struct Foo{
-	pub let bar: String
+    access(all) struct Foo{
+        access(all) let bar: String
 
-	init(bar: String) {
-		self.bar=bar
-	}
-}
+        init(bar: String) {
+            self.bar=bar
+        }
+    }
 
-pub event Log(msg: String)
-pub event LogNum(id: UInt64)
+    access(all) event Log(msg: String)
+    access(all) event LogNum(id: UInt64)
 
-pub fun id(_ id:UInt64) {
-	emit LogNum(id:id)
-}
+    access(all) fun id(_ id:UInt64) {
+        emit LogNum(id:id)
+    }
 
-pub fun log(_ msg: String) : String {
-	emit Log(msg: msg)
-	return msg
-}
+    access(all) fun log(_ msg: String) : String {
+        emit Log(msg: msg)
+        return msg
+    }
 
 }`},
 	},

@@ -54,7 +54,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "18.0%", report.Summary().Coverage)
+		assert.Equal(t, "17.8%", report.Summary().Coverage)
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestTransactionIntegration(t *testing.T) {
 		res.
 			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
-			AssertComputationUsed(t, 7).
+			AssertComputationUsed(t, 8).
 			AssertComputationLessThenOrEqual(t, 40)
 	})
 

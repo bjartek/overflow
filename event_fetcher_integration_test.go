@@ -50,7 +50,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
 		)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(ev))
+		assert.Equal(t, 2, len(ev))
 	})
 
 	t.Run("Fetch last events and sort them ", func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 			WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"),
 		)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(ev))
+		assert.Equal(t, 3, len(ev))
 		assert.True(t, ev[0].BlockHeight < ev[1].BlockHeight)
 	})
 
@@ -139,7 +139,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 		assert.NoError(t, graffleEvent.MarshalAs(&marshalTo))
 		assert.Equal(t, float64(10), marshalTo.BlockEventData.Amount)
 
-		assert.Equal(t, int64(9), imr.Progress)
+		assert.Equal(t, int64(7), imr.Progress)
 	})
 
 	t.Run("Return progress writer ", func(t *testing.T) {
@@ -153,7 +153,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 			WithReturnProgressWriter(),
 		)
 		require.NoError(t, res.Error)
-		want := autogold.Want("eventProgress", `Fetched number=1 of events within from=8 block to=8 for events=A.0ae53cb6e3f42a79.FlowToken.TokensMinted
+		want := autogold.Want("eventProgress", `Fetched number=1 of events within from=6 block to=6 for events=A.0ae53cb6e3f42a79.FlowToken.TokensMinted
 `)
 		want.Equal(t, res.String())
 
@@ -166,7 +166,7 @@ func TestIntegrationEventFetcher(t *testing.T) {
 
 		progress, err = readProgressFromFile(progressFile)
 		require.NoError(t, err)
-		assert.Equal(t, int64(9), progress)
+		assert.Equal(t, int64(7), progress)
 
 		ev := res.Events
 		defer os.Remove(progressFile)

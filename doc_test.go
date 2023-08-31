@@ -117,7 +117,7 @@ func ExampleOverflowState_Script_inline() {
 
 	//Script can be run inline
 	o.Script(`
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 		WithArg("account", "first"),

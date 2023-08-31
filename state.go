@@ -633,7 +633,8 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		strings.Contains(filename, "transaction{") ||
 		strings.Contains(filename, "transaction(") ||
 		strings.Contains(filename, "transaction ") ||
-		strings.Contains(filename, "pub fun main(") {
+		strings.Contains(filename, "fun main(") ||
+		strings.Contains(filename, "access(all) fun main(") {
 		ftb.TransactionCode = []byte(filename)
 		ftb.FileName = "inline"
 	} else {
