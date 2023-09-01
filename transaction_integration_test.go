@@ -231,7 +231,7 @@ func TestTransactionIntegration(t *testing.T) {
 
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
-		transaction(foo: AnyStruct{MetadataViews.File}) {
+		transaction(foo: {MetadataViews.File}) {
 		  prepare(acct: AuthAccount) {
 		 } 
 	 }`,
@@ -245,7 +245,7 @@ func TestTransactionIntegration(t *testing.T) {
 
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
-		transaction(foo: AnyStruct{MetadataViews.File}) {
+		transaction(foo: {MetadataViews.File}) {
 		  prepare(acct: AuthAccount) {
 		 } 
 	 }`,
@@ -260,7 +260,7 @@ func TestTransactionIntegration(t *testing.T) {
 		path := "/Foo"
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
-		transaction(foo: AnyStruct{MetadataViews.File}) {
+		transaction(foo: {MetadataViews.File}) {
 		  prepare(acct: AuthAccount) {
 		 } 
 	 }`,
@@ -350,7 +350,7 @@ func TestFillUpSpace(t *testing.T) {
 	assert.NoError(t, err)
 
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 199198, result)
+	assert.Equal(t, 199305, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 

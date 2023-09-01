@@ -92,7 +92,7 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 func (o *OverflowState) GetFreeCapacity(accountName string) int {
 
 	result := o.Script(`
-pub fun main(user:Address): UInt64{
+access(all) fun main(user:Address): UInt64{
 	let account=getAccount(user)
 	return account.storageCapacity - account.storageUsed
 }
