@@ -191,11 +191,13 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 		}
 	}
 
-	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)-1))
+	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)), zap.Int("txR", len(txR)))
 	var systemChunkEvents OverflowEvents
+	totalTxR := len(txR)
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
-		if r.TransactionID.String() == o.SystemChunkTransactionId {
+		isLatestResult := totalTxR == i+1
+		if isLatestResult {
 			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
 			logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
 			return []OverflowTransaction{}
