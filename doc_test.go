@@ -45,7 +45,7 @@ func ExampleOverflowState_Tx_inline() {
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(message:String) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: &Account) {
 				Debug.log(message) 
 			} 
 		}`,
@@ -69,7 +69,7 @@ func ExampleOverflowState_Tx_multisign() {
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction {
-			prepare(acct: AuthAccount, acct2: AuthAccount) {
+			prepare(acct: &Account, acct2: &Account) {
 				Debug.log("acct:".concat(acct.address.toString()))
 				Debug.log("acct2:".concat(acct2.address.toString()))
 			} 

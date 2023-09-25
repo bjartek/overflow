@@ -86,11 +86,11 @@ access(all) fun main(account: Address): String {
 			"Foo": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(BorrowValue) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -113,11 +113,11 @@ transaction() {
 			"arguments": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -129,12 +129,12 @@ transaction(test:String) {
 			"argumentsWithAccount": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:Address) {
-  prepare(acct: AuthAccount) {
-    log("signer")
-    log(acct)
-    log("argument")
-    log(test)
- }
+    prepare(acct: &Account) {
+        log("signer")
+        log(acct)
+        log("argument")
+        log(test)
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -146,8 +146,8 @@ transaction(test:Address) {
 			"create_nft_collection": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction {
-  prepare(acct: AuthAccount) {
-  }
+    prepare(acct: auth(Storage) &Account) {
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{},
@@ -163,15 +163,11 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
-            ?? panic("Signer is not the token admin")
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage.borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+        ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
@@ -197,10 +193,10 @@ transaction(recipient: Address, amount: UFix64) {
 			"signWithMultipleAccounts": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-    log(acct)
-    log(account2)
- }
+    prepare(acct: &Account, account2: &Account) {
+        log(acct)
+        log(account2)
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -362,11 +358,11 @@ access(all) fun main(account: Address): String {
 			"Foo": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -389,11 +385,11 @@ transaction() {
 			"arguments": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -405,12 +401,12 @@ transaction(test:String) {
 			"argumentsWithAccount": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:Address) {
-  prepare(acct: AuthAccount) {
-    log("signer")
-    log(acct)
-    log("argument")
-    log(test)
- }
+    prepare(acct: &Account) {
+        log("signer")
+        log(acct)
+        log("argument")
+        log(test)
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -422,8 +418,8 @@ transaction(test:Address) {
 			"create_nft_collection": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction {
-  prepare(acct: AuthAccount) {
-  }
+    prepare(acct: auth(Storage) &Account) {
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{},
@@ -439,15 +435,11 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
-            ?? panic("Signer is not the token admin")
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage.borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+        ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
@@ -473,10 +465,10 @@ transaction(recipient: Address, amount: UFix64) {
 			"signWithMultipleAccounts": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-    log(acct)
-    log(account2)
- }
+    prepare(acct: &Account, account2: &Account) {
+        log(acct)
+        log(account2)
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -638,11 +630,11 @@ access(all) fun main(account: Address): String {
 			"Foo": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -665,11 +657,11 @@ transaction() {
 			"arguments": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -681,12 +673,12 @@ transaction(test:String) {
 			"argumentsWithAccount": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:Address) {
-  prepare(acct: AuthAccount) {
-    log("signer")
-    log(acct)
-    log("argument")
-    log(test)
- }
+    prepare(acct: &Account) {
+        log("signer")
+        log(acct)
+        log("argument")
+        log(test)
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
@@ -698,8 +690,8 @@ transaction(test:Address) {
 			"create_nft_collection": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction {
-  prepare(acct: AuthAccount) {
-  }
+    prepare(acct: auth(Storage) &Account) {
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{},
@@ -715,15 +707,11 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
-            ?? panic("Signer is not the token admin")
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage.borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+        ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
@@ -749,10 +737,10 @@ transaction(recipient: Address, amount: UFix64) {
 			"signWithMultipleAccounts": {
 				Code: `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-    log(acct)
-    log(account2)
- }
+    prepare(acct: &Account, account2: &Account) {
+        log(acct)
+        log(account2)
+    }
 }`,
 				Spec: &overflow.OverflowDeclarationInfo{
 					ParameterOrder: []string{
