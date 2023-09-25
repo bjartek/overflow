@@ -7,6 +7,7 @@
   },
   "contracts": {
     "Debug": "./contracts/Debug.cdc",
+    "Debug2": "./contracts/Debug2.cdc",
     "FlowToken": {
       "source": "./contracts/FlowToken.cdc",
       "aliases": {
@@ -27,7 +28,24 @@
       "source": "./contracts/NonFungibleToken.cdc",
       "aliases": {
         "testnet": "0x631e88ae7f1d7c20",
-        "mainnet": "0x1d7e57aa55817448"
+        "mainnet": "0x1d7e57aa55817448",
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "MetadataViews": {
+      "source": "./contracts/MetadataViews.cdc",
+      "aliases": {
+        "testnet": "0x631e88ae7f1d7c20",
+        "mainnet": "0x1d7e57aa55817448",
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "ViewResolver": {
+      "source": "./contracts/ViewResolver.cdc",
+      "aliases": {
+        "testnet": "0x631e88ae7f1d7c20",
+        "mainnet": "0x1d7e57aa55817448",
+        "emulator": "0xf8d6e0586b0a20c7"
       }
     }
   },
@@ -64,13 +82,13 @@
   },
   "deployments": {
     "emulator": {
-      "emulator-account": [],
-      "emulator-first": [
+      "emulator-account": [
         "Debug"
       ],
-      "emulator-second": [
-        "NonFungibleToken"
-      ]
+      "emulator-first": [
+        "Debug2"
+      ],
+      "emulator-second": []
     },
     "testnet": {
       "emulator-first": [

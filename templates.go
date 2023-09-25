@@ -56,9 +56,9 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 	//unload previous content if any.
 	res := o.Tx(`
 	transaction {
-		prepare(signer: AuthAccount) {
+		prepare(signer: auth(LoadValue) &Account) {
 			let path = /storage/upload
-			let existing = signer.load<String>(from: path) ?? ""
+			let existing = signer.storage.load<String>(from: path) ?? ""
 			log(existing)
 		}
 	}
@@ -71,10 +71,10 @@ func (o *OverflowState) UploadString(content string, accountName string) error {
 	for _, part := range parts {
 		res := o.Tx(`
 		transaction(part: String) {
-			prepare(signer: AuthAccount) {
+			prepare(signer: auth(Storage) &Account) {
 				let path = /storage/upload
-				let existing = signer.load<String>(from: path) ?? ""
-				signer.save(existing.concat(part), to: path)
+				let existing = signer.storage.load<String>(from: path) ?? ""
+				signer.storage.save(existing.concat(part), to: path)
 				log(signer.address.toString())
 				log(part)
 			}
@@ -94,7 +94,7 @@ func (o *OverflowState) GetFreeCapacity(accountName string) int {
 	result := o.Script(`
 access(all) fun main(user:Address): UInt64{
 	let account=getAccount(user)
-	return account.storageCapacity - account.storageUsed
+	return account.storage.capacity- account.storage.used
 }
 `, WithArg("user", accountName))
 
@@ -119,14 +119,12 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage
             .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
             ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
             ?? panic("Unable to borrow receiver reference")
     }
 

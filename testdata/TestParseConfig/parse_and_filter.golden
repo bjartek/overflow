@@ -161,24 +161,24 @@ transaction() {
 }`,
 				"create_nft_collection": `// This transaction creates an empty NFT Collection in the signer's account
 transaction {
-  prepare(acct: AuthAccount) {
-  }
+    prepare(acct: auth(Storage) &Account) {
+    }
 }`,
 				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(BorrowValue) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"mainnetaTransaction": `import FungibleToken from 0xee82856bf20e2aa6
 
@@ -198,15 +198,11 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
-            ?? panic("Signer is not the token admin")
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage.borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+        ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
@@ -220,18 +216,18 @@ transaction(recipient: Address, amount: UFix64) {
 }`,
 				"signWithMultipleAccounts": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-    log(acct)
-    log(account2)
- }
+    prepare(acct: &Account, account2: &Account) {
+        log(acct)
+        log(account2)
+    }
 }`,
 				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"zTransaction": `import FungibleToken from 0xee82856bf20e2aa6
 
@@ -311,24 +307,24 @@ transaction() {
 }`,
 				"create_nft_collection": `// This transaction creates an empty NFT Collection in the signer's account
 transaction {
-  prepare(acct: AuthAccount) {
-  }
+    prepare(acct: auth(Storage) &Account) {
+    }
 }`,
 				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(BorrowValue) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"mainnetaTransaction": `import FungibleToken from 0xf233dcee88fe0abe
 
@@ -348,15 +344,11 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
-            ?? panic("Signer is not the token admin")
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage.borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+        ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
@@ -370,18 +362,18 @@ transaction(recipient: Address, amount: UFix64) {
 }`,
 				"signWithMultipleAccounts": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-    log(acct)
-    log(account2)
- }
+    prepare(acct: &Account, account2: &Account) {
+        log(acct)
+        log(account2)
+    }
 }`,
 				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"zTransaction": `import FungibleToken from 0xf233dcee88fe0abe
 
@@ -461,24 +453,24 @@ transaction() {
 }`,
 				"create_nft_collection": `// This transaction creates an empty NFT Collection in the signer's account
 transaction {
-  prepare(acct: AuthAccount) {
-  }
+    prepare(acct: auth(Storage) &Account) {
+    }
 }`,
 				"emulatorFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(BorrowValue) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"mainnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"mainnetaTransaction": `import FungibleToken from 0x9a0766d93b6608b7
 
@@ -498,15 +490,11 @@ transaction(recipient: Address, amount: UFix64) {
     let tokenAdmin: &FlowToken.Administrator
     let tokenReceiver: &{FungibleToken.Receiver}
 
-    prepare(signer: AuthAccount) {
-        self.tokenAdmin = signer
-            .borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
-            ?? panic("Signer is not the token admin")
+    prepare(signer: auth(BorrowValue) &Account) {
+        self.tokenAdmin = signer.storage.borrow<&FlowToken.Administrator>(from: /storage/flowTokenAdmin)
+        ?? panic("Signer is not the token admin")
 
-        self.tokenReceiver = getAccount(recipient)
-            .getCapability(/public/flowTokenReceiver)
-            .borrow<&{FungibleToken.Receiver}>()
-            ?? panic("Unable to borrow receiver reference")
+        self.tokenReceiver = getAccount(recipient).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver) ?? panic("Unable to borrow receiver reference")
     }
 
     execute {
@@ -520,18 +508,18 @@ transaction(recipient: Address, amount: UFix64) {
 }`,
 				"signWithMultipleAccounts": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount, account2: AuthAccount) {
-    log(acct)
-    log(account2)
- }
+    prepare(acct: &Account, account2: &Account) {
+        log(acct)
+        log(account2)
+    }
 }`,
 				"testnetFoo": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
-    log(acct)
-    log(test)
+    prepare(acct: auth(Storage) &Account) {
+        log(acct)
+        log(test)
 
- }
+    }
 }`,
 				"zTransaction": `import FungibleToken from 0x9a0766d93b6608b7
 
