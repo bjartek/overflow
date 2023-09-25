@@ -229,7 +229,7 @@ func ReflectToCadence(value reflect.Value, resolver InputResolver) (cadence.Valu
 					return nil, err
 				}
 				cadenceAddress := cadence.BytesToAddress(adr.Bytes())
-				cadenceType = cadence.AddressType{}
+				cadenceType = cadence.AddressType
 				cadenceVal = cadenceAddress
 			}
 

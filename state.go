@@ -217,7 +217,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(code, location, codes)
-	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
+	checker, _ := cmd.PrepareChecker(program, location, codes, nil, nil, must)
 
 	var parameterList []*ast.Parameter
 

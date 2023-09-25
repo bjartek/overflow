@@ -28,7 +28,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 		StructType: &cadence.StructType{
 			Fields: []cadence.Field{{
 				Identifier: "foo",
-				Type:       cadence.StringType{},
+				Type:       cadence.StringType,
 			}},
 		},
 	}
@@ -40,7 +40,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 		QualifiedIdentifier: "Contract.Bar",
 		Fields: []cadence.Field{{
 			Identifier: "foo",
-			Type:       cadence.StringType{},
+			Type:       cadence.StringType,
 		}},
 	}
 	strct := cadence.Struct{
@@ -55,7 +55,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 	cadenceAddress1 := cadence.BytesToAddress(address1.Bytes())
 
 	structTypeValue := cadence.NewTypeValue(&structType)
-	stringType := cadence.NewStringType()
+	stringType := cadence.StringType
 	stringTypeValue := cadence.NewTypeValue(&stringType)
 	ufix, _ := cadence.NewUFix64("42.0")
 	path := cadence.Path{Domain: common.PathDomainStorage, Identifier: "foo"}
