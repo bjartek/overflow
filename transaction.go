@@ -24,7 +24,8 @@ type BlockResult struct {
 	Error             error
 	Logger            *zap.Logger
 	//until we have view in flow.Block we add this here
-	View uint64
+	View      uint64
+	StartTime time.Time
 }
 
 type Argument struct {
@@ -222,6 +223,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 
 func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg *zap.Logger) (*BlockResult, error) {
 
+	start := time.Now()
 	block, err := o.GetBlockAtHeight(ctx, height)
 	if err != nil {
 		return nil, err
@@ -231,7 +233,7 @@ func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg 
 		return nil, err
 	}
 
-	return &BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0}, nil
+	return &BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0, StartTime: start}, nil
 }
 
 // This code is beta
@@ -247,6 +249,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 		select {
 		case <-time.After(sleep):
 
+			start := time.Now()
 			sleep = poll
 			nextBlockToProcess := height + 1
 			if height == uint64(0) {
@@ -295,7 +298,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				}
 
 				select {
-				case channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: 0}:
+				case channel <- BlockResult{Block: *block, SystemChunkEvents: systemChunkEvents, Error: errors.Wrap(err, "getting transactions"), Logger: logg, View: 0, StartTime: start}:
 					height = nextBlockToProcess
 				case <-ctx.Done():
 					return ctx.Err()
@@ -304,7 +307,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			}
 			logg = logg.With(zap.Int("tx", len(tx)))
 			select {
-			case channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0}:
+			case channel <- BlockResult{Block: *block, Transactions: tx, SystemChunkEvents: systemChunkEvents, Logger: logg, View: 0, StartTime: start}:
 				height = nextBlockToProcess
 			case <-ctx.Done():
 				return ctx.Err()
