@@ -31,8 +31,9 @@ type OverflowSolution struct {
 
 // a type containing information about parameter types and orders
 type OverflowDeclarationInfo struct {
-	ParameterOrder []string          `json:"order"`
-	Parameters     map[string]string `json:"parameters"`
+	ParameterOrder []string             `json:"order"`
+	Parameters     map[string]string    `json:"parameters"`
+	Authorizers    []*ast.ReferenceType `json:"-"`
 }
 
 // a type representing one network in a solution, so mainnet/testnet/emulator
@@ -150,7 +151,7 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 }
 
 func declarationInfo(code []byte) *OverflowDeclarationInfo {
-	params := params(code)
+	params, authorizerTypes := paramsAndAuthorizers(code)
 	if params == nil {
 		return &OverflowDeclarationInfo{
 			ParameterOrder: []string{},
@@ -172,29 +173,45 @@ func declarationInfo(code []byte) *OverflowDeclarationInfo {
 	return &OverflowDeclarationInfo{
 		ParameterOrder: parameterList,
 		Parameters:     parametersMap,
+		Authorizers:    authorizerTypes,
 	}
 }
 
-func params(code []byte) *ast.ParameterList {
+func paramsAndAuthorizers(code []byte) (*ast.ParameterList, []*ast.ReferenceType) {
 
 	program, err := parser.ParseProgram(nil, code, parser.Config{})
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
+	authorizers := []*ast.ReferenceType{}
 	//if we have any transtion declaration then return it
 	for _, txd := range program.TransactionDeclarations() {
-		return txd.ParameterList
+		if txd.Prepare != nil {
+			prepareParams := txd.Prepare.FunctionDeclaration.ParameterList
+			if prepareParams != nil {
+				for _, parg := range txd.Prepare.FunctionDeclaration.ParameterList.ParametersByIdentifier() {
+					ta := parg.TypeAnnotation
+					if ta != nil {
+						rt, ok := ta.Type.(*ast.ReferenceType)
+						if ok {
+							authorizers = append(authorizers, rt)
+						}
+					}
+				}
+			}
+		}
+		return txd.ParameterList, authorizers
 	}
 
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
 	if functionDeclaration != nil {
 		if functionDeclaration.ParameterList != nil {
-			return functionDeclaration.ParameterList
+			return functionDeclaration.ParameterList, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func formatCode(input string) string {

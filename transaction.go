@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/onflow/cadence/runtime/ast"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/flow-go-sdk"
@@ -42,6 +43,7 @@ type OverflowTransaction struct {
 	Status           string
 	Arguments        []Argument
 	Authorizers      []string
+	AuthorizerTypes  []*ast.ReferenceType
 	Stakeholders     map[string][]string
 	Imports          []Import
 	Payer            string
@@ -146,6 +148,7 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		GasUsed:          uint64(gas),
 		ExecutionEffort:  executionEffort,
 		Authorizers:      authorizers,
+		AuthorizerTypes:  argInfo.Authorizers,
 	}, nil
 
 }

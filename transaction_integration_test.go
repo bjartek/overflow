@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"context"
 	"testing"
 
 	"github.com/onflow/flow-go/utils/io"
@@ -22,6 +23,27 @@ func TestTransactionIntegration(t *testing.T) {
 	require.NotNil(t, o)
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
 
+	t.Run("run transaction get results", func(t *testing.T) {
+
+		result := o.Tx("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1)).
+			AssertSuccess(t).
+			AssertEventCount(t, 3).
+			AssertEmitEventName(t, "FlowToken.TokensDeposited").
+			AssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 100.1,
+			},
+			)
+		require.NoError(t, result.Err)
+
+		oTx, err := o.GetOverflowTransactionById(context.Background(), result.Transaction.ID())
+		require.NoError(t, err)
+
+		assert.Equal(t, "auth(BorrowValue) &Account", oTx.AuthorizerTypes[0].String())
+
+	})
 	t.Run("fail on missing signer", func(t *testing.T) {
 		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the proposer signer")
 	})
@@ -54,7 +76,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "17.9%", report.Summary().Coverage)
+		assert.Equal(t, "18.1%", report.Summary().Coverage)
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {
