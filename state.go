@@ -49,6 +49,8 @@ type OverflowClient interface {
 	Address(key string) string
 	Account(key string) *accounts.Account
 
+	AccountPublicKey(name string) (string, error)
+
 	//Note that this returns a flow account and not a flowkit account like the others, is this needed?
 	GetAccount(ctx context.Context, key string) (*flow.Account, error)
 
@@ -339,6 +341,22 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		resultArgsMap[name] = value
 	}
 	return resultArgs, resultArgsMap, nil
+}
+
+func (o *OverflowState) AccountPublicKey(name string) (string, error) {
+
+	adminAccount, err := o.AccountE(name)
+	if err != nil {
+		return "", err
+	}
+
+	pk, err := adminAccount.Key.PrivateKey()
+	if err != nil {
+		return "", err
+	}
+	publicKeyWithoutPrefix := strings.TrimPrefix((*pk).PublicKey().String(), "0x")
+	return publicKeyWithoutPrefix, nil
+
 }
 
 // AccountE fetch an account from State

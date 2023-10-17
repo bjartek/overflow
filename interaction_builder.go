@@ -263,11 +263,26 @@ func WithProposer(proposer string) OverflowInteractionOption {
 	}
 }
 
+// set payer, proposer authorizer as the signer
+func WithManualProposer(account *accounts.Account) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Proposer = account
+	}
+}
+
 // set the propser to be the service account
 func WithProposerServiceAccount() OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		key := oib.Overflow.ServiceAccountName()
 		account, _ := oib.Overflow.State.Accounts().ByName(key)
+		oib.Proposer = account
+	}
+}
+
+// set payer, proposer authorizer as the signer
+func WithManualSigner(account *accounts.Account) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Payer = account
 		oib.Proposer = account
 	}
 }
@@ -316,6 +331,11 @@ func WithoutGlobalEventFilter() OverflowInteractionOption {
 	}
 }
 
+func WithAuthorizer(signer ...string) OverflowInteractionOption {
+	return WithPayloadSigner(signer...)
+
+}
+
 // set an aditional authorizer that will sign the payload
 func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
@@ -326,6 +346,20 @@ func WithPayloadSigner(signer ...string) OverflowInteractionOption {
 				return
 			}
 			oib.PayloadSigners = append(oib.PayloadSigners, account)
+		}
+	}
+}
+
+// alias for adding manual payload signers
+func WithManualAuthorizer(signer ...*accounts.Account) OverflowInteractionOption {
+	return WithManualPayloadSigner(signer...)
+}
+
+// set an aditional authorizer that will sign the payload
+func WithManualPayloadSigner(signer ...*accounts.Account) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		for _, signer := range signer {
+			oib.PayloadSigners = append(oib.PayloadSigners, signer)
 		}
 	}
 }
@@ -462,6 +496,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	ftx, res, err := oib.Overflow.Flowkit.SendSignedTransaction(oib.Ctx, tx)
 	result.Transaction = ftx
+	result.TransactionResult = res
 
 	if err != nil {
 		result.Err = err

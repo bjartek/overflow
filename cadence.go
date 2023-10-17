@@ -19,7 +19,6 @@ func CadenceValueToJsonString(value cadence.Value) (string, error) {
 		return "", nil
 	}
 	j, err := json.MarshalIndent(result, "", "    ")
-
 	if err != nil {
 		return "", err
 	}
@@ -90,7 +89,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 	case cadence.Optional:
 		return CadenceValueToInterface(field.Value)
 	case cadence.Dictionary:
-		//fmt.Println("is dict ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is dict ", field.ToGoValue(), " ", field.String())
 		result := map[string]interface{}{}
 		for _, item := range field.Pairs {
 			value := CadenceValueToInterface(item.Value)
@@ -105,7 +104,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		}
 		return result
 	case cadence.Struct:
-		//fmt.Println("is struct ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is struct ", field.ToGoValue(), " ", field.String())
 		result := map[string]interface{}{}
 		subStructNames := field.StructType.Fields
 
@@ -123,7 +122,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		}
 		return result
 	case cadence.Array:
-		//fmt.Println("is array ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is array ", field.ToGoValue(), " ", field.String())
 		var result []interface{}
 		for _, item := range field.Values {
 			value := CadenceValueToInterface(item)
@@ -142,10 +141,10 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 	case cadence.Address:
 		return field.String()
 	case cadence.TypeValue:
-		//fmt.Println("is type ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is type ", field.ToGoValue(), " ", field.String())
 		return field.StaticType.ID()
 	case cadence.String:
-		//fmt.Println("is string ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is string ", field.ToGoValue(), " ", field.String())
 		value := getAndUnquoteString(field)
 		if value == "" {
 			return nil
@@ -153,16 +152,27 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return value
 
 	case cadence.UFix64:
-		//fmt.Println("is ufix64 ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is ufix64 ", field.ToGoValue(), " ", field.String())
 
 		float, _ := strconv.ParseFloat(field.String(), 64)
 		return float
 	case cadence.Fix64:
 		float, _ := strconv.ParseFloat(field.String(), 64)
 		return float
+	case cadence.Event:
+		result := map[string]interface{}{}
+
+		for i, subField := range field.Fields {
+			value := CadenceValueToInterface(subField)
+			if value != nil {
+				result[field.EventType.Fields[i].Identifier] = value
+			}
+		}
+
+		return result
 
 	default:
-		//fmt.Println("is fallthrough ", field.ToGoValue(), " ", field.String())
+		// fmt.Println("is fallthrough ", field.ToGoValue(), " ", field.String())
 
 		goValue := field.ToGoValue()
 		if goValue != nil {

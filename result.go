@@ -48,6 +48,9 @@ type OverflowResult struct {
 	//The underlying transaction if we need to look into that
 	Transaction *flow.Transaction
 
+	//The transaction result if we need to look into that
+	TransactionResult *flow.TransactionResult
+
 	//TODO: consider marshalling this as a struct for convenience
 	//The fee event if any
 	Fee    map[string]interface{}
