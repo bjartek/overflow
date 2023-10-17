@@ -97,6 +97,31 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 141,
+									Line:   4,
+									Column: 37,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 122,
+							Line:   4,
+							Column: 18,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "BorrowValue",
+							Pos: ast.Position{
+								Offset: 127,
+								Line:   4,
+								Column: 23,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"aTransaction": {
@@ -124,6 +149,31 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 137,
+									Line:   4,
+									Column: 33,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 122,
+							Line:   4,
+							Column: 18,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "Storage",
+							Pos: ast.Position{
+								Offset: 127,
+								Line:   4,
+								Column: 23,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"argumentsWithAccount": {
@@ -141,6 +191,23 @@ transaction(test:Address) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "Address"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 124,
+									Line:   4,
+									Column: 19,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 123,
+							Line:   4,
+							Column: 18,
+						},
+					}},
 				},
 			},
 			"create_nft_collection": {
@@ -188,6 +255,31 @@ transaction(recipient: Address, amount: UFix64) {
 						"amount":    "UFix64",
 						"recipient": "Address",
 					},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 272,
+									Line:   9,
+									Column: 39,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 253,
+							Line:   9,
+							Column: 20,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "BorrowValue",
+							Pos: ast.Position{
+								Offset: 258,
+								Line:   9,
+								Column: 25,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"signWithMultipleAccounts": {
@@ -203,6 +295,40 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{
+						{
+							Type: &ast.NominalType{
+								Identifier: ast.Identifier{
+									Identifier: "Account",
+									Pos: ast.Position{
+										Offset: 122,
+										Line:   3,
+										Column: 19,
+									},
+								},
+							},
+							StartPos: ast.Position{
+								Offset: 121,
+								Line:   3,
+								Column: 18,
+							},
+						},
+						{
+							Type: &ast.NominalType{Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 142,
+									Line:   3,
+									Column: 39,
+								},
+							}},
+							StartPos: ast.Position{
+								Offset: 141,
+								Line:   3,
+								Column: 38,
+							},
+						},
+					},
 				},
 			},
 			"zTransaction": {
@@ -369,6 +495,23 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 123,
+									Line:   4,
+									Column: 19,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 122,
+							Line:   4,
+							Column: 18,
+						},
+					}},
 				},
 			},
 			"aTransaction": {
@@ -396,6 +539,31 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 137,
+									Line:   4,
+									Column: 33,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 122,
+							Line:   4,
+							Column: 18,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "Storage",
+							Pos: ast.Position{
+								Offset: 127,
+								Line:   4,
+								Column: 23,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"argumentsWithAccount": {
@@ -413,6 +581,23 @@ transaction(test:Address) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "Address"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 124,
+									Line:   4,
+									Column: 19,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 123,
+							Line:   4,
+							Column: 18,
+						},
+					}},
 				},
 			},
 			"create_nft_collection": {
@@ -460,6 +645,31 @@ transaction(recipient: Address, amount: UFix64) {
 						"amount":    "UFix64",
 						"recipient": "Address",
 					},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 272,
+									Line:   9,
+									Column: 39,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 253,
+							Line:   9,
+							Column: 20,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "BorrowValue",
+							Pos: ast.Position{
+								Offset: 258,
+								Line:   9,
+								Column: 25,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"signWithMultipleAccounts": {
@@ -475,6 +685,40 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{
+						{
+							Type: &ast.NominalType{
+								Identifier: ast.Identifier{
+									Identifier: "Account",
+									Pos: ast.Position{
+										Offset: 122,
+										Line:   3,
+										Column: 19,
+									},
+								},
+							},
+							StartPos: ast.Position{
+								Offset: 121,
+								Line:   3,
+								Column: 18,
+							},
+						},
+						{
+							Type: &ast.NominalType{Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 142,
+									Line:   3,
+									Column: 39,
+								},
+							}},
+							StartPos: ast.Position{
+								Offset: 141,
+								Line:   3,
+								Column: 38,
+							},
+						},
+					},
 				},
 			},
 			"zTransaction": {
@@ -641,6 +885,31 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 137,
+									Line:   4,
+									Column: 33,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 122,
+							Line:   4,
+							Column: 18,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "Storage",
+							Pos: ast.Position{
+								Offset: 127,
+								Line:   4,
+								Column: 23,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"aTransaction": {
@@ -668,6 +937,31 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 137,
+									Line:   4,
+									Column: 33,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 122,
+							Line:   4,
+							Column: 18,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "Storage",
+							Pos: ast.Position{
+								Offset: 127,
+								Line:   4,
+								Column: 23,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"argumentsWithAccount": {
@@ -685,6 +979,23 @@ transaction(test:Address) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "Address"},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 124,
+									Line:   4,
+									Column: 19,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 123,
+							Line:   4,
+							Column: 18,
+						},
+					}},
 				},
 			},
 			"create_nft_collection": {
@@ -732,6 +1043,31 @@ transaction(recipient: Address, amount: UFix64) {
 						"amount":    "UFix64",
 						"recipient": "Address",
 					},
+					Authorizers: []*ast.ReferenceType{{
+						Type: &ast.NominalType{
+							Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 272,
+									Line:   9,
+									Column: 39,
+								},
+							},
+						},
+						StartPos: ast.Position{
+							Offset: 253,
+							Line:   9,
+							Column: 20,
+						},
+						Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+							Identifier: "BorrowValue",
+							Pos: ast.Position{
+								Offset: 258,
+								Line:   9,
+								Column: 25,
+							},
+						}}}}},
+					}},
 				},
 			},
 			"signWithMultipleAccounts": {
@@ -747,6 +1083,40 @@ transaction(test:String) {
 						"test",
 					},
 					Parameters: map[string]string{"test": "String"},
+					Authorizers: []*ast.ReferenceType{
+						{
+							Type: &ast.NominalType{
+								Identifier: ast.Identifier{
+									Identifier: "Account",
+									Pos: ast.Position{
+										Offset: 122,
+										Line:   3,
+										Column: 19,
+									},
+								},
+							},
+							StartPos: ast.Position{
+								Offset: 121,
+								Line:   3,
+								Column: 18,
+							},
+						},
+						{
+							Type: &ast.NominalType{Identifier: ast.Identifier{
+								Identifier: "Account",
+								Pos: ast.Position{
+									Offset: 142,
+									Line:   3,
+									Column: 39,
+								},
+							}},
+							StartPos: ast.Position{
+								Offset: 141,
+								Line:   3,
+								Column: 38,
+							},
+						},
+					},
 				},
 			},
 			"zTransaction": {
