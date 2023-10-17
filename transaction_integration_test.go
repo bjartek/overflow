@@ -312,6 +312,19 @@ func TestTransactionIntegration(t *testing.T) {
 
 	})
 
+	t.Run("manual signer account", func(t *testing.T) {
+
+		first, _ := o.AccountE("first")
+		o.Tx(`
+			transaction() {
+			  prepare(acct: AuthAccount) {
+			 }
+		 }`,
+			WithManualSigner(first),
+		).AssertSuccess(t)
+
+	})
+
 	bytes, err := o.GetCoverageReport().MarshalJSON()
 	require.NoError(t, err)
 	err = io.WriteFile("coverage-report.json", bytes)
