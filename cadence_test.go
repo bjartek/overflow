@@ -18,7 +18,6 @@ type Cadencetest struct {
 }
 
 func TestCadenceValueToInterface(t *testing.T) {
-
 	foo := cadenceString("foo")
 	bar := cadenceString("bar")
 	emptyString := cadenceString("")
@@ -54,8 +53,17 @@ func TestCadenceValueToInterface(t *testing.T) {
 
 	cadenceAddress1 := cadence.BytesToAddress(address1.Bytes())
 
-	structTypeValue := cadence.NewTypeValue(&structType)
 	stringType := cadence.NewStringType()
+	cadenceEvent := cadence.NewEvent([]cadence.Value{foo}).WithType(&cadence.EventType{
+		QualifiedIdentifier: "TestEvent",
+		Fields: []cadence.Field{{
+			Type:       cadence.StringType{},
+			Identifier: "foo",
+		}},
+	},
+	)
+
+	structTypeValue := cadence.NewTypeValue(&structType)
 	stringTypeValue := cadence.NewTypeValue(&stringType)
 	ufix, _ := cadence.NewUFix64("42.0")
 	path := cadence.Path{Domain: common.PathDomainStorage, Identifier: "foo"}
@@ -84,6 +92,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 		{autogold.Want("Emoji", "😁"), emoji},
 		{autogold.Want("EmojiDict", map[string]interface{}{"😁": "😁"}), emojiDict},
 		{autogold.Want("StoragePath", "/storage/foo"), path},
+		{autogold.Want("Event", map[string]interface{}{"foo": "foo"}), cadenceEvent},
 	}
 
 	for _, tc := range testCases {
@@ -101,7 +110,6 @@ func TestCadenceValueToJson(t *testing.T) {
 }
 
 func TestParseInputValue(t *testing.T) {
-
 	foo := "foo"
 
 	var strPointer *string = nil
@@ -132,11 +140,9 @@ func TestParseInputValue(t *testing.T) {
 			assert.Equal(t, string(cvj), string(vj))
 		})
 	}
-
 }
 
 func TestMarshalCadenceStruct(t *testing.T) {
-
 	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
 		return "A.123.Foo.Bar", nil
 	})
@@ -145,11 +151,9 @@ func TestMarshalCadenceStruct(t *testing.T) {
 	jsonVal, err := CadenceValueToJsonString(val)
 	assert.NoError(t, err)
 	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
-
 }
 
 func TestMarshalCadenceStructWithStructTag(t *testing.T) {
-
 	val, err := InputToCadence(Foo{Bar: "foo"}, func(string) (string, error) {
 		return "A.123.Foo.Baz", nil
 	})
@@ -158,7 +162,6 @@ func TestMarshalCadenceStructWithStructTag(t *testing.T) {
 	jsonVal, err := CadenceValueToJsonString(val)
 	assert.NoError(t, err)
 	assert.JSONEq(t, `{ "bar": "foo" }`, jsonVal)
-
 }
 
 func TestPrimitiveInputToCadence(t *testing.T) {
