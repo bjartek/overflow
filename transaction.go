@@ -23,7 +23,7 @@ type BlockResult struct {
 	Block             flow.Block
 	Error             error
 	Logger            *zap.Logger
-	//until we have view in flow.Block we add this here
+	// until we have view in flow.Block we add this here
 	View      uint64
 	StartTime time.Time
 }
@@ -148,7 +148,6 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		ExecutionEffort:  executionEffort,
 		Authorizers:      authorizers,
 	}, nil
-
 }
 
 func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error) {
@@ -162,6 +161,7 @@ func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.
 	}
 	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx, txIndex)
 }
+
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
 	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
 	if err != nil {
@@ -172,8 +172,7 @@ func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifi
 
 // this is get from block, needs to return system chunk information
 func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error) {
-
-	//sometimes this will become too complex.
+	// sometimes this will become too complex.
 
 	//if we get this error
 	//* rpc error: code = ResourceExhausted desc = grpc: trying to send message larger than max (22072361 vs. 20971520)
@@ -200,12 +199,14 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 		isLatestResult := totalTxR == i+1
 		if isLatestResult {
 			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
-			logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
+			if len(systemChunkEvents) > 0 {
+				logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
+			}
 			return []OverflowTransaction{}
 		}
 		t := *tx[i]
 
-		//for some reason we get epoch heartbeat
+		// for some reason we get epoch heartbeat
 		if len(t.EnvelopeSignatures) == 0 {
 			return []OverflowTransaction{}
 		}
@@ -218,11 +219,9 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 	})
 
 	return result, systemChunkEvents, nil
-
 }
 
 func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg *zap.Logger) (*BlockResult, error) {
-
 	start := time.Now()
 	block, err := o.GetBlockAtHeight(ctx, height)
 	if err != nil {
@@ -238,7 +237,6 @@ func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg 
 
 // This code is beta
 func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error {
-
 	latestKnownBlock, err := o.GetLatestBlock(ctx)
 	if err != nil {
 		return err
@@ -262,7 +260,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			var block *flow.Block
 			if nextBlockToProcess < latestKnownBlock.Height {
 				logg.Debug("next block is smaller then latest known block")
-				//we are still processing historical blocks
+				// we are still processing historical blocks
 				block, err = o.GetBlockAtHeight(ctx, nextBlockToProcess)
 				if err != nil {
 					logg.Debug("error fetching old block", zap.Error(err))
@@ -280,9 +278,9 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 					continue
 				}
 				latestKnownBlock = block
-				//we just continue the next iteration in the loop here
+				// we just continue the next iteration in the loop here
 				sleep = time.Millisecond
-				//the reason we just cannot process here is that the latestblock might not be the next block we should process
+				// the reason we just cannot process here is that the latestblock might not be the next block we should process
 				continue
 			} else {
 				block = latestKnownBlock
@@ -320,7 +318,6 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 }
 
 func GetAddressImports(code []byte) ([]Import, error) {
-
 	deps := []Import{}
 	program, err := parser.ParseProgram(nil, code, parser.Config{})
 	if err != nil {
@@ -331,7 +328,6 @@ func GetAddressImports(code []byte) ([]Import, error) {
 		address, isAddressImport := imp.Location.(common.AddressLocation)
 		if isAddressImport {
 			for _, id := range imp.Identifiers {
-
 				deps = append(deps, Import{
 					Address: fmt.Sprintf("0x%s", address.Address.Hex()),
 					Name:    id.Identifier,
@@ -349,5 +345,4 @@ type Import struct {
 
 func (i Import) Identifier() string {
 	return fmt.Sprintf("A.%s.%s", strings.TrimPrefix(i.Address, "0x"), i.Name)
-
 }
