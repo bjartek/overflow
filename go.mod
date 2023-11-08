@@ -9,7 +9,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v0.42.0
-	github.com/onflow/flow-cli/flowkit v1.5.0
+	github.com/onflow/flow-cli/flowkit v1.6.0
 	github.com/onflow/flow-emulator v0.56.0
 	github.com/onflow/flow-go v0.32.2-0.20231017202518-0b275f42906c
 	github.com/onflow/flow-go-sdk v0.41.11
@@ -55,7 +55,6 @@ require (
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
-	github.com/go-test/deep v1.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
