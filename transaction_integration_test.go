@@ -13,7 +13,6 @@ import (
 */
 
 func TestTransactionIntegration(t *testing.T) {
-
 	customResolver := func(input string) (string, error) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
@@ -54,7 +53,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "18.0%", report.Summary().Coverage)
+		assert.Equal(t, "18.1%", report.Summary().Coverage)
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {
@@ -73,7 +72,6 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, uint64(1), res)
 		assert.Equal(t, []uint64{1}, result.GetIdsFromEvent("LogNum", "id"))
-
 	})
 
 	/*
@@ -107,7 +105,7 @@ func TestTransactionIntegration(t *testing.T) {
 		res.
 			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
-			AssertComputationUsed(t, 7).
+			AssertComputationUsed(t, 8).
 			AssertComputationLessThenOrEqual(t, 40)
 	})
 
@@ -130,7 +128,6 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 
 	t.Run("Send struct to transaction", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.Foo) {
@@ -140,11 +137,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", Debug_Foo{Bar: "baz"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send struct to transaction With Skip field", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.Foo) {
@@ -154,11 +149,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", Debug_Foo_Skip{Bar: "baz", Skip: "skip"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send list of struct to transaction custom qualifier", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: [Debug.Foo]) {
@@ -168,11 +161,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithStructArgsCustomQualifier("foo", customResolver, Foo{Bar: "baz"}, Foo{Bar: "baz2"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send struct to transaction custom qualifier", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.Foo) {
@@ -182,11 +173,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithStructArgCustomResolver("foo", customResolver, Foo{Bar: "baz"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send list of struct to transaction", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: [Debug.Foo]) {
@@ -196,11 +185,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArgs("foo", []Debug_Foo{{Bar: "baz"}, {Bar: "baz2"}}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send nestedstruct to transaction", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.FooBar) {
@@ -210,11 +197,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", Debug_FooBar{Bar: "bar", Foo: Debug_Foo{Bar: "baz"}}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send nestedstruct with array to transaction", func(t *testing.T) {
-
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.FooListBar) {
@@ -224,11 +209,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", Debug_FooListBar{Bar: "bar", Foo: []Debug_Foo2{{Bar: "0xf8d6e0586b0a20c7"}}}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send HttpFile to transaction", func(t *testing.T) {
-
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
 		transaction(foo: AnyStruct{MetadataViews.File}) {
@@ -238,11 +221,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", MetadataViews_HTTPFile{Url: "foo"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send IpfsFile to transaction", func(t *testing.T) {
-
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
 		transaction(foo: AnyStruct{MetadataViews.File}) {
@@ -252,11 +233,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", MetadataViews_IPFSFile{Cid: "foo"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send IpfsFile with path to transaction", func(t *testing.T) {
-
 		path := "/Foo"
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
@@ -267,11 +246,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("foo", MetadataViews_IPFSFile{Cid: "foo", Path: &path}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send IpfsDisplay to transaction", func(t *testing.T) {
-
 		o.Tx(`
 				import MetadataViews from "../contracts/MetadataViews.cdc"
 				transaction(display: MetadataViews.Display) {
@@ -281,11 +258,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("display", MetadataViews_Display_IPFS{Name: "foo", Description: "desc", Thumbnail: MetadataViews_IPFSFile{Cid: "foo"}}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send HttpDisplay to transaction", func(t *testing.T) {
-
 		o.Tx(`
 			import MetadataViews from "../contracts/MetadataViews.cdc"
 			transaction(display: MetadataViews.Display) {
@@ -295,11 +270,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("display", MetadataViews_Display_Http{Name: "foo", Description: "desc", Thumbnail: MetadataViews_HTTPFile{Url: "foo"}}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("Send Trait to transaction", func(t *testing.T) {
-
 		o.Tx(`
 			import MetadataViews from "../contracts/MetadataViews.cdc"
 			transaction(trait: MetadataViews.Trait) {
@@ -309,11 +282,9 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 			WithArg("trait", MetadataViews_Trait{Name: "foo", Value: "bar"}),
 		).AssertSuccess(t)
-
 	})
 
 	t.Run("manual signer account", func(t *testing.T) {
-
 		first, _ := o.AccountE("first")
 		o.Tx(`
 			transaction() {
@@ -322,18 +293,15 @@ func TestTransactionIntegration(t *testing.T) {
 		 }`,
 			WithManualSigner(first),
 		).AssertSuccess(t)
-
 	})
 
 	bytes, err := o.GetCoverageReport().MarshalJSON()
 	require.NoError(t, err)
 	err = io.WriteFile("coverage-report.json", bytes)
 	require.NoError(t, err)
-
 }
 
 func TestTransactionEventFiltering(t *testing.T) {
-
 	filter := OverflowEventFilter{
 		"Log": []string{"msg"},
 	}
@@ -369,5 +337,4 @@ func TestFillUpSpace(t *testing.T) {
 
 	result2 := o.GetFreeCapacity("first")
 	assert.LessOrEqual(t, result2, 49000)
-
 }

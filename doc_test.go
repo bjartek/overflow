@@ -8,9 +8,8 @@ import (
 var docOptions = WithGlobalPrintOptions(WithoutId())
 
 func Example() {
-
-	//in order to start overflow use the Overflow function
-	//it can be customized with lots of OverflowOption
+	// in order to start overflow use the Overflow function
+	// it can be customized with lots of OverflowOption
 	Overflow()
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
@@ -24,10 +23,10 @@ func ExampleOverflowState_Tx() {
 	// start the Tx DSL with the name of the transactions file, by default this
 	// is in the `transactions` folder in your root dit
 	o.Tx("arguments",
-		//Customize the Transaction by sending in more InteractionOptions,
-		//at minimum you need to set Signer and Args if any
+		// Customize the Transaction by sending in more InteractionOptions,
+		// at minimum you need to set Signer and Args if any
 		WithSigner("first"),
-		//Arguments are always passed by name in the DSL builder, order does not matter
+		// Arguments are always passed by name in the DSL builder, order does not matter
 		WithArg("test", "overflow ftw!"),
 	)
 	//Output:
@@ -41,7 +40,7 @@ func ExampleOverflowState_Tx() {
 func ExampleOverflowState_Tx_inline() {
 	o := Overflow(docOptions)
 
-	//The Tx dsl can also contain an inline transaction
+	// The Tx dsl can also contain an inline transaction
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(message:String) {
@@ -56,7 +55,7 @@ func ExampleOverflowState_Tx_inline() {
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
 	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
-	//👌 Tx: fee:0.00001000 gas:7
+	//👌 Tx: fee:0.00001000 gas:8
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
 	//   msg -> overflow ftw!
@@ -65,7 +64,7 @@ func ExampleOverflowState_Tx_inline() {
 func ExampleOverflowState_Tx_multisign() {
 	o := Overflow(docOptions)
 
-	//The Tx dsl supports multiple signers, note that the mainSigner is the last account
+	// The Tx dsl supports multiple signers, note that the mainSigner is the last account
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction {
@@ -82,7 +81,7 @@ func ExampleOverflowState_Tx_multisign() {
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
 	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
-	//👌 Tx: fee:0.00001000 gas:7
+	//👌 Tx: fee:0.00001000 gas:8
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
 	//   msg -> acct:0x179b6b1cb6755e31
@@ -112,10 +111,9 @@ func ExampleOverflowState_Script() {
 }
 
 func ExampleOverflowState_Script_inline() {
-
 	o := Overflow(docOptions)
 
-	//Script can be run inline
+	// Script can be run inline
 	o.Script(`
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
