@@ -23,63 +23,63 @@ import (
 // OverflowInteractionBuilder used to create a builder pattern for an interaction
 type OverflowInteractionBuilder struct {
 	Ctx context.Context
-	//the name of the integration, for inline variants
+	// the name of the integration, for inline variants
 	Name string
 
-	//force that this interaction will not print log, even if overflow state has specified it
+	// force that this interaction will not print log, even if overflow state has specified it
 	NoLog bool
 
-	//The underlying state of overflow used to fetch some global settings
+	// The underlying state of overflow used to fetch some global settings
 	Overflow *OverflowState
 
-	//The file name of the interaction
+	// The file name of the interaction
 	FileName string
 
-	//The content of the interaction
+	// The content of the interaction
 	Content string
 
-	//The list of raw arguments
+	// The list of raw arguments
 	Arguments []cadence.Value
 
 	NamedCadenceArguments CadenceArguments
 
-	//The main signer used to sign the transaction
+	// The main signer used to sign the transaction
 	// Payer: the account paying for the transaction fees.
 	Payer *accounts.Account
 
-	//The propser account
+	// The propser account
 	//    Proposer: the account that specifies a proposal key.
 	Proposer *accounts.Account
 
-	//The payload signers that will sign the payload
-	//Authorizers: zero or more accounts authorizing the transaction to mutate their state.
+	// The payload signers that will sign the payload
+	// Authorizers: zero or more accounts authorizing the transaction to mutate their state.
 	PayloadSigners []*accounts.Account
 
-	//The gas limit to set for this given interaction
+	// The gas limit to set for this given interaction
 	GasLimit uint64
 
-	//The basepath on where to look for interactions
+	// The basepath on where to look for interactions
 	BasePath string
 
-	//An error object to store errors that arrive as you configure an interaction
+	// An error object to store errors that arrive as you configure an interaction
 	Error error
 
-	//The code of the tranasction in bytes
+	// The code of the tranasction in bytes
 	TransactionCode []byte
 
-	//The named arguments
+	// The named arguments
 	NamedArgs map[string]interface{}
 
-	//Event filters to apply to the interaction
+	// Event filters to apply to the interaction
 	EventFilter OverflowEventFilter
 
-	//Wheter to ignore global event filters from OverflowState or not
+	// Wheter to ignore global event filters from OverflowState or not
 	IgnoreGlobalEventFilters bool
 
-	//Options to use when printing results
+	// Options to use when printing results
 	PrintOptions *[]OverflowPrinterOption
 
-	//Query to use for running scripts
+	// Query to use for running scripts
 	ScriptQuery *flowkit.ScriptQuery
 
 	//
@@ -117,13 +117,12 @@ func WithContext(ctx context.Context) OverflowInteractionOption {
 
 // set a list of args as key, value in an interaction, see Arg for options you can pass in
 func WithArgs(args ...interface{}) OverflowInteractionOption {
-
 	return func(oib *OverflowInteractionBuilder) {
 		if len(args)%2 != 0 {
 			oib.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
 			return
 		}
-		var i = 0
+		i := 0
 		for i < len(args) {
 			key := args[0]
 			value, labelOk := key.(string)
@@ -170,7 +169,6 @@ func WithArg(name string, value interface{}) OverflowInteractionOption {
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
 func WithStructArgsCustomQualifier(name string, resolver InputResolver, values ...interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-
 		array := []cadence.Value{}
 		for _, value := range values {
 			structValue, err := InputToCadence(value, resolver)
@@ -207,7 +205,7 @@ func WithArgDateTime(name string, dateString string, timezone string) OverflowIn
 			return
 		}
 
-		//swallow the error since it will never happen here, we control the input
+		// swallow the error since it will never happen here, we control the input
 		amount, _ := cadence.NewUFix64(value)
 
 		oib.NamedArgs[name] = amount
@@ -333,7 +331,6 @@ func WithoutGlobalEventFilter() OverflowInteractionOption {
 
 func WithAuthorizer(signer ...string) OverflowInteractionOption {
 	return WithPayloadSigner(signer...)
-
 }
 
 // set an aditional authorizer that will sign the payload
@@ -504,7 +501,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	logMessage, err := oib.Overflow.readLog()
-
 	if err != nil {
 		result.Err = err
 	}

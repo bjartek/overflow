@@ -22,7 +22,6 @@ type OverflowEventList []OverflowEvent
 type OverflowEvents map[string]OverflowEventList
 
 func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[string][]string {
-
 	for _, events := range me {
 		for _, event := range events {
 			eventStakeholders := event.GetStakeholders()
@@ -160,6 +159,7 @@ func parseEvents(events []flow.Event, idPrefix string) (OverflowEvents, Overflow
 func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents {
 	filteredEvents := overflowEvents
 	for name, events := range overflowEvents {
+
 		if strings.HasSuffix(name, "TokensWithdrawn") {
 
 			withDrawnEvents := []OverflowEvent{}
@@ -196,13 +196,53 @@ var feeReceipients = []string{"0xf919ee77447b7497", "0x912d5440f7e3769e", "0xe5a
 
 // Filtter out fee events
 func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) OverflowEvents {
-
 	filteredEvents := overflowEvents
 	for name, events := range overflowEvents {
 		if strings.HasSuffix(name, "FlowFees.FeesDeducted") {
 			delete(filteredEvents, name)
 		}
 
+		if strings.HasSuffix(name, "FungibleToken.Withdraw") {
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				ftType := value.Fields["type"].(string)
+				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
+					continue
+				}
+				amount := value.Fields["amount"].(float64)
+				from, ok := value.Fields["from"].(string)
+
+				if ok && amount == fee && from == payer {
+					continue
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+
+		if strings.HasSuffix(name, "FungibleToken.Deposit") {
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				ftType := value.Fields["type"].(string)
+				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
+					continue
+				}
+				amount := value.Fields["amount"].(float64)
+				to, ok := value.Fields["to"].(string)
+
+				if ok && amount == fee && slices.Contains(feeReceipients, to) {
+					continue
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
 		if strings.HasSuffix(name, "FlowToken.TokensWithdrawn") {
 
 			withDrawnEvents := []OverflowEvent{}
@@ -255,6 +295,7 @@ func printOrLog(t *testing.T, s string) {
 		t.Helper()
 	}
 }
+
 func (overflowEvents OverflowEvents) Print(t *testing.T) {
 	if t != nil {
 		t.Helper()
@@ -285,7 +326,7 @@ func (overflowEvents OverflowEvents) FilterEvents(ignoreFields OverflowEventFilt
 	filteredEvents := OverflowEvents{}
 	for name, events := range overflowEvents {
 
-		//find if we should ignore fields
+		// find if we should ignore fields
 		ignoreFieldNames := []string{}
 		for ignoreEvent, fields := range ignoreFields {
 			if strings.HasSuffix(name, ignoreEvent) {

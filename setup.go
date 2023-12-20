@@ -118,7 +118,6 @@ func (o *OverflowBuilder) StartE() (*OverflowState, error) {
 
 // StartE will start Overflow and return State and error if any
 func (o *OverflowBuilder) StartResult() *OverflowState {
-
 	scriptFolderName := fmt.Sprintf("%s/%s", o.Path, o.ScriptFolderName)
 	if o.ScriptFolderName == "" {
 		scriptFolderName = o.Path
@@ -171,8 +170,8 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		}
 	}
 
-	//This is different for testnet and mainnet
-	//TODO: fix this for testnet
+	// This is different for testnet and mainnet
+	// TODO: fix this for testnet
 
 	chain := fm.Mainnet.Chain()
 	if o.Network == "testnet" {
@@ -202,7 +201,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	if o.InMemory {
 		acc, _ := state.EmulatorServiceAccount()
 
-		//this is the emulator log
+		// this is the emulator log
 		logWriter := io.Writer(&memlog)
 		emulatorLogger := zerolog.New(logWriter).Level(zerolog.DebugLevel)
 
@@ -267,7 +266,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 
 // applyOptions will apply all options from the sent in slice to an overflow builder
 func (o OverflowBuilder) applyOptions(opts []OverflowOption) *OverflowBuilder {
-
 	network := os.Getenv("OVERFLOW_ENV")
 	existing := os.Getenv("OVERFLOW_CONTINUE")
 	loglevel := os.Getenv("OVERFLOW_LOGGING")
@@ -296,7 +294,6 @@ func (o OverflowBuilder) applyOptions(opts []OverflowOption) *OverflowBuilder {
 
 	if existing != "" {
 		allOpts = append(allOpts, WithExistingEmulator())
-
 	}
 
 	allOpts = append(allOpts, opts...)
@@ -509,13 +506,12 @@ func WithArchiveNodeUrl(url string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.ArchiveNodeUrl = url
 	}
-
 }
+
 func WithCoverageReport() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.Coverage = runtime.NewCoverageReport()
 	}
-
 }
 
 type EmbedWrapper struct {
@@ -524,6 +520,11 @@ type EmbedWrapper struct {
 
 func (ew *EmbedWrapper) ReadFile(source string) ([]byte, error) {
 	return ew.Embed.ReadFile(source)
+}
+
+func (ew *EmbedWrapper) MkdirAll(path string, perm os.FileMode) error {
+	fmt.Printf("Writing dirs %s is not supported by embed.FS", path)
+	return nil
 }
 
 func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
