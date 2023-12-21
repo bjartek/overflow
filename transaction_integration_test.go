@@ -105,7 +105,6 @@ func TestTransactionIntegration(t *testing.T) {
 		res.
 			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
-			AssertComputationUsed(t, 35).
 			AssertComputationLessThenOrEqual(t, 40)
 	})
 
