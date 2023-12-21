@@ -27,14 +27,14 @@
 					Line:   4,
 					Column: 18,
 				},
-				Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+				Authorization: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
 					Identifier: "BorrowValue",
 					Pos: ast.Position{
 						Offset: 127,
 						Line:   4,
 						Column: 23,
 					},
-				}}}}},
+				}}}},
 			}},
 		},
 		"mainnetFoo": {
@@ -87,14 +87,14 @@
 					Line:   9,
 					Column: 20,
 				},
-				Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+				Authorization: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
 					Identifier: "BorrowValue",
 					Pos: ast.Position{
 						Offset: 258,
 						Line:   9,
 						Column: 25,
 					},
-				}}}}},
+				}}}},
 			}},
 		},
 		"signWithMultipleAccounts": {
@@ -150,14 +150,14 @@
 					Line:   4,
 					Column: 18,
 				},
-				Authorization: &ast.Authorization{EntitlementSet: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
+				Authorization: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
 					Identifier: "Storage",
 					Pos: ast.Position{
 						Offset: 127,
 						Line:   4,
 						Column: 23,
 					},
-				}}}}},
+				}}}},
 			}},
 		},
 		"zTransaction": {
