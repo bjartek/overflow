@@ -154,8 +154,6 @@ func parseEvents(events []flow.Event, idPrefix string) (OverflowEvents, Overflow
 	return overflowEvents, fee
 }
 
-// TODO: this needs to filter out empty .FungibleToken.Withdraw .Deposit as well
-// Filter out temp withdraw deposit events
 func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents {
 	filteredEvents := overflowEvents
 	for name, events := range overflowEvents {
@@ -187,6 +185,35 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 			} else {
 				delete(filteredEvents, name)
 			}
+		}
+
+		if strings.HasSuffix(name, ".FungibleToken.Withdraw") {
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value.Fields["from"] != nil {
+					withDrawnEvents = append(withDrawnEvents, value)
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+
+		if strings.HasSuffix(name, ".FungibleToken.Deposit") {
+			depositEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value.Fields["to"] != nil {
+					depositEvents = append(depositEvents, value)
+				}
+			}
+			if len(depositEvents) != 0 {
+				filteredEvents[name] = depositEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+
 		}
 	}
 	return filteredEvents
