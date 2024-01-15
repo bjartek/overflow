@@ -327,7 +327,7 @@ func WithNetwork(network string) OverflowOption {
 		o.Network = network
 		switch network {
 
-		case "testnet", "mainnet":
+		case "testnet", "mainnet", "crescendo":
 			o.DeployContracts = false
 			o.InitializeAccounts = false
 			o.StopOnError = false
