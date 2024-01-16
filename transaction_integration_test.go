@@ -39,8 +39,9 @@ func TestTransactionIntegration(t *testing.T) {
 		oTx, err := o.GetOverflowTransactionById(context.Background(), result.Transaction.ID())
 		require.NoError(t, err)
 
-		assert.Equal(t, "auth(BorrowValue) &Account", oTx.AuthorizerTypes[0].String())
+		assert.Equal(t, []string{"BorrowValue"}, oTx.AuthorizerTypes["signer"])
 	})
+
 	t.Run("fail on missing signer", func(t *testing.T) {
 		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the proposer signer")
 	})
@@ -314,6 +315,18 @@ func TestTransactionIntegration(t *testing.T) {
 		 }`,
 			WithManualSigner(first),
 		).AssertSuccess(t)
+	})
+
+	t.Run("store declaration info", func(t *testing.T) {
+		res := o.Tx(`
+			transaction() {
+			  prepare(acct: auth(BorrowValue, SaveValue) &Account) {
+			 }
+		 }`,
+			WithSigner("first"),
+		).AssertSuccess(t)
+
+		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers["acct"])
 	})
 
 	bytes, err := o.GetCoverageReport().MarshalJSON()

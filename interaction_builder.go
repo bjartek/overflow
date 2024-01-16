@@ -421,14 +421,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", oib.BasePath, oib.FileName)
 
-	if len(oib.TransactionCode) == 0 {
-		code, err := oib.getContractCode(codeFileName)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-		oib.TransactionCode = code
-	}
+	result.DeclarationInfo = *declarationInfo(oib.TransactionCode)
 
 	oib.Overflow.Log.Reset()
 	/*

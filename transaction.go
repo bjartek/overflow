@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/onflow/cadence/runtime/ast"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/flow-go-sdk"
@@ -44,7 +43,7 @@ type OverflowTransaction struct {
 	Status           string
 	Arguments        []Argument
 	Authorizers      []string
-	AuthorizerTypes  []*ast.ReferenceType
+	AuthorizerTypes  OverflowAuthorizers
 	Stakeholders     map[string][]string
 	Imports          []Import
 	Payer            string

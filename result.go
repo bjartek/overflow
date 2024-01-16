@@ -60,6 +60,8 @@ type OverflowResult struct {
 	Name string
 
 	Arguments CadenceArguments
+
+	DeclarationInfo OverflowDeclarationInfo
 }
 
 func (o OverflowResult) PrintArguments(t *testing.T) {

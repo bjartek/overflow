@@ -3,66 +3,32 @@
 		"aTransaction": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    overflow.OverflowAuthorizers{},
 		},
 		"create_nft_collection": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"Storage"}},
 		},
 		"emulatorFoo": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers: []*ast.ReferenceType{{
-				Type: &ast.NominalType{
-					Identifier: ast.Identifier{
-						Identifier: "Account",
-						Pos: ast.Position{
-							Offset: 141,
-							Line:   4,
-							Column: 37,
-						},
-					},
-				},
-				StartPos: ast.Position{
-					Offset: 122,
-					Line:   4,
-					Column: 18,
-				},
-				Authorization: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
-					Identifier: "BorrowValue",
-					Pos: ast.Position{
-						Offset: 127,
-						Line:   4,
-						Column: 23,
-					},
-				}}}},
-			}},
+			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"BorrowValue"}},
 		},
 		"mainnetFoo": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers: []*ast.ReferenceType{{
-				Type: &ast.NominalType{Identifier: ast.Identifier{
-					Identifier: "Account",
-					Pos: ast.Position{
-						Offset: 123,
-						Line:   4,
-						Column: 19,
-					},
-				}},
-				StartPos: ast.Position{
-					Offset: 122,
-					Line:   4,
-					Column: 18,
-				},
-			}},
+			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{}},
 		},
 		"mainnetaTransaction": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    overflow.OverflowAuthorizers{},
 		},
 		"mainnetzTransaction": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    overflow.OverflowAuthorizers{},
 		},
 		"mint_tokens": {
 			ParameterOrder: []string{
@@ -73,96 +39,25 @@
 				"amount":    "UFix64",
 				"recipient": "Address",
 			},
-			Authorizers: []*ast.ReferenceType{{
-				Type: &ast.NominalType{Identifier: ast.Identifier{
-					Identifier: "Account",
-					Pos: ast.Position{
-						Offset: 272,
-						Line:   9,
-						Column: 39,
-					},
-				}},
-				StartPos: ast.Position{
-					Offset: 253,
-					Line:   9,
-					Column: 20,
-				},
-				Authorization: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
-					Identifier: "BorrowValue",
-					Pos: ast.Position{
-						Offset: 258,
-						Line:   9,
-						Column: 25,
-					},
-				}}}},
-			}},
+			Authorizers: overflow.OverflowAuthorizers{"signer": []string{"BorrowValue"}},
 		},
 		"signWithMultipleAccounts": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers: []*ast.ReferenceType{
-				{
-					Type: &ast.NominalType{Identifier: ast.Identifier{
-						Identifier: "Account",
-						Pos: ast.Position{
-							Offset: 122,
-							Line:   3,
-							Column: 19,
-						},
-					}},
-					StartPos: ast.Position{
-						Offset: 121,
-						Line:   3,
-						Column: 18,
-					},
-				},
-				{
-					Type: &ast.NominalType{Identifier: ast.Identifier{
-						Identifier: "Account",
-						Pos: ast.Position{
-							Offset: 142,
-							Line:   3,
-							Column: 39,
-						},
-					}},
-					StartPos: ast.Position{
-						Offset: 141,
-						Line:   3,
-						Column: 38,
-					},
-				},
+			Authorizers: overflow.OverflowAuthorizers{
+				"account2": []string{},
+				"acct":     []string{},
 			},
 		},
 		"testnetFoo": {
 			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers: []*ast.ReferenceType{{
-				Type: &ast.NominalType{Identifier: ast.Identifier{
-					Identifier: "Account",
-					Pos: ast.Position{
-						Offset: 137,
-						Line:   4,
-						Column: 33,
-					},
-				}},
-				StartPos: ast.Position{
-					Offset: 122,
-					Line:   4,
-					Column: 18,
-				},
-				Authorization: &ast.ConjunctiveEntitlementSet{Elements: []*ast.NominalType{{Identifier: ast.Identifier{
-					Identifier: "Storage",
-					Pos: ast.Position{
-						Offset: 127,
-						Line:   4,
-						Column: 23,
-					},
-				}}}},
-			}},
+			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"Storage"}},
 		},
 		"zTransaction": {
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    overflow.OverflowAuthorizers{},
 		},
 	},
 	Scripts: map[string]*overflow.OverflowDeclarationInfo{
