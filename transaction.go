@@ -270,7 +270,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				logg.Debug("next block is not equal to latest block")
 				block, err = o.GetLatestBlock(ctx)
 				if err != nil {
-					logg.Debug("error fetching latest block", zap.Error(err))
+					logg.Info("error fetching latest block, retrying", zap.Error(err))
 					continue
 				}
 
