@@ -9,6 +9,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type CadenceArguments map[string]cadence.Value
@@ -132,6 +133,17 @@ func (o OverflowResult) MarshalEventsWithName(eventName string, result interface
 }
 
 // Assert that this particular transaction was a failure that has a message that contains the sendt in assertion
+func (o OverflowResult) RequireFailure(t *testing.T, msg string) OverflowResult {
+	t.Helper()
+
+	require.Error(t, o.Err)
+	if o.Err != nil {
+		require.Contains(t, o.Err.Error(), msg)
+	}
+	return o
+}
+
+// Assert that this particular transaction was a failure that has a message that contains the sendt in assertion
 func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	t.Helper()
 
@@ -139,6 +151,13 @@ func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	if o.Err != nil {
 		assert.Contains(t, o.Err.Error(), msg)
 	}
+	return o
+}
+
+// Require that this transaction was an success
+func (o OverflowResult) RequireSuccess(t *testing.T) OverflowResult {
+	t.Helper()
+	require.NoError(t, o.Err)
 	return o
 }
 
