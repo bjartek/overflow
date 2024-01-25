@@ -559,7 +559,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
-	result.Err = res.Error
+	result.Err = errors.Wrapf(res.Error, "transaction=%s", codeFileName)
 
 	if result.Err != nil && result.StopOnError {
 		panic(result.Err)
