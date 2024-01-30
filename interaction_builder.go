@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"testing"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -84,6 +85,21 @@ type OverflowInteractionBuilder struct {
 
 	//
 	StopOnError *bool
+
+	Testing OverflowTestingAsssertions
+}
+
+type OverflowTestingAsssertions struct {
+	T       *testing.T
+	Require bool
+	Failure *string
+	Events  []EventAssertion
+}
+
+type EventAssertion struct {
+	Fields  map[string]interface{}
+	Suffix  string
+	Require bool
 }
 
 // get the contract code
@@ -355,9 +371,7 @@ func WithManualAuthorizer(signer ...*accounts.Account) OverflowInteractionOption
 // set an aditional authorizer that will sign the payload
 func WithManualPayloadSigner(signer ...*accounts.Account) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		for _, signer := range signer {
-			oib.PayloadSigners = append(oib.PayloadSigners, signer)
-		}
+		oib.PayloadSigners = append(oib.PayloadSigners, signer...)
 	}
 }
 
@@ -385,6 +399,57 @@ func WithExecuteScriptAtBlockIdentifier(blockId flow.Identifier) OverflowInterac
 func WithPanicInteractionOnError(stop bool) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.StopOnError = &stop
+	}
+}
+
+func WithAssertFailure(t *testing.T, message string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+		oib.Testing.Failure = &message
+		oib.Testing.Require = false
+	}
+}
+
+func WithRequireFailure(t *testing.T, message string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+		oib.Testing.Failure = &message
+		oib.Testing.Require = true
+	}
+}
+
+// func (o OverflowResult) AssertEvent(t *testing.T, name string, fields map[string]interface{}) OverflowResult {
+func WithAssertEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, EventAssertion{
+			Fields:  fields,
+			Suffix:  suffix,
+			Require: false,
+		})
+		oib.Testing.Require = false
+	}
+}
+
+func WithRequireEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, EventAssertion{
+			Fields:  fields,
+			Suffix:  suffix,
+			Require: true,
+		})
+		oib.Testing.Require = false
+	}
+}
+
+func WithEventAssertions(t *testing.T, ea ...EventAssertion) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, ea...)
 	}
 }
 

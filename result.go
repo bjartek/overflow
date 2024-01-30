@@ -211,6 +211,49 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields map[string
 	return o
 }
 
+// Require that the event with the given name suffix and fields are present
+func (o OverflowResult) RequireEvent(t *testing.T, name string, fields map[string]interface{}) OverflowResult {
+	t.Helper()
+	newFields := OverflowEvent{Fields: map[string]interface{}{}}
+	for key, value := range fields {
+		if value != nil {
+			newFields.Fields[key] = value
+		}
+	}
+	hit := false
+	for eventName, events := range o.Events {
+		if strings.HasSuffix(eventName, name) {
+			hit = true
+			newEvents := []OverflowEvent{}
+			for _, event := range events {
+				oe := OverflowEvent{Fields: map[string]interface{}{}}
+				valid := false
+				for key, value := range event.Fields {
+					_, exist := newFields.Fields[key]
+					if exist {
+						oe.Fields[key] = value
+						valid = true
+					}
+				}
+				if valid {
+					newEvents = append(newEvents, oe)
+				}
+			}
+
+			if !newFields.ExistIn(newEvents) {
+				require.Fail(t, fmt.Sprintf("transaction %s missing event %s with fields %s", o.Name, name, litter.Sdump(newFields.Fields)))
+				newEventsMap := OverflowEvents{eventName: newEvents}
+				newEventsMap.Print(t)
+			}
+		}
+	}
+	if !hit {
+		require.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
+		o.Events.Print(t)
+	}
+	return o
+}
+
 // Assert that the transaction result contains the amount of events
 func (o OverflowResult) AssertEventCount(t *testing.T, number int) OverflowResult {
 	t.Helper()

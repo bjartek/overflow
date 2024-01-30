@@ -46,6 +46,10 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the proposer signer")
 	})
 
+	t.Run("fail on missing signer with built in assert", func(t *testing.T) {
+		o.Tx("create_nft_collection", WithAssertFailure(t, "💩 You need to set the proposer signer"))
+	})
+
 	t.Run("fail on wrong transaction name", func(t *testing.T) {
 		o.Tx("create_nft_collectio", WithSigner("first")).
 			AssertFailure(t, "💩 Could not read interaction file from path=./transactions/create_nft_collectio.cdc")
@@ -75,6 +79,16 @@ func TestTransactionIntegration(t *testing.T) {
 
 		report := o.GetCoverageReport()
 		assert.Equal(t, "19.0%", report.Summary().Coverage)
+	})
+
+	t.Run("Mint tokens assert events with built in assertion", func(t *testing.T) {
+		o.Tx("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1),
+			WithAssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 100.1,
+			}))
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {

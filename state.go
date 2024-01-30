@@ -593,6 +593,34 @@ func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *
 		panic(result.Err)
 	}
 
+	ot := ftb.Testing
+	// we have no testing to run here
+	if ot.T == nil {
+		return result
+	}
+
+	if ot.T != nil {
+		ot.T.Helper()
+		if ot.Failure != nil {
+			if ot.Require {
+				result.RequireFailure(ot.T, *ot.Failure)
+			} else {
+				result.AssertFailure(ot.T, *ot.Failure)
+			}
+			// if we have a failure we do not even try to assert events
+			return result
+		}
+		result.AssertSuccess(ot.T)
+
+		for _, ea := range ot.Events {
+			if ea.Require {
+				result.RequireEvent(ot.T, ea.Suffix, ea.Fields)
+			} else {
+				result.AssertEvent(ot.T, ea.Suffix, ea.Fields)
+			}
+		}
+	}
+
 	return result
 }
 
@@ -635,6 +663,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
 		ScriptQuery:    nil,
+		Testing:        OverflowTestingAsssertions{},
 	}
 
 	for _, opt := range opts {
