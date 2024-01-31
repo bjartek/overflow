@@ -90,6 +90,17 @@ func TestTransactionIntegration(t *testing.T) {
 				"amount": 100.1,
 			}))
 	})
+	t.Run("Mint tokens assert events with built in assertion that is changed", func(t *testing.T) {
+		mintTokens := o.TxFileNameFN("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1),
+			WithAssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 0,
+			}))
+
+		mintTokens(WithAssertEventReplaceField("FlowToken.TokensDeposited", "amount", 100.1))
+	})
 
 	t.Run("Assert get id", func(t *testing.T) {
 		result := o.Tx(`

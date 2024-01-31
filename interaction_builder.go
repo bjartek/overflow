@@ -418,7 +418,18 @@ func WithRequireFailure(t *testing.T, message string) OverflowInteractionOption 
 	}
 }
 
-// func (o OverflowResult) AssertEvent(t *testing.T, name string, fields map[string]interface{}) OverflowResult {
+// a helper to modify an event assertion if you have a sigle one and you want to change the value
+func WithAssertEventReplaceField(suffix string, field string, value interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		for i, ev := range oib.Testing.Events {
+			if ev.Suffix == suffix {
+				oib.Testing.Events[i].Fields[field] = value
+				return
+			}
+		}
+	}
+}
+
 func WithAssertEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.Testing.T = t
