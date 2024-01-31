@@ -5,11 +5,11 @@ go 1.20
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/enescakir/emoji v1.0.0
-	github.com/fatih/color v1.15.0
+	github.com/fatih/color v1.16.0
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v0.42.6
-	github.com/onflow/flow-cli/flowkit v1.10.0
+	github.com/onflow/flow-cli/flowkit v1.12.0
 	github.com/onflow/flow-emulator v0.59.0
 	github.com/onflow/flow-go v0.32.4-0.20231130134727-3c01c7f8966c
 	github.com/onflow/flow-go-sdk v0.41.17
@@ -20,7 +20,7 @@ require (
 	github.com/spf13/afero v1.9.5
 	github.com/stretchr/testify v1.8.4
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
-	go.uber.org/zap v1.24.0
+	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 )
 
@@ -119,7 +119,7 @@ require (
 	github.com/logrusorgru/aurora/v4 v4.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
@@ -196,7 +196,7 @@ require (
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect

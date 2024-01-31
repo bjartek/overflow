@@ -11,6 +11,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"strconv"
 
@@ -530,4 +531,8 @@ func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode
 func (ew *EmbedWrapper) MkdirAll(path string, perm os.FileMode) error {
 	fmt.Printf("Creating dir is not %s is not supported by embed.FS", path)
 	return nil
+}
+
+func (ew *EmbedWrapper) Stat(string) (fs.FileInfo, error) {
+	return nil, nil
 }
