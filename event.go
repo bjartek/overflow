@@ -187,7 +187,7 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 			}
 		}
 
-		if strings.HasSuffix(name, ".FungibleToken.Withdraw") {
+		if strings.HasSuffix(name, ".FungibleToken.Withdrawn") {
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
 				if value.Fields["from"] != nil {
@@ -201,7 +201,7 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 			}
 		}
 
-		if strings.HasSuffix(name, ".FungibleToken.Deposit") {
+		if strings.HasSuffix(name, ".FungibleToken.Deposited") {
 			depositEvents := []OverflowEvent{}
 			for _, value := range events {
 				if value.Fields["to"] != nil {
@@ -229,7 +229,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			delete(filteredEvents, name)
 		}
 
-		if strings.HasSuffix(name, ".FungibleToken.Withdraw") {
+		if strings.HasSuffix(name, ".FungibleToken.Withdrawn") {
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
 				ftType := value.Fields["type"].(string)
@@ -250,7 +250,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			}
 		}
 
-		if strings.HasSuffix(name, ".FungibleToken.Deposit") {
+		if strings.HasSuffix(name, ".FungibleToken.Deposited") {
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
 				ftType := value.Fields["type"].(string)

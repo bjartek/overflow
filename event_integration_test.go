@@ -10,7 +10,6 @@ import (
 )
 
 func TestIntegrationEvents(t *testing.T) {
-
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
 		g, err := OverflowTesting()
 		require.NoError(t, err)
@@ -99,7 +98,6 @@ func TestIntegrationEvents(t *testing.T) {
 	})
 
 	t.Run("Fetch last write progress file that exists", func(t *testing.T) {
-
 		err := os.WriteFile("progress", []byte("1"), fs.ModePerm)
 		assert.NoError(t, err)
 
