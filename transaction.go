@@ -263,7 +263,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				// we are still processing historical blocks
 				block, err = o.GetBlockAtHeight(ctx, nextBlockToProcess)
 				if err != nil {
-					logg.Debug("error fetching old block", zap.Error(err))
+					logg.Info("error fetching old block", zap.Error(err))
 					continue
 				}
 			} else if nextBlockToProcess != latestKnownBlock.Height {
