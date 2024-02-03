@@ -285,8 +285,8 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			} else {
 				block = latestKnownBlock
 			}
-
-			logg.Debug("processing block", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height))
+			readDur := time.Since(start)
+			logg.Info("block read", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height), zap.Any("readDur", readDur.Seconds()))
 			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
 			logg.Debug("fetched transactions", zap.Int("tx", len(tx)))
 			if err != nil {
