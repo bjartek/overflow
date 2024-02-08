@@ -16,15 +16,16 @@ import (
 	"strconv"
 
 	"github.com/onflow/cadence/runtime"
-	"github.com/onflow/flow-cli/flowkit"
-	"github.com/onflow/flow-cli/flowkit/config"
-	"github.com/onflow/flow-cli/flowkit/gateway"
-	"github.com/onflow/flow-cli/flowkit/output"
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flow-go/fvm/blueprints"
 	fm "github.com/onflow/flow-go/model/flow"
+	"github.com/onflow/flowkit"
+	"github.com/onflow/flowkit/config"
+	"github.com/onflow/flowkit/gateway"
+	"github.com/onflow/flowkit/output"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc"
 
 	"github.com/spf13/afero"
 )
@@ -107,6 +108,7 @@ type OverflowBuilder struct {
 	InputResolver                       *InputResolver
 	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
+	GrpcDialOptions                     []grpc.DialOption
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -228,7 +230,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		overflow.EmulatorGatway = gw
 		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 	} else {
-		gw, err := gateway.NewGrpcGateway(*network)
+		gw, err := gateway.NewGrpcGateway(*network, o.GrpcDialOptions...)
 		if err != nil {
 			overflow.Error = err
 			return overflow
@@ -506,6 +508,12 @@ func WithInputResolver(ir InputResolver) OverflowOption {
 func WithArchiveNodeUrl(url string) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.ArchiveNodeUrl = url
+	}
+}
+
+func WithGrpcDialOption(opt ...grpc.DialOption) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.GrpcDialOptions = append(o.GrpcDialOptions, opt...)
 	}
 }
 
