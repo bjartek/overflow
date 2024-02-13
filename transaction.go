@@ -181,14 +181,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 
 	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
-		if logg != nil {
-			logg.Debug("retry getting transactions")
-		}
-		time.Sleep(time.Millisecond * 200)
-		tx, txR, err = o.Flowkit.GetTransactionsByBlockID(ctx, id)
-		if err != nil {
-			return nil, nil, errors.Wrap(err, "getting transaction results")
-		}
+		return nil, nil, errors.Wrap(err, "getting transaction results")
 	}
 
 	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)), zap.Int("txR", len(txR)))
@@ -197,7 +190,8 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
 		isLatestResult := totalTxR == i+1
-		if isLatestResult {
+		// on network emulator we never have system chunk transactions it looks like
+		if isLatestResult && o.GetNetwork() != "emulator" {
 			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
 			if len(systemChunkEvents) > 0 {
 				logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
