@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/onflow/flowkit"
+	"github.com/onflow/flowkit/v2"
 )
 
 // Event fetching
@@ -92,11 +92,10 @@ func (efr EventFetcherResult) String() string {
 
 // FetchEvents using the given options
 func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult {
-
 	e := o.buildEventInteraction(opts...)
 
 	res := EventFetcherResult{State: e}
-	//if we have a progress file read the value from it and set it as oldHeight
+	// if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
 
 		present, err := exists(e.ProgressFile)
@@ -141,7 +140,7 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 	}
 
 	fromIndex := e.FromIndex
-	//if we have a negative fromIndex is is relative to endIndex
+	// if we have a negative fromIndex is is relative to endIndex
 	if e.FromIndex <= 0 {
 		fromIndex = int64(endIndex) + e.FromIndex
 	}
@@ -222,7 +221,6 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 	res.From = fromIndex
 	res.To = endIndex
 	return res
-
 }
 
 // FetchEvents using the given options
