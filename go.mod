@@ -12,7 +12,7 @@ require (
 	github.com/onflow/flow-emulator v0.59.0
 	github.com/onflow/flow-go v0.32.4-0.20231130134727-3c01c7f8966c
 	github.com/onflow/flow-go-sdk v0.41.17
-	github.com/onflow/flowkit v1.13.1-0.20240214185522-293389908234
+	github.com/onflow/flowkit v1.13.1-0.20240215185900-f0376cec0213
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/samber/lo v1.38.1
