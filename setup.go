@@ -109,6 +109,7 @@ type OverflowBuilder struct {
 	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
 	GrpcDialOptions                     []grpc.DialOption
+	EmulatorOptions                     []emulator.Option
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -215,6 +216,8 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		if o.TransactionFees {
 			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true), emulator.WithCoverageReport(o.Coverage))
 		}
+
+		emulatorOptions = append(emulatorOptions, o.EmulatorOptions...)
 
 		pk, _ := acc.Key.PrivateKey()
 		emulatorKey := &gateway.EmulatorKey{
@@ -520,6 +523,12 @@ func WithGrpcDialOption(opt ...grpc.DialOption) OverflowOption {
 func WithCoverageReport() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.Coverage = runtime.NewCoverageReport()
+	}
+}
+
+func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.EmulatorOptions = append(o.EmulatorOptions, opt...)
 	}
 }
 
