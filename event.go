@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
 	"golang.org/x/exp/slices"
@@ -47,6 +48,7 @@ type OverflowEvent struct {
 	EventIndex    uint32                 `json:"eventIndex"`
 	Name          string                 `json:"name"`
 	Addresses     map[string][]string    `json:"addresses"`
+	RawEvent      cadence.Event          `json:"rawEvent"`
 }
 
 // Check if an event exist in the other events
@@ -140,6 +142,7 @@ func parseEvents(events []flow.Event, idPrefix string) (OverflowEvents, Overflow
 			TransactionId: event.TransactionID.String(),
 			EventIndex:    uint32(event.EventIndex),
 			Addresses:     addresses,
+			RawEvent:      event.Value,
 		})
 		overflowEvents[event.Type] = events
 		if strings.HasSuffix(event.Type, "FlowFees.FeesDeducted") {
