@@ -392,20 +392,21 @@ func WithPanicInteractionOnError(stop bool) OverflowInteractionOption {
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{
-		StopOnError:     oib.Overflow.StopOnError,
-		Err:             nil,
-		Id:              [32]byte{},
-		Meter:           &OverflowMeter{},
-		RawLog:          []OverflowEmulatorLogMessage{},
-		EmulatorLog:     []string{},
-		ComputationUsed: 0,
-		RawEvents:       []flow.Event{},
-		Events:          map[string]OverflowEventList{},
-		Transaction:     &flow.Transaction{},
-		Fee:             map[string]interface{}{},
-		FeeGas:          0,
-		Name:            "",
-		Arguments:       oib.NamedCadenceArguments,
+		StopOnError:      oib.Overflow.StopOnError,
+		Err:              nil,
+		Id:               [32]byte{},
+		Meter:            &OverflowMeter{},
+		RawLog:           []OverflowEmulatorLogMessage{},
+		EmulatorLog:      []string{},
+		ComputationUsed:  0,
+		RawEvents:        []flow.Event{},
+		Events:           map[string]OverflowEventList{},
+		Transaction:      &flow.Transaction{},
+		Fee:              map[string]interface{}{},
+		FeeGas:           0,
+		Name:             "",
+		Arguments:        oib.NamedCadenceArguments,
+		UnderflowOptions: oib.Overflow.UnderflowOptions,
 	}
 	if oib.StopOnError != nil {
 		result.StopOnError = *oib.StopOnError
@@ -530,7 +531,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.RawEvents = res.Events
 
-	overflowEvents, fee := parseEvents(result.RawEvents, "")
+	overflowEvents, fee := oib.Overflow.ParseEvents(result.RawEvents, "")
 	result.Fee = fee.Fields
 	if len(result.Fee) != 0 {
 		executionEffort, ok := result.Fee["executionEffort"].(float64)

@@ -81,6 +81,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
 	Coverage:                            nil,
+	UnderflowOptions:                    underflow.Options{},
 }
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
@@ -111,6 +112,7 @@ type OverflowBuilder struct {
 	Coverage                            *runtime.CoverageReport
 	GrpcDialOptions                     []grpc.DialOption
 	EmulatorOptions                     []emulator.Option
+	UnderflowOptions                    underflow.Options
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -152,6 +154,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		NewUserFlowAmount:                   o.NewAccountFlowAmount,
 		LogLevel:                            o.LogLevel,
 		CoverageReport:                      o.Coverage,
+		UnderflowOptions:                    o.UnderflowOptions,
 	}
 
 	loader := o.ReaderWriter
@@ -530,6 +533,12 @@ func WithCoverageReport() OverflowOption {
 func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.EmulatorOptions = append(o.EmulatorOptions, opt...)
+	}
+}
+
+func WithUnderflowOptions(opt underflow.Options) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.UnderflowOptions = opt
 	}
 }
 

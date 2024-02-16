@@ -142,6 +142,8 @@ type OverflowState struct {
 
 	// the string id of the system chunk transaction
 	SystemChunkTransactionId string
+
+	UnderflowOptions underflow.Options
 }
 
 type OverflowArgument struct {

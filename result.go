@@ -60,7 +60,8 @@ type OverflowResult struct {
 	// The name of the Transaction
 	Name string
 
-	Arguments CadenceArguments
+	Arguments        CadenceArguments
+	UnderflowOptions underflow.Options
 }
 
 func (o OverflowResult) PrintArguments(t *testing.T) {
@@ -75,7 +76,7 @@ func (o OverflowResult) PrintArguments(t *testing.T) {
 	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
 
 	for name, arg := range o.Arguments {
-		value, err := underflow.CadenceValueToJsonString(arg)
+		value, err := underflow.CadenceValueToJsonStringWithOption(arg, o.UnderflowOptions)
 		if err != nil {
 			panic(err)
 		}
