@@ -9,10 +9,10 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v0.42.6
-	github.com/onflow/flow-cli/flowkit v1.13.0
 	github.com/onflow/flow-emulator v0.59.0
 	github.com/onflow/flow-go v0.32.4-0.20231130134727-3c01c7f8966c
 	github.com/onflow/flow-go-sdk v0.41.17
+	github.com/onflow/flowkit v1.13.1-0.20240215185900-f0376cec0213
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/samber/lo v1.38.1
@@ -22,6 +22,7 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
 	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
+	google.golang.org/grpc v1.59.0
 )
 
 require (
@@ -206,7 +207,6 @@ require (
 	google.golang.org/genproto v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
-	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect

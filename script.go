@@ -11,7 +11,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flow-cli/flowkit"
+	"github.com/onflow/flowkit"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
