@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
@@ -74,7 +75,7 @@ func (o OverflowResult) PrintArguments(t *testing.T) {
 	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
 
 	for name, arg := range o.Arguments {
-		value, err := CadenceValueToJsonString(arg)
+		value, err := underflow.CadenceValueToJsonString(arg)
 		if err != nil {
 			panic(err)
 		}

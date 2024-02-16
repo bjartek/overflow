@@ -15,6 +15,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flow-go/fvm/blueprints"
@@ -105,7 +106,7 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 	ReaderWriter                        flowkit.ReaderWriter
-	InputResolver                       *InputResolver
+	InputResolver                       *underflow.InputResolver
 	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
 	GrpcDialOptions                     []grpc.DialOption
@@ -502,7 +503,7 @@ func WithEmbedFS(fs embed.FS) OverflowOption {
 	}
 }
 
-func WithInputResolver(ir InputResolver) OverflowOption {
+func WithInputResolver(ir underflow.InputResolver) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.InputResolver = &ir
 	}

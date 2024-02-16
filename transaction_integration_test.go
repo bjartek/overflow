@@ -337,3 +337,36 @@ func TestFillUpSpace(t *testing.T) {
 	result2 := o.GetFreeCapacity("first")
 	assert.LessOrEqual(t, result2, 49000)
 }
+
+// in Debug.cdc
+type Foo struct {
+	Bar string
+}
+
+type Debug_FooListBar struct {
+	Bar string
+	Foo []Debug_Foo2
+}
+
+type Debug_FooBar struct {
+	Bar string
+	Foo Debug_Foo
+}
+
+type Debug_Foo_Skip struct {
+	Bar  string
+	Skip string `cadence:"-"`
+}
+
+type Debug_Foo2 struct {
+	Bar string `cadence:"bar,cadenceAddress"`
+}
+
+type Debug_Foo struct {
+	Bar string
+}
+
+// in Foo.Bar.Baz
+type Baz struct {
+	Something string `json:"bar"`
+}

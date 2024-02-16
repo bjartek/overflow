@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/bjartek/overflow"
+	"github.com/bjartek/underflow"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 )
 
@@ -23,7 +23,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	output, err := overflow.CadenceValueToJsonString(value)
+	output, err := underflow.CadenceValueToJsonString(value)
 	if err != nil {
 		panic(err)
 	}

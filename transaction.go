@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/flow-go-sdk"
@@ -88,7 +89,7 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		}
 		argStruct := Argument{
 			Key:   key,
-			Value: CadenceValueToInterface(arg),
+			Value: underflow.CadenceValueToInterface(arg),
 		}
 		args = append(args, argStruct)
 	}
