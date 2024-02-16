@@ -326,6 +326,7 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 		// TODO: add back in again once fixed
 		// assert.Equal(t, o.ComputationUsed, o.FeeGas)
 	}
+
 	return o
 }
 
@@ -337,7 +338,6 @@ func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) Ove
 		// TODO: add back in again once fixed
 		//		assert.Equal(t, o.ComputationUsed, o.FeeGas)
 	}
-
 	return o
 }
 

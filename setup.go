@@ -16,15 +16,16 @@ import (
 	"strconv"
 
 	"github.com/onflow/cadence/runtime"
-	"github.com/onflow/flow-cli/flowkit"
-	"github.com/onflow/flow-cli/flowkit/config"
-	"github.com/onflow/flow-cli/flowkit/gateway"
-	"github.com/onflow/flow-cli/flowkit/output"
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flow-go/fvm/blueprints"
 	fm "github.com/onflow/flow-go/model/flow"
+	"github.com/onflow/flowkit"
+	"github.com/onflow/flowkit/config"
+	"github.com/onflow/flowkit/gateway"
+	"github.com/onflow/flowkit/output"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc"
 
 	"github.com/spf13/afero"
 )
@@ -107,6 +108,8 @@ type OverflowBuilder struct {
 	InputResolver                       *InputResolver
 	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
+	GrpcDialOptions                     []grpc.DialOption
+	EmulatorOptions                     []emulator.Option
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -214,6 +217,8 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			emulatorOptions = append(emulatorOptions, emulator.WithTransactionFeesEnabled(true), emulator.WithCoverageReport(o.Coverage))
 		}
 
+		emulatorOptions = append(emulatorOptions, o.EmulatorOptions...)
+
 		pk, _ := acc.Key.PrivateKey()
 		emulatorKey := &gateway.EmulatorKey{
 			PublicKey: (*pk).PublicKey(),
@@ -228,7 +233,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		overflow.EmulatorGatway = gw
 		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 	} else {
-		gw, err := gateway.NewGrpcGateway(*network)
+		gw, err := gateway.NewGrpcGateway(*network, o.GrpcDialOptions...)
 		if err != nil {
 			overflow.Error = err
 			return overflow
@@ -328,7 +333,7 @@ func WithNetwork(network string) OverflowOption {
 		o.Network = network
 		switch network {
 
-		case "testnet", "mainnet":
+		case "testnet", "mainnet", "crescendo":
 			o.DeployContracts = false
 			o.InitializeAccounts = false
 			o.StopOnError = false
@@ -509,9 +514,21 @@ func WithArchiveNodeUrl(url string) OverflowOption {
 	}
 }
 
+func WithGrpcDialOption(opt ...grpc.DialOption) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.GrpcDialOptions = append(o.GrpcDialOptions, opt...)
+	}
+}
+
 func WithCoverageReport() OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.Coverage = runtime.NewCoverageReport()
+	}
+}
+
+func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.EmulatorOptions = append(o.EmulatorOptions, opt...)
 	}
 }
 

@@ -183,14 +183,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 
 	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
-		if logg != nil {
-			logg.Debug("retry getting transactions")
-		}
-		time.Sleep(time.Millisecond * 200)
-		tx, txR, err = o.Flowkit.GetTransactionsByBlockID(ctx, id)
-		if err != nil {
-			return nil, nil, errors.Wrap(err, "getting transaction results")
-		}
+		return nil, nil, errors.Wrap(err, "getting transaction results")
 	}
 
 	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)), zap.Int("txR", len(txR)))
@@ -199,9 +192,12 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
 		r := *rp
 		isLatestResult := totalTxR == i+1
-		if isLatestResult {
+		// on network emulator we never have system chunk transactions it looks like
+		if isLatestResult && o.GetNetwork() != "emulator" {
 			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
-			logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
+			if len(systemChunkEvents) > 0 {
+				logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
+			}
 			return []OverflowTransaction{}
 		}
 		t := *tx[i]
@@ -263,14 +259,14 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				// we are still processing historical blocks
 				block, err = o.GetBlockAtHeight(ctx, nextBlockToProcess)
 				if err != nil {
-					logg.Debug("error fetching old block", zap.Error(err))
+					logg.Info("error fetching old block", zap.Error(err))
 					continue
 				}
 			} else if nextBlockToProcess != latestKnownBlock.Height {
 				logg.Debug("next block is not equal to latest block")
 				block, err = o.GetLatestBlock(ctx)
 				if err != nil {
-					logg.Debug("error fetching latest block", zap.Error(err))
+					logg.Info("error fetching latest block, retrying", zap.Error(err))
 					continue
 				}
 
@@ -285,8 +281,8 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			} else {
 				block = latestKnownBlock
 			}
-
-			logg.Debug("processing block", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height))
+			readDur := time.Since(start)
+			logg.Info("block read", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height), zap.Any("readDur", readDur.Seconds()))
 			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
 			logg.Debug("fetched transactions", zap.Int("tx", len(tx)))
 			if err != nil {
