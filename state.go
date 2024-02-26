@@ -688,11 +688,16 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		opt(ftb)
 	}
 
+	if ftb.Error != nil {
+		return ftb
+	}
+
 	// we need to do flix stuff
 	if interactionType == "flix" {
 		flix, err := o.Flixkit.GetTemplateAndReplaceImports(ftb.Ctx, filename, o.Network.Name)
 		if err != nil {
 			ftb.Error = errors.Wrapf(err, "failed getting flix using query %s for network %s", filename, o.Network.Name)
+			return ftb
 		}
 		ftb.IsTransactions = flix.IsTransaciton
 		ftb.TransactionCode = []byte(flix.Cadence)
@@ -722,10 +727,6 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 			ftb.Error = err
 			return ftb
 		}
-	}
-
-	if ftb.Error != nil {
-		return ftb
 	}
 
 	parseArgs, namedCadenceArguments, err := o.parseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
