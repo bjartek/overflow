@@ -88,6 +88,8 @@ type OverflowInteractionBuilder struct {
 	StopOnError *bool
 
 	Testing OverflowTestingAsssertions
+
+	IsTransactions bool
 }
 
 type OverflowTestingAsssertions struct {
