@@ -2,6 +2,8 @@
 
 # Overflow
 
+This is the v1 branch of overflow to be used with v0.x versions of cadence. Go go main branch for latest version
+
 A DSL written in golang to be used in tests or to run a `story` of interactions against either an local emulator, testnet, mainnet or an in memory instance of the flow-emulator.
 
 Use case scenarios include:
