@@ -56,7 +56,7 @@ func TestTransaction(t *testing.T) {
 	t.Run("Run linine tx", func(t *testing.T) {
 		res := o.Tx(`
 transaction(test:String) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
     log(test)
  }
 }
@@ -67,7 +67,7 @@ transaction(test:String) {
 	t.Run("Run linine tx", func(t *testing.T) {
 		res := o.Tx(`
 transaction(test:UInt64) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
     log(test)
  }
 }
@@ -99,7 +99,7 @@ transaction(test:UInt64) {
 
 	t.Run("Should not allow varags builder arg with single element", func(t *testing.T) {
 		res := o.Tx("arguments", WithArgs("test"))
-		assert.ErrorContains(t, res.Err, "Please send in an even number of string : interface{} pairs")
+		assert.ErrorContains(t, res.Err, "please send in an even number of string : interface{} pairs")
 	})
 
 	t.Run("Should not allow varag with non string keys", func(t *testing.T) {
@@ -115,7 +115,7 @@ transaction(test:UInt64) {
 	t.Run("date time arg", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:UFix64) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -126,7 +126,7 @@ transaction(test:UFix64) {
 	t.Run("date time arg error", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:UFix64) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -142,7 +142,7 @@ transaction(test:UFix64) {
 	t.Run("Parse addresses should fail if not valid account name and hex", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:[Address]) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -153,7 +153,7 @@ transaction(test:[Address]) {
 	t.Run("Parse array of addresses", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:[Address]) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -164,7 +164,7 @@ transaction(test:[Address]) {
 	t.Run("Parse String to String map", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:{String:String}) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -175,7 +175,7 @@ transaction(test:{String:String}) {
 	t.Run("Parse String to UFix64 map", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:{String:UFix64}) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -186,45 +186,42 @@ transaction(test:{String:UFix64}) {
 	t.Run("Error when parsing invalid address", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:Address) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
 `, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount())
 		assert.ErrorContains(t, res.Error, "argument `test` with value `0xbjartek` is not expected type `Address`")
-
 	})
 
 	t.Run("Should set gas", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:Address) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
 `, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount(), WithMaxGas(100))
 
 		assert.Equal(t, uint64(100), res.GasLimit)
-
 	})
 
 	t.Run("Should report error if invalid payload signer", func(t *testing.T) {
 		res := o.Tx(`
 transaction{
-	prepare(acct: AuthAccount, user:AuthAccount) {
+	prepare(acct: auth(BorrowValue) &Account, user:auth(BorrowValue) &Account) {
 
  }
 }
 `, WithSignerServiceAccount(), WithPayloadSigner("bjartek"))
 
 		assert.Error(t, res.Err, "asd")
-
 	})
 
 	t.Run("ufix64", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:UFix64) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -235,7 +232,7 @@ transaction(test:UFix64) {
 	t.Run("add printer args", func(t *testing.T) {
 		res := o.BuildInteraction(`
 transaction(test:UFix64) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
 
  }
 }
@@ -251,7 +248,7 @@ transaction(test:UFix64) {
 
 		res := o.BuildInteraction(`
 transaction(test:UFix64) {
-  prepare(acct: AuthAccount) {
+  prepare(acct: auth(BorrowValue) &Account) {
  }
 }
 `, "transaction", WithArg("test", 1.0), WithSignerServiceAccount(), WithoutGlobalEventFilter(), WithEventsFilter(filter))
@@ -259,5 +256,4 @@ transaction(test:UFix64) {
 		assert.True(t, res.IgnoreGlobalEventFilters)
 		assert.Equal(t, 1, len(res.EventFilter))
 	})
-
 }

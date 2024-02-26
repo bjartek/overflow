@@ -7,7 +7,6 @@ import (
 )
 
 func (o *OverflowState) GenerateStub(network, filePath string, standalone bool) (string, error) {
-
 	solution, err := o.ParseAll()
 	if err != nil {
 		return "", err
@@ -24,7 +23,7 @@ func (o *OverflowState) GenerateStub(network, filePath string, standalone bool) 
 		commandName = "Script"
 	}
 	if interaction == nil {
-		return "", fmt.Errorf("Could not find interaction of type %s with name %s", commandName, interaction)
+		return "", fmt.Errorf("could not find interaction of type %s with name %s", commandName, interaction)
 	}
 	lines := []string{
 		fmt.Sprintf(`  o.%s("%s",`, commandName, interactionName),
@@ -51,12 +50,11 @@ func (o *OverflowState) GenerateStub(network, filePath string, standalone bool) 
 	return fmt.Sprintf(`package main
 
 import (
-   . "github.com/bjartek/overflow"
+   . "github.com/bjartek/overflow/v2"
 )
 
 func main() {
   o := Overflow(WithNetwork("%s"), WithPrintResults())
 %s
 }`, network, stub), nil
-
 }

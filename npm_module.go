@@ -15,24 +15,26 @@ import (
 
 // a type representing the raw solutions that contains all transactions, scripts, networks and warnings of any
 type OverflowSolution struct {
-
-	//all transactions with name and what paremters they have
+	// all transactions with name and what paremters they have
 	Transactions map[string]*OverflowDeclarationInfo `json:"transactions"`
 
-	//all scripts with name and parameter they have
+	// all scripts with name and parameter they have
 	Scripts map[string]*OverflowDeclarationInfo `json:"scripts"`
 
-	//all networks with associated scripts/tranasctions/contracts preresolved
+	// all networks with associated scripts/tranasctions/contracts preresolved
 	Networks map[string]*OverflowSolutionNetwork `json:"networks"`
 
-	//warnings accumulated during parsing
+	// warnings accumulated during parsing
 	Warnings []string `json:"warnings"`
 }
 
+type OverflowAuthorizers map[string][]string
+
 // a type containing information about parameter types and orders
 type OverflowDeclarationInfo struct {
-	ParameterOrder []string          `json:"order"`
-	Parameters     map[string]string `json:"parameters"`
+	Parameters     map[string]string   `json:"parameters"`
+	Authorizers    OverflowAuthorizers `json:"-"`
+	ParameterOrder []string            `json:"order"`
 }
 
 // a type representing one network in a solution, so mainnet/testnet/emulator
@@ -56,13 +58,12 @@ type OverflowSolutionMergedNetwork struct {
 
 // representing code with specification if parameters
 type OverflowCodeWithSpec struct {
-	Code string                   `json:"code"`
 	Spec *OverflowDeclarationInfo `json:"spec"`
+	Code string                   `json:"code"`
 }
 
 // merge the given Solution into a MergedSolution that is suited for exposing as an NPM module
 func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
-
 	networks := map[string]OverflowSolutionMergedNetwork{}
 
 	networkNames := []string{}
@@ -150,11 +151,12 @@ func (s *OverflowSolution) MergeSpecAndCode() *OverflowSolutionMerged {
 }
 
 func declarationInfo(code []byte) *OverflowDeclarationInfo {
-	params := params(code)
+	params, authorizerTypes := paramsAndAuthorizers(code)
 	if params == nil {
 		return &OverflowDeclarationInfo{
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    authorizerTypes,
 		}
 	}
 	parametersMap := make(map[string]string, len(params.Parameters))
@@ -167,34 +169,59 @@ func declarationInfo(code []byte) *OverflowDeclarationInfo {
 		return &OverflowDeclarationInfo{
 			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			Authorizers:    authorizerTypes,
 		}
 	}
 	return &OverflowDeclarationInfo{
 		ParameterOrder: parameterList,
 		Parameters:     parametersMap,
+		Authorizers:    authorizerTypes,
 	}
 }
 
-func params(code []byte) *ast.ParameterList {
-
+func paramsAndAuthorizers(code []byte) (*ast.ParameterList, OverflowAuthorizers) {
 	program, err := parser.ParseProgram(nil, code, parser.Config{})
 	if err != nil {
-		return nil
+		return nil, nil
 	}
 
-	//if we have any transtion declaration then return it
+	authorizers := OverflowAuthorizers{}
+	// if we have any transtion declaration then return it
 	for _, txd := range program.TransactionDeclarations() {
-		return txd.ParameterList
+		if txd.Prepare != nil {
+			prepareParams := txd.Prepare.FunctionDeclaration.ParameterList
+			if prepareParams != nil {
+				for _, parg := range txd.Prepare.FunctionDeclaration.ParameterList.ParametersByIdentifier() {
+					name := parg.Identifier.Identifier
+					ta := parg.TypeAnnotation
+					if ta != nil {
+						rt, ok := ta.Type.(*ast.ReferenceType)
+						if ok {
+
+							entitlements := []string{}
+							switch authorization := rt.Authorization.(type) {
+							case ast.EntitlementSet:
+								for _, entitlement := range authorization.Entitlements() {
+									entitlements = append(entitlements, entitlement.Identifier.Identifier)
+								}
+							}
+							authorizers[name] = entitlements
+						}
+					}
+				}
+			}
+		}
+		return txd.ParameterList, authorizers
 	}
 
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
 	if functionDeclaration != nil {
 		if functionDeclaration.ParameterList != nil {
-			return functionDeclaration.ParameterList
+			return functionDeclaration.ParameterList, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func formatCode(input string) string {

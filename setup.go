@@ -15,14 +15,15 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flow-go/fvm/blueprints"
 	fm "github.com/onflow/flow-go/model/flow"
-	"github.com/onflow/flowkit"
-	"github.com/onflow/flowkit/config"
-	"github.com/onflow/flowkit/gateway"
-	"github.com/onflow/flowkit/output"
+	"github.com/onflow/flowkit/v2"
+	"github.com/onflow/flowkit/v2/config"
+	"github.com/onflow/flowkit/v2/gateway"
+	"github.com/onflow/flowkit/v2/output"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
@@ -80,36 +81,38 @@ var defaultOverflowBuilder = OverflowBuilder{
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
 	Coverage:                            nil,
+	UnderflowOptions:                    underflow.Options{},
 }
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
 	Ctx                                 context.Context
-	TransactionFees                     bool
-	Network                             string
-	InMemory                            bool
-	DeployContracts                     bool
-	GasLimit                            int
-	Path                                string
-	LogLevel                            int
-	InitializeAccounts                  bool
-	PrependNetworkName                  bool
-	ServiceSuffix                       string
-	ConfigFiles                         []string
-	TransactionFolderName               string
-	ScriptFolderName                    string
-	FilterOutFeeEvents                  bool
-	FilterOutEmptyWithDrawDepositEvents bool
-	GlobalEventFilter                   OverflowEventFilter
-	StopOnError                         bool
-	PrintOptions                        *[]OverflowPrinterOption
-	NewAccountFlowAmount                float64
 	ReaderWriter                        flowkit.ReaderWriter
-	InputResolver                       *InputResolver
-	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
-	GrpcDialOptions                     []grpc.DialOption
+	InputResolver                       *underflow.InputResolver
+	PrintOptions                        *[]OverflowPrinterOption
+	GlobalEventFilter                   OverflowEventFilter
+	Path                                string
+	ArchiveNodeUrl                      string
+	Network                             string
+	ScriptFolderName                    string
+	ServiceSuffix                       string
+	TransactionFolderName               string
 	EmulatorOptions                     []emulator.Option
+	GrpcDialOptions                     []grpc.DialOption
+	ConfigFiles                         []string
+	NewAccountFlowAmount                float64
+	GasLimit                            int
+	LogLevel                            int
+	UnderflowOptions                    underflow.Options
+	DeployContracts                     bool
+	InMemory                            bool
+	InitializeAccounts                  bool
+	StopOnError                         bool
+	TransactionFees                     bool
+	FilterOutEmptyWithDrawDepositEvents bool
+	FilterOutFeeEvents                  bool
+	PrependNetworkName                  bool
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -151,6 +154,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		NewUserFlowAmount:                   o.NewAccountFlowAmount,
 		LogLevel:                            o.LogLevel,
 		CoverageReport:                      o.Coverage,
+		UnderflowOptions:                    o.UnderflowOptions,
 	}
 
 	loader := o.ReaderWriter
@@ -502,7 +506,7 @@ func WithEmbedFS(fs embed.FS) OverflowOption {
 	}
 }
 
-func WithInputResolver(ir InputResolver) OverflowOption {
+func WithInputResolver(ir underflow.InputResolver) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.InputResolver = &ir
 	}
@@ -532,6 +536,12 @@ func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
 	}
 }
 
+func WithUnderflowOptions(opt underflow.Options) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.UnderflowOptions = opt
+	}
+}
+
 type EmbedWrapper struct {
 	Embed embed.FS
 }
@@ -540,13 +550,13 @@ func (ew *EmbedWrapper) ReadFile(source string) ([]byte, error) {
 	return ew.Embed.ReadFile(source)
 }
 
-func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
-	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
+func (ew *EmbedWrapper) MkdirAll(path string, perm os.FileMode) error {
+	fmt.Printf("Writing dirs %s is not supported by embed.FS", path)
 	return nil
 }
 
-func (ew *EmbedWrapper) MkdirAll(path string, perm os.FileMode) error {
-	fmt.Printf("Creating dir is not %s is not supported by embed.FS", path)
+func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
+	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
 	return nil
 }
 

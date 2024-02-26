@@ -6,12 +6,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bjartek/overflow"
+	"github.com/bjartek/overflow/v2"
 	"go.uber.org/zap"
 )
 
 func main() {
-
 	o := overflow.Overflow(overflow.WithNetwork("mainnet"))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -31,7 +30,7 @@ func main() {
 		select {
 		case <-ctx.Done():
 			stop()
-			break
+			return
 		case br := <-overflowChannel:
 			l := br.Logger
 			l.Debug("got stuff")

@@ -1,6 +1,6 @@
-import NonFungibleToken from "NonFungibleToken.cdc"
+import "NonFungibleToken"
 
-access(all) contract Debug {
+access(all) contract Debug2 {
 
     access(all) struct FooListBar {
         access(all) let foo:[Foo2]

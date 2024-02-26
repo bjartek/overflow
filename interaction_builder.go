@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flowkit"
-	"github.com/onflow/flowkit/accounts"
-	"github.com/onflow/flowkit/transactions"
 	"github.com/onflow/flow-go-sdk"
+	"github.com/onflow/flowkit/v2"
+	"github.com/onflow/flowkit/v2/accounts"
+	"github.com/onflow/flowkit/v2/transactions"
 	"github.com/pkg/errors"
 )
 
@@ -23,67 +25,82 @@ import (
 // OverflowInteractionBuilder used to create a builder pattern for an interaction
 type OverflowInteractionBuilder struct {
 	Ctx context.Context
-	//the name of the integration, for inline variants
+	// the name of the integration, for inline variants
 	Name string
 
-	//force that this interaction will not print log, even if overflow state has specified it
+	// force that this interaction will not print log, even if overflow state has specified it
 	NoLog bool
 
-	//The underlying state of overflow used to fetch some global settings
+	// The underlying state of overflow used to fetch some global settings
 	Overflow *OverflowState
 
-	//The file name of the interaction
+	// The file name of the interaction
 	FileName string
 
-	//The content of the interaction
+	// The content of the interaction
 	Content string
 
-	//The list of raw arguments
+	// The list of raw arguments
 	Arguments []cadence.Value
 
 	NamedCadenceArguments CadenceArguments
 
-	//The main signer used to sign the transaction
+	// The main signer used to sign the transaction
 	// Payer: the account paying for the transaction fees.
 	Payer *accounts.Account
 
-	//The propser account
+	// The propser account
 	//    Proposer: the account that specifies a proposal key.
 	Proposer *accounts.Account
 
-	//The payload signers that will sign the payload
-	//Authorizers: zero or more accounts authorizing the transaction to mutate their state.
+	// The payload signers that will sign the payload
+	// Authorizers: zero or more accounts authorizing the transaction to mutate their state.
 	PayloadSigners []*accounts.Account
 
-	//The gas limit to set for this given interaction
+	// The gas limit to set for this given interaction
 	GasLimit uint64
 
-	//The basepath on where to look for interactions
+	// The basepath on where to look for interactions
 	BasePath string
 
-	//An error object to store errors that arrive as you configure an interaction
+	// An error object to store errors that arrive as you configure an interaction
 	Error error
 
-	//The code of the tranasction in bytes
+	// The code of the tranasction in bytes
 	TransactionCode []byte
 
-	//The named arguments
+	// The named arguments
 	NamedArgs map[string]interface{}
 
-	//Event filters to apply to the interaction
+	// Event filters to apply to the interaction
 	EventFilter OverflowEventFilter
 
-	//Wheter to ignore global event filters from OverflowState or not
+	// Wheter to ignore global event filters from OverflowState or not
 	IgnoreGlobalEventFilters bool
 
-	//Options to use when printing results
+	// Options to use when printing results
 	PrintOptions *[]OverflowPrinterOption
 
-	//Query to use for running scripts
+	// Query to use for running scripts
 	ScriptQuery *flowkit.ScriptQuery
 
 	//
 	StopOnError *bool
+
+	Testing OverflowTestingAsssertions
+}
+
+type OverflowTestingAsssertions struct {
+	T       *testing.T
+	Failure *string
+	Events  []EventAssertion
+	Require bool
+}
+
+type EventAssertion struct {
+	Fields  map[string]interface{}
+	Suffix  string
+	Require bool
 }
 
 // get the contract code
@@ -117,13 +134,12 @@ func WithContext(ctx context.Context) OverflowInteractionOption {
 
 // set a list of args as key, value in an interaction, see Arg for options you can pass in
 func WithArgs(args ...interface{}) OverflowInteractionOption {
-
 	return func(oib *OverflowInteractionBuilder) {
 		if len(args)%2 != 0 {
-			oib.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
+			oib.Error = fmt.Errorf("please send in an even number of string : interface{} pairs")
 			return
 		}
-		var i = 0
+		i := 0
 		for i < len(args) {
 			key := args[0]
 			value, labelOk := key.(string)
@@ -168,12 +184,11 @@ func WithArg(name string, value interface{}) OverflowInteractionOption {
 // Send an list of structs into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgsCustomQualifier(name string, resolver InputResolver, values ...interface{}) OverflowInteractionOption {
+func WithStructArgsCustomQualifier(name string, resolver underflow.InputResolver, values ...interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-
 		array := []cadence.Value{}
 		for _, value := range values {
-			structValue, err := InputToCadence(value, resolver)
+			structValue, err := underflow.InputToCadence(value, resolver)
 			if err != nil {
 				oib.Error = err
 				return
@@ -187,9 +202,9 @@ func WithStructArgsCustomQualifier(name string, resolver InputResolver, values .
 // Send an struct as argument into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgCustomResolver(name string, resolver InputResolver, value interface{}) OverflowInteractionOption {
+func WithStructArgCustomResolver(name string, resolver underflow.InputResolver, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		structValue, err := InputToCadence(value, resolver)
+		structValue, err := underflow.InputToCadence(value, resolver)
 		if err != nil {
 			oib.Error = err
 			return
@@ -207,7 +222,7 @@ func WithArgDateTime(name string, dateString string, timezone string) OverflowIn
 			return
 		}
 
-		//swallow the error since it will never happen here, we control the input
+		// swallow the error since it will never happen here, we control the input
 		amount, _ := cadence.NewUFix64(value)
 
 		oib.NamedArgs[name] = amount
@@ -333,7 +348,6 @@ func WithoutGlobalEventFilter() OverflowInteractionOption {
 
 func WithAuthorizer(signer ...string) OverflowInteractionOption {
 	return WithPayloadSigner(signer...)
-
 }
 
 // set an aditional authorizer that will sign the payload
@@ -358,9 +372,7 @@ func WithManualAuthorizer(signer ...*accounts.Account) OverflowInteractionOption
 // set an aditional authorizer that will sign the payload
 func WithManualPayloadSigner(signer ...*accounts.Account) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		for _, signer := range signer {
-			oib.PayloadSigners = append(oib.PayloadSigners, signer)
-		}
+		oib.PayloadSigners = append(oib.PayloadSigners, signer...)
 	}
 }
 
@@ -391,23 +403,86 @@ func WithPanicInteractionOnError(stop bool) OverflowInteractionOption {
 	}
 }
 
+func WithAssertFailure(t *testing.T, message string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+		oib.Testing.Failure = &message
+		oib.Testing.Require = false
+	}
+}
+
+func WithRequireFailure(t *testing.T, message string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+		oib.Testing.Failure = &message
+		oib.Testing.Require = true
+	}
+}
+
+// a helper to modify an event assertion if you have a sigle one and you want to change the value
+func WithAssertEventReplaceField(suffix string, field string, value interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		for i, ev := range oib.Testing.Events {
+			if ev.Suffix == suffix {
+				oib.Testing.Events[i].Fields[field] = value
+				return
+			}
+		}
+	}
+}
+
+func WithAssertEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, EventAssertion{
+			Fields:  fields,
+			Suffix:  suffix,
+			Require: false,
+		})
+		oib.Testing.Require = false
+	}
+}
+
+func WithRequireEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, EventAssertion{
+			Fields:  fields,
+			Suffix:  suffix,
+			Require: true,
+		})
+		oib.Testing.Require = false
+	}
+}
+
+func WithEventAssertions(t *testing.T, ea ...EventAssertion) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, ea...)
+	}
+}
+
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{
-		StopOnError:     oib.Overflow.StopOnError,
-		Err:             nil,
-		Id:              [32]byte{},
-		Meter:           &OverflowMeter{},
-		RawLog:          []OverflowEmulatorLogMessage{},
-		EmulatorLog:     []string{},
-		ComputationUsed: 0,
-		RawEvents:       []flow.Event{},
-		Events:          map[string]OverflowEventList{},
-		Transaction:     &flow.Transaction{},
-		Fee:             map[string]interface{}{},
-		FeeGas:          0,
-		Name:            "",
-		Arguments:       oib.NamedCadenceArguments,
+		StopOnError:      oib.Overflow.StopOnError,
+		Err:              nil,
+		Id:               [32]byte{},
+		Meter:            &OverflowMeter{},
+		RawLog:           []OverflowEmulatorLogMessage{},
+		EmulatorLog:      []string{},
+		ComputationUsed:  0,
+		RawEvents:        []flow.Event{},
+		Events:           map[string]OverflowEventList{},
+		Transaction:      &flow.Transaction{},
+		Fee:              map[string]interface{}{},
+		FeeGas:           0,
+		Name:             "",
+		Arguments:        oib.NamedCadenceArguments,
+		UnderflowOptions: oib.Overflow.UnderflowOptions,
 	}
 	if oib.StopOnError != nil {
 		result.StopOnError = *oib.StopOnError
@@ -424,14 +499,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", oib.BasePath, oib.FileName)
 
-	if len(oib.TransactionCode) == 0 {
-		code, err := oib.getContractCode(codeFileName)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-		oib.TransactionCode = code
-	}
+	result.DeclarationInfo = *declarationInfo(oib.TransactionCode)
 
 	oib.Overflow.Log.Reset()
 	/*
@@ -504,7 +572,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	}
 
 	logMessage, err := oib.Overflow.readLog()
-
 	if err != nil {
 		result.Err = err
 	}
@@ -533,12 +600,12 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.RawEvents = res.Events
 
-	overflowEvents, fee := parseEvents(result.RawEvents, "")
+	overflowEvents, fee := oib.Overflow.ParseEvents(result.RawEvents, "")
 	result.Fee = fee.Fields
 	if len(result.Fee) != 0 {
 		executionEffort, ok := result.Fee["executionEffort"].(float64)
 		if !ok {
-			result.Err = fmt.Errorf("Type conversion failed on execution effort of fee")
+			result.Err = fmt.Errorf("type conversion failed on execution effort of fee")
 		}
 		factor := 100000000
 		gas := int(math.Round(executionEffort * float64(factor)))
@@ -548,6 +615,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	if !oib.IgnoreGlobalEventFilters {
 
 		fee := result.Fee["amount"]
+
 		if oib.Overflow.FilterOutFeeEvents && fee != nil {
 			overflowEvents = overflowEvents.FilterFees(fee.(float64), fmt.Sprintf("0x%s", result.Transaction.Payer.Hex()))
 		}
@@ -569,7 +637,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
-	result.Err = res.Error
+	result.Err = errors.Wrapf(res.Error, "transaction=%s", codeFileName)
 
 	if result.Err != nil && result.StopOnError {
 		panic(result.Err)

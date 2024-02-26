@@ -1,17 +1,17 @@
 package overflow
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flowkit"
+	"github.com/onflow/flowkit/v2"
 	"github.com/pkg/errors"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,6 @@ type OverflowScriptOptsFunction func(opts ...OverflowInteractionOption) *Overflo
 
 // compose interactionOptions into a new Script function
 func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) OverflowScriptFunction {
-
 	return func(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult {
 		outerOpts = append(outerOpts, opts...)
 		return o.Script(filename, outerOpts...)
@@ -40,9 +39,7 @@ func (o *OverflowState) ScriptFN(outerOpts ...OverflowInteractionOption) Overflo
 
 // compose fileName and interactionOptions into a new Script function
 func (o *OverflowState) ScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowScriptOptsFunction {
-
 	return func(opts ...OverflowInteractionOption) *OverflowScriptResult {
-
 		outerOpts = append(outerOpts, opts...)
 		return o.Script(filename, outerOpts...)
 	}
@@ -62,11 +59,9 @@ func (o *OverflowState) Script(filename string, opts ...OverflowInteractionOptio
 		panic(result.Err)
 	}
 	return result
-
 }
 
 func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
-
 	o := fbi.Overflow
 	osc := &OverflowScriptResult{Input: fbi}
 	if fbi.Error != nil {
@@ -83,20 +78,9 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 		Args:     fbi.Arguments,
 		Location: filePath,
 	}
-	/* TODO: acrhive scripts
-	if o.ArchiveScripts != nil {
-		result, err := o.ArchiveScripts.Execute(script, o.Network, fbi.ScriptQuery)
-		osc.Result = result
-		osc.Output = CadenceValueToInterface(result)
-		if err != nil {
-			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
-		}
-	} else {
-	*/
-
 	sc := fbi.ScriptQuery
 	if fbi.ScriptQuery == nil {
-		block, err := o.GetLatestBlock(context.Background())
+		block, err := o.GetLatestBlock(fbi.Ctx)
 		if err != nil {
 			osc.Err = err
 			return osc
@@ -107,7 +91,7 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	}
 	result, err := o.Flowkit.ExecuteScript(fbi.Ctx, script, *sc)
 	osc.Result = result
-	osc.Output = CadenceValueToInterface(result)
+	osc.Output = underflow.CadenceValueToInterfaceWithOption(result, fbi.Overflow.UnderflowOptions)
 	if err != nil {
 		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
 	}
@@ -141,13 +125,12 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
+	Output interface{}
 	Input  *OverflowInteractionBuilder
 	Log    []OverflowEmulatorLogMessage
-	Output interface{}
 }
 
 func (osr *OverflowScriptResult) PrintArguments(t *testing.T) {
-
 	args := osr.Input.NamedCadenceArguments
 	maxLength := 0
 	for name := range args {
@@ -159,7 +142,7 @@ func (osr *OverflowScriptResult) PrintArguments(t *testing.T) {
 	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
 
 	for name, arg := range args {
-		value, err := CadenceValueToJsonString(arg)
+		value, err := underflow.CadenceValueToJsonStringWithOption(arg, osr.Input.Overflow.UnderflowOptions)
 		if err != nil {
 			panic(err)
 		}
@@ -173,7 +156,6 @@ func (osr *OverflowScriptResult) GetAsJson() (string, error) {
 		return "", errors.Wrapf(osr.Err, "script: %s", osr.Input.FileName)
 	}
 	j, err := json.MarshalIndent(osr.Output, "", "    ")
-
 	if err != nil {
 		return "", errors.Wrapf(err, "script: %s", osr.Input.FileName)
 	}
@@ -286,7 +268,6 @@ func (osr *OverflowScriptResult) MarshalPointerAs(pointer string, marshalTo inte
 
 // get the given jsonPointer as interface{}
 func (osr *OverflowScriptResult) GetWithPointer(pointer string) (interface{}, error) {
-
 	ptr, err := gojsonpointer.NewJsonPointer(pointer)
 	if err != nil {
 		return nil, err

@@ -10,7 +10,6 @@ import (
 )
 
 func TestIntegrationEvents(t *testing.T) {
-
 	t.Run("Test that from index cannot be negative", func(t *testing.T) {
 		g, err := OverflowTesting()
 		require.NoError(t, err)
@@ -43,7 +42,7 @@ func TestIntegrationEvents(t *testing.T) {
 			AssertEventCount(t, 3)
 		ev, err := g.FetchEvents(WithLastBlocks(2), WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"))
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(ev))
+		assert.Equal(t, 2, len(ev))
 	})
 
 	t.Run("Fetch last events and sort them ", func(t *testing.T) {
@@ -99,7 +98,6 @@ func TestIntegrationEvents(t *testing.T) {
 	})
 
 	t.Run("Fetch last write progress file that exists", func(t *testing.T) {
-
 		err := os.WriteFile("progress", []byte("1"), fs.ModePerm)
 		assert.NoError(t, err)
 

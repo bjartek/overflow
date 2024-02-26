@@ -5,14 +5,14 @@ type MetadataViews_HTTPFile struct {
 }
 
 type MetadataViews_IPFSFile struct {
-	Cid  string
 	Path *string
+	Cid  string
 }
 
 type MetadataViews_Display_IPFS struct {
+	Thumbnail   MetadataViews_IPFSFile
 	Name        string
 	Description string
-	Thumbnail   MetadataViews_IPFSFile
 }
 type MetadataViews_Display_Http struct {
 	Name        string
@@ -22,8 +22,8 @@ type MetadataViews_Display_Http struct {
 
 type MetadataViews_Edition struct {
 	Name   *string
-	Number uint64
 	Max    *uint64
+	Number uint64
 }
 
 type MetadataViews_Editions struct {
@@ -58,10 +58,10 @@ type MetadataViews_Rarity struct {
 }
 
 type MetadataViews_Trait struct {
-	Name        string
 	Value       interface{}
-	DisplayType string `cadence:"displayType"`
 	Rarity      *MetadataViews_Rarity
+	Name        string
+	DisplayType string `cadence:"displayType"`
 }
 
 type MetadataViews_Traits struct {

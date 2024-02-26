@@ -19,7 +19,7 @@ func TestScriptIntegrationNew(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, o)
 
-	mapScript := o.ScriptFileNameFN(`pub fun main() : {String: {String: String}} {
+	mapScript := o.ScriptFileNameFN(`access(all) fun main() : {String: {String: String}} {
 return { "first" : {  "nested" : "nestedvalue"}}
 
 }`)
@@ -76,7 +76,7 @@ return { "first" : {  "nested" : "nestedvalue"}}
 		res := o.Script(`
 import Debug from "../contracts/Debug.cdc"
 
-pub fun main() : AnyStruct {
+access(all) fun main() : AnyStruct {
 return "foo"
 }
 
@@ -90,7 +90,7 @@ return "foo"
 		res := o.Script(`
 import "Debug"
 
-pub fun main() : AnyStruct {
+access(all) fun main() : AnyStruct {
 return "foo"
 }
 
