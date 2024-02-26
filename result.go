@@ -107,7 +107,7 @@ func (o OverflowResult) GetByteArrayFromEvent(eventName string, fieldName string
 			return getByteArray(event[0].Fields[fieldName])
 		}
 	}
-	err := fmt.Errorf("could not find id field %s in event with suffix %s", fieldName, eventName)
+	err := fmt.Errorf("could not find field %s in event with suffix %s", fieldName, eventName)
 	if o.StopOnError {
 		panic(err)
 	}
