@@ -699,7 +699,6 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 			ftb.Error = errors.Wrapf(err, "failed getting flix using query %s for network %s", filename, o.Network.Name)
 			return ftb
 		}
-		ftb.IsTransactions = flix.IsTransaciton
 		ftb.TransactionCode = []byte(flix.Cadence)
 		ftb.FileName = filename
 	} else if strings.Contains(filename, "transaction (") ||
