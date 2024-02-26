@@ -703,9 +703,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		ftb.IsTransactions = flix.IsTransaciton
 		ftb.TransactionCode = []byte(flix.Cadence)
 		ftb.FileName = filename
-	}
-
-	if strings.Contains(filename, "transaction (") ||
+	} else if strings.Contains(filename, "transaction (") ||
 		strings.Contains(filename, "transaction {") ||
 		strings.Contains(filename, "transaction{") ||
 		strings.Contains(filename, "transaction(") ||
