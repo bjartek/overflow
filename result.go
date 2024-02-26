@@ -100,6 +100,20 @@ func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) (uint
 	return 0, err
 }
 
+// Get a byteArray field with the given fieldname from an event with a given suffix
+func (o OverflowResult) GetByteArrayFromEvent(eventName string, fieldName string) ([]byte, error) {
+	for name, event := range o.Events {
+		if strings.HasSuffix(name, eventName) {
+			return getByteArray(event[0].Fields[fieldName])
+		}
+	}
+	err := fmt.Errorf("could not find field %s in event with suffix %s", fieldName, eventName)
+	if o.StopOnError {
+		panic(err)
+	}
+	return nil, err
+}
+
 func (o OverflowResult) GetIdsFromEvent(eventName string, fieldName string) []uint64 {
 	var ids []uint64
 	for name, events := range o.Events {
@@ -357,4 +371,20 @@ func (o OverflowResult) AssertDebugLog(t *testing.T, message ...string) Overflow
 		assert.Contains(t, logMessages, ev)
 	}
 	return o
+}
+
+func getByteArray(data interface{}) ([]byte, error) {
+	slice, ok := data.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("expected a slice of interfaces")
+	}
+	byteSlice := make([]byte, len(slice))
+	for i, val := range slice {
+		b, ok := val.(uint8)
+		if !ok {
+			return nil, fmt.Errorf("unexpected type at index %d", i)
+		}
+		byteSlice[i] = byte(b)
+	}
+	return byteSlice, nil
 }
