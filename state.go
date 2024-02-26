@@ -682,6 +682,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		PrintOptions:   o.PrintOptions,
 		ScriptQuery:    nil,
 		Testing:        OverflowTestingAsssertions{},
+		Ctx:            context.Background(),
 	}
 
 	for _, opt := range opts {
