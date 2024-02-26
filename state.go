@@ -130,7 +130,6 @@ type OverflowState struct {
 	BasePath            string
 	TransactionBasePath string
 	ScriptBasePath      string
-	FlixBasePath        string
 
 	// Filters to events to remove uneeded noise
 	FilterOutFeeEvents                  bool
