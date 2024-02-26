@@ -18,17 +18,14 @@ import (
 	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flow-emulator/emulator"
-	"github.com/onflow/flow-go/fvm/blueprints"
-	fm "github.com/onflow/flow-go/model/flow"
 	"github.com/onflow/flowkit/v2"
 	"github.com/onflow/flowkit/v2/config"
 	"github.com/onflow/flowkit/v2/gateway"
 	"github.com/onflow/flowkit/v2/output"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"google.golang.org/grpc"
-
 	"github.com/spf13/afero"
+	"google.golang.org/grpc"
 )
 
 const emulatorValue = "emulator"
@@ -93,7 +90,6 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	GlobalEventFilter                   OverflowEventFilter
 	Path                                string
-	ArchiveNodeUrl                      string
 	Network                             string
 	ScriptFolderName                    string
 	ServiceSuffix                       string
@@ -165,7 +161,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	var err error
 	state, err = flowkit.Load(o.ConfigFiles, loader)
 	if err != nil {
-		overflow.Error = err
+		overflow.Error = errors.Wrapf(err, "could not find flow configuration")
 		return overflow
 	}
 	overflow.State = state
@@ -177,23 +173,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow.QualifiedIdentifierFromSnakeCase(name)
 		}
 	}
-
-	// This is different for testnet and mainnet
-	// TODO: fix this for testnet
-
-	chain := fm.Mainnet.Chain()
-	if o.Network == "testnet" {
-		chain = fm.Testnet.Chain()
-	}
-
-	systemChunkTx, err := blueprints.SystemChunkTransaction(chain)
-	if err != nil {
-		overflow.Error = err
-		return overflow
-	}
-	systemChunkId := systemChunkTx.ID().String()
-	overflow.SystemChunkTransactionId = systemChunkId
-
 	network, err := state.Networks().ByName(o.Network)
 	if err != nil {
 		overflow.Error = err
@@ -243,17 +222,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow
 		}
 		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
-
-		/* TODO: fix archive
-		if o.ArchiveNodeUrl != "" {
-			gw, err := gateway.NewGrpcGateway(o.ArchiveNodeUrl)
-			if err != nil {
-				overflow.Error = err
-				return overflow
-			}
-			overflow.ArchiveScripts = services.NewScripts(gw, state, logger)
-		}
-		*/
 	}
 
 	if o.InitializeAccounts {
@@ -509,12 +477,6 @@ func WithEmbedFS(fs embed.FS) OverflowOption {
 func WithInputResolver(ir underflow.InputResolver) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.InputResolver = &ir
-	}
-}
-
-func WithArchiveNodeUrl(url string) OverflowOption {
-	return func(o *OverflowBuilder) {
-		o.ArchiveNodeUrl = url
 	}
 }
 

@@ -141,9 +141,6 @@ type OverflowState struct {
 	// the coverage report if any
 	CoverageReport *runtime.CoverageReport
 
-	// the string id of the system chunk transaction
-	SystemChunkTransactionId string
-
 	UnderflowOptions underflow.Options
 }
 
