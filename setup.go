@@ -20,10 +20,10 @@ import (
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flow-go/fvm/blueprints"
 	fm "github.com/onflow/flow-go/model/flow"
-	"github.com/onflow/flowkit"
-	"github.com/onflow/flowkit/config"
-	"github.com/onflow/flowkit/gateway"
-	"github.com/onflow/flowkit/output"
+	"github.com/onflow/flowkit/v2"
+	"github.com/onflow/flowkit/v2/config"
+	"github.com/onflow/flowkit/v2/gateway"
+	"github.com/onflow/flowkit/v2/output"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
@@ -550,13 +550,13 @@ func (ew *EmbedWrapper) ReadFile(source string) ([]byte, error) {
 	return ew.Embed.ReadFile(source)
 }
 
-func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
-	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
+func (ew *EmbedWrapper) MkdirAll(path string, perm os.FileMode) error {
+	fmt.Printf("Writing dirs %s is not supported by embed.FS", path)
 	return nil
 }
 
-func (ew *EmbedWrapper) MkdirAll(path string, perm os.FileMode) error {
-	fmt.Printf("Creating dir is not %s is not supported by embed.FS", path)
+func (ew *EmbedWrapper) WriteFile(filename string, data []byte, perm os.FileMode) error {
+	fmt.Printf("Writing file %s is not supported by embed.FS", filename)
 	return nil
 }
 

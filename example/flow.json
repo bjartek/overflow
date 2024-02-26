@@ -27,14 +27,24 @@
       "source": "./../contracts/NonFungibleToken.cdc",
       "aliases": {
         "testnet": "0x631e88ae7f1d7c20",
-        "mainnet": "0x1d7e57aa55817448"
+        "mainnet": "0x1d7e57aa55817448",
+        "emulator": "0xf8d6e0586b0a20c7"
       }
     },
     "MetadataViews": {
       "source": "./../contracts/MetadataViews.cdc",
       "aliases": {
         "testnet": "0x631e88ae7f1d7c20",
-        "mainnet": "0x1d7e57aa55817448"
+        "mainnet": "0x1d7e57aa55817448",
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "ViewResolver": {
+      "source": "./contracts/ViewResolver.cdc",
+      "aliases": {
+        "testnet": "0x631e88ae7f1d7c20",
+        "mainnet": "0x1d7e57aa55817448",
+        "emulator": "0xf8d6e0586b0a20c7"
       }
     }
   },
@@ -72,9 +82,7 @@
   "deployments": {
     "emulator": {
       "emulator-account": [
-        "NonFungibleToken",
-        "Debug",
-        "MetadataViews"
+        "Debug"
       ],
       "emulator-first": [],
       "emulator-second": []

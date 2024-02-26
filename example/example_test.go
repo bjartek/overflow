@@ -14,21 +14,21 @@ func TestExample(t *testing.T) {
 	ot.Run(t, "Example test", func(t *testing.T) {
 		block, err := ot.O.GetLatestBlock(context.Background())
 		require.NoError(t, err)
-		assert.Equal(t, 8, int(block.Height))
+		assert.Equal(t, 6, int(block.Height))
 
 		ot.O.MintFlowTokens("first", 1000.0)
 		require.NoError(t, ot.O.Error)
 
 		block, err = ot.O.GetLatestBlock(context.Background())
 		require.NoError(t, err)
-		assert.Equal(t, 9, int(block.Height))
+		assert.Equal(t, 7, int(block.Height))
 
 	})
 
 	ot.Run(t, "Example test 2", func(t *testing.T) {
 		block, err := ot.O.GetLatestBlock(context.Background())
 		require.NoError(t, err)
-		assert.Equal(t, 8, int(block.Height))
+		assert.Equal(t, 6, int(block.Height))
 	})
 
 }

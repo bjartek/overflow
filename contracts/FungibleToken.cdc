@@ -1,181 +1,240 @@
-// FungibleToken.cdc
-//
-// The FungibleToken contract is a sample implementation of a fungible token on Flow.
-//
-// Fungible tokens behave like everyday currencies -- they can be minted, transferred or
-// traded for digital goods.
-//
-// Follow the fungible tokens tutorial to learn more: https://docs.onflow.org/docs/fungible-tokens
+/**
 
-pub contract FungibleToken {
+# The Flow Fungible Token standard
 
-    // Total supply of all tokens in existence.
-    pub var totalSupply: UFix64
+## `FungibleToken` contract interface
 
-    // Provider
-    //
-    // Interface that enforces the requirements for withdrawing
-    // tokens from the implementing type.
-    //
-    // We don't enforce requirements on self.balance here because
-    // it leaves open the possibility of creating custom providers
-    // that don't necessarily need their own balance.
-    //
-    pub resource interface Provider {
+The interface that all Fungible Token contracts would have to conform to.
+If a users wants to deploy a new token contract, their contract
+would need to implement the FungibleToken interface.
 
-        // withdraw
-        //
-        // Function that subtracts tokens from the owner's Vault
-        // and returns a Vault resource (@Vault) with the removed tokens.
-        //
-        // The function's access level is public, but this isn't a problem
-        // because even the public functions are not fully public at first.
-        // anyone in the network can call them, but only if the owner grants
-        // them access by publishing a resource that exposes the withdraw
-        // function.
-        //
-        pub fun withdraw(amount: UFix64): @Vault {
+Their contract would have to follow all the rules and naming
+that the interface specifies.
+
+## `Vault` resource
+
+Each account that owns tokens would need to have an instance
+of the Vault resource stored in their account storage.
+
+The Vault resource has methods that the owner and other users can call.
+
+## `Provider`, `Receiver`, and `Balance` resource interfaces
+
+These interfaces declare pre-conditions and post-conditions that restrict
+the execution of the functions in the Vault.
+
+They are separate because it gives the user the ability to share
+a reference to their Vault that only exposes the fields functions
+in one or more of the interfaces.
+
+It also gives users the ability to make custom resources that implement
+these interfaces to do various things with the tokens.
+For example, a faucet can be implemented by conforming
+to the Provider interface.
+
+By using resources and interfaces, users of Fungible Token contracts
+can send and receive tokens peer-to-peer, without having to interact
+with a central ledger smart contract. To send tokens to another user,
+a user would simply withdraw the tokens from their Vault, then call
+the deposit function on another user's Vault to complete the transfer.
+
+*/
+
+/// The interface that Fungible Token contracts implement.
+///
+access(all) contract interface FungibleToken {
+
+    // An entitlement for allowing the withdrawal of tokens from a Vault
+    access(all) entitlement Withdrawable
+
+    /// The total number of tokens in existence.
+    /// It is up to the implementer to ensure that the total supply
+    /// stays accurate and up to date
+    access(all) var totalSupply: UFix64
+
+    /// The event that is emitted when the contract is created
+    access(all) event TokensInitialized(initialSupply: UFix64)
+
+    /// The event that is emitted when tokens are withdrawn from a Vault
+    access(all) event TokensWithdrawn(amount: UFix64, from: Address?)
+
+    /// The event that is emitted when tokens are deposited into a Vault
+    access(all) event TokensDeposited(amount: UFix64, to: Address?)
+
+    /// The interface that enforces the requirements for withdrawing
+    /// tokens from the implementing type.
+    ///
+    /// It does not enforce requirements on `balance` here,
+    /// because it leaves open the possibility of creating custom providers
+    /// that do not necessarily need their own balance.
+    ///
+    access(all) resource interface Provider {
+
+        /// Subtracts tokens from the owner's Vault
+        /// and returns a Vault with the removed tokens.
+        ///
+        /// The function's access level is public, but this is not a problem
+        /// because only the owner storing the resource in their account
+        /// can initially call this function.
+        ///
+        /// The owner may grant other accounts access by creating a private
+        /// capability that allows specific other users to access
+        /// the provider resource through a reference.
+        ///
+        /// The owner may also grant all accounts access by creating a public
+        /// capability that allows all users to access the provider
+        /// resource through a reference.
+        ///
+        /// @param amount: The amount of tokens to be withdrawn from the vault
+        /// @return The Vault resource containing the withdrawn funds
+        /// 
+        access(Withdrawable) fun withdraw(amount: UFix64): @Vault {
             post {
-                // `result` refers to the return value of the function
-                result.balance == UFix64(amount):
+                // `result` refers to the return value
+                result.balance == amount:
                     "Withdrawal amount must be the same as the balance of the withdrawn Vault"
             }
         }
     }
 
-    // Receiver
-    //
-    // Interface that enforces the requirements for depositing
-    // tokens into the implementing type.
-    //
-    // We don't include a condition that checks the balance because
-    // we want to give users the ability to make custom Receivers that
-    // can do custom things with the tokens, like split them up and
-    // send them to different places.
-    //
-	pub resource interface Receiver {
-        // deposit
-        //
-        // Function that can be called to deposit tokens
-        // into the implementing resource type
-        //
-        pub fun deposit(from: @Vault) {
-            pre {
-                from.balance > UFix64(0):
-                    "Deposit balance must be positive"
+    /// The interface that enforces the requirements for depositing
+    /// tokens into the implementing type.
+    ///
+    /// We do not include a condition that checks the balance because
+    /// we want to give users the ability to make custom receivers that
+    /// can do custom things with the tokens, like split them up and
+    /// send them to different places.
+    ///
+    access(all) resource interface Receiver {
+
+        /// Takes a Vault and deposits it into the implementing resource type
+        ///
+        /// @param from: The Vault resource containing the funds that will be deposited
+        ///
+        access(all) fun deposit(from: @Vault)
+
+        /// Below is referenced from the FLIP #69 https://github.com/onflow/flips/blob/main/flips/20230206-fungible-token-vault-type-discovery.md
+        /// 
+        /// Returns the dictionary of Vault types that the the receiver is able to accept in its `deposit` method
+        /// this then it would return `{Type<@FlowToken.Vault>(): true}` and if any custom receiver
+        /// uses the default implementation then it would return empty dictionary as its parent
+        /// resource doesn't conform with the `FungibleToken.Vault` resource.
+        ///
+        /// Custom receiver implementations are expected to upgrade their contracts to add an implementation
+        /// that supports this method because it is very valuable for various applications to have.
+        ///
+        /// @return dictionary of supported deposit vault types by the implementing resource.
+        /// 
+        access(all) view fun getSupportedVaultTypes(): {Type: Bool} {
+            // Below check is implemented to make sure that run-time type would
+            // only get returned when the parent resource conforms with `FungibleToken.Vault`. 
+            if self.getType().isSubtype(of: Type<@FungibleToken.Vault>()) {
+                return {self.getType(): true}
+            } else {
+                // Return an empty dictionary as the default value for resource who don't
+                // implement `FungibleToken.Vault`, such as `FungibleTokenSwitchboard`, `TokenForwarder` etc.
+                return {}
             }
         }
     }
 
-    // Balance
-    //
-    // Interface that specifies a public `balance` field for the vault
-    //
-    pub resource interface Balance {
-        pub var balance: UFix64
-    }
+    /// The interface that contains the `balance` field of the Vault
+    /// and enforces that when new Vaults are created, the balance
+    /// is initialized correctly.
+    ///
+    access(all) resource interface Balance {
 
-    // Vault
-    //
-    // Each user stores an instance of only the Vault in their storage
-    // The functions in the Vault and governed by the pre and post conditions
-    // in the interfaces when they are called.
-    // The checks happen at runtime whenever a function is called.
-    //
-    // Resources can only be created in the context of the contract that they
-    // are defined in, so there is no way for a malicious user to create Vaults
-    // out of thin air. A special Minter resource needs to be defined to mint
-    // new tokens.
-    //
-    pub resource Vault: Provider, Receiver, Balance {
+        /// The total balance of a vault
+        ///
+        access(all) var balance: UFix64
 
-		// keeps track of the total balance of the account's tokens
-        pub var balance: UFix64
-
-        // initialize the balance at resource creation time
         init(balance: UFix64) {
-            self.balance = balance
+            post {
+                self.balance == balance:
+                    "Balance must be initialized to the initial balance"
+            }
         }
 
-        // withdraw
-        //
-        // Function that takes an integer amount as an argument
-        // and withdraws that amount from the Vault.
-        //
-        // It creates a new temporary Vault that is used to hold
-        // the money that is being transferred. It returns the newly
-        // created Vault to the context that called so it can be deposited
-        // elsewhere.
-        //
-        pub fun withdraw(amount: UFix64): @Vault {
-            self.balance = self.balance - amount
-            return <-create Vault(balance: amount)
+        /// Function that returns all the Metadata Views implemented by a Fungible Token
+        ///
+        /// @return An array of Types defining the implemented views. This value will be used by
+        ///         developers to know which parameter to pass to the resolveView() method.
+        ///
+        access(all) view fun getViews(): [Type] {
+            return []
         }
 
-        // deposit
-        //
-        // Function that takes a Vault object as an argument and adds
-        // its balance to the balance of the owners Vault.
-        //
-        // It is allowed to destroy the sent Vault because the Vault
-        // was a temporary holder of the tokens. The Vault's balance has
-        // been consumed and therefore can be destroyed.
-        pub fun deposit(from: @Vault) {
-            self.balance = self.balance + from.balance
-            destroy from
+        /// Function that resolves a metadata view for this fungible token by type.
+        ///
+        /// @param view: The Type of the desired view.
+        /// @return A structure representing the requested view.
+        ///
+        access(all) fun resolveView(_ view: Type): AnyStruct? {
+            return nil
         }
     }
 
-    // createEmptyVault
-    //
-    // Function that creates a new Vault with a balance of zero
-    // and returns it to the calling context. A user must call this function
-    // and store the returned Vault in their storage in order to allow their
-    // account to be able to receive deposits of this token type.
-    //
-    pub fun createEmptyVault(): @Vault {
-        return <-create Vault(balance: 0.0)
-    }
+    /// The resource that contains the functions to send and receive tokens.
+    /// The declaration of a concrete type in a contract interface means that
+    /// every Fungible Token contract that implements the FungibleToken interface
+    /// must define a concrete `Vault` resource that conforms to the `Provider`, `Receiver`,
+    /// and `Balance` interfaces, and declares their required fields and functions
+    ///
+    access(all) resource Vault: Provider, Receiver, Balance {
 
-	// VaultMinter
-    //
-    // Resource object that an admin can control to mint new tokens
-    pub resource VaultMinter {
+        /// The total balance of the vault
+        access(all) var balance: UFix64
 
-		// Function that mints new tokens and deposits into an account's vault
-		// using their `Receiver` reference.
-        // We say `&AnyResource{Receiver}` to say that the recipient can be any resource
-        // as long as it implements the Receiver interface
-        pub fun mintTokens(amount: UFix64, recipient: &AnyResource{Receiver}) {
-			FungibleToken.totalSupply = FungibleToken.totalSupply + amount
-            recipient.deposit(from: <-create Vault(balance: amount))
+        // The conforming type must declare an initializer
+        // that allows providing the initial balance of the Vault
+        //
+        init(balance: UFix64)
+
+        /// Subtracts `amount` from the Vault's balance
+        /// and returns a new Vault with the subtracted balance
+        ///
+        /// @param amount: The amount of tokens to be withdrawn from the vault
+        /// @return The Vault resource containing the withdrawn funds
+        ///
+        access(Withdrawable) fun withdraw(amount: UFix64): @Vault {
+            pre {
+                self.balance >= amount:
+                    "Amount withdrawn must be less than or equal than the balance of the Vault"
+            }
+            post {
+                // use the special function `before` to get the value of the `balance` field
+                // at the beginning of the function execution
+                //
+                self.balance == before(self.balance) - amount:
+                    "New Vault balance must be the difference of the previous balance and the withdrawn Vault"
+            }
+        }
+
+        /// Takes a Vault and deposits it into the implementing resource type
+        ///
+        /// @param from: The Vault resource containing the funds that will be deposited
+        ///
+        access(all) fun deposit(from: @Vault) {
+            // Assert that the concrete type of the deposited vault is the same
+            // as the vault that is accepting the deposit
+            pre {
+                from.isInstance(self.getType()): 
+                    "Cannot deposit an incompatible token type"
+            }
+            post {
+                self.balance == before(self.balance) + before(from.balance):
+                    "New Vault balance must be the sum of the previous balance and the deposited Vault"
+            }
         }
     }
 
-    // The init function for the contract. All fields in the contract must
-    // be initialized at deployment. This is just an example of what
-    // an implementation could do in the init function. The numbers are arbitrary.
-    init() {
-        self.totalSupply = 30.0
-
-        // create the Vault with the initial balance and put it in storage
-        // account.save saves an object to the specified `to` path
-        // The path is a literal path that consists of a domain and identifier
-        // The domain must be `storage`, `private`, or `public`
-        // the identifier can be any name
-        let vault <- create Vault(balance: self.totalSupply)
-        self.account.save(<-vault, to: /storage/MainVault)
-
-        // Create a new MainMinter resource and store it in account storage
-        self.account.save(<-create VaultMinter(), to: /storage/MainMinter)
-
-        // Create a private capability link for the Minter
-        // Capabilities can be used to create temporary references to an object
-        // so that callers can use the reference to access fields and functions
-        // of the objet.
-        //
-        // The capability is stored in the /private/ domain, which is only
-        // accesible by the owner of the account
-        self.account.link<&VaultMinter>(/private/Minter, target: /storage/MainMinter)
+    /// Allows any user to create a new Vault that has a zero balance
+    ///
+    /// @return The new Vault resource
+    ///
+    access(all) fun createEmptyVault(): @Vault {
+        post {
+            result.balance == 0.0: "The newly created Vault must have zero balance"
+        }
     }
 }

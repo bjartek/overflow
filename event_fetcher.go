@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/onflow/flowkit"
+	"github.com/onflow/flowkit/v2"
 )
 
 // Event fetching

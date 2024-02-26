@@ -35,18 +35,19 @@ type Argument struct {
 
 type OverflowTransaction struct {
 	Error            error
-	Stakeholders     map[string][]string
+	Fee              float64
 	Status           string
+	Arguments        []Argument
+	Authorizers      []string
+	AuthorizerTypes  OverflowAuthorizers
+	Stakeholders     map[string][]string
 	Payer            string
 	BlockId          string
 	Id               string
-	Authorizers      []string
-	Arguments        []Argument
 	Events           []OverflowEvent
 	Imports          []Import
 	Script           []byte
 	ProposalKey      flow.ProposalKey
-	Fee              float64
 	TransactionIndex int
 	GasLimit         uint64
 	GasUsed          uint64
@@ -147,6 +148,7 @@ func (o *OverflowState) CreateOverflowTransactions(blockId string, transactionRe
 		GasUsed:          uint64(gas),
 		ExecutionEffort:  executionEffort,
 		Authorizers:      authorizers,
+		AuthorizerTypes:  argInfo.Authorizers,
 	}, nil
 }
 

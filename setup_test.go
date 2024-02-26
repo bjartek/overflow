@@ -3,12 +3,11 @@ package overflow
 import (
 	"testing"
 
-	"github.com/onflow/flowkit/output"
+	"github.com/onflow/flowkit/v2/output"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOverflowv3(t *testing.T) {
-
 	t.Run("WithNetworkEmbedded", func(t *testing.T) {
 		b := Apply(WithNetwork("embedded"))
 		assert.Equal(t, "emulator", b.Network)

@@ -10,6 +10,7 @@ import (
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type CadenceArguments map[string]cadence.Value
@@ -62,6 +63,7 @@ type OverflowResult struct {
 
 	Arguments        CadenceArguments
 	UnderflowOptions underflow.Options
+	DeclarationInfo  OverflowDeclarationInfo
 }
 
 func (o OverflowResult) PrintArguments(t *testing.T) {
@@ -132,6 +134,17 @@ func (o OverflowResult) MarshalEventsWithName(eventName string, result interface
 }
 
 // Assert that this particular transaction was a failure that has a message that contains the sendt in assertion
+func (o OverflowResult) RequireFailure(t *testing.T, msg string) OverflowResult {
+	t.Helper()
+
+	require.Error(t, o.Err)
+	if o.Err != nil {
+		require.Contains(t, o.Err.Error(), msg)
+	}
+	return o
+}
+
+// Assert that this particular transaction was a failure that has a message that contains the sendt in assertion
 func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	t.Helper()
 
@@ -139,6 +152,13 @@ func (o OverflowResult) AssertFailure(t *testing.T, msg string) OverflowResult {
 	if o.Err != nil {
 		assert.Contains(t, o.Err.Error(), msg)
 	}
+	return o
+}
+
+// Require that this transaction was an success
+func (o OverflowResult) RequireSuccess(t *testing.T) OverflowResult {
+	t.Helper()
+	require.NoError(t, o.Err)
 	return o
 }
 
@@ -187,6 +207,49 @@ func (o OverflowResult) AssertEvent(t *testing.T, name string, fields map[string
 	}
 	if !hit {
 		assert.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
+		o.Events.Print(t)
+	}
+	return o
+}
+
+// Require that the event with the given name suffix and fields are present
+func (o OverflowResult) RequireEvent(t *testing.T, name string, fields map[string]interface{}) OverflowResult {
+	t.Helper()
+	newFields := OverflowEvent{Fields: map[string]interface{}{}}
+	for key, value := range fields {
+		if value != nil {
+			newFields.Fields[key] = value
+		}
+	}
+	hit := false
+	for eventName, events := range o.Events {
+		if strings.HasSuffix(eventName, name) {
+			hit = true
+			newEvents := []OverflowEvent{}
+			for _, event := range events {
+				oe := OverflowEvent{Fields: map[string]interface{}{}}
+				valid := false
+				for key, value := range event.Fields {
+					_, exist := newFields.Fields[key]
+					if exist {
+						oe.Fields[key] = value
+						valid = true
+					}
+				}
+				if valid {
+					newEvents = append(newEvents, oe)
+				}
+			}
+
+			if !newFields.ExistIn(newEvents) {
+				require.Fail(t, fmt.Sprintf("transaction %s missing event %s with fields %s", o.Name, name, litter.Sdump(newFields.Fields)))
+				newEventsMap := OverflowEvents{eventName: newEvents}
+				newEventsMap.Print(t)
+			}
+		}
+	}
+	if !hit {
+		require.Fail(t, fmt.Sprintf("event not found %s, %s", name, litter.Sdump(newFields)))
 		o.Events.Print(t)
 	}
 	return o
@@ -260,12 +323,11 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 	t.Helper()
 
 	assert.LessOrEqual(t, o.ComputationUsed, computation)
-	/*
-			if o.FeeGas != 0 {
-		    //TODO: https://github.com/onflow/flow-emulator/issues/542
-		//		assert.Equal(t, o.ComputationUsed, o.FeeGas)
-			}
-	*/
+	if o.FeeGas != 0 {
+		// TODO: add back in again once fixed
+		// assert.Equal(t, o.ComputationUsed, o.FeeGas)
+	}
+
 	return o
 }
 
@@ -273,13 +335,10 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) OverflowResult {
 	t.Helper()
 	assert.Equal(t, computation, o.ComputationUsed)
-	//TODO: https://github.com/onflow/flow-emulator/issues/542
-	/*
-			if o.FeeGas != 0 {
+	if o.FeeGas != 0 {
+		// TODO: add back in again once fixed
 		//		assert.Equal(t, o.ComputationUsed, o.FeeGas)
-			}
-	*/
-
+	}
 	return o
 }
 

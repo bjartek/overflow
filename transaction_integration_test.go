@@ -1,6 +1,7 @@
 package overflow
 
 import (
+	"context"
 	"testing"
 
 	"github.com/onflow/flow-go/utils/io"
@@ -21,8 +22,32 @@ func TestTransactionIntegration(t *testing.T) {
 	require.NotNil(t, o)
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
 
+	t.Run("run transaction get results", func(t *testing.T) {
+		result := o.Tx("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1)).
+			AssertSuccess(t).
+			AssertEventCount(t, 3).
+			AssertEmitEventName(t, "FlowToken.TokensDeposited").
+			AssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 100.1,
+			},
+			)
+		require.NoError(t, result.Err)
+
+		oTx, err := o.GetOverflowTransactionById(context.Background(), result.Transaction.ID())
+		require.NoError(t, err)
+
+		assert.Equal(t, []string{"BorrowValue"}, oTx.AuthorizerTypes["signer"])
+	})
+
 	t.Run("fail on missing signer", func(t *testing.T) {
 		o.Tx("create_nft_collection").AssertFailure(t, "💩 You need to set the proposer signer")
+	})
+
+	t.Run("fail on missing signer with built in assert", func(t *testing.T) {
+		o.Tx("create_nft_collection", WithAssertFailure(t, "💩 You need to set the proposer signer"))
 	})
 
 	t.Run("fail on wrong transaction name", func(t *testing.T) {
@@ -53,14 +78,35 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "19.0%", report.Summary().Coverage)
+		assert.Equal(t, "18.5%", report.Summary().Coverage)
+	})
+
+	t.Run("Mint tokens assert events with built in assertion", func(t *testing.T) {
+		o.Tx("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1),
+			WithAssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 100.1,
+			}))
+	})
+	t.Run("Mint tokens assert events with built in assertion that is changed", func(t *testing.T) {
+		mintTokens := o.TxFileNameFN("mint_tokens",
+			WithSignerServiceAccount(),
+			WithArg("recipient", "first"),
+			WithArg("amount", 100.1),
+			WithAssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 0,
+			}))
+
+		mintTokens(WithAssertEventReplaceField("FlowToken.TokensDeposited", "amount", 100.1))
 	})
 
 	t.Run("Assert get id", func(t *testing.T) {
 		result := o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(id:UInt64) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 			  Debug.id(id) 
 			} 
 		}`,
@@ -80,7 +126,7 @@ func TestTransactionIntegration(t *testing.T) {
 				res := o.Tx(`
 				import "Debug"
 				transaction(message:String) {
-				  prepare(acct: AuthAccount) {
+				  prepare(acct: auth(BorrowValue) &Account) {
 					Debug.log(message) } }`,
 					WithSigner("first"),
 					WithArg("message", "foobar"),
@@ -96,7 +142,7 @@ func TestTransactionIntegration(t *testing.T) {
 		res := o.Tx(`
 		import "Debug"
 		transaction(message:String) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 			Debug.log(message) } }`,
 			WithSigner("first"),
 			WithArg("message", "foobar"),
@@ -130,7 +176,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.Foo) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -142,7 +188,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.Foo) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -154,7 +200,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: [Debug.Foo]) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -166,7 +212,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.Foo) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -178,7 +224,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: [Debug.Foo]) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -190,7 +236,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.FooBar) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -202,7 +248,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(foo: Debug.FooListBar) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -213,8 +259,8 @@ func TestTransactionIntegration(t *testing.T) {
 	t.Run("Send HttpFile to transaction", func(t *testing.T) {
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
-		transaction(foo: AnyStruct{MetadataViews.File}) {
-		  prepare(acct: AuthAccount) {
+		transaction(foo: {MetadataViews.File}) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -225,8 +271,8 @@ func TestTransactionIntegration(t *testing.T) {
 	t.Run("Send IpfsFile to transaction", func(t *testing.T) {
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
-		transaction(foo: AnyStruct{MetadataViews.File}) {
-		  prepare(acct: AuthAccount) {
+		transaction(foo: {MetadataViews.File}) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -238,8 +284,8 @@ func TestTransactionIntegration(t *testing.T) {
 		path := "/Foo"
 		o.Tx(`
 		import MetadataViews from "../contracts/MetadataViews.cdc"
-		transaction(foo: AnyStruct{MetadataViews.File}) {
-		  prepare(acct: AuthAccount) {
+		transaction(foo: {MetadataViews.File}) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 		 } 
 	 }`,
 			WithSigner("first"),
@@ -251,7 +297,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 				import MetadataViews from "../contracts/MetadataViews.cdc"
 				transaction(display: MetadataViews.Display) {
-				  prepare(acct: AuthAccount) {
+				  prepare(acct: auth(BorrowValue) &Account) {
 				 }
 			 }`,
 			WithSigner("first"),
@@ -263,7 +309,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 			import MetadataViews from "../contracts/MetadataViews.cdc"
 			transaction(display: MetadataViews.Display) {
-			  prepare(acct: AuthAccount) {
+			  prepare(acct: auth(BorrowValue) &Account) {
 			 }
 		 }`,
 			WithSigner("first"),
@@ -275,7 +321,7 @@ func TestTransactionIntegration(t *testing.T) {
 		o.Tx(`
 			import MetadataViews from "../contracts/MetadataViews.cdc"
 			transaction(trait: MetadataViews.Trait) {
-			  prepare(acct: AuthAccount) {
+			  prepare(acct: auth(BorrowValue) &Account) {
 			 }
 		 }`,
 			WithSigner("first"),
@@ -287,11 +333,23 @@ func TestTransactionIntegration(t *testing.T) {
 		first, _ := o.AccountE("first")
 		o.Tx(`
 			transaction() {
-			  prepare(acct: AuthAccount) {
+			  prepare(acct: auth(BorrowValue) &Account) {
 			 }
 		 }`,
 			WithManualSigner(first),
 		).AssertSuccess(t)
+	})
+
+	t.Run("store declaration info", func(t *testing.T) {
+		res := o.Tx(`
+			transaction() {
+			  prepare(acct: auth(BorrowValue, SaveValue) &Account) {
+			 }
+		 }`,
+			WithSigner("first"),
+		).AssertSuccess(t)
+
+		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers["acct"])
 	})
 
 	bytes, err := o.GetCoverageReport().MarshalJSON()
@@ -315,7 +373,7 @@ func TestTransactionEventFiltering(t *testing.T) {
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(message:String) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: auth(BorrowValue) &Account) {
 			Debug.log(message) 
 			Debug.id(1)
 		} }`,
@@ -328,9 +386,8 @@ func TestTransactionEventFiltering(t *testing.T) {
 func TestFillUpSpace(t *testing.T) {
 	o, err := OverflowTesting(WithFlowForNewUsers(0.001))
 	assert.NoError(t, err)
-
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 199198, result)
+	assert.Equal(t, 198853, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 

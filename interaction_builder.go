@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"testing"
 
 	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
-	"github.com/onflow/flowkit"
-	"github.com/onflow/flowkit/accounts"
-	"github.com/onflow/flowkit/transactions"
+	"github.com/onflow/flowkit/v2"
+	"github.com/onflow/flowkit/v2/accounts"
+	"github.com/onflow/flowkit/v2/transactions"
 	"github.com/pkg/errors"
 )
 
@@ -85,6 +86,21 @@ type OverflowInteractionBuilder struct {
 
 	//
 	StopOnError *bool
+
+	Testing OverflowTestingAsssertions
+}
+
+type OverflowTestingAsssertions struct {
+	T       *testing.T
+	Require bool
+	Failure *string
+	Events  []EventAssertion
+}
+
+type EventAssertion struct {
+	Fields  map[string]interface{}
+	Suffix  string
+	Require bool
 }
 
 // get the contract code
@@ -356,9 +372,7 @@ func WithManualAuthorizer(signer ...*accounts.Account) OverflowInteractionOption
 // set an aditional authorizer that will sign the payload
 func WithManualPayloadSigner(signer ...*accounts.Account) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		for _, signer := range signer {
-			oib.PayloadSigners = append(oib.PayloadSigners, signer)
-		}
+		oib.PayloadSigners = append(oib.PayloadSigners, signer...)
 	}
 }
 
@@ -386,6 +400,68 @@ func WithExecuteScriptAtBlockIdentifier(blockId flow.Identifier) OverflowInterac
 func WithPanicInteractionOnError(stop bool) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		oib.StopOnError = &stop
+	}
+}
+
+func WithAssertFailure(t *testing.T, message string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+		oib.Testing.Failure = &message
+		oib.Testing.Require = false
+	}
+}
+
+func WithRequireFailure(t *testing.T, message string) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+		oib.Testing.Failure = &message
+		oib.Testing.Require = true
+	}
+}
+
+// a helper to modify an event assertion if you have a sigle one and you want to change the value
+func WithAssertEventReplaceField(suffix string, field string, value interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		for i, ev := range oib.Testing.Events {
+			if ev.Suffix == suffix {
+				oib.Testing.Events[i].Fields[field] = value
+				return
+			}
+		}
+	}
+}
+
+func WithAssertEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, EventAssertion{
+			Fields:  fields,
+			Suffix:  suffix,
+			Require: false,
+		})
+		oib.Testing.Require = false
+	}
+}
+
+func WithRequireEvent(t *testing.T, suffix string, fields map[string]interface{}) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, EventAssertion{
+			Fields:  fields,
+			Suffix:  suffix,
+			Require: true,
+		})
+		oib.Testing.Require = false
+	}
+}
+
+func WithEventAssertions(t *testing.T, ea ...EventAssertion) OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.Testing.T = t
+
+		oib.Testing.Events = append(oib.Testing.Events, ea...)
 	}
 }
 
@@ -423,14 +499,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	codeFileName := fmt.Sprintf("%s/%s.cdc", oib.BasePath, oib.FileName)
 
-	if len(oib.TransactionCode) == 0 {
-		code, err := oib.getContractCode(codeFileName)
-		if err != nil {
-			result.Err = err
-			return result
-		}
-		oib.TransactionCode = code
-	}
+	result.DeclarationInfo = *declarationInfo(oib.TransactionCode)
 
 	oib.Overflow.Log.Reset()
 	/*
@@ -546,6 +615,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	if !oib.IgnoreGlobalEventFilters {
 
 		fee := result.Fee["amount"]
+
 		if oib.Overflow.FilterOutFeeEvents && fee != nil {
 			overflowEvents = overflowEvents.FilterFees(fee.(float64), fmt.Sprintf("0x%s", result.Transaction.Payer.Hex()))
 		}
@@ -567,7 +637,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.Name = oib.Name
 	oib.Overflow.Log.Reset()
-	result.Err = res.Error
+	result.Err = errors.Wrapf(res.Error, "transaction=%s", codeFileName)
 
 	if result.Err != nil && result.StopOnError {
 		panic(result.Err)

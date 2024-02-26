@@ -37,8 +37,8 @@ func TestTransactionUpload(t *testing.T) {
 		g.Tx(`
 import Debug from "../contracts/Debug.cdc"
 transaction {
-  prepare(account: AuthAccount) {
-    var content= account.load<String>(from: /storage/upload) ?? panic("could not load content")
+  prepare(account: auth(LoadValue) &Account) {
+    var content= account.storage.load<String>(from: /storage/upload) ?? panic("could not load content")
 	Debug.log(content)
  }
 }`, WithSigner("first")).
@@ -59,8 +59,8 @@ transaction {
 		g.Tx(`
 import Debug from "../contracts/Debug.cdc"
 transaction {
-  prepare(account: AuthAccount) {
-    var content= account.load<String>(from: /storage/upload) ?? panic("could not load content")
+  prepare(account: auth(LoadValue) &Account) {
+    var content= account.storage.load<String>(from: /storage/upload) ?? panic("could not load content")
 	Debug.log(content)
  }
 }`, WithSigner("first")).
@@ -99,8 +99,8 @@ transaction {
 		g.Tx(`
 import Debug from "../contracts/Debug.cdc"
 transaction {
-  prepare(account: AuthAccount) {
-    var content= account.load<String>(from: /storage/upload) ?? panic("could not load content")
+  prepare(account: auth(LoadValue) &Account) {
+    var content= account.storage.load<String>(from: /storage/upload) ?? panic("could not load content")
 	Debug.log(content)
  }
 }`, WithSigner("first")).
@@ -122,8 +122,8 @@ transaction {
 		g.Tx(`
 import Debug from "../contracts/Debug.cdc"
 transaction {
-  prepare(account: AuthAccount) {
-    var content= account.load<String>(from: /storage/upload) ?? panic("could not load content")
+  prepare(account: auth(LoadValue) &Account) {
+    var content= account.storage.load<String>(from: /storage/upload) ?? panic("could not load content")
 	Debug.log(content)
  }
 }`, WithSigner("first")).AssertSuccess(t)

@@ -14,7 +14,7 @@ func Example() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
+	//📜 deploy contracts Debug
 }
 
 func ExampleOverflowState_Tx() {
@@ -32,7 +32,7 @@ func ExampleOverflowState_Tx() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
+	//📜 deploy contracts Debug
 	//👌 Tx:arguments fee:0.00001000 gas:0
 	//
 }
@@ -44,7 +44,7 @@ func ExampleOverflowState_Tx_inline() {
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction(message:String) {
-		  prepare(acct: AuthAccount) {
+		  prepare(acct: &Account) {
 				Debug.log(message) 
 			} 
 		}`,
@@ -54,7 +54,7 @@ func ExampleOverflowState_Tx_inline() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
+	//📜 deploy contracts Debug
 	//👌 Tx: fee:0.00001000 gas:8
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
@@ -68,7 +68,7 @@ func ExampleOverflowState_Tx_multisign() {
 	o.Tx(`
 		import Debug from "../contracts/Debug.cdc"
 		transaction {
-			prepare(acct: AuthAccount, acct2: AuthAccount) {
+			prepare(acct: &Account, acct2: &Account) {
 				Debug.log("acct:".concat(acct.address.toString()))
 				Debug.log("acct2:".concat(acct2.address.toString()))
 			} 
@@ -80,7 +80,7 @@ func ExampleOverflowState_Tx_multisign() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
+	//📜 deploy contracts Debug
 	//👌 Tx: fee:0.00001000 gas:8
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
@@ -106,7 +106,7 @@ func ExampleOverflowState_Script() {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
+	//📜 deploy contracts Debug
 	//⭐ Script test run result:"0x01cf0e2f2f715450"
 }
 
@@ -115,7 +115,7 @@ func ExampleOverflowState_Script_inline() {
 
 	// Script can be run inline
 	o.Script(`
-pub fun main(account: Address): String {
+access(all) fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`,
 		WithArg("account", "first"),
@@ -124,6 +124,6 @@ pub fun main(account: Address): String {
 	//Output:
 	//🧑 Created account: emulator-first with address: 01cf0e2f2f715450 with flow: 10.00
 	//🧑 Created account: emulator-second with address: 179b6b1cb6755e31 with flow: 10.00
-	//📜 deploy contracts NonFungibleToken, Debug, MetadataViews
+	//📜 deploy contracts Debug
 	//⭐ Script get_address run result:"0x01cf0e2f2f715450"
 }

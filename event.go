@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/bjartek/underflow"
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
 	"golang.org/x/exp/slices"
@@ -48,6 +49,7 @@ type OverflowEvent struct {
 	EventIndex    uint32                 `json:"eventIndex"`
 	Name          string                 `json:"name"`
 	Addresses     map[string][]string    `json:"addresses"`
+	RawEvent      cadence.Event          `json:"rawEvent"`
 }
 
 // Check if an event exist in the other events
@@ -107,7 +109,6 @@ func (o *OverflowState) ParseEvents(events []flow.Event, idPrefix string) (Overf
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
 	for i, event := range events {
-
 		var fieldNames []string
 
 		for _, eventTypeFields := range event.Value.EventType.Fields {
@@ -141,6 +142,7 @@ func (o *OverflowState) ParseEvents(events []flow.Event, idPrefix string) (Overf
 			TransactionId: event.TransactionID.String(),
 			EventIndex:    uint32(event.EventIndex),
 			Addresses:     addresses,
+			RawEvent:      event.Value,
 		})
 		overflowEvents[event.Type] = events
 		if strings.HasSuffix(event.Type, "FlowFees.FeesDeducted") {
@@ -155,10 +157,10 @@ func (o *OverflowState) ParseEvents(events []flow.Event, idPrefix string) (Overf
 	return overflowEvents, fee
 }
 
-// Filter out temp withdraw deposit events
 func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents {
 	filteredEvents := overflowEvents
 	for name, events := range overflowEvents {
+
 		if strings.HasSuffix(name, "TokensWithdrawn") {
 
 			withDrawnEvents := []OverflowEvent{}
@@ -187,6 +189,35 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 				delete(filteredEvents, name)
 			}
 		}
+
+		if strings.HasSuffix(name, ".FungibleToken.Withdrawn") {
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value.Fields["from"] != nil {
+					withDrawnEvents = append(withDrawnEvents, value)
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+
+		if strings.HasSuffix(name, ".FungibleToken.Deposited") {
+			depositEvents := []OverflowEvent{}
+			for _, value := range events {
+				if value.Fields["to"] != nil {
+					depositEvents = append(depositEvents, value)
+				}
+			}
+			if len(depositEvents) != 0 {
+				filteredEvents[name] = depositEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+
+		}
 	}
 	return filteredEvents
 }
@@ -201,6 +232,47 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			delete(filteredEvents, name)
 		}
 
+		if strings.HasSuffix(name, ".FungibleToken.Withdrawn") {
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				ftType := value.Fields["type"].(string)
+				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
+					continue
+				}
+				amount := value.Fields["amount"].(float64)
+				from, ok := value.Fields["from"].(string)
+
+				if ok && amount == fee && from == payer {
+					continue
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
+
+		if strings.HasSuffix(name, ".FungibleToken.Deposited") {
+			withDrawnEvents := []OverflowEvent{}
+			for _, value := range events {
+				ftType := value.Fields["type"].(string)
+				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
+					continue
+				}
+				amount := value.Fields["amount"].(float64)
+				to, ok := value.Fields["to"].(string)
+
+				if ok && amount == fee && slices.Contains(feeReceipients, to) {
+					continue
+				}
+			}
+			if len(withDrawnEvents) != 0 {
+				filteredEvents[name] = withDrawnEvents
+			} else {
+				delete(filteredEvents, name)
+			}
+		}
 		if strings.HasSuffix(name, "FlowToken.TokensWithdrawn") {
 
 			withDrawnEvents := []OverflowEvent{}

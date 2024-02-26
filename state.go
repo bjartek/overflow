@@ -23,12 +23,12 @@ import (
 	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-go-sdk"
-	"github.com/onflow/flowkit"
-	"github.com/onflow/flowkit/accounts"
-	"github.com/onflow/flowkit/config"
-	"github.com/onflow/flowkit/gateway"
-	"github.com/onflow/flowkit/output"
-	"github.com/onflow/flowkit/project"
+	"github.com/onflow/flowkit/v2"
+	"github.com/onflow/flowkit/v2/accounts"
+	"github.com/onflow/flowkit/v2/config"
+	"github.com/onflow/flowkit/v2/gateway"
+	"github.com/onflow/flowkit/v2/output"
+	"github.com/onflow/flowkit/v2/project"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
@@ -222,7 +222,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(code, location, codes)
-	checker, _ := cmd.PrepareChecker(program, location, codes, nil, must)
+	checker, _ := cmd.PrepareChecker(program, location, codes, nil, nil, must)
 
 	var parameterList []*ast.Parameter
 
@@ -459,7 +459,11 @@ func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, er
 		}}
 
 		o.Logger.Info(fmt.Sprintf("Creating account %s", account.Name))
-		_, _, err := o.Flowkit.CreateAccount(ctx, signerAccount, keys)
+		newA, _, err := o.Flowkit.CreateAccount(ctx, signerAccount, keys)
+		if account.Address.Hex() != newA.Address.Hex() {
+			return nil, fmt.Errorf("the configured address for this account is %s but the created one is %s, consider reordering addresses in flow.json", account.Address.Hex(), newA.Address.Hex())
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -592,6 +596,34 @@ func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *
 		panic(result.Err)
 	}
 
+	ot := ftb.Testing
+	// we have no testing to run here
+	if ot.T == nil {
+		return result
+	}
+
+	if ot.T != nil {
+		ot.T.Helper()
+		if ot.Failure != nil {
+			if ot.Require {
+				result.RequireFailure(ot.T, *ot.Failure)
+			} else {
+				result.AssertFailure(ot.T, *ot.Failure)
+			}
+			// if we have a failure we do not even try to assert events
+			return result
+		}
+		result.AssertSuccess(ot.T)
+
+		for _, ea := range ot.Events {
+			if ea.Require {
+				result.RequireEvent(ot.T, ea.Suffix, ea.Fields)
+			} else {
+				result.AssertEvent(ot.T, ea.Suffix, ea.Fields)
+			}
+		}
+	}
+
 	return result
 }
 
@@ -634,6 +666,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		NoLog:          false,
 		PrintOptions:   o.PrintOptions,
 		ScriptQuery:    nil,
+		Testing:        OverflowTestingAsssertions{},
 	}
 
 	for _, opt := range opts {
@@ -645,7 +678,8 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		strings.Contains(filename, "transaction{") ||
 		strings.Contains(filename, "transaction(") ||
 		strings.Contains(filename, "transaction ") ||
-		strings.Contains(filename, "pub fun main(") {
+		strings.Contains(filename, "fun main(") ||
+		strings.Contains(filename, "access(all) fun main(") {
 		ftb.TransactionCode = []byte(filename)
 		ftb.FileName = "inline"
 	} else {
