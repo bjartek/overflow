@@ -170,7 +170,7 @@ func (o *OverflowState) FetchEventsWithResult(opts ...OverflowEventFetcherOption
 
 	formatedEvents := []OverflowPastEvent{}
 	for _, blockEvent := range blockEvents {
-		events, _ := parseEvents(blockEvent.Events, "")
+		events, _ := o.ParseEvents(blockEvent.Events, "")
 		for name, eventList := range events {
 			for _, instance := range eventList {
 				formatedEvents = append(formatedEvents, OverflowPastEvent{

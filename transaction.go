@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/flow-go-sdk"
@@ -18,26 +19,21 @@ import (
 type FilterFunction func(OverflowTransaction) bool
 
 type BlockResult struct {
-	Transactions      []OverflowTransaction
-	SystemChunkEvents OverflowEvents
-	Block             flow.Block
+	StartTime         time.Time
 	Error             error
+	SystemChunkEvents OverflowEvents
 	Logger            *zap.Logger
-	// until we have view in flow.Block we add this here
-	View      uint64
-	StartTime time.Time
+	Block             flow.Block
+	Transactions      []OverflowTransaction
+	View              uint64
 }
 
 type Argument struct {
-	Key   string
 	Value interface{}
+	Key   string
 }
 
 type OverflowTransaction struct {
-	Id               string
-	TransactionIndex int
-	BlockId          string
-	Events           []OverflowEvent
 	Error            error
 	Fee              float64
 	Status           string
@@ -45,18 +41,22 @@ type OverflowTransaction struct {
 	Authorizers      []string
 	AuthorizerTypes  OverflowAuthorizers
 	Stakeholders     map[string][]string
-	Imports          []Import
 	Payer            string
+	BlockId          string
+	Id               string
+	Events           []OverflowEvent
+	Imports          []Import
+	Script           []byte
 	ProposalKey      flow.ProposalKey
+	TransactionIndex int
 	GasLimit         uint64
 	GasUsed          uint64
 	ExecutionEffort  float64
-	Script           []byte
 }
 
-func CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
+func (o *OverflowState) CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
 	feeAmount := 0.0
-	events, fee := parseEvents(transactionResult.Events, "")
+	events, fee := o.ParseEvents(transactionResult.Events, "")
 	feeRaw, ok := fee.Fields["amount"]
 	if ok {
 		feeAmount, ok = feeRaw.(float64)
@@ -89,7 +89,7 @@ func CreateOverflowTransactions(blockId string, transactionResult flow.Transacti
 		}
 		argStruct := Argument{
 			Key:   key,
-			Value: CadenceValueToInterface(arg),
+			Value: underflow.CadenceValueToInterfaceWithOption(arg, o.UnderflowOptions),
 		}
 		args = append(args, argStruct)
 	}
@@ -161,7 +161,7 @@ func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.
 	if len(txr.Events) > 0 {
 		txIndex = txr.Events[0].TransactionIndex
 	}
-	return CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx, txIndex)
+	return o.CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx, txIndex)
 }
 
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
@@ -194,7 +194,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 		isLatestResult := totalTxR == i+1
 		// on network emulator we never have system chunk transactions it looks like
 		if isLatestResult && o.GetNetwork() != "emulator" {
-			systemChunkEvents, _ = parseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
+			systemChunkEvents, _ = o.ParseEvents(r.Events, fmt.Sprintf("%d-", r.BlockHeight))
 			if len(systemChunkEvents) > 0 {
 				logg.Debug("We have system chunk events", zap.Int("systemEvents", len(systemChunkEvents)))
 			}
@@ -207,7 +207,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 			return []OverflowTransaction{}
 		}
 
-		ot, err := CreateOverflowTransactions(id.String(), r, t, i)
+		ot, err := o.CreateOverflowTransactions(id.String(), r, t, i)
 		if err != nil {
 			panic(err)
 		}

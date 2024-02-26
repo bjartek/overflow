@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
@@ -104,8 +105,7 @@ func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
 	return nil
 }
 
-// Parse raw flow events into a list of events and a fee event
-func parseEvents(events []flow.Event, idPrefix string) (OverflowEvents, OverflowEvent) {
+func (o *OverflowState) ParseEvents(events []flow.Event, idPrefix string) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
 	for i, event := range events {
@@ -121,11 +121,11 @@ func parseEvents(events []flow.Event, idPrefix string) (OverflowEvents, Overflow
 		for id, field := range event.Value.Fields {
 			name := fieldNames[id]
 
-			adr := ExtractAddresses(field)
+			adr := underflow.ExtractAddresses(field)
 			if len(adr) > 0 {
 				addresses[name] = adr
 			}
-			value := CadenceValueToInterface(field)
+			value := underflow.CadenceValueToInterfaceWithOption(field, o.UnderflowOptions)
 			if value != nil {
 				finalFields[name] = value
 			}

@@ -15,6 +15,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flow-go/fvm/blueprints"
@@ -80,6 +81,7 @@ var defaultOverflowBuilder = OverflowBuilder{
 	NewAccountFlowAmount:                10.0,
 	TransactionFees:                     true,
 	Coverage:                            nil,
+	UnderflowOptions:                    underflow.Options{},
 }
 
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
@@ -105,11 +107,12 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	NewAccountFlowAmount                float64
 	ReaderWriter                        flowkit.ReaderWriter
-	InputResolver                       *InputResolver
+	InputResolver                       *underflow.InputResolver
 	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
 	GrpcDialOptions                     []grpc.DialOption
 	EmulatorOptions                     []emulator.Option
+	UnderflowOptions                    underflow.Options
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {
@@ -151,6 +154,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		NewUserFlowAmount:                   o.NewAccountFlowAmount,
 		LogLevel:                            o.LogLevel,
 		CoverageReport:                      o.Coverage,
+		UnderflowOptions:                    o.UnderflowOptions,
 	}
 
 	loader := o.ReaderWriter
@@ -502,7 +506,7 @@ func WithEmbedFS(fs embed.FS) OverflowOption {
 	}
 }
 
-func WithInputResolver(ir InputResolver) OverflowOption {
+func WithInputResolver(ir underflow.InputResolver) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.InputResolver = &ir
 	}
@@ -529,6 +533,12 @@ func WithCoverageReport() OverflowOption {
 func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.EmulatorOptions = append(o.EmulatorOptions, opt...)
+	}
+}
+
+func WithUnderflowOptions(opt underflow.Options) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.UnderflowOptions = opt
 	}
 }
 

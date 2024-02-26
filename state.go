@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime"
@@ -134,13 +135,15 @@ type OverflowState struct {
 	// Mint this amount of flow to new accounts
 	NewUserFlowAmount float64
 
-	InputResolver InputResolver
+	InputResolver underflow.InputResolver
 
 	// the coverage report if any
 	CoverageReport *runtime.CoverageReport
 
 	// the string id of the system chunk transaction
 	SystemChunkTransactionId string
+
+	UnderflowOptions underflow.Options
 }
 
 type OverflowArgument struct {
@@ -297,7 +300,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		case int:
 			argumentString = fmt.Sprintf("%v", a)
 		default:
-			cadenceVal, err := InputToCadence(argument, o.InputResolver)
+			cadenceVal, err := underflow.InputToCadence(argument, o.InputResolver)
 			if err != nil {
 				return nil, nil, err
 			}

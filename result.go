@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/sanity-io/litter"
@@ -60,9 +61,9 @@ type OverflowResult struct {
 	// The name of the Transaction
 	Name string
 
-	Arguments CadenceArguments
-
-	DeclarationInfo OverflowDeclarationInfo
+	Arguments        CadenceArguments
+	UnderflowOptions underflow.Options
+	DeclarationInfo  OverflowDeclarationInfo
 }
 
 func (o OverflowResult) PrintArguments(t *testing.T) {
@@ -77,7 +78,7 @@ func (o OverflowResult) PrintArguments(t *testing.T) {
 	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
 
 	for name, arg := range o.Arguments {
-		value, err := CadenceValueToJsonString(arg)
+		value, err := underflow.CadenceValueToJsonStringWithOption(arg, o.UnderflowOptions)
 		if err != nil {
 			panic(err)
 		}

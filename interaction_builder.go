@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
@@ -183,11 +184,11 @@ func WithArg(name string, value interface{}) OverflowInteractionOption {
 // Send an list of structs into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgsCustomQualifier(name string, resolver InputResolver, values ...interface{}) OverflowInteractionOption {
+func WithStructArgsCustomQualifier(name string, resolver underflow.InputResolver, values ...interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		array := []cadence.Value{}
 		for _, value := range values {
-			structValue, err := InputToCadence(value, resolver)
+			structValue, err := underflow.InputToCadence(value, resolver)
 			if err != nil {
 				oib.Error = err
 				return
@@ -201,9 +202,9 @@ func WithStructArgsCustomQualifier(name string, resolver InputResolver, values .
 // Send an struct as argument into a transaction
 
 // use the `cadence` struct tag to name a field or it will be given the lowercase name of the field
-func WithStructArgCustomResolver(name string, resolver InputResolver, value interface{}) OverflowInteractionOption {
+func WithStructArgCustomResolver(name string, resolver underflow.InputResolver, value interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
-		structValue, err := InputToCadence(value, resolver)
+		structValue, err := underflow.InputToCadence(value, resolver)
 		if err != nil {
 			oib.Error = err
 			return
@@ -467,20 +468,21 @@ func WithEventAssertions(t *testing.T, ea ...EventAssertion) OverflowInteraction
 // Send a interaction builder as a Transaction returning an overflow result
 func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	result := &OverflowResult{
-		StopOnError:     oib.Overflow.StopOnError,
-		Err:             nil,
-		Id:              [32]byte{},
-		Meter:           &OverflowMeter{},
-		RawLog:          []OverflowEmulatorLogMessage{},
-		EmulatorLog:     []string{},
-		ComputationUsed: 0,
-		RawEvents:       []flow.Event{},
-		Events:          map[string]OverflowEventList{},
-		Transaction:     &flow.Transaction{},
-		Fee:             map[string]interface{}{},
-		FeeGas:          0,
-		Name:            "",
-		Arguments:       oib.NamedCadenceArguments,
+		StopOnError:      oib.Overflow.StopOnError,
+		Err:              nil,
+		Id:               [32]byte{},
+		Meter:            &OverflowMeter{},
+		RawLog:           []OverflowEmulatorLogMessage{},
+		EmulatorLog:      []string{},
+		ComputationUsed:  0,
+		RawEvents:        []flow.Event{},
+		Events:           map[string]OverflowEventList{},
+		Transaction:      &flow.Transaction{},
+		Fee:              map[string]interface{}{},
+		FeeGas:           0,
+		Name:             "",
+		Arguments:        oib.NamedCadenceArguments,
+		UnderflowOptions: oib.Overflow.UnderflowOptions,
 	}
 	if oib.StopOnError != nil {
 		result.StopOnError = *oib.StopOnError
@@ -598,7 +600,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 
 	result.RawEvents = res.Events
 
-	overflowEvents, fee := parseEvents(result.RawEvents, "")
+	overflowEvents, fee := oib.Overflow.ParseEvents(result.RawEvents, "")
 	result.Fee = fee.Fields
 	if len(result.Fee) != 0 {
 		executionEffort, ok := result.Fee["executionEffort"].(float64)

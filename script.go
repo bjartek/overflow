@@ -1,12 +1,12 @@
 package overflow
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
 	"github.com/fatih/color"
 	"github.com/hexops/autogold"
@@ -78,20 +78,9 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 		Args:     fbi.Arguments,
 		Location: filePath,
 	}
-	/* TODO: acrhive scripts
-	if o.ArchiveScripts != nil {
-		result, err := o.ArchiveScripts.Execute(script, o.Network, fbi.ScriptQuery)
-		osc.Result = result
-		osc.Output = CadenceValueToInterface(result)
-		if err != nil {
-			osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
-		}
-	} else {
-	*/
-
 	sc := fbi.ScriptQuery
 	if fbi.ScriptQuery == nil {
-		block, err := o.GetLatestBlock(context.Background())
+		block, err := o.GetLatestBlock(fbi.Ctx)
 		if err != nil {
 			osc.Err = err
 			return osc
@@ -102,7 +91,7 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	}
 	result, err := o.Flowkit.ExecuteScript(fbi.Ctx, script, *sc)
 	osc.Result = result
-	osc.Output = CadenceValueToInterface(result)
+	osc.Output = underflow.CadenceValueToInterfaceWithOption(result, fbi.Overflow.UnderflowOptions)
 	if err != nil {
 		osc.Err = errors.Wrapf(err, "scriptFileName:%s", fbi.FileName)
 	}
@@ -136,9 +125,9 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 type OverflowScriptResult struct {
 	Err    error
 	Result cadence.Value
+	Output interface{}
 	Input  *OverflowInteractionBuilder
 	Log    []OverflowEmulatorLogMessage
-	Output interface{}
 }
 
 func (osr *OverflowScriptResult) PrintArguments(t *testing.T) {
@@ -153,7 +142,7 @@ func (osr *OverflowScriptResult) PrintArguments(t *testing.T) {
 	format := fmt.Sprintf("%%%ds -> %%v", maxLength)
 
 	for name, arg := range args {
-		value, err := CadenceValueToJsonString(arg)
+		value, err := underflow.CadenceValueToJsonStringWithOption(arg, osr.Input.Overflow.UnderflowOptions)
 		if err != nil {
 			panic(err)
 		}
