@@ -15,20 +15,19 @@ type OverflowPrinterOption func(*OverflowPrinterBuilder)
 //
 // the default setting is to print one line for each transaction with meter and all events
 type OverflowPrinterBuilder struct {
-
-	//set to false to disable all events
-	Events bool
-
-	//filter out some events
+	// filter out some events
 	EventFilter OverflowEventFilter
 
-	//0 to print no meter, 1 to print some, 2 to pritn all NB verbose
+	// 0 to print no meter, 1 to print some, 2 to pritn all NB verbose
 	Meter int
 
-	//print the emulator log, NB! Verbose
+	// set to false to disable all events
+	Events bool
+
+	// print the emulator log, NB! Verbose
 	EmulatorLog bool
 
-	//print transaction id, useful to disable in tests
+	// print transaction id, useful to disable in tests
 	Id bool
 
 	Arguments      bool
@@ -53,7 +52,6 @@ func WithTransactionUrl() OverflowPrinterOption {
 	return func(opb *OverflowPrinterBuilder) {
 		opb.TransactionUrl = true
 	}
-
 }
 
 // do not print meter
@@ -98,7 +96,6 @@ func WithArguments() OverflowPrinterOption {
 
 // print out an result
 func (o OverflowResult) Print(opbs ...OverflowPrinterOption) OverflowResult {
-
 	printOpts := &OverflowPrinterBuilder{
 		Events:         true,
 		EventFilter:    OverflowEventFilter{},

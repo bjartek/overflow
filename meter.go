@@ -4,11 +4,11 @@ import "github.com/onflow/cadence/runtime/common"
 
 // a type representing a meter that contains information about the inner workings of an interaction, only available on local emulator
 type OverflowMeter struct {
+	ComputationIntensities OverflowMeteredComputationIntensities `json:"computationIntensities"`
+	MemoryIntensities      OverflowMeteredMemoryIntensities      `json:"memoryIntensities"`
 	LedgerInteractionUsed  int                                   `json:"ledgerInteractionUsed"`
 	ComputationUsed        int                                   `json:"computationUsed"`
 	MemoryUsed             int                                   `json:"memoryUsed"`
-	ComputationIntensities OverflowMeteredComputationIntensities `json:"computationIntensities"`
-	MemoryIntensities      OverflowMeteredMemoryIntensities      `json:"memoryIntensities"`
 }
 
 // get the number of functions invocations

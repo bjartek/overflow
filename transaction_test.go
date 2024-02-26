@@ -99,7 +99,7 @@ transaction(test:UInt64) {
 
 	t.Run("Should not allow varags builder arg with single element", func(t *testing.T) {
 		res := o.Tx("arguments", WithArgs("test"))
-		assert.ErrorContains(t, res.Err, "Please send in an even number of string : interface{} pairs")
+		assert.ErrorContains(t, res.Err, "please send in an even number of string : interface{} pairs")
 	})
 
 	t.Run("Should not allow varag with non string keys", func(t *testing.T) {
@@ -192,7 +192,6 @@ transaction(test:Address) {
 }
 `, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount())
 		assert.ErrorContains(t, res.Error, "argument `test` with value `0xbjartek` is not expected type `Address`")
-
 	})
 
 	t.Run("Should set gas", func(t *testing.T) {
@@ -205,7 +204,6 @@ transaction(test:Address) {
 `, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount(), WithMaxGas(100))
 
 		assert.Equal(t, uint64(100), res.GasLimit)
-
 	})
 
 	t.Run("Should report error if invalid payload signer", func(t *testing.T) {
@@ -218,7 +216,6 @@ transaction{
 `, WithSignerServiceAccount(), WithPayloadSigner("bjartek"))
 
 		assert.Error(t, res.Err, "asd")
-
 	})
 
 	t.Run("ufix64", func(t *testing.T) {
@@ -259,5 +256,4 @@ transaction(test:UFix64) {
 		assert.True(t, res.IgnoreGlobalEventFilters)
 		assert.Equal(t, 1, len(res.EventFilter))
 	})
-
 }

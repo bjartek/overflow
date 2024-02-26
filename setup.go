@@ -87,32 +87,32 @@ var defaultOverflowBuilder = OverflowBuilder{
 // OverflowBuilder is the struct used to gather up configuration when building an overflow instance
 type OverflowBuilder struct {
 	Ctx                                 context.Context
-	TransactionFees                     bool
-	Network                             string
-	InMemory                            bool
-	DeployContracts                     bool
-	GasLimit                            int
-	Path                                string
-	LogLevel                            int
-	InitializeAccounts                  bool
-	PrependNetworkName                  bool
-	ServiceSuffix                       string
-	ConfigFiles                         []string
-	TransactionFolderName               string
-	ScriptFolderName                    string
-	FilterOutFeeEvents                  bool
-	FilterOutEmptyWithDrawDepositEvents bool
-	GlobalEventFilter                   OverflowEventFilter
-	StopOnError                         bool
-	PrintOptions                        *[]OverflowPrinterOption
-	NewAccountFlowAmount                float64
 	ReaderWriter                        flowkit.ReaderWriter
-	InputResolver                       *underflow.InputResolver
-	ArchiveNodeUrl                      string
 	Coverage                            *runtime.CoverageReport
-	GrpcDialOptions                     []grpc.DialOption
+	InputResolver                       *underflow.InputResolver
+	PrintOptions                        *[]OverflowPrinterOption
+	GlobalEventFilter                   OverflowEventFilter
+	Path                                string
+	ArchiveNodeUrl                      string
+	Network                             string
+	ScriptFolderName                    string
+	ServiceSuffix                       string
+	TransactionFolderName               string
 	EmulatorOptions                     []emulator.Option
+	GrpcDialOptions                     []grpc.DialOption
+	ConfigFiles                         []string
+	NewAccountFlowAmount                float64
+	GasLimit                            int
+	LogLevel                            int
 	UnderflowOptions                    underflow.Options
+	DeployContracts                     bool
+	InMemory                            bool
+	InitializeAccounts                  bool
+	StopOnError                         bool
+	TransactionFees                     bool
+	FilterOutEmptyWithDrawDepositEvents bool
+	FilterOutFeeEvents                  bool
+	PrependNetworkName                  bool
 }
 
 func (o *OverflowBuilder) StartE() (*OverflowState, error) {

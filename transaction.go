@@ -35,26 +35,26 @@ type Argument struct {
 
 type OverflowTransaction struct {
 	Error            error
-	Fee              float64
-	Status           string
-	Arguments        []Argument
-	Authorizers      []string
 	AuthorizerTypes  OverflowAuthorizers
 	Stakeholders     map[string][]string
 	Payer            string
-	BlockId          string
 	Id               string
+	Status           string
+	BlockId          string
+	Authorizers      []string
+	Arguments        []Argument
 	Events           []OverflowEvent
 	Imports          []Import
 	Script           []byte
 	ProposalKey      flow.ProposalKey
+	Fee              float64
 	TransactionIndex int
 	GasLimit         uint64
 	GasUsed          uint64
 	ExecutionEffort  float64
 }
 
-func (o *OverflowState) CreateOverflowTransactions(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
+func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
 	feeAmount := 0.0
 	events, fee := o.ParseEvents(transactionResult.Events, "")
 	feeRaw, ok := fee.Fields["amount"]
@@ -134,7 +134,7 @@ func (o *OverflowState) CreateOverflowTransactions(blockId string, transactionRe
 		Id:               transactionResult.TransactionID.String(),
 		TransactionIndex: txIndex,
 		BlockId:          blockId,
-		Status:           transactionResult.Status.String(),
+		Status:           status,
 		Events:           eventList,
 		Stakeholders:     eventsWithoutFees.GetStakeholders(standardStakeholders),
 		Imports:          imports,
@@ -161,7 +161,7 @@ func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.
 	if len(txr.Events) > 0 {
 		txIndex = txr.Events[0].TransactionIndex
 	}
-	return o.CreateOverflowTransactions(txr.BlockID.String(), *txr, *tx, txIndex)
+	return o.CreateOverflowTransaction(txr.BlockID.String(), *txr, *tx, txIndex)
 }
 
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
@@ -173,7 +173,7 @@ func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifi
 }
 
 // this is get from block, needs to return system chunk information
-func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error) {
+func (o *OverflowState) GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error) {
 	// sometimes this will become too complex.
 
 	//if we get this error
@@ -207,7 +207,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 			return []OverflowTransaction{}
 		}
 
-		ot, err := o.CreateOverflowTransactions(id.String(), r, t, i)
+		ot, err := o.CreateOverflowTransaction(id.String(), r, t, i)
 		if err != nil {
 			panic(err)
 		}
@@ -223,7 +223,7 @@ func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg 
 	if err != nil {
 		return nil, err
 	}
-	tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
+	tx, systemChunkEvents, err := o.GetOverflowTransactionsForBlockId(ctx, block.ID, logg)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +283,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 			}
 			readDur := time.Since(start)
 			logg.Info("block read", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height), zap.Any("readDur", readDur.Seconds()))
-			tx, systemChunkEvents, err := o.GetTransactions(ctx, block.ID, logg)
+			tx, systemChunkEvents, err := o.GetOverflowTransactionsForBlockId(ctx, block.ID, logg)
 			logg.Debug("fetched transactions", zap.Int("tx", len(tx)))
 			if err != nil {
 				logg.Debug("getting transaction", zap.Error(err))

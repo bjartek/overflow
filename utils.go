@@ -42,7 +42,6 @@ func parseTime(timeString string, location string) (string, error) {
 
 func getAndUnquoteString(value cadence.Value) string {
 	result, err := strconv.Unquote(value.String())
-
 	if err != nil {
 		result = value.String()
 		if strings.Contains(result, "\\u") || strings.Contains(result, "\\U") {
@@ -50,7 +49,7 @@ func getAndUnquoteString(value cadence.Value) string {
 		}
 	}
 
-	return strings.Replace(result, "\x00", "", -1)
+	return strings.ReplaceAll(result, "\x00", "")
 }
 
 func exists(path string) (bool, error) {
@@ -68,9 +67,7 @@ func exists(path string) (bool, error) {
 }
 
 func writeProgressToFile(fileName string, blockHeight int64) error {
-
 	err := os.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
-
 	if err != nil {
 		return fmt.Errorf("could not create initial progress file %v", err)
 	}
@@ -173,7 +170,6 @@ func hexToAddress(h string) (*cadence.Address, error) {
 	b, err := hex.DecodeString(trimmed)
 	if err != nil {
 		return nil, err
-
 	}
 	address := cadence.BytesToAddress(b)
 	return &address, nil

@@ -92,9 +92,9 @@ type OverflowInteractionBuilder struct {
 
 type OverflowTestingAsssertions struct {
 	T       *testing.T
-	Require bool
 	Failure *string
 	Events  []EventAssertion
+	Require bool
 }
 
 type EventAssertion struct {
@@ -136,7 +136,7 @@ func WithContext(ctx context.Context) OverflowInteractionOption {
 func WithArgs(args ...interface{}) OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
 		if len(args)%2 != 0 {
-			oib.Error = fmt.Errorf("Please send in an even number of string : interface{} pairs")
+			oib.Error = fmt.Errorf("please send in an even number of string : interface{} pairs")
 			return
 		}
 		i := 0
@@ -605,7 +605,7 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 	if len(result.Fee) != 0 {
 		executionEffort, ok := result.Fee["executionEffort"].(float64)
 		if !ok {
-			result.Err = fmt.Errorf("Type conversion failed on execution effort of fee")
+			result.Err = fmt.Errorf("type conversion failed on execution effort of fee")
 		}
 		factor := 100000000
 		gas := int(math.Round(executionEffort * float64(factor)))

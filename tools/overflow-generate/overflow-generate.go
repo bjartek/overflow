@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	. "github.com/bjartek/overflow"
+	. "github.com/bjartek/overflow/v2"
 )
 
 func main() {
-
 	args := os.Args[1:]
 	if len(args) == 0 {
 		fmt.Println("Call with <network> <pathToInteraction> or just <pathToInteraction>")

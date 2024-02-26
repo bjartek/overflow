@@ -12,7 +12,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	overflow "github.com/bjartek/overflow"
+	overflow "github.com/bjartek/overflow/v2"
 
 	time "time"
 
@@ -937,6 +937,75 @@ func (_c *OverflowBetaClient_GetOverflowTransactionById_Call) RunAndReturn(run f
 	return _c
 }
 
+// GetOverflowTransactionsForBlockId provides a mock function with given fields: ctx, id, logg
+func (_m *OverflowBetaClient) GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]overflow.OverflowTransaction, overflow.OverflowEvents, error) {
+	ret := _m.Called(ctx, id, logg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOverflowTransactionsForBlockId")
+	}
+
+	var r0 []overflow.OverflowTransaction
+	var r1 overflow.OverflowEvents
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier, *zap.Logger) ([]overflow.OverflowTransaction, overflow.OverflowEvents, error)); ok {
+		return rf(ctx, id, logg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier, *zap.Logger) []overflow.OverflowTransaction); ok {
+		r0 = rf(ctx, id, logg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]overflow.OverflowTransaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, flow.Identifier, *zap.Logger) overflow.OverflowEvents); ok {
+		r1 = rf(ctx, id, logg)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(overflow.OverflowEvents)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, flow.Identifier, *zap.Logger) error); ok {
+		r2 = rf(ctx, id, logg)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// OverflowBetaClient_GetOverflowTransactionsForBlockId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOverflowTransactionsForBlockId'
+type OverflowBetaClient_GetOverflowTransactionsForBlockId_Call struct {
+	*mock.Call
+}
+
+// GetOverflowTransactionsForBlockId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id flow.Identifier
+//   - logg *zap.Logger
+func (_e *OverflowBetaClient_Expecter) GetOverflowTransactionsForBlockId(ctx interface{}, id interface{}, logg interface{}) *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call {
+	return &OverflowBetaClient_GetOverflowTransactionsForBlockId_Call{Call: _e.mock.On("GetOverflowTransactionsForBlockId", ctx, id, logg)}
+}
+
+func (_c *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call) Run(run func(ctx context.Context, id flow.Identifier, logg *zap.Logger)) *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(flow.Identifier), args[2].(*zap.Logger))
+	})
+	return _c
+}
+
+func (_c *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call) Return(_a0 []overflow.OverflowTransaction, _a1 overflow.OverflowEvents, _a2 error) *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call) RunAndReturn(run func(context.Context, flow.Identifier, *zap.Logger) ([]overflow.OverflowTransaction, overflow.OverflowEvents, error)) *OverflowBetaClient_GetOverflowTransactionsForBlockId_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTransactionById provides a mock function with given fields: ctx, id
 func (_m *OverflowBetaClient) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
 	ret := _m.Called(ctx, id)
@@ -992,75 +1061,6 @@ func (_c *OverflowBetaClient_GetTransactionById_Call) Return(_a0 *flow.Transacti
 }
 
 func (_c *OverflowBetaClient_GetTransactionById_Call) RunAndReturn(run func(context.Context, flow.Identifier) (*flow.Transaction, error)) *OverflowBetaClient_GetTransactionById_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetTransactions provides a mock function with given fields: ctx, id, logg
-func (_m *OverflowBetaClient) GetTransactions(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]overflow.OverflowTransaction, overflow.OverflowEvents, error) {
-	ret := _m.Called(ctx, id, logg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTransactions")
-	}
-
-	var r0 []overflow.OverflowTransaction
-	var r1 overflow.OverflowEvents
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier, *zap.Logger) ([]overflow.OverflowTransaction, overflow.OverflowEvents, error)); ok {
-		return rf(ctx, id, logg)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier, *zap.Logger) []overflow.OverflowTransaction); ok {
-		r0 = rf(ctx, id, logg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]overflow.OverflowTransaction)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, flow.Identifier, *zap.Logger) overflow.OverflowEvents); ok {
-		r1 = rf(ctx, id, logg)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(overflow.OverflowEvents)
-		}
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, flow.Identifier, *zap.Logger) error); ok {
-		r2 = rf(ctx, id, logg)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// OverflowBetaClient_GetTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactions'
-type OverflowBetaClient_GetTransactions_Call struct {
-	*mock.Call
-}
-
-// GetTransactions is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id flow.Identifier
-//   - logg *zap.Logger
-func (_e *OverflowBetaClient_Expecter) GetTransactions(ctx interface{}, id interface{}, logg interface{}) *OverflowBetaClient_GetTransactions_Call {
-	return &OverflowBetaClient_GetTransactions_Call{Call: _e.mock.On("GetTransactions", ctx, id, logg)}
-}
-
-func (_c *OverflowBetaClient_GetTransactions_Call) Run(run func(ctx context.Context, id flow.Identifier, logg *zap.Logger)) *OverflowBetaClient_GetTransactions_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(flow.Identifier), args[2].(*zap.Logger))
-	})
-	return _c
-}
-
-func (_c *OverflowBetaClient_GetTransactions_Call) Return(_a0 []overflow.OverflowTransaction, _a1 overflow.OverflowEvents, _a2 error) *OverflowBetaClient_GetTransactions_Call {
-	_c.Call.Return(_a0, _a1, _a2)
-	return _c
-}
-
-func (_c *OverflowBetaClient_GetTransactions_Call) RunAndReturn(run func(context.Context, flow.Identifier, *zap.Logger) ([]overflow.OverflowTransaction, overflow.OverflowEvents, error)) *OverflowBetaClient_GetTransactions_Call {
 	_c.Call.Return(run)
 	return _c
 }

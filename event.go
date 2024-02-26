@@ -43,13 +43,13 @@ func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[s
 }
 
 type OverflowEvent struct {
-	Id            string                 `json:"id"`
 	Fields        map[string]interface{} `json:"fields"`
-	TransactionId string                 `json:"transactionID"`
-	EventIndex    uint32                 `json:"eventIndex"`
-	Name          string                 `json:"name"`
 	Addresses     map[string][]string    `json:"addresses"`
+	Id            string                 `json:"id"`
+	TransactionId string                 `json:"transactionID"`
+	Name          string                 `json:"name"`
 	RawEvent      cadence.Event          `json:"rawEvent"`
+	EventIndex    uint32                 `json:"eventIndex"`
 }
 
 // Check if an event exist in the other events

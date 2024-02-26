@@ -74,16 +74,17 @@ type OverflowClient interface {
 	FillUpStorage(accountName string) *OverflowState
 
 	SignUserMessage(account string, message string) (string, error)
+
+	GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error)
 }
 
 // beta client with unstable features
 type OverflowBetaClient interface {
 	OverflowClient
-	GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error)
-	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
-	GetTransactions(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
 	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
 	GetBlockResult(ctx context.Context, height uint64, logger *zap.Logger) (*BlockResult, error)
+	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
+	GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
 }
 
 var (
@@ -147,9 +148,9 @@ type OverflowState struct {
 }
 
 type OverflowArgument struct {
-	Name  string
 	Value interface{}
 	Type  ast.Type
+	Name  string
 }
 
 type (
@@ -179,7 +180,7 @@ func (o *OverflowState) GetNetwork() string {
 func (o *OverflowState) QualifiedIdentifierFromSnakeCase(typeName string) (string, error) {
 	words := strings.Split(typeName, "_")
 	if len(words) < 2 {
-		return "", fmt.Errorf("Invalid snake_case type string Contract_Name")
+		return "", fmt.Errorf("invalid snake_case type string Contract_Name")
 	}
 	return o.QualifiedIdentifier(words[0], words[1])
 }
@@ -212,11 +213,11 @@ func (o *OverflowState) QualifiedIdentifier(contract string, name string) (strin
 		}
 	}
 
-	return "", fmt.Errorf("You are trying to get the qualified identifier for something you are not creating or have mentioned in flow.json with name=%s", contract)
+	return "", fmt.Errorf("you are trying to get the qualified identifier for something you are not creating or have mentioned in flow.json with name=%s", contract)
 }
 
 func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
-	var resultArgs []cadence.Value = make([]cadence.Value, 0)
+	resultArgs := make([]cadence.Value, 0)
 	resultArgsMap := CadenceArguments{}
 
 	codes := map[common.Location][]byte{}
@@ -721,7 +722,7 @@ func (o *OverflowState) ParseAll() (*OverflowSolution, error) {
 func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, scriptSkip []string) (*OverflowSolution, error) {
 	warnings := []string{}
 	transactions := map[string]string{}
-	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(fmt.Sprintf("%s/transactions/", o.BasePath), func(path string, info os.FileInfo, _ error) error {
 		if strings.HasSuffix(path, ".cdc") {
 			name := strings.TrimSuffix(info.Name(), ".cdc")
 			for _, txSkip := range txSkip {
@@ -742,7 +743,7 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		return nil, err
 	}
 	scripts := map[string]string{}
-	err = filepath.Walk(fmt.Sprintf("%s/scripts/", o.BasePath), func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(fmt.Sprintf("%s/scripts/", o.BasePath), func(path string, info os.FileInfo, _ error) error {
 		if strings.HasSuffix(path, ".cdc") {
 			name := strings.TrimSuffix(info.Name(), ".cdc")
 			for _, scriptSkip := range txSkip {

@@ -1,105 +1,105 @@
 &overflow.OverflowSolution{
 	Transactions: map[string]*overflow.OverflowDeclarationInfo{
 		"aTransaction": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 			Authorizers:    overflow.OverflowAuthorizers{},
+			ParameterOrder: []string{},
 		},
 		"create_nft_collection": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"Storage"}},
+			ParameterOrder: []string{},
 		},
 		"emulatorFoo": {
-			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"BorrowValue"}},
+			ParameterOrder: []string{"test"},
 		},
 		"mainnetFoo": {
-			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{}},
+			ParameterOrder: []string{"test"},
 		},
 		"mainnetaTransaction": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 			Authorizers:    overflow.OverflowAuthorizers{},
+			ParameterOrder: []string{},
 		},
 		"mainnetzTransaction": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 			Authorizers:    overflow.OverflowAuthorizers{},
+			ParameterOrder: []string{},
 		},
 		"mint_tokens": {
-			ParameterOrder: []string{
-				"recipient",
-				"amount",
-			},
 			Parameters: map[string]string{
 				"amount":    "UFix64",
 				"recipient": "Address",
 			},
 			Authorizers: overflow.OverflowAuthorizers{"signer": []string{"BorrowValue"}},
+			ParameterOrder: []string{
+				"recipient",
+				"amount",
+			},
 		},
 		"signWithMultipleAccounts": {
-			ParameterOrder: []string{"test"},
-			Parameters:     map[string]string{"test": "String"},
+			Parameters: map[string]string{"test": "String"},
 			Authorizers: overflow.OverflowAuthorizers{
 				"account2": []string{},
 				"acct":     []string{},
 			},
+			ParameterOrder: []string{"test"},
 		},
 		"testnetFoo": {
-			ParameterOrder: []string{"test"},
 			Parameters:     map[string]string{"test": "String"},
 			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"Storage"}},
+			ParameterOrder: []string{"test"},
 		},
 		"zTransaction": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
 			Authorizers:    overflow.OverflowAuthorizers{},
+			ParameterOrder: []string{},
 		},
 	},
 	Scripts: map[string]*overflow.OverflowDeclarationInfo{
 		"aScript": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"block": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			ParameterOrder: []string{},
 		},
 		"emulatorFoo": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"mainnetFoo": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"mainnetaScript": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"mainnetzScript": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"test": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"testnetFoo": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 		"type": {
-			ParameterOrder: []string{},
 			Parameters:     map[string]string{},
+			ParameterOrder: []string{},
 		},
 		"zScript": {
-			ParameterOrder: []string{"account"},
 			Parameters:     map[string]string{"account": "Address"},
+			ParameterOrder: []string{"account"},
 		},
 	},
 	Networks: map[string]*overflow.OverflowSolutionNetwork{

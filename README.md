@@ -2,6 +2,8 @@
 
 # Overflow
 
+This is the v2 version of overflow to be used with cadence 1.0, for the v1 version that targets 0.x look in the v1 branch.
+
 A DSL written in golang to be used in tests or to run a `story` of interactions against either an local emulator, testnet, mainnet or an in memory instance of the flow-emulator.
 
 Use case scenarios include:
@@ -46,7 +48,7 @@ First create a project directory, initialize the go module and install `overflow
 mkdir test-overflow && cd test-overflow
 flow init
 go mod init example.com/test-overflow
-go get github.com/bjartek/overflow
+go get github.com/bjartek/overflow/v2
 ```
 
 Then create a task file:
@@ -64,7 +66,7 @@ import (
     "fmt"
 
     //if you imports this with .  you do not have to repeat overflow everywhere 
-    . "github.com/bjartek/overflow"
+    . "github.com/bjartek/overflow/v2"
 )
 
 func main() {
@@ -95,18 +97,12 @@ The following env vars are supported
  - OVERFLOW_LOGGING: Set this to 0-4 to get increasing log
 
 
-## Migrating from v0 api
+## Migrating from v1 api
 
-Please note the following if you migrate from an earlier version of overflow that was not tagged 
- - "github.com/bjartek/overflow/overflow" ->  "github.com/bjartek/overflow"
- - overflow.Overflow -> overflow.OverflowState
- - on OverflowState Script -> InlineScript
- - FlowTransationBuilder -> OverflowInteractionBuilder
- - FlowArgumentsBuilder -> OverflowArgumentsBuilder
- - Discord dependency is gone, if you need the code ask
- - almost all of the v0 is deprecated in favor of the functional builders `Overflow` to set up the client and , `Tx`, `Script`, `FetchEvents` to interact with it
- 
+You need to change your imports to be v2 and not v1
+
 ## Credits
 
 This project is the successor of https://github.com/bjartek/go-with-the-flow
 The v0 version of the code with a set of apis that is now deprecated is in https://github.com/bjartek/overflow/tree/v0
+The v1 version of the code with a set of apis that is now deprecated is in https://github.com/bjartek/overflow/tree/v1

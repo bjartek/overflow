@@ -11,7 +11,6 @@ import (
 Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestGenerate(t *testing.T) {
-
 	o, err := OverflowTesting()
 	require.NoError(t, err)
 	t.Run("script", func(t *testing.T) {
@@ -43,7 +42,7 @@ func TestGenerate(t *testing.T) {
 		assert.Equal(t, `package main
 
 import (
-   . "github.com/bjartek/overflow"
+   . "github.com/bjartek/overflow/v2"
 )
 
 func main() {
@@ -53,7 +52,5 @@ func main() {
     WithArg("test", <>), //String
   )
 }`, stub)
-
 	})
-
 }

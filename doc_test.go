@@ -2,7 +2,7 @@ package overflow_test
 
 // importing overflow using "." will yield a cleaner DSL
 import (
-	. "github.com/bjartek/overflow"
+	. "github.com/bjartek/overflow/v2"
 )
 
 var docOptions = WithGlobalPrintOptions(WithoutId())

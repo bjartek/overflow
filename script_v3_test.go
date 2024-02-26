@@ -77,7 +77,6 @@ access(all) fun main(input: [String]): [String] {
 `, WithArg("input", input)).GetAsJson()
 		assert.NoError(t, err)
 		assert.JSONEq(t, `["test", "foo"]`, res)
-
 	})
 
 	t.Run("Run script with string map", func(t *testing.T) {
@@ -231,6 +230,7 @@ access(all) fun main(input: Address?): Address? {
 		block, err := o.GetLatestBlock(context.Background())
 		require.NoError(t, err)
 		block, err = o.GetBlockAtHeight(context.Background(), block.Height-1)
+		assert.NoError(t, err)
 		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockIdentifier(block.ID)).GetAsInterface()
 		assert.NoError(t, err)
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
@@ -239,9 +239,9 @@ access(all) fun main(input: Address?): Address? {
 		block, err := o.GetLatestBlock(context.Background())
 		require.NoError(t, err)
 		block, err = o.GetBlockAtHeight(context.Background(), block.Height-1)
+		assert.NoError(t, err)
 		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockIdHex(block.ID.Hex())).GetAsInterface()
 		assert.NoError(t, err)
 		assert.Equal(t, "0x01cf0e2f2f715450", res)
 	})
-
 }

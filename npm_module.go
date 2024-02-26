@@ -32,9 +32,9 @@ type OverflowAuthorizers map[string][]string
 
 // a type containing information about parameter types and orders
 type OverflowDeclarationInfo struct {
-	ParameterOrder []string            `json:"order"`
 	Parameters     map[string]string   `json:"parameters"`
 	Authorizers    OverflowAuthorizers `json:"-"`
+	ParameterOrder []string            `json:"order"`
 }
 
 // a type representing one network in a solution, so mainnet/testnet/emulator
@@ -58,8 +58,8 @@ type OverflowSolutionMergedNetwork struct {
 
 // representing code with specification if parameters
 type OverflowCodeWithSpec struct {
-	Code string                   `json:"code"`
 	Spec *OverflowDeclarationInfo `json:"spec"`
+	Code string                   `json:"code"`
 }
 
 // merge the given Solution into a MergedSolution that is suited for exposing as an NPM module

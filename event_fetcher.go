@@ -26,27 +26,27 @@ type InMemoryProgressKeeper struct {
 	Progress int64
 }
 
-func (self *InMemoryProgressKeeper) ReadProgress() (int64, error) {
-	return self.Progress, nil
+func (impk *InMemoryProgressKeeper) ReadProgress() (int64, error) {
+	return impk.Progress, nil
 }
 
-func (self *InMemoryProgressKeeper) WriteProgress(progress int64) error {
-	self.Progress = progress
+func (impk *InMemoryProgressKeeper) WriteProgress(progress int64) error {
+	impk.Progress = progress
 	return nil
 }
 
 // OverflowEventFetcherBuilder builder to hold info about eventhook context.
 type OverflowEventFetcherBuilder struct {
 	Ctx                   context.Context
+	ProgressRW            ProgressReaderWriter
 	OverflowState         *OverflowState
 	EventsAndIgnoreFields OverflowEventFilter
-	FromIndex             int64
-	EndAtCurrentHeight    bool
-	EndIndex              uint64
 	ProgressFile          string
-	ProgressRW            ProgressReaderWriter
+	FromIndex             int64
+	EndIndex              uint64
 	NumberOfWorkers       int
 	EventBatchSize        uint64
+	EndAtCurrentHeight    bool
 	ReturnWriterFunction  bool
 }
 
@@ -73,12 +73,12 @@ func (o *OverflowState) buildEventInteraction(opts ...OverflowEventFetcherOption
 type ProgressWriterFunction func() error
 
 type EventFetcherResult struct {
-	Events                []OverflowPastEvent
 	Error                 error
 	State                 *OverflowEventFetcherBuilder
+	ProgressWriteFunction ProgressWriterFunction
+	Events                []OverflowPastEvent
 	From                  int64
 	To                    uint64
-	ProgressWriteFunction ProgressWriterFunction
 }
 
 func (efr EventFetcherResult) String() string {
@@ -339,19 +339,19 @@ func WithReturnProgressWriter() OverflowEventFetcherOption {
 
 // a type to represent an event that we get from FetchEvents
 type OverflowPastEvent struct {
-	Name        string        `json:"name"`
-	BlockHeight uint64        `json:"blockHeight,omitempty"`
-	BlockID     string        `json:"blockID,omnitEmpty"`
 	Time        time.Time     `json:"time,omitempty"`
+	Name        string        `json:"name"`
+	BlockID     string        `json:"blockID,omitempty"`
 	Event       OverflowEvent `json:"event"`
+	BlockHeight uint64        `json:"blockHeight,omitempty"`
 }
 
 type OverflowGraffleEvent struct {
 	EventDate         time.Time              `json:"eventDate"`
+	BlockEventData    map[string]interface{} `json:"blockEventData"`
 	FlowEventID       string                 `json:"flowEventId"`
 	FlowTransactionID string                 `json:"flowTransactionId"`
 	ID                string                 `json:"id"`
-	BlockEventData    map[string]interface{} `json:"blockEventData"`
 }
 
 func (e OverflowPastEvent) ToGraffleEvent() OverflowGraffleEvent {

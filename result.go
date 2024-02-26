@@ -93,7 +93,7 @@ func (o OverflowResult) GetIdFromEvent(eventName string, fieldName string) (uint
 			return event[0].Fields[fieldName].(uint64), nil
 		}
 	}
-	err := fmt.Errorf("Could not find id field %s in event with suffix %s", fieldName, eventName)
+	err := fmt.Errorf("could not find id field %s in event with suffix %s", fieldName, eventName)
 	if o.StopOnError {
 		panic(err)
 	}
