@@ -96,6 +96,26 @@ The following env vars are supported
  - OVEFFLOW_CONTINUE: if you do not want overflow to deploy contracts and accounts on emulator you can set this to true
  - OVERFLOW_LOGGING: Set this to 0-4 to get increasing log
 
+## Usage flix
+```package main
+
+import (
+	. "github.com/bjartek/overflow/v2"
+)
+
+func main() {
+	o := Overflow(WithNetwork("mainnet"))
+
+	o.FlixTx("transfer-flow",
+		WithSigner("<yoursigner>"),
+		WithArg("amount", 0.42),
+		WithArg("to", "0x886f3aeaf848c535"),
+	).Print()
+}```
+
+This will send 0.42 flow to me on mainnet. You need a go file with that content and a valid flow.json that is it
+
+
 
 ## Migrating from v1 api
 
