@@ -80,13 +80,8 @@ func (fbi *OverflowInteractionBuilder) runScript() *OverflowScriptResult {
 	}
 	sc := fbi.ScriptQuery
 	if fbi.ScriptQuery == nil {
-		block, err := o.GetLatestBlock(fbi.Ctx)
-		if err != nil {
-			osc.Err = err
-			return osc
-		}
 		sc = &flowkit.ScriptQuery{
-			Height: block.Height,
+			Latest: true,
 		}
 	}
 	result, err := o.Flowkit.ExecuteScript(fbi.Ctx, script, *sc)
