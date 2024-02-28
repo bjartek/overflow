@@ -20,7 +20,7 @@ func TestIntegrationEvents(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
-			AssertEventCount(t, 3)
+			AssertEventCount(t, 4)
 
 		_, err = g.FetchEvents(
 			WithEndIndex(2),
@@ -39,7 +39,7 @@ func TestIntegrationEvents(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
-			AssertEventCount(t, 3)
+			AssertEventCount(t, 4)
 		ev, err := g.FetchEvents(WithLastBlocks(2), WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"))
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(ev))
@@ -53,14 +53,14 @@ func TestIntegrationEvents(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
-			AssertEventCount(t, 3)
+			AssertEventCount(t, 4)
 
 		g.Tx("mint_tokens",
 			WithSignerServiceAccount(),
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
-			AssertEventCount(t, 3)
+			AssertEventCount(t, 4)
 
 		ev, err := g.FetchEvents(WithLastBlocks(2), WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"))
 		assert.NoError(t, err)
@@ -76,7 +76,7 @@ func TestIntegrationEvents(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
-			AssertEventCount(t, 3)
+			AssertEventCount(t, 4)
 
 		ev, err := g.FetchEvents(WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"), WithTrackProgressIn("progress"))
 		defer os.Remove("progress")
@@ -108,7 +108,7 @@ func TestIntegrationEvents(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.0),
 		).AssertSuccess(t).
-			AssertEventCount(t, 3)
+			AssertEventCount(t, 4)
 
 		ev, err := g.FetchEvents(WithEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"), WithTrackProgressIn("progress"))
 		defer os.Remove("progress")

@@ -619,7 +619,6 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		if oib.Overflow.FilterOutFeeEvents && fee != nil {
 			overflowEvents = overflowEvents.FilterFees(fee.(float64), fmt.Sprintf("0x%s", result.Transaction.Payer.Hex()))
 		}
-
 		if oib.Overflow.FilterOutEmptyWithDrawDepositEvents {
 			overflowEvents = overflowEvents.FilterTempWithdrawDeposit()
 		}
