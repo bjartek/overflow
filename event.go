@@ -72,7 +72,16 @@ func (me OverflowEvent) GetStakeholders() map[string][]string {
 			if !ok {
 				existing = []string{}
 			}
-			existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
+			eventName := me.Name
+			if strings.Contains(eventName, "FungibleToken.Withdrawn") ||
+				strings.Contains(eventName, "FungibleToken.Deposited") ||
+				strings.Contains(eventName, "NonFungibleToken.Deposited") ||
+				strings.Contains(eventName, "NonFungibleToken.Withdrawn") {
+				vaultType := me.Fields["type"].(string)
+				existing = append(existing, fmt.Sprintf("%s/%s", vaultType, name))
+			} else {
+				existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
+			}
 			stakeholder[address] = existing
 		}
 	}
