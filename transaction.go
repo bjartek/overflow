@@ -35,7 +35,7 @@ type Argument struct {
 
 type OverflowTransaction struct {
 	Error            error
-	AuthorizerTypes  OverflowAuthorizers
+	AuthorizerTypes  map[string][]string
 	Stakeholders     map[string][]string
 	Payer            string
 	Id               string
@@ -100,11 +100,14 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		status = fmt.Sprintf("%s failed getting imports", status)
 	}
 
+	authorizerTypes := map[string][]string{}
+
 	authorizers := []string{}
-	for _, authorizer := range transaction.Authorizers {
+	for i, authorizer := range transaction.Authorizers {
 		auth := fmt.Sprintf("0x%s", authorizer.Hex())
 		authorizers = append(authorizers, auth)
 		standardStakeholders[auth] = []string{"authorizer"}
+		authorizerTypes[auth] = argInfo.Authorizers[i]
 	}
 
 	payerRoles, ok := standardStakeholders[fmt.Sprintf("0x%s", transaction.Payer.Hex())]
@@ -148,7 +151,7 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		GasUsed:          uint64(gas),
 		ExecutionEffort:  executionEffort,
 		Authorizers:      authorizers,
-		AuthorizerTypes:  argInfo.Authorizers,
+		AuthorizerTypes:  authorizerTypes,
 	}, nil
 }
 

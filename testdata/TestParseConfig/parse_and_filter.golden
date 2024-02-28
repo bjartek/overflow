@@ -7,17 +7,17 @@
 		},
 		"create_nft_collection": {
 			Parameters:     map[string]string{},
-			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"Storage"}},
+			Authorizers:    overflow.OverflowAuthorizers{[]string{"Storage"}},
 			ParameterOrder: []string{},
 		},
 		"emulatorFoo": {
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"BorrowValue"}},
+			Authorizers:    overflow.OverflowAuthorizers{[]string{"BorrowValue"}},
 			ParameterOrder: []string{"test"},
 		},
 		"mainnetFoo": {
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{}},
+			Authorizers:    overflow.OverflowAuthorizers{[]string{}},
 			ParameterOrder: []string{"test"},
 		},
 		"mainnetaTransaction": {
@@ -35,7 +35,7 @@
 				"amount":    "UFix64",
 				"recipient": "Address",
 			},
-			Authorizers: overflow.OverflowAuthorizers{"signer": []string{"BorrowValue"}},
+			Authorizers: overflow.OverflowAuthorizers{[]string{"BorrowValue"}},
 			ParameterOrder: []string{
 				"recipient",
 				"amount",
@@ -44,14 +44,14 @@
 		"signWithMultipleAccounts": {
 			Parameters: map[string]string{"test": "String"},
 			Authorizers: overflow.OverflowAuthorizers{
-				"account2": []string{},
-				"acct":     []string{},
+				[]string{},
+				[]string{},
 			},
 			ParameterOrder: []string{"test"},
 		},
 		"testnetFoo": {
 			Parameters:     map[string]string{"test": "String"},
-			Authorizers:    overflow.OverflowAuthorizers{"acct": []string{"Storage"}},
+			Authorizers:    overflow.OverflowAuthorizers{[]string{"Storage"}},
 			ParameterOrder: []string{"test"},
 		},
 		"zTransaction": {

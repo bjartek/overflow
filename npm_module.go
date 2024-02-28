@@ -28,7 +28,7 @@ type OverflowSolution struct {
 	Warnings []string `json:"warnings"`
 }
 
-type OverflowAuthorizers map[string][]string
+type OverflowAuthorizers [][]string
 
 // a type containing information about parameter types and orders
 type OverflowDeclarationInfo struct {
@@ -192,7 +192,7 @@ func paramsAndAuthorizers(code []byte) (*ast.ParameterList, OverflowAuthorizers)
 			prepareParams := txd.Prepare.FunctionDeclaration.ParameterList
 			if prepareParams != nil {
 				for _, parg := range txd.Prepare.FunctionDeclaration.ParameterList.ParametersByIdentifier() {
-					name := parg.Identifier.Identifier
+					// name := parg.Identifier.Identifier
 					ta := parg.TypeAnnotation
 					if ta != nil {
 						rt, ok := ta.Type.(*ast.ReferenceType)
@@ -205,7 +205,7 @@ func paramsAndAuthorizers(code []byte) (*ast.ParameterList, OverflowAuthorizers)
 									entitlements = append(entitlements, entitlement.Identifier.Identifier)
 								}
 							}
-							authorizers[name] = entitlements
+							authorizers = append(authorizers, entitlements)
 						}
 					}
 				}

@@ -40,7 +40,7 @@ func TestTransactionIntegration(t *testing.T) {
 		oTx, err := o.GetOverflowTransactionById(context.Background(), result.Transaction.ID())
 		require.NoError(t, err)
 
-		assert.Equal(t, []string{"BorrowValue"}, oTx.AuthorizerTypes["signer"])
+		assert.Equal(t, []string{"BorrowValue"}, oTx.AuthorizerTypes["0xf8d6e0586b0a20c7"])
 	})
 
 	t.Run("fail on missing signer", func(t *testing.T) {
@@ -350,7 +350,7 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 		).AssertSuccess(t)
 
-		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers["acct"])
+		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers[0])
 	})
 
 	bytes, err := o.GetCoverageReport().MarshalJSON()
