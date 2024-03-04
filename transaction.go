@@ -221,13 +221,11 @@ func (o *OverflowState) GetOverflowTransactionsForBlockId(ctx context.Context, i
 }
 
 func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg *zap.Logger) (*BlockResult, error) {
-	logg.Debug("first")
 	start := time.Now()
 	block, err := o.GetBlockAtHeight(ctx, height)
 	if err != nil {
 		return nil, err
 	}
-	logg.Debug("second")
 	tx, systemChunkEvents, err := o.GetOverflowTransactionsForBlockId(ctx, block.ID, logg)
 	if err != nil {
 		return nil, err
