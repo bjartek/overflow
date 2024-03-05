@@ -1052,8 +1052,6 @@ github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6r
 github.com/bits-and-blooms/bitset v1.5.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
 github.com/bits-and-blooms/bitset v1.7.0 h1:YjAGVd3XmtK9ktAbX8Zg2g2PwLIMjGREZJHlV4j7NEo=
 github.com/bits-and-blooms/bitset v1.7.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
-github.com/bjartek/underflow v1.0.0 h1:ZvgB8GzZSuCp2kAla5ViHHVNjSm33UcCmVZP2YyDyhs=
-github.com/bjartek/underflow v1.0.0/go.mod h1:NR0RjEo8+NuP8nWXP1O6nWw7NyUW0TrGmLIf0R88m8M=
 github.com/bjartek/underflow v1.1.0 h1:trNOC3GP5Ayaf1heF1HuwUiesxjeMyAuOyws/14KiOo=
 github.com/bjartek/underflow v1.1.0/go.mod h1:NR0RjEo8+NuP8nWXP1O6nWw7NyUW0TrGmLIf0R88m8M=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
