@@ -206,6 +206,8 @@ func paramsAndAuthorizers(code []byte) (*ast.ParameterList, OverflowAuthorizers)
 								}
 							}
 							authorizers = append(authorizers, entitlements)
+						} else {
+							authorizers = append(authorizers, []string{})
 						}
 					}
 				}
