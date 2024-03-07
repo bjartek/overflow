@@ -654,6 +654,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		path = o.ScriptBasePath
 	}
 	ftb := &OverflowInteractionBuilder{
+		Ctx:            context.Background(),
 		Overflow:       o,
 		Payer:          nil,
 		Arguments:      []cadence.Value{},
