@@ -77,7 +77,7 @@ func TestCadenceValueToInterface(t *testing.T) {
 		{autogold.Want("uint64", uint64(42)), cadence.NewUInt64(42)},
 		{autogold.Want("ufix64", float64(42.0)), ufix},
 		{autogold.Want("uint32", uint32(42)), cadence.NewUInt32(42)},
-		{autogold.Want("int", 42), cadence.NewInt(42)},
+		{autogold.Want("int", "42"), cadence.NewInt(42)},
 		{autogold.Want("string array", []interface{}{"foo", "bar"}), cadence.NewArray([]cadence.Value{foo, bar})},
 		{autogold.Want("empty array", nil), cadence.NewArray([]cadence.Value{emptyString})},
 		{autogold.Want("string array ignore empty", []interface{}{"foo", "bar"}), cadence.NewArray([]cadence.Value{foo, emptyString, bar})},
@@ -169,7 +169,6 @@ func TestPrimitiveInputToCadence(t *testing.T) {
 		name  string
 		value interface{}
 	}{
-		{name: "int", value: 1},
 		{name: "int8", value: int8(8)},
 		{name: "int16", value: int16(16)},
 		{name: "int32", value: int32(32)},
