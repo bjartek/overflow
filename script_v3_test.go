@@ -16,20 +16,20 @@ func TestScript(t *testing.T) {
 	t.Run("Run simple script interface", func(t *testing.T) {
 		res, err := o.Script("test", WithArg("account", "first")).GetAsInterface()
 		assert.NoError(t, err)
-		assert.Equal(t, "0x01cf0e2f2f715450", res)
+		assert.Equal(t, "0x179b6b1cb6755e31", res)
 	})
 
 	t.Run("Run simple script json", func(t *testing.T) {
 		res, err := o.Script("test", WithArg("account", "first")).GetAsJson()
 		assert.NoError(t, err)
-		assert.Equal(t, `"0x01cf0e2f2f715450"`, res)
+		assert.Equal(t, `"0x179b6b1cb6755e31"`, res)
 	})
 
 	t.Run("Run simple script marshal", func(t *testing.T) {
 		var res string
 		err := o.Script("test", WithArg("account", "first")).MarshalAs(&res)
 		assert.NoError(t, err)
-		assert.Equal(t, "0x01cf0e2f2f715450", res)
+		assert.Equal(t, "0x179b6b1cb6755e31", res)
 	})
 
 	t.Run("Run simple script marshal with underlying error", func(t *testing.T) {
@@ -223,7 +223,7 @@ access(all) fun main(input: Address?): Address? {
 		require.NoError(t, err)
 		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockHeight(block.Height-1)).GetAsInterface()
 		assert.NoError(t, err)
-		assert.Equal(t, "0x01cf0e2f2f715450", res)
+		assert.Equal(t, "0x179b6b1cb6755e31", res)
 	})
 
 	t.Run("Run script at block", func(t *testing.T) {
@@ -233,7 +233,7 @@ access(all) fun main(input: Address?): Address? {
 		assert.NoError(t, err)
 		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockIdentifier(block.ID)).GetAsInterface()
 		assert.NoError(t, err)
-		assert.Equal(t, "0x01cf0e2f2f715450", res)
+		assert.Equal(t, "0x179b6b1cb6755e31", res)
 	})
 	t.Run("Run script at block hex", func(t *testing.T) {
 		block, err := o.GetLatestBlock(context.Background())
@@ -242,6 +242,6 @@ access(all) fun main(input: Address?): Address? {
 		assert.NoError(t, err)
 		res, err := o.Script("test", WithArg("account", "first"), WithExecuteScriptAtBlockIdHex(block.ID.Hex())).GetAsInterface()
 		assert.NoError(t, err)
-		assert.Equal(t, "0x01cf0e2f2f715450", res)
+		assert.Equal(t, "0x179b6b1cb6755e31", res)
 	})
 }
