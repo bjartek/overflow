@@ -41,6 +41,17 @@
 				"amount",
 			},
 		},
+		"sendFlow": {
+			Parameters: map[string]string{
+				"amount": "UFix64",
+				"to":     "Address",
+			},
+			Authorizers: overflow.OverflowAuthorizers{[]string{"BorrowValue"}},
+			ParameterOrder: []string{
+				"amount",
+				"to",
+			},
+		},
 		"signWithMultipleAccounts": {
 			Parameters: map[string]string{"test": "String"},
 			Authorizers: overflow.OverflowAuthorizers{
@@ -227,6 +238,31 @@ transaction(recipient: Address, amount: UFix64) {
         destroy minter
     }
 }`,
+				"sendFlow": `import FungibleToken from 0xee82856bf20e2aa6
+
+transaction(amount: UFix64, to: Address) {
+
+    let vault: @{FungibleToken.Vault}
+
+    prepare(signer: auth(BorrowValue) &Account) {
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Vault}>(from: /storage/flowTokenVault)
+        ?? panic("Could not borrow reference to the owner's Vault!")
+
+        self.vault <- vaultRef.withdraw(amount:amount)
+
+    }
+    execute {
+        // Get the recipient's public account object
+        let recipient = getAccount(to)
+
+        // Get a reference to the recipient's Receiver
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+        ?? panic("Could not borrow receiver reference to the recipient's Vault")
+
+        receiverRef.deposit(from: <-self.vault)
+        // Deposit the withdrawn tokens in the recipient's receiver
+    }
+}`,
 				"signWithMultipleAccounts": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
     prepare(acct: &Account, account2: &Account) {
@@ -373,6 +409,31 @@ transaction(recipient: Address, amount: UFix64) {
         destroy minter
     }
 }`,
+				"sendFlow": `import FungibleToken from 0xf233dcee88fe0abe
+
+transaction(amount: UFix64, to: Address) {
+
+    let vault: @{FungibleToken.Vault}
+
+    prepare(signer: auth(BorrowValue) &Account) {
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Vault}>(from: /storage/flowTokenVault)
+        ?? panic("Could not borrow reference to the owner's Vault!")
+
+        self.vault <- vaultRef.withdraw(amount:amount)
+
+    }
+    execute {
+        // Get the recipient's public account object
+        let recipient = getAccount(to)
+
+        // Get a reference to the recipient's Receiver
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+        ?? panic("Could not borrow receiver reference to the recipient's Vault")
+
+        receiverRef.deposit(from: <-self.vault)
+        // Deposit the withdrawn tokens in the recipient's receiver
+    }
+}`,
 				"signWithMultipleAccounts": `// This transaction creates an empty NFT Collection in the signer's account
 transaction(test:String) {
     prepare(acct: &Account, account2: &Account) {
@@ -517,6 +578,31 @@ transaction(recipient: Address, amount: UFix64) {
         self.tokenReceiver.deposit(from: <-mintedVault)
 
         destroy minter
+    }
+}`,
+				"sendFlow": `import FungibleToken from 0x9a0766d93b6608b7
+
+transaction(amount: UFix64, to: Address) {
+
+    let vault: @{FungibleToken.Vault}
+
+    prepare(signer: auth(BorrowValue) &Account) {
+        let vaultRef = signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Vault}>(from: /storage/flowTokenVault)
+        ?? panic("Could not borrow reference to the owner's Vault!")
+
+        self.vault <- vaultRef.withdraw(amount:amount)
+
+    }
+    execute {
+        // Get the recipient's public account object
+        let recipient = getAccount(to)
+
+        // Get a reference to the recipient's Receiver
+        let receiverRef = recipient.capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
+        ?? panic("Could not borrow receiver reference to the recipient's Vault")
+
+        receiverRef.deposit(from: <-self.vault)
+        // Deposit the withdrawn tokens in the recipient's receiver
     }
 }`,
 				"signWithMultipleAccounts": `// This transaction creates an empty NFT Collection in the signer's account
