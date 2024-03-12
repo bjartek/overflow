@@ -469,12 +469,12 @@ func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, er
 
 		o.Logger.Info(fmt.Sprintf("Creating account %s", account.Name))
 		newA, _, err := o.Flowkit.CreateAccount(ctx, signerAccount, keys)
-		if account.Address.Hex() != newA.Address.Hex() {
-			return nil, fmt.Errorf("the configured address for this account is %s but the created one is %s, consider reordering addresses in flow.json", account.Address.Hex(), newA.Address.Hex())
-		}
-
 		if err != nil {
 			return nil, err
+		}
+
+		if account.Address.Hex() != newA.Address.Hex() {
+			return nil, fmt.Errorf("the configured address for this account is %s but the created one is %s, consider reordering addresses in flow.json", account.Address.Hex(), newA.Address.Hex())
 		}
 
 		messages := []string{
@@ -670,6 +670,7 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		path = o.ScriptBasePath
 	}
 	ftb := &OverflowInteractionBuilder{
+		Ctx:            context.Background(),
 		Overflow:       o,
 		Payer:          nil,
 		Arguments:      []cadence.Value{},

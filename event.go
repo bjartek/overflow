@@ -72,7 +72,16 @@ func (me OverflowEvent) GetStakeholders() map[string][]string {
 			if !ok {
 				existing = []string{}
 			}
-			existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
+			eventName := me.Name
+			if strings.Contains(eventName, "FungibleToken.Withdrawn") ||
+				strings.Contains(eventName, "FungibleToken.Deposited") ||
+				strings.Contains(eventName, "NonFungibleToken.Deposited") ||
+				strings.Contains(eventName, "NonFungibleToken.Withdrawn") {
+				vaultType := me.Fields["type"].(string)
+				existing = append(existing, fmt.Sprintf("%s/%s", vaultType, name))
+			} else {
+				existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
+			}
 			stakeholder[address] = existing
 		}
 	}
@@ -222,7 +231,7 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 	return filteredEvents
 }
 
-var feeReceipients = []string{"0xf919ee77447b7497", "0x912d5440f7e3769e", "0xe5a8b7f23e8b548f"}
+var feeReceipients = []string{"0xf919ee77447b7497", "0x912d5440f7e3769e", "0xe5a8b7f23e8b548f", "0xab086ce9cc29fc80"}
 
 // Filtter out fee events
 func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) OverflowEvents {
@@ -245,6 +254,8 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 				if ok && amount == fee && from == payer {
 					continue
 				}
+
+				withDrawnEvents = append(withDrawnEvents, value)
 			}
 			if len(withDrawnEvents) != 0 {
 				filteredEvents[name] = withDrawnEvents
@@ -254,7 +265,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 		}
 
 		if strings.HasSuffix(name, ".FungibleToken.Deposited") {
-			withDrawnEvents := []OverflowEvent{}
+			depositEvents := []OverflowEvent{}
 			for _, value := range events {
 				ftType := value.Fields["type"].(string)
 				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
@@ -266,13 +277,15 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 				if ok && amount == fee && slices.Contains(feeReceipients, to) {
 					continue
 				}
+				depositEvents = append(depositEvents, value)
 			}
-			if len(withDrawnEvents) != 0 {
-				filteredEvents[name] = withDrawnEvents
+			if len(depositEvents) != 0 {
+				filteredEvents[name] = depositEvents
 			} else {
 				delete(filteredEvents, name)
 			}
 		}
+
 		if strings.HasSuffix(name, "FlowToken.TokensWithdrawn") {
 
 			withDrawnEvents := []OverflowEvent{}

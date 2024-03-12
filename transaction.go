@@ -35,7 +35,7 @@ type Argument struct {
 
 type OverflowTransaction struct {
 	Error            error
-	AuthorizerTypes  OverflowAuthorizers
+	AuthorizerTypes  map[string][]string
 	Stakeholders     map[string][]string
 	Payer            string
 	Id               string
@@ -100,11 +100,14 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		status = fmt.Sprintf("%s failed getting imports", status)
 	}
 
+	authorizerTypes := map[string][]string{}
+
 	authorizers := []string{}
-	for _, authorizer := range transaction.Authorizers {
+	for i, authorizer := range transaction.Authorizers {
 		auth := fmt.Sprintf("0x%s", authorizer.Hex())
 		authorizers = append(authorizers, auth)
 		standardStakeholders[auth] = []string{"authorizer"}
+		authorizerTypes[auth] = argInfo.Authorizers[i]
 	}
 
 	payerRoles, ok := standardStakeholders[fmt.Sprintf("0x%s", transaction.Payer.Hex())]
@@ -148,7 +151,7 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		GasUsed:          uint64(gas),
 		ExecutionEffort:  executionEffort,
 		Authorizers:      authorizers,
-		AuthorizerTypes:  argInfo.Authorizers,
+		AuthorizerTypes:  authorizerTypes,
 	}, nil
 }
 
@@ -237,6 +240,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 	if err != nil {
 		return err
 	}
+	logger.Info("latest block is", zap.Uint64("height", latestKnownBlock.Height))
 
 	sleep := poll
 	for {
@@ -282,7 +286,7 @@ func (o *OverflowState) StreamTransactions(ctx context.Context, poll time.Durati
 				block = latestKnownBlock
 			}
 			readDur := time.Since(start)
-			logg.Info("block read", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height), zap.Any("readDur", readDur.Seconds()))
+			logg.Debug("block read", zap.Any("block", block.Height), zap.Any("latestBlock", latestKnownBlock.Height), zap.Any("readDur", readDur.Seconds()))
 			tx, systemChunkEvents, err := o.GetOverflowTransactionsForBlockId(ctx, block.ID, logg)
 			logg.Debug("fetched transactions", zap.Int("tx", len(tx)))
 			if err != nil {

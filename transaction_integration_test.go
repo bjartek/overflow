@@ -28,18 +28,19 @@ func TestTransactionIntegration(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.1)).
 			AssertSuccess(t).
-			AssertEventCount(t, 3).
-			AssertEmitEventName(t, "FlowToken.TokensDeposited").
+			AssertEventCount(t, 4).
 			AssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
 				"amount": 100.1,
-			},
-			)
+			}).
+			AssertEvent(t, "FungibleToken.Deposited", map[string]interface{}{
+				"amount": 100.1,
+			})
 		require.NoError(t, result.Err)
 
 		oTx, err := o.GetOverflowTransactionById(context.Background(), result.Transaction.ID())
 		require.NoError(t, err)
 
-		assert.Equal(t, []string{"BorrowValue"}, oTx.AuthorizerTypes["signer"])
+		assert.Equal(t, []string{"BorrowValue"}, oTx.AuthorizerTypes["0xf8d6e0586b0a20c7"])
 	})
 
 	t.Run("fail on missing signer", func(t *testing.T) {
@@ -69,13 +70,13 @@ func TestTransactionIntegration(t *testing.T) {
 			WithArg("recipient", "first"),
 			WithArg("amount", 100.1)).
 			AssertSuccess(t).
-			AssertEventCount(t, 3).
+			AssertEventCount(t, 4).
 			AssertEmitEventName(t, "FlowToken.TokensDeposited").
 			AssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
 				"amount": 100.1,
 			},
 			)
-		assert.Equal(t, 1, len(result.GetEventsWithName("TokensDeposited")))
+		assert.Equal(t, 1, len(result.GetEventsWithName("FungibleToken.Deposited")))
 
 		report := o.GetCoverageReport()
 		assert.Equal(t, "18.5%", report.Summary().Coverage)
@@ -349,7 +350,7 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 		).AssertSuccess(t)
 
-		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers["acct"])
+		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers[0])
 	})
 
 	bytes, err := o.GetCoverageReport().MarshalJSON()
