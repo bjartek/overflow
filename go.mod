@@ -8,11 +8,11 @@ require (
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.16.0
 	github.com/hexops/autogold v1.3.1
-	github.com/onflow/cadence v1.0.0-preview.12
-	github.com/onflow/flow-emulator v1.0.0-preview.10
-	github.com/onflow/flow-go v0.34.0-crescendo-preview.5.0.20240312025929-25d0a9f6e292
-	github.com/onflow/flow-go-sdk v1.0.0-preview.10
-	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.8
+	github.com/onflow/cadence v1.0.0-preview.13
+	github.com/onflow/flow-emulator v1.0.0-preview.11
+	github.com/onflow/flow-go v0.34.0-crescendo-preview.6.0.20240313030147-6c1b120ed2ac
+	github.com/onflow/flow-go-sdk v1.0.0-preview.11
+	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.9
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/samber/lo v1.38.1
