@@ -79,7 +79,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("FungibleToken.Deposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "18.5%", report.Summary().Coverage)
+		assert.Equal(t, "18.9%", report.Summary().Coverage)
 	})
 
 	t.Run("Mint tokens assert events with built in assertion", func(t *testing.T) {
@@ -351,6 +351,28 @@ func TestTransactionIntegration(t *testing.T) {
 		).AssertSuccess(t)
 
 		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers[0])
+	})
+
+	t.Run("send flow", func(t *testing.T) {
+		result := o.Tx("sendFlow",
+			WithSignerServiceAccount(),
+			WithArg("to", "first"),
+			WithArg("amount", 100.1)).
+			AssertSuccess(t).
+			AssertEventCount(t, 3).
+			AssertEmitEventName(t, "FlowToken.TokensDeposited").
+			AssertEvent(t, "FlowToken.TokensDeposited", map[string]interface{}{
+				"amount": 100.1,
+			},
+			)
+		assert.Equal(t, 1, len(result.GetEventsWithName("FungibleToken.Deposited")))
+
+		o.Tx("sendFlow",
+			WithSigner("first"),
+			WithArg("to", "second"),
+			WithArg("amount", 10.0)).
+			AssertSuccess(t).
+			AssertEventCount(t, 4)
 	})
 
 	bytes, err := o.GetCoverageReport().MarshalJSON()
