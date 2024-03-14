@@ -17,6 +17,7 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime"
+	"github.com/onflow/flixkit-go/flixkit"
 	"github.com/onflow/flow-emulator/emulator"
 	"github.com/onflow/flowkit/v2"
 	"github.com/onflow/flowkit/v2/config"
@@ -165,6 +166,10 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		return overflow
 	}
 	overflow.State = state
+
+	overflow.Flixkit = flixkit.NewFlixService(&flixkit.FlixServiceConfig{
+		FileReader: state,
+	})
 
 	if o.InputResolver != nil {
 		overflow.InputResolver = *o.InputResolver

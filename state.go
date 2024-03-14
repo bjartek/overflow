@@ -22,6 +22,7 @@ import (
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
+	"github.com/onflow/flixkit-go/flixkit"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flowkit/v2"
 	"github.com/onflow/flowkit/v2/accounts"
@@ -85,6 +86,14 @@ type OverflowBetaClient interface {
 	GetBlockResult(ctx context.Context, height uint64, logger *zap.Logger) (*BlockResult, error)
 	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
 	GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
+
+	FlixTx(filename string, opts ...OverflowInteractionOption) *OverflowResult
+	FlixTxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction
+	FlixTxFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowTransactionOptsFunction
+
+	FlixScriptFN(outerOpts ...OverflowInteractionOption) OverflowScriptFunction
+	FlixScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowScriptOptsFunction
+	FlixScript(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
 }
 
 var (
@@ -142,6 +151,8 @@ type OverflowState struct {
 	CoverageReport *runtime.CoverageReport
 
 	UnderflowOptions underflow.Options
+
+	Flixkit flixkit.FlixService
 }
 
 type OverflowArgument struct {
@@ -583,6 +594,11 @@ func (o *OverflowState) TxFileNameFN(filename string, outerOpts ...OverflowInter
 // The main function for running an transasction in overflow
 func (o *OverflowState) Tx(filename string, opts ...OverflowInteractionOption) *OverflowResult {
 	ftb := o.BuildInteraction(filename, "transaction", opts...)
+
+	return o.sendTx(ftb)
+}
+
+func (o *OverflowState) sendTx(ftb *OverflowInteractionBuilder) *OverflowResult {
 	result := ftb.Send()
 
 	if ftb.PrintOptions != nil && !ftb.NoLog {
@@ -672,7 +688,20 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 		opt(ftb)
 	}
 
-	if strings.Contains(filename, "transaction (") ||
+	if ftb.Error != nil {
+		return ftb
+	}
+
+	// we need to do flix stuff
+	if interactionType == "flix" {
+		flix, err := o.Flixkit.GetTemplateAndReplaceImports(ftb.Ctx, filename, o.Network.Name)
+		if err != nil {
+			ftb.Error = errors.Wrapf(err, "failed getting flix using query %s for network %s", filename, o.Network.Name)
+			return ftb
+		}
+		ftb.TransactionCode = []byte(flix.Cadence)
+		ftb.FileName = filename
+	} else if strings.Contains(filename, "transaction (") ||
 		strings.Contains(filename, "transaction {") ||
 		strings.Contains(filename, "transaction{") ||
 		strings.Contains(filename, "transaction(") ||
@@ -695,10 +724,6 @@ func (o *OverflowState) BuildInteraction(filename string, interactionType string
 			ftb.Error = err
 			return ftb
 		}
-	}
-
-	if ftb.Error != nil {
-		return ftb
 	}
 
 	parseArgs, namedCadenceArguments, err := o.parseArguments(ftb.FileName, ftb.TransactionCode, ftb.NamedArgs)
