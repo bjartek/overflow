@@ -1,2 +1,0 @@
-#!/bin/bash
-flow scripts execute -n mainnet $@  -o json | ./overflow-json

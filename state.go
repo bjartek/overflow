@@ -11,7 +11,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
@@ -31,7 +30,6 @@ import (
 	"github.com/onflow/flowkit/v2/output"
 	"github.com/onflow/flowkit/v2/project"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
 )
 
@@ -86,20 +84,12 @@ type OverflowClient interface {
 	FlixScript(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
 
 	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
+
+	// NB! This will contain system chunk transactions on mainnet/testnet
+	GetTransactionByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error)
 }
 
-// beta client with unstable features
-type OverflowBetaClient interface {
-	OverflowClient
-	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
-	GetBlockResult(ctx context.Context, height uint64, logger *zap.Logger) (*BlockResult, error)
-	GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
-}
-
-var (
-	_ OverflowClient     = (*OverflowState)(nil)
-	_ OverflowBetaClient = (*OverflowState)(nil)
-)
+var _ OverflowClient = (*OverflowState)(nil)
 
 // OverflowState contains information about how to Overflow is confitured and the current runnig state
 type OverflowState struct {

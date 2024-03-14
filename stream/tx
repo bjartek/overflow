@@ -1,3 +1,0 @@
-#!/bin/bash
-
-flow blocks get $1 -n mainnet --include transactions
