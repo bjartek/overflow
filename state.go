@@ -63,7 +63,6 @@ type OverflowClient interface {
 	GetLatestBlock(ctx context.Context) (*flow.Block, error)
 	GetBlockAtHeight(ctx context.Context, height uint64) (*flow.Block, error)
 	GetBlockById(ctx context.Context, blockId string) (*flow.Block, error)
-	FetchEventsWithResult(opts ...OverflowEventFetcherOption) EventFetcherResult
 
 	UploadFile(filename string, accountName string) error
 	DownloadAndUploadFile(url string, accountName string) error
@@ -77,15 +76,6 @@ type OverflowClient interface {
 	SignUserMessage(account string, message string) (string, error)
 
 	GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error)
-}
-
-// beta client with unstable features
-type OverflowBetaClient interface {
-	OverflowClient
-	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
-	GetBlockResult(ctx context.Context, height uint64, logger *zap.Logger) (*BlockResult, error)
-	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
-	GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
 
 	FlixTx(filename string, opts ...OverflowInteractionOption) *OverflowResult
 	FlixTxFN(outerOpts ...OverflowInteractionOption) OverflowTransactionFunction
@@ -94,6 +84,16 @@ type OverflowBetaClient interface {
 	FlixScriptFN(outerOpts ...OverflowInteractionOption) OverflowScriptFunction
 	FlixScriptFileNameFN(filename string, outerOpts ...OverflowInteractionOption) OverflowScriptOptsFunction
 	FlixScript(filename string, opts ...OverflowInteractionOption) *OverflowScriptResult
+
+	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
+}
+
+// beta client with unstable features
+type OverflowBetaClient interface {
+	OverflowClient
+	StreamTransactions(ctx context.Context, poll time.Duration, height uint64, logger *zap.Logger, channel chan<- BlockResult) error
+	GetBlockResult(ctx context.Context, height uint64, logger *zap.Logger) (*BlockResult, error)
+	GetOverflowTransactionsForBlockId(ctx context.Context, id flow.Identifier, logg *zap.Logger) ([]OverflowTransaction, OverflowEvents, error)
 }
 
 var (

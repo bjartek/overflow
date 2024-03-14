@@ -381,65 +381,6 @@ func (_c *OverflowClient_DownloadImageAndUploadAsDataUrl_Call) RunAndReturn(run 
 	return _c
 }
 
-// FetchEventsWithResult provides a mock function with given fields: opts
-func (_m *OverflowClient) FetchEventsWithResult(opts ...overflow.OverflowEventFetcherOption) overflow.EventFetcherResult {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for FetchEventsWithResult")
-	}
-
-	var r0 overflow.EventFetcherResult
-	if rf, ok := ret.Get(0).(func(...overflow.OverflowEventFetcherOption) overflow.EventFetcherResult); ok {
-		r0 = rf(opts...)
-	} else {
-		r0 = ret.Get(0).(overflow.EventFetcherResult)
-	}
-
-	return r0
-}
-
-// OverflowClient_FetchEventsWithResult_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FetchEventsWithResult'
-type OverflowClient_FetchEventsWithResult_Call struct {
-	*mock.Call
-}
-
-// FetchEventsWithResult is a helper method to define mock.On call
-//   - opts ...overflow.OverflowEventFetcherOption
-func (_e *OverflowClient_Expecter) FetchEventsWithResult(opts ...interface{}) *OverflowClient_FetchEventsWithResult_Call {
-	return &OverflowClient_FetchEventsWithResult_Call{Call: _e.mock.On("FetchEventsWithResult",
-		append([]interface{}{}, opts...)...)}
-}
-
-func (_c *OverflowClient_FetchEventsWithResult_Call) Run(run func(opts ...overflow.OverflowEventFetcherOption)) *OverflowClient_FetchEventsWithResult_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]overflow.OverflowEventFetcherOption, len(args)-0)
-		for i, a := range args[0:] {
-			if a != nil {
-				variadicArgs[i] = a.(overflow.OverflowEventFetcherOption)
-			}
-		}
-		run(variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *OverflowClient_FetchEventsWithResult_Call) Return(_a0 overflow.EventFetcherResult) *OverflowClient_FetchEventsWithResult_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *OverflowClient_FetchEventsWithResult_Call) RunAndReturn(run func(...overflow.OverflowEventFetcherOption) overflow.EventFetcherResult) *OverflowClient_FetchEventsWithResult_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // FillUpStorage provides a mock function with given fields: accountName
 func (_m *OverflowClient) FillUpStorage(accountName string) *overflow.OverflowState {
 	ret := _m.Called(accountName)
@@ -484,6 +425,380 @@ func (_c *OverflowClient_FillUpStorage_Call) Return(_a0 *overflow.OverflowState)
 }
 
 func (_c *OverflowClient_FillUpStorage_Call) RunAndReturn(run func(string) *overflow.OverflowState) *OverflowClient_FillUpStorage_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FlixScript provides a mock function with given fields: filename, opts
+func (_m *OverflowClient) FlixScript(filename string, opts ...overflow.OverflowInteractionOption) *overflow.OverflowScriptResult {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, filename)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FlixScript")
+	}
+
+	var r0 *overflow.OverflowScriptResult
+	if rf, ok := ret.Get(0).(func(string, ...overflow.OverflowInteractionOption) *overflow.OverflowScriptResult); ok {
+		r0 = rf(filename, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*overflow.OverflowScriptResult)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FlixScript_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FlixScript'
+type OverflowClient_FlixScript_Call struct {
+	*mock.Call
+}
+
+// FlixScript is a helper method to define mock.On call
+//   - filename string
+//   - opts ...overflow.OverflowInteractionOption
+func (_e *OverflowClient_Expecter) FlixScript(filename interface{}, opts ...interface{}) *OverflowClient_FlixScript_Call {
+	return &OverflowClient_FlixScript_Call{Call: _e.mock.On("FlixScript",
+		append([]interface{}{filename}, opts...)...)}
+}
+
+func (_c *OverflowClient_FlixScript_Call) Run(run func(filename string, opts ...overflow.OverflowInteractionOption)) *OverflowClient_FlixScript_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]overflow.OverflowInteractionOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(overflow.OverflowInteractionOption)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FlixScript_Call) Return(_a0 *overflow.OverflowScriptResult) *OverflowClient_FlixScript_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *OverflowClient_FlixScript_Call) RunAndReturn(run func(string, ...overflow.OverflowInteractionOption) *overflow.OverflowScriptResult) *OverflowClient_FlixScript_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FlixScriptFN provides a mock function with given fields: outerOpts
+func (_m *OverflowClient) FlixScriptFN(outerOpts ...overflow.OverflowInteractionOption) overflow.OverflowScriptFunction {
+	_va := make([]interface{}, len(outerOpts))
+	for _i := range outerOpts {
+		_va[_i] = outerOpts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FlixScriptFN")
+	}
+
+	var r0 overflow.OverflowScriptFunction
+	if rf, ok := ret.Get(0).(func(...overflow.OverflowInteractionOption) overflow.OverflowScriptFunction); ok {
+		r0 = rf(outerOpts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(overflow.OverflowScriptFunction)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FlixScriptFN_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FlixScriptFN'
+type OverflowClient_FlixScriptFN_Call struct {
+	*mock.Call
+}
+
+// FlixScriptFN is a helper method to define mock.On call
+//   - outerOpts ...overflow.OverflowInteractionOption
+func (_e *OverflowClient_Expecter) FlixScriptFN(outerOpts ...interface{}) *OverflowClient_FlixScriptFN_Call {
+	return &OverflowClient_FlixScriptFN_Call{Call: _e.mock.On("FlixScriptFN",
+		append([]interface{}{}, outerOpts...)...)}
+}
+
+func (_c *OverflowClient_FlixScriptFN_Call) Run(run func(outerOpts ...overflow.OverflowInteractionOption)) *OverflowClient_FlixScriptFN_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]overflow.OverflowInteractionOption, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(overflow.OverflowInteractionOption)
+			}
+		}
+		run(variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FlixScriptFN_Call) Return(_a0 overflow.OverflowScriptFunction) *OverflowClient_FlixScriptFN_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *OverflowClient_FlixScriptFN_Call) RunAndReturn(run func(...overflow.OverflowInteractionOption) overflow.OverflowScriptFunction) *OverflowClient_FlixScriptFN_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FlixScriptFileNameFN provides a mock function with given fields: filename, outerOpts
+func (_m *OverflowClient) FlixScriptFileNameFN(filename string, outerOpts ...overflow.OverflowInteractionOption) overflow.OverflowScriptOptsFunction {
+	_va := make([]interface{}, len(outerOpts))
+	for _i := range outerOpts {
+		_va[_i] = outerOpts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, filename)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FlixScriptFileNameFN")
+	}
+
+	var r0 overflow.OverflowScriptOptsFunction
+	if rf, ok := ret.Get(0).(func(string, ...overflow.OverflowInteractionOption) overflow.OverflowScriptOptsFunction); ok {
+		r0 = rf(filename, outerOpts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(overflow.OverflowScriptOptsFunction)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FlixScriptFileNameFN_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FlixScriptFileNameFN'
+type OverflowClient_FlixScriptFileNameFN_Call struct {
+	*mock.Call
+}
+
+// FlixScriptFileNameFN is a helper method to define mock.On call
+//   - filename string
+//   - outerOpts ...overflow.OverflowInteractionOption
+func (_e *OverflowClient_Expecter) FlixScriptFileNameFN(filename interface{}, outerOpts ...interface{}) *OverflowClient_FlixScriptFileNameFN_Call {
+	return &OverflowClient_FlixScriptFileNameFN_Call{Call: _e.mock.On("FlixScriptFileNameFN",
+		append([]interface{}{filename}, outerOpts...)...)}
+}
+
+func (_c *OverflowClient_FlixScriptFileNameFN_Call) Run(run func(filename string, outerOpts ...overflow.OverflowInteractionOption)) *OverflowClient_FlixScriptFileNameFN_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]overflow.OverflowInteractionOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(overflow.OverflowInteractionOption)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FlixScriptFileNameFN_Call) Return(_a0 overflow.OverflowScriptOptsFunction) *OverflowClient_FlixScriptFileNameFN_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *OverflowClient_FlixScriptFileNameFN_Call) RunAndReturn(run func(string, ...overflow.OverflowInteractionOption) overflow.OverflowScriptOptsFunction) *OverflowClient_FlixScriptFileNameFN_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FlixTx provides a mock function with given fields: filename, opts
+func (_m *OverflowClient) FlixTx(filename string, opts ...overflow.OverflowInteractionOption) *overflow.OverflowResult {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, filename)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FlixTx")
+	}
+
+	var r0 *overflow.OverflowResult
+	if rf, ok := ret.Get(0).(func(string, ...overflow.OverflowInteractionOption) *overflow.OverflowResult); ok {
+		r0 = rf(filename, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*overflow.OverflowResult)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FlixTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FlixTx'
+type OverflowClient_FlixTx_Call struct {
+	*mock.Call
+}
+
+// FlixTx is a helper method to define mock.On call
+//   - filename string
+//   - opts ...overflow.OverflowInteractionOption
+func (_e *OverflowClient_Expecter) FlixTx(filename interface{}, opts ...interface{}) *OverflowClient_FlixTx_Call {
+	return &OverflowClient_FlixTx_Call{Call: _e.mock.On("FlixTx",
+		append([]interface{}{filename}, opts...)...)}
+}
+
+func (_c *OverflowClient_FlixTx_Call) Run(run func(filename string, opts ...overflow.OverflowInteractionOption)) *OverflowClient_FlixTx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]overflow.OverflowInteractionOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(overflow.OverflowInteractionOption)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FlixTx_Call) Return(_a0 *overflow.OverflowResult) *OverflowClient_FlixTx_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *OverflowClient_FlixTx_Call) RunAndReturn(run func(string, ...overflow.OverflowInteractionOption) *overflow.OverflowResult) *OverflowClient_FlixTx_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FlixTxFN provides a mock function with given fields: outerOpts
+func (_m *OverflowClient) FlixTxFN(outerOpts ...overflow.OverflowInteractionOption) overflow.OverflowTransactionFunction {
+	_va := make([]interface{}, len(outerOpts))
+	for _i := range outerOpts {
+		_va[_i] = outerOpts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FlixTxFN")
+	}
+
+	var r0 overflow.OverflowTransactionFunction
+	if rf, ok := ret.Get(0).(func(...overflow.OverflowInteractionOption) overflow.OverflowTransactionFunction); ok {
+		r0 = rf(outerOpts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(overflow.OverflowTransactionFunction)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FlixTxFN_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FlixTxFN'
+type OverflowClient_FlixTxFN_Call struct {
+	*mock.Call
+}
+
+// FlixTxFN is a helper method to define mock.On call
+//   - outerOpts ...overflow.OverflowInteractionOption
+func (_e *OverflowClient_Expecter) FlixTxFN(outerOpts ...interface{}) *OverflowClient_FlixTxFN_Call {
+	return &OverflowClient_FlixTxFN_Call{Call: _e.mock.On("FlixTxFN",
+		append([]interface{}{}, outerOpts...)...)}
+}
+
+func (_c *OverflowClient_FlixTxFN_Call) Run(run func(outerOpts ...overflow.OverflowInteractionOption)) *OverflowClient_FlixTxFN_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]overflow.OverflowInteractionOption, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(overflow.OverflowInteractionOption)
+			}
+		}
+		run(variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FlixTxFN_Call) Return(_a0 overflow.OverflowTransactionFunction) *OverflowClient_FlixTxFN_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *OverflowClient_FlixTxFN_Call) RunAndReturn(run func(...overflow.OverflowInteractionOption) overflow.OverflowTransactionFunction) *OverflowClient_FlixTxFN_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FlixTxFileNameFN provides a mock function with given fields: filename, outerOpts
+func (_m *OverflowClient) FlixTxFileNameFN(filename string, outerOpts ...overflow.OverflowInteractionOption) overflow.OverflowTransactionOptsFunction {
+	_va := make([]interface{}, len(outerOpts))
+	for _i := range outerOpts {
+		_va[_i] = outerOpts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, filename)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FlixTxFileNameFN")
+	}
+
+	var r0 overflow.OverflowTransactionOptsFunction
+	if rf, ok := ret.Get(0).(func(string, ...overflow.OverflowInteractionOption) overflow.OverflowTransactionOptsFunction); ok {
+		r0 = rf(filename, outerOpts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(overflow.OverflowTransactionOptsFunction)
+		}
+	}
+
+	return r0
+}
+
+// OverflowClient_FlixTxFileNameFN_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FlixTxFileNameFN'
+type OverflowClient_FlixTxFileNameFN_Call struct {
+	*mock.Call
+}
+
+// FlixTxFileNameFN is a helper method to define mock.On call
+//   - filename string
+//   - outerOpts ...overflow.OverflowInteractionOption
+func (_e *OverflowClient_Expecter) FlixTxFileNameFN(filename interface{}, outerOpts ...interface{}) *OverflowClient_FlixTxFileNameFN_Call {
+	return &OverflowClient_FlixTxFileNameFN_Call{Call: _e.mock.On("FlixTxFileNameFN",
+		append([]interface{}{filename}, outerOpts...)...)}
+}
+
+func (_c *OverflowClient_FlixTxFileNameFN_Call) Run(run func(filename string, outerOpts ...overflow.OverflowInteractionOption)) *OverflowClient_FlixTxFileNameFN_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]overflow.OverflowInteractionOption, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(overflow.OverflowInteractionOption)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OverflowClient_FlixTxFileNameFN_Call) Return(_a0 overflow.OverflowTransactionOptsFunction) *OverflowClient_FlixTxFileNameFN_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *OverflowClient_FlixTxFileNameFN_Call) RunAndReturn(run func(string, ...overflow.OverflowInteractionOption) overflow.OverflowTransactionOptsFunction) *OverflowClient_FlixTxFileNameFN_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -810,6 +1125,65 @@ func (_c *OverflowClient_GetNetwork_Call) Return(_a0 string) *OverflowClient_Get
 }
 
 func (_c *OverflowClient_GetNetwork_Call) RunAndReturn(run func() string) *OverflowClient_GetNetwork_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetOverflowTransactionById provides a mock function with given fields: ctx, id
+func (_m *OverflowClient) GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*overflow.OverflowTransaction, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOverflowTransactionById")
+	}
+
+	var r0 *overflow.OverflowTransaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier) (*overflow.OverflowTransaction, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier) *overflow.OverflowTransaction); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*overflow.OverflowTransaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, flow.Identifier) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_GetOverflowTransactionById_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOverflowTransactionById'
+type OverflowClient_GetOverflowTransactionById_Call struct {
+	*mock.Call
+}
+
+// GetOverflowTransactionById is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id flow.Identifier
+func (_e *OverflowClient_Expecter) GetOverflowTransactionById(ctx interface{}, id interface{}) *OverflowClient_GetOverflowTransactionById_Call {
+	return &OverflowClient_GetOverflowTransactionById_Call{Call: _e.mock.On("GetOverflowTransactionById", ctx, id)}
+}
+
+func (_c *OverflowClient_GetOverflowTransactionById_Call) Run(run func(ctx context.Context, id flow.Identifier)) *OverflowClient_GetOverflowTransactionById_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(flow.Identifier))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_GetOverflowTransactionById_Call) Return(_a0 *overflow.OverflowTransaction, _a1 error) *OverflowClient_GetOverflowTransactionById_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *OverflowClient_GetOverflowTransactionById_Call) RunAndReturn(run func(context.Context, flow.Identifier) (*overflow.OverflowTransaction, error)) *OverflowClient_GetOverflowTransactionById_Call {
 	_c.Call.Return(run)
 	return _c
 }
