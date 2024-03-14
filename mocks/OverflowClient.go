@@ -287,6 +287,67 @@ func (_c *OverflowClient_Address_Call) RunAndReturn(run func(string) string) *Ov
 	return _c
 }
 
+// CreateOverflowTransaction provides a mock function with given fields: blockId, transactionResult, transaction, txIndex
+func (_m *OverflowClient) CreateOverflowTransaction(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*overflow.OverflowTransaction, error) {
+	ret := _m.Called(blockId, transactionResult, transaction, txIndex)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOverflowTransaction")
+	}
+
+	var r0 *overflow.OverflowTransaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, flow.TransactionResult, flow.Transaction, int) (*overflow.OverflowTransaction, error)); ok {
+		return rf(blockId, transactionResult, transaction, txIndex)
+	}
+	if rf, ok := ret.Get(0).(func(string, flow.TransactionResult, flow.Transaction, int) *overflow.OverflowTransaction); ok {
+		r0 = rf(blockId, transactionResult, transaction, txIndex)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*overflow.OverflowTransaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, flow.TransactionResult, flow.Transaction, int) error); ok {
+		r1 = rf(blockId, transactionResult, transaction, txIndex)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_CreateOverflowTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateOverflowTransaction'
+type OverflowClient_CreateOverflowTransaction_Call struct {
+	*mock.Call
+}
+
+// CreateOverflowTransaction is a helper method to define mock.On call
+//   - blockId string
+//   - transactionResult flow.TransactionResult
+//   - transaction flow.Transaction
+//   - txIndex int
+func (_e *OverflowClient_Expecter) CreateOverflowTransaction(blockId interface{}, transactionResult interface{}, transaction interface{}, txIndex interface{}) *OverflowClient_CreateOverflowTransaction_Call {
+	return &OverflowClient_CreateOverflowTransaction_Call{Call: _e.mock.On("CreateOverflowTransaction", blockId, transactionResult, transaction, txIndex)}
+}
+
+func (_c *OverflowClient_CreateOverflowTransaction_Call) Run(run func(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int)) *OverflowClient_CreateOverflowTransaction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(flow.TransactionResult), args[2].(flow.Transaction), args[3].(int))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_CreateOverflowTransaction_Call) Return(_a0 *overflow.OverflowTransaction, _a1 error) *OverflowClient_CreateOverflowTransaction_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *OverflowClient_CreateOverflowTransaction_Call) RunAndReturn(run func(string, flow.TransactionResult, flow.Transaction, int) (*overflow.OverflowTransaction, error)) *OverflowClient_CreateOverflowTransaction_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DownloadAndUploadFile provides a mock function with given fields: url, accountName
 func (_m *OverflowClient) DownloadAndUploadFile(url string, accountName string) error {
 	ret := _m.Called(url, accountName)
@@ -1188,6 +1249,74 @@ func (_c *OverflowClient_GetOverflowTransactionById_Call) RunAndReturn(run func(
 	return _c
 }
 
+// GetTransactionByBlockId provides a mock function with given fields: ctx, id
+func (_m *OverflowClient) GetTransactionByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error) {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTransactionByBlockId")
+	}
+
+	var r0 []*flow.Transaction
+	var r1 []*flow.TransactionResult
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, flow.Identifier) []*flow.Transaction); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*flow.Transaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, flow.Identifier) []*flow.TransactionResult); ok {
+		r1 = rf(ctx, id)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]*flow.TransactionResult)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, flow.Identifier) error); ok {
+		r2 = rf(ctx, id)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// OverflowClient_GetTransactionByBlockId_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionByBlockId'
+type OverflowClient_GetTransactionByBlockId_Call struct {
+	*mock.Call
+}
+
+// GetTransactionByBlockId is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id flow.Identifier
+func (_e *OverflowClient_Expecter) GetTransactionByBlockId(ctx interface{}, id interface{}) *OverflowClient_GetTransactionByBlockId_Call {
+	return &OverflowClient_GetTransactionByBlockId_Call{Call: _e.mock.On("GetTransactionByBlockId", ctx, id)}
+}
+
+func (_c *OverflowClient_GetTransactionByBlockId_Call) Run(run func(ctx context.Context, id flow.Identifier)) *OverflowClient_GetTransactionByBlockId_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(flow.Identifier))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_GetTransactionByBlockId_Call) Return(_a0 []*flow.Transaction, _a1 []*flow.TransactionResult, _a2 error) *OverflowClient_GetTransactionByBlockId_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *OverflowClient_GetTransactionByBlockId_Call) RunAndReturn(run func(context.Context, flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error)) *OverflowClient_GetTransactionByBlockId_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTransactionById provides a mock function with given fields: ctx, id
 func (_m *OverflowClient) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
 	ret := _m.Called(ctx, id)
@@ -1292,6 +1421,123 @@ func (_c *OverflowClient_MintFlowTokens_Call) Return(_a0 *overflow.OverflowState
 }
 
 func (_c *OverflowClient_MintFlowTokens_Call) RunAndReturn(run func(string, float64) *overflow.OverflowState) *OverflowClient_MintFlowTokens_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ParseEvents provides a mock function with given fields: events
+func (_m *OverflowClient) ParseEvents(events []flow.Event) (overflow.OverflowEvents, overflow.OverflowEvent) {
+	ret := _m.Called(events)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ParseEvents")
+	}
+
+	var r0 overflow.OverflowEvents
+	var r1 overflow.OverflowEvent
+	if rf, ok := ret.Get(0).(func([]flow.Event) (overflow.OverflowEvents, overflow.OverflowEvent)); ok {
+		return rf(events)
+	}
+	if rf, ok := ret.Get(0).(func([]flow.Event) overflow.OverflowEvents); ok {
+		r0 = rf(events)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(overflow.OverflowEvents)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func([]flow.Event) overflow.OverflowEvent); ok {
+		r1 = rf(events)
+	} else {
+		r1 = ret.Get(1).(overflow.OverflowEvent)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_ParseEvents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ParseEvents'
+type OverflowClient_ParseEvents_Call struct {
+	*mock.Call
+}
+
+// ParseEvents is a helper method to define mock.On call
+//   - events []flow.Event
+func (_e *OverflowClient_Expecter) ParseEvents(events interface{}) *OverflowClient_ParseEvents_Call {
+	return &OverflowClient_ParseEvents_Call{Call: _e.mock.On("ParseEvents", events)}
+}
+
+func (_c *OverflowClient_ParseEvents_Call) Run(run func(events []flow.Event)) *OverflowClient_ParseEvents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]flow.Event))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_ParseEvents_Call) Return(_a0 overflow.OverflowEvents, _a1 overflow.OverflowEvent) *OverflowClient_ParseEvents_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *OverflowClient_ParseEvents_Call) RunAndReturn(run func([]flow.Event) (overflow.OverflowEvents, overflow.OverflowEvent)) *OverflowClient_ParseEvents_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ParseEventsWithIdPrefix provides a mock function with given fields: events, idPrefix
+func (_m *OverflowClient) ParseEventsWithIdPrefix(events []flow.Event, idPrefix string) (overflow.OverflowEvents, overflow.OverflowEvent) {
+	ret := _m.Called(events, idPrefix)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ParseEventsWithIdPrefix")
+	}
+
+	var r0 overflow.OverflowEvents
+	var r1 overflow.OverflowEvent
+	if rf, ok := ret.Get(0).(func([]flow.Event, string) (overflow.OverflowEvents, overflow.OverflowEvent)); ok {
+		return rf(events, idPrefix)
+	}
+	if rf, ok := ret.Get(0).(func([]flow.Event, string) overflow.OverflowEvents); ok {
+		r0 = rf(events, idPrefix)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(overflow.OverflowEvents)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func([]flow.Event, string) overflow.OverflowEvent); ok {
+		r1 = rf(events, idPrefix)
+	} else {
+		r1 = ret.Get(1).(overflow.OverflowEvent)
+	}
+
+	return r0, r1
+}
+
+// OverflowClient_ParseEventsWithIdPrefix_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ParseEventsWithIdPrefix'
+type OverflowClient_ParseEventsWithIdPrefix_Call struct {
+	*mock.Call
+}
+
+// ParseEventsWithIdPrefix is a helper method to define mock.On call
+//   - events []flow.Event
+//   - idPrefix string
+func (_e *OverflowClient_Expecter) ParseEventsWithIdPrefix(events interface{}, idPrefix interface{}) *OverflowClient_ParseEventsWithIdPrefix_Call {
+	return &OverflowClient_ParseEventsWithIdPrefix_Call{Call: _e.mock.On("ParseEventsWithIdPrefix", events, idPrefix)}
+}
+
+func (_c *OverflowClient_ParseEventsWithIdPrefix_Call) Run(run func(events []flow.Event, idPrefix string)) *OverflowClient_ParseEventsWithIdPrefix_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]flow.Event), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *OverflowClient_ParseEventsWithIdPrefix_Call) Return(_a0 overflow.OverflowEvents, _a1 overflow.OverflowEvent) *OverflowClient_ParseEventsWithIdPrefix_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *OverflowClient_ParseEventsWithIdPrefix_Call) RunAndReturn(run func([]flow.Event, string) (overflow.OverflowEvents, overflow.OverflowEvent)) *OverflowClient_ParseEventsWithIdPrefix_Call {
 	_c.Call.Return(run)
 	return _c
 }

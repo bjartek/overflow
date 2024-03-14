@@ -86,7 +86,16 @@ type OverflowClient interface {
 	GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error)
 
 	// NB! This will contain system chunk transactions on mainnet/testnet
-	GetTransactionByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error)
+	GetTransactionsByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error)
+
+	// parse flow events into overflow events, the last argument is the fee event, the id prefix is there for system chunk events since the id it generates must be unique
+	ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent)
+
+	// this method can be used to parse events emitted from system chunk transactions with a prefix
+	ParseEventsWithIdPrefix(events []flow.Event, idPrefix string) (OverflowEvents, OverflowEvent)
+
+	// use this method to transform a flow transactionResult and transaction into a overflow transaction
+	CreateOverflowTransaction(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error)
 }
 
 var _ OverflowClient = (*OverflowState)(nil)

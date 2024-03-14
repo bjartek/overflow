@@ -114,7 +114,11 @@ func (e OverflowEvent) MarshalAs(marshalTo interface{}) error {
 	return nil
 }
 
-func (o *OverflowState) ParseEvents(events []flow.Event, idPrefix string) (OverflowEvents, OverflowEvent) {
+func (o *OverflowState) ParseEvents(events []flow.Event) (OverflowEvents, OverflowEvent) {
+	return o.ParseEventsWithIdPrefix(events, "")
+}
+
+func (o *OverflowState) ParseEventsWithIdPrefix(events []flow.Event, idPrefix string) (OverflowEvents, OverflowEvent) {
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
 	for i, event := range events {

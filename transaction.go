@@ -42,7 +42,7 @@ type OverflowTransaction struct {
 
 func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
 	feeAmount := 0.0
-	events, fee := o.ParseEvents(transactionResult.Events, "")
+	events, fee := o.ParseEvents(transactionResult.Events)
 	feeRaw, ok := fee.Fields["amount"]
 	if ok {
 		feeAmount, ok = feeRaw.(float64)
@@ -161,7 +161,7 @@ func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifi
 	return tx, nil
 }
 
-func (o *OverflowState) GetTransactionByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error) {
+func (o *OverflowState) GetTransactionsByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error) {
 	tx, txr, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
 		return nil, nil, err
