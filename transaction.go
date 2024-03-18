@@ -93,7 +93,9 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		auth := fmt.Sprintf("0x%s", authorizer.Hex())
 		authorizers = append(authorizers, auth)
 		standardStakeholders[auth] = []string{"authorizer"}
-		authorizerTypes[auth] = argInfo.Authorizers[i]
+		if len(argInfo.Authorizers) > i {
+			authorizerTypes[auth] = argInfo.Authorizers[i]
+		}
 	}
 
 	payerRoles, ok := standardStakeholders[fmt.Sprintf("0x%s", transaction.Payer.Hex())]
