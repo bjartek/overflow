@@ -81,7 +81,7 @@ func ExampleOverflowState_Tx_multisign() {
 	//🧑 Created account: emulator-first with address: 179b6b1cb6755e31 with flow: 10.00
 	//🧑 Created account: emulator-second with address: f3fcd2c1a78f5eee with flow: 10.00
 	//📜 deploy contracts Debug
-	//👌 Tx: fee:0.00001000 gas:9
+	//👌 Tx: fee:0.00001000 gas:10
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
 	//   msg -> acct:0xf3fcd2c1a78f5eee

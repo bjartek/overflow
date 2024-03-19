@@ -8,20 +8,18 @@ require (
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.16.0
 	github.com/hexops/autogold v1.3.1
-	github.com/onflow/cadence v1.0.0-preview.13
+	github.com/onflow/cadence v1.0.0-preview.15
 	github.com/onflow/flixkit-go v1.2.1-cadence-v1-preview.5
-	github.com/onflow/flow-emulator v1.0.0-preview.11
-	github.com/onflow/flow-go v0.34.0-crescendo-preview.6.0.20240313030147-6c1b120ed2ac
-	github.com/onflow/flow-go-sdk v1.0.0-preview.11
-	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.9
+	github.com/onflow/flow-emulator v1.0.0-preview.12
+	github.com/onflow/flow-go v0.34.0-crescendo-preview.6.0.20240318184044-4d7d92181133
+	github.com/onflow/flow-go-sdk v1.0.0-preview.13
+	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.10
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
-	github.com/samber/lo v1.38.1
 	github.com/sanity-io/litter v1.5.5
 	github.com/spf13/afero v1.10.0
 	github.com/stretchr/testify v1.8.4
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb
-	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 	google.golang.org/grpc v1.60.1
 )
@@ -204,6 +202,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
