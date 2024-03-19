@@ -184,7 +184,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 		return nil, nil, errors.Wrap(err, "getting transaction results")
 	}
 
-	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)), zap.Int("txR", len(txR)))
+	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)), zap.Int("txR", len(txR)), zap.String("host", o.Flowkit.Network().Host))
 	var systemChunkEvents OverflowEvents
 	totalTxR := len(txR)
 	result := lo.FlatMap(txR, func(rp *flow.TransactionResult, i int) []OverflowTransaction {
@@ -216,6 +216,7 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 }
 
 func (o *OverflowState) GetBlockResult(ctx context.Context, height uint64, logg *zap.Logger) (*BlockResult, error) {
+	logg.Debug("Getting block", zap.Uint64("height", height), zap.String("host", o.Flowkit.Network().Host))
 	start := time.Now()
 	block, err := o.GetBlockAtHeight(ctx, height)
 	if err != nil {

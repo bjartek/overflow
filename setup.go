@@ -17,8 +17,6 @@ import (
 
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flow-emulator/emulator"
-	"github.com/onflow/flow-go/fvm/blueprints"
-	fm "github.com/onflow/flow-go/model/flow"
 	"github.com/onflow/flowkit"
 	"github.com/onflow/flowkit/config"
 	"github.com/onflow/flowkit/gateway"
@@ -91,6 +89,7 @@ type OverflowBuilder struct {
 	DeployContracts                     bool
 	GasLimit                            int
 	Path                                string
+	NetworkHost                         string
 	LogLevel                            int
 	InitializeAccounts                  bool
 	PrependNetworkName                  bool
@@ -174,26 +173,14 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		}
 	}
 
-	// This is different for testnet and mainnet
-	// TODO: fix this for testnet
-
-	chain := fm.Mainnet.Chain()
-	if o.Network == "testnet" {
-		chain = fm.Testnet.Chain()
-	}
-
-	systemChunkTx, err := blueprints.SystemChunkTransaction(chain)
-	if err != nil {
-		overflow.Error = err
-		return overflow
-	}
-	systemChunkId := systemChunkTx.ID().String()
-	overflow.SystemChunkTransactionId = systemChunkId
-
 	network, err := state.Networks().ByName(o.Network)
 	if err != nil {
 		overflow.Error = err
 		return overflow
+	}
+
+	if o.NetworkHost != "" {
+		network.Host = o.NetworkHost
 	}
 	overflow.Network = *network
 
@@ -529,6 +516,13 @@ func WithCoverageReport() OverflowOption {
 func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.EmulatorOptions = append(o.EmulatorOptions, opt...)
+	}
+}
+
+// Set custom network host if different from the one in flow.json since we cannot env substs there
+func WithNetworkNost(host string) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.NetworkHost = host
 	}
 }
 
