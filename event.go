@@ -348,22 +348,31 @@ func (overflowEvents OverflowEvents) Print(t *testing.T) {
 		t.Helper()
 	}
 
+	events := []OverflowEvent{}
 	printOrLog(t, "=== Events ===")
-	for name, eventList := range overflowEvents {
+	for _, eventList := range overflowEvents {
 		for _, event := range eventList {
-			printOrLog(t, name)
-			length := 0
-			for key := range event.Fields {
-				keyLength := len(key)
-				if keyLength > length {
-					length = keyLength
-				}
-			}
+			events = append(events, event)
+		}
+	}
 
-			format := fmt.Sprintf("%%%ds -> %%v", length+2)
-			for key, value := range event.Fields {
-				printOrLog(t, fmt.Sprintf(format, key, value))
+	slices.SortStableFunc(events, func(a OverflowEvent, b OverflowEvent) int {
+		return int(a.EventIndex) - int(b.EventIndex)
+	})
+
+	for _, event := range events {
+		printOrLog(t, event.Name)
+		length := 0
+		for key := range event.Fields {
+			keyLength := len(key)
+			if keyLength > length {
+				length = keyLength
 			}
+		}
+
+		format := fmt.Sprintf("%%%ds -> %%v", length+2)
+		for key, value := range event.Fields {
+			printOrLog(t, fmt.Sprintf(format, key, value))
 		}
 	}
 }
