@@ -23,6 +23,47 @@ type OverflowEventList []OverflowEvent
 // a type holding all events that are emitted from a Transaction
 type OverflowEvents map[string]OverflowEventList
 
+type OverflowFtTransfer interface {
+
+  //Print
+
+}
+
+	Event *OverflowEvent
+	Children   []OverflowTransfer
+}
+/*
+A.ee82856bf20e2aa6.FungibleToken.Withdrawn
+from      from -> 0x179b6b1cb6755e31
+      fromUUID -> 68169720922114
+
+to withdrawnUUID -> 115448720916480
+
+          type -> A.0ae53cb6e3f42a79.FlowToken.Vault
+        amount -> 4.2
+
+  A.ee82856bf20e2aa6.FungibleToken.Withdrawn
+         fromUUID -> 115448720916480
+
+    withdrawnUUID -> 115448720916481
+             type -> A.0ae53cb6e3f42a79.FlowToken.Vault
+           amount -> 1
+    A.ee82856bf20e2aa6.FungibleToken.Deposited
+             amount -> 1
+                 to -> 0xf3fcd2c1a78f5eee
+             toUUID -> 106652627894274
+      depositedUUID -> 115448720916481
+               type -> A.0ae53cb6e3f42a79.FlowToken.Vault
+  A.ee82856bf20e2aa6.FungibleToken.Deposited
+               to -> 0xf3fcd2c1a78f5eee
+           toUUID -> 106652627894274
+to   depositedUUID -> 115448720916480
+             type -> A.0ae53cb6e3f42a79.FlowToken.Vault
+           amount -> 3.2
+
+
+*/
+
 func (me OverflowEvents) GetStakeholders(stakeholders map[string][]string) map[string][]string {
 	for _, events := range me {
 		for _, event := range events {
