@@ -260,7 +260,6 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 	assert.LessOrEqual(t, o.ComputationUsed, computation)
 	/*
 			if o.FeeGas != 0 {
-		    //TODO: https://github.com/onflow/flow-emulator/issues/542
 		//		assert.Equal(t, o.ComputationUsed, o.FeeGas)
 			}
 	*/
@@ -271,11 +270,10 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 func (o OverflowResult) AssertComputationUsed(t *testing.T, computation int) OverflowResult {
 	t.Helper()
 	assert.Equal(t, computation, o.ComputationUsed)
-	//TODO: https://github.com/onflow/flow-emulator/issues/542
 	/*
-			if o.FeeGas != 0 {
-		//		assert.Equal(t, o.ComputationUsed, o.FeeGas)
-			}
+		if o.FeeGas != 0 {
+			assert.Equal(t, o.ComputationUsed, o.FeeGas)
+		}
 	*/
 
 	return o

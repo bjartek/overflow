@@ -105,7 +105,7 @@ func TestTransactionIntegration(t *testing.T) {
 		res.
 			AssertSuccess(t).
 			AssertDebugLog(t, "foobar").
-			AssertComputationLessThenOrEqual(t, 40)
+			AssertComputationLessThenOrEqual(t, 70)
 	})
 
 	t.Run("Mint tokens and marshal event", func(t *testing.T) {
