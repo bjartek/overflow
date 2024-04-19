@@ -181,7 +181,14 @@ func (o *OverflowState) GetTransactions(ctx context.Context, id flow.Identifier,
 
 	tx, txR, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "getting transaction results")
+		if logg != nil {
+			logg.Debug("retry getting transactions")
+		}
+		time.Sleep(time.Millisecond * 500)
+		tx, txR, err = o.Flowkit.GetTransactionsByBlockID(ctx, id)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "getting transaction results")
+		}
 	}
 
 	logg.Debug("Fetched tx", zap.String("blockId", id.String()), zap.Int("tx", len(tx)), zap.Int("txR", len(txR)), zap.String("host", o.Flowkit.Network().Host))
