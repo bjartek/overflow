@@ -79,7 +79,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("FungibleToken.Deposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "18.9%", report.Summary().Coverage)
+		assert.Equal(t, "19.5%", report.Summary().Coverage)
 	})
 
 	t.Run("Mint tokens assert events with built in assertion", func(t *testing.T) {
