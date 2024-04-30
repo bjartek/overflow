@@ -91,6 +91,7 @@ type OverflowBuilder struct {
 	PrintOptions                        *[]OverflowPrinterOption
 	GlobalEventFilter                   OverflowEventFilter
 	Path                                string
+	NetworkHost                         string
 	Network                             string
 	ScriptFolderName                    string
 	ServiceSuffix                       string
@@ -182,6 +183,9 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	if err != nil {
 		overflow.Error = err
 		return overflow
+	}
+	if o.NetworkHost != "" {
+		network.Host = o.NetworkHost
 	}
 	overflow.Network = *network
 
@@ -500,6 +504,13 @@ func WithCoverageReport() OverflowOption {
 func WithEmulatorOption(opt ...emulator.Option) OverflowOption {
 	return func(o *OverflowBuilder) {
 		o.EmulatorOptions = append(o.EmulatorOptions, opt...)
+	}
+}
+
+// Set custom network host if different from the one in flow.json since we cannot env substs there
+func WithNetworkHost(host string) OverflowOption {
+	return func(o *OverflowBuilder) {
+		o.NetworkHost = host
 	}
 }
 
