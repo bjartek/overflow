@@ -6,16 +6,16 @@ toolchain go1.22.2
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.1.0
+	github.com/bjartek/underflow v1.2.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.16.0
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v1.0.0-preview.23
 	github.com/onflow/flixkit-go v1.2.1-cadence-v1-preview.10
-	github.com/onflow/flow-emulator v1.0.0-preview.19.0.20240430110431-c04996980dbc
+	github.com/onflow/flow-emulator v1.0.0-preview.21
 	github.com/onflow/flow-go v0.34.0-crescendo-preview.10-staged-contracts-3.0.20240430105130-26cb8ee40436
 	github.com/onflow/flow-go-sdk v1.0.0-preview.22
-	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.15.0.20240430111642-59bcd98a9aed
+	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.16
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/sanity-io/litter v1.5.5
