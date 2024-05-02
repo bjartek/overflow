@@ -13,7 +13,7 @@ require (
 	github.com/onflow/cadence v1.0.0-preview.23
 	github.com/onflow/flixkit-go v1.2.1-cadence-v1-preview.10
 	github.com/onflow/flow-emulator v1.0.0-preview.21
-	github.com/onflow/flow-go v0.34.0-crescendo-preview.10-staged-contracts-3.0.20240430105130-26cb8ee40436
+	github.com/onflow/flow-go v0.34.0-crescendo-preview.17
 	github.com/onflow/flow-go-sdk v1.0.0-preview.22
 	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.16
 	github.com/pkg/errors v0.9.1
