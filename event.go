@@ -122,17 +122,10 @@ func (o *OverflowState) ParseEventsWithIdPrefix(events []flow.Event, idPrefix st
 	overflowEvents := OverflowEvents{}
 	fee := OverflowEvent{}
 	for i, event := range events {
-		var fieldNames []string
-
-		for _, eventTypeFields := range event.Value.EventType.Fields {
-			fieldNames = append(fieldNames, eventTypeFields.Identifier)
-		}
-
 		finalFields := map[string]interface{}{}
 		addresses := map[string][]string{}
 
-		for id, field := range event.Value.Fields {
-			name := fieldNames[id]
+		for name, field := range cadence.FieldsMappedByName(event.Value) {
 
 			adr := underflow.ExtractAddresses(field)
 			if len(adr) > 0 {

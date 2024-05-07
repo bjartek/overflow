@@ -40,18 +40,6 @@ func parseTime(timeString string, location string) (string, error) {
 	return fmt.Sprintf("%d.0", t.Unix()), nil
 }
 
-func getAndUnquoteString(value cadence.Value) string {
-	result, err := strconv.Unquote(value.String())
-	if err != nil {
-		result = value.String()
-		if strings.Contains(result, "\\u") || strings.Contains(result, "\\U") {
-			result = value.ToGoValue().(string)
-		}
-	}
-
-	return strings.ReplaceAll(result, "\x00", "")
-}
-
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 
