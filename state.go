@@ -248,6 +248,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			parameterList = transactionDeclaration[0].ParameterList.Parameters
 		}
 	}
+	litter.Dump(parameterList)
 
 	argumentNotPresent := []string{}
 	argumentNames := []string{}
@@ -266,6 +267,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			})
 		}
 	}
+	litter.Dump(args)
 
 	if len(argumentNotPresent) > 0 {
 		err := fmt.Errorf("the interaction '%s' is missing %v", fileName, argumentNotPresent)
@@ -301,6 +303,11 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			continue
 		}
 
+		litter.Dump(oa)
+		semaType := checker.ConvertType(oa.Type)
+		litter.Dump(semaType)
+
+		// what is the sema type, is this a "container"
 		var argumentString string
 		switch a := argument.(type) {
 		case nil:
@@ -317,24 +324,14 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			resultArgs = append(resultArgs, cadenceVal)
 			resultArgsMap[name] = cadenceVal
 			continue
-
 		}
-		litter.Dump(argumentString)
-		semaType := checker.ConvertType(oa.Type)
-		litter.Dump(semaType)
-		fmt.Printf("%v\n", semaType)
-		fmt.Printf("%x\n", semaType)
-		fmt.Printf("%T\n", semaType)
 
 		switch semaType {
 		case sema.StringType:
 			if len(argumentString) > 0 && !strings.HasPrefix(argumentString, "\"") {
 				argumentString = "\"" + argumentString + "\""
 			}
-		}
-
-		switch semaType.(type) {
-		case *sema.AddressType:
+		case sema.TheAddressType:
 
 			account, _ := o.AccountE(argumentString)
 

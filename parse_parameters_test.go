@@ -44,7 +44,7 @@ func TestOverflowState_parseArguments(t *testing.T) {
 				code:      "s:String",
 				inputArgs: map[string]interface{}{"s": "foobar"},
 			},
-			want1:   autogold.Want("map2", CadenceArguments{"s": cadence.String("fooba")}),
+			want1:   autogold.Want("map2", CadenceArguments{"s": cadence.String("foobar")}),
 			want:    autogold.Want("slice2", []cadence.Value{cadence.String("foobar")}),
 			wantErr: autogold.Want("err2", nil),
 		},
@@ -97,24 +97,24 @@ func TestOverflowState_parseArguments(t *testing.T) {
 			want:    autogold.Want("slice5", []cadence.Value{}),
 			wantErr: autogold.Want("err5", "the interaction 'somefile' has the following extra arguments [foo]"),
 		},
-
 		{
 			name: "array of addresses",
 			args: Args{
 				code:      "adr:[Address]",
-				inputArgs: map[string]interface{}{"adr": []string{"first"}},
+				inputArgs: map[string]interface{}{"adr": []string{"second"}},
 			},
 			want1: autogold.Want("map6", CadenceArguments{"adr": cadence.Array{
-				Values: []cadence.Value{cadence.String("first")},
+				Values: []cadence.Value{cadence.String("firs")},
 			}}),
 			want: autogold.Want("slice6", []cadence.Value{cadence.Array{
-				Values: []cadence.Value{cadence.String("first")},
+				Values: []cadence.Value{cadence.String("firs")},
 			}}),
 			wantErr: autogold.Want("err6", nil),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			fmt.Println("testing")
 			code := []byte(fmt.Sprintf("transaction(%s){}", tt.args.code))
 			got, got1, err := o.parseArguments("somefile", code, tt.args.inputArgs)
 
