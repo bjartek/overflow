@@ -30,6 +30,7 @@ import (
 	"github.com/onflow/flowkit/v2/output"
 	"github.com/onflow/flowkit/v2/project"
 	"github.com/pkg/errors"
+	"github.com/sanity-io/litter"
 	"golang.org/x/exp/slices"
 )
 
@@ -248,9 +249,6 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		}
 	}
 
-	if parameterList == nil {
-		return resultArgs, resultArgsMap, nil
-	}
 	argumentNotPresent := []string{}
 	argumentNames := []string{}
 	args := OverflowArgumentList{}
@@ -287,6 +285,10 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		return nil, nil, err
 	}
 
+	if parameterList == nil {
+		return resultArgs, resultArgsMap, nil
+	}
+
 	for _, oa := range args {
 
 		name := oa.Name
@@ -317,7 +319,12 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			continue
 
 		}
+		litter.Dump(argumentString)
 		semaType := checker.ConvertType(oa.Type)
+		litter.Dump(semaType)
+		fmt.Printf("%v\n", semaType)
+		fmt.Printf("%x\n", semaType)
+		fmt.Printf("%T\n", semaType)
 
 		switch semaType {
 		case sema.StringType:
