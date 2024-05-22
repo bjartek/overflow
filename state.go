@@ -295,7 +295,6 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		return nil, nil, errors.Wrap(err, "extracting arguments")
 	}
 	for _, oa := range args {
-
 		// todo multierr
 		cadenceVal, err := underflow.InputToCadenceWithHint(oa.Value, oa.Type, o.InputResolver)
 		if err != nil {
