@@ -8,7 +8,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -993,36 +992,4 @@ func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
 
 func (o *OverflowState) RollbackToBlockHeight(height uint64) error {
 	return o.EmulatorGatway.RollbackToBlockHeight(height)
-}
-
-func ToInterfaceSlice(input interface{}) ([]interface{}, error) {
-	v := reflect.ValueOf(input)
-
-	if v.Kind() != reflect.Slice {
-		return nil, fmt.Errorf("input is not a slice")
-	}
-
-	result := make([]interface{}, v.Len())
-
-	for i := 0; i < v.Len(); i++ {
-		result[i] = v.Index(i).Interface()
-	}
-
-	return result, nil
-}
-
-func ToInterfaceMap(input interface{}) (map[interface{}]interface{}, error) {
-	v := reflect.ValueOf(input)
-
-	if v.Kind() != reflect.Map {
-		return nil, fmt.Errorf("input is not a map")
-	}
-
-	result := make(map[interface{}]interface{}, v.Len())
-
-	for _, key := range v.MapKeys() {
-		result[key.Interface()] = v.MapIndex(key).Interface()
-	}
-
-	return result, nil
 }

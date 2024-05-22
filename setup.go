@@ -247,7 +247,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow
 		}
 	}
-
 	if o.DeployContracts {
 		overflow = overflow.InitializeContracts(o.Ctx)
 		if overflow.Error != nil {
