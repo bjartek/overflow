@@ -299,91 +299,12 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		// todo multierr
 		cadenceVal, err := underflow.InputToCadenceWithHint(oa.Value, oa.Type, o.InputResolver)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", oa.Name, oa.Value, oa.Type)
 		}
 		resultArgs = append(resultArgs, cadenceVal)
 		resultArgsMap[oa.Name] = cadenceVal
 	}
 	return resultArgs, resultArgsMap, nil
-
-	/*
-		inter, interErr := interpreter.NewInterpreter(nil, nil, &interpreter.Config{})
-		if interErr != nil {
-			return nil, nil, interErr
-		}
-
-		switch st := oa.Type.(type) {
-		case *sema.VariableSizedType:
-			fmt.Println("array type", st.Type)
-			args, err := ToInterfaceSlice(argument)
-			if err != nil {
-				return nil, nil, err
-			}
-			for _, i := range args {
-				// we should here need to run something recursive, becauset this might be an array of arrays
-				fmt.Println(i)
-			}
-		case *sema.ConstantSizedType:
-			fmt.Println("array type", st.Type)
-			args, err := ToInterfaceSlice(argument)
-			if err != nil {
-				return nil, nil, err
-			}
-			for _, i := range args {
-				fmt.Println(i)
-			}
-		case *sema.DictionaryType:
-			fmt.Println("we are dict type key", st.KeyType)
-			fmt.Println("we are dict type value", st.ValueType)
-
-		default:
-			fmt.Println("sema types type", st)
-		}
-
-		// what is the sema type, is this a "container"
-		var argumentString string
-		switch a := argument.(type) {
-		case nil:
-			argumentString = "nil"
-		case string:
-			argumentString = a
-		case int:
-			argumentString = fmt.Sprintf("%v", a)
-		default:
-			cadenceVal, err := underflow.InputToCadence(argument, o.InputResolver)
-			if err != nil {
-				return nil, nil, err
-			}
-			resultArgs = append(resultArgs, cadenceVal)
-			resultArgsMap[name] = cadenceVal
-			continue
-		}
-
-		switch oa.Type {
-		case sema.StringType:
-			if len(argumentString) > 0 && !strings.HasPrefix(argumentString, "\"") {
-				argumentString = "\"" + argumentString + "\""
-			}
-		case sema.TheAddressType:
-
-			account, _ := o.AccountE(argumentString)
-
-			if account != nil {
-				argumentString = account.Address.String()
-			}
-
-			if !strings.Contains(argumentString, "0x") {
-				argumentString = fmt.Sprintf("0x%s", argumentString)
-			}
-		}
-
-		value, err := runtime.ParseLiteral(argumentString, oa.Type, inter)
-		if err != nil {
-			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", name, argumentString, oa.Type)
-		}
-		resultArgs = append(resultArgs, value)
-		resultArgsMap[name] = value
-	*/
 }
 
 func (o *OverflowState) AccountPublicKey(name string) (string, error) {
@@ -552,7 +473,7 @@ func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, er
 		if o.Network.Name == "emulator" && o.NewUserFlowAmount != 0.0 {
 			res := o.MintFlowTokens(account.Address.String(), o.NewUserFlowAmount)
 			if res.Error != nil {
-				return nil, errors.Wrap(err, "could not mint flow tokens")
+				return nil, errors.Wrap(res.Error, "could not mint flow tokens")
 			}
 			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
 		}

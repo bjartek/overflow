@@ -98,7 +98,7 @@ func TestParseArguments(t *testing.T) {
 			},
 			want1:   autogold.Want("map4", CadenceArguments{}),
 			want:    autogold.Want("slice4", []cadence.Value{}),
-			wantErr: autogold.Want("err4", "the interaction 'somefile' is missing [adr]"),
+			wantErr: autogold.Want("err4", "extracting arguments: the interaction 'somefile' is missing [adr]"),
 		},
 		{
 			name: "redundant argument",
@@ -108,7 +108,7 @@ func TestParseArguments(t *testing.T) {
 			},
 			want1:   autogold.Want("map5", CadenceArguments{}),
 			want:    autogold.Want("slice5", []cadence.Value{}),
-			wantErr: autogold.Want("err5", "the interaction 'somefile' has the following extra arguments [foo]"),
+			wantErr: autogold.Want("err5", "extracting arguments: the interaction 'somefile' has the following extra arguments [foo]"),
 		},
 		{
 			name: "array of addresses",
@@ -117,10 +117,28 @@ func TestParseArguments(t *testing.T) {
 				inputArgs: map[string]interface{}{"adr": []string{"second"}},
 			},
 			want1: autogold.Want("map6", CadenceArguments{"adr": cadence.Array{
-				Values: []cadence.Value{cadence.String("firs")},
+				Values: []cadence.Value{cadence.Address{
+					243,
+					252,
+					210,
+					193,
+					167,
+					143,
+					94,
+					238,
+				}},
 			}}),
 			want: autogold.Want("slice6", []cadence.Value{cadence.Array{
-				Values: []cadence.Value{cadence.String("firs")},
+				Values: []cadence.Value{cadence.Address{
+					243,
+					252,
+					210,
+					193,
+					167,
+					143,
+					94,
+					238,
+				}},
 			}}),
 			wantErr: autogold.Want("err6", nil),
 		},

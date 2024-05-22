@@ -179,9 +179,15 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			if resolveType == underflow.Identifier {
 				return overflow.QualifiedIdentifierFromSnakeCase(name)
 			}
-			address, err := overflow.FlowAddressE(name)
-			if err != nil {
-				return "", err
+
+			adr, err2 := hexToAddress(name)
+			if err2 == nil {
+				return adr.String(), nil
+			}
+
+			address, err2 := overflow.FlowAddressE(name)
+			if err2 != nil {
+				return "", errors.Wrapf(err2, "could not parse %s into an address", name)
 			}
 			return address.HexWithPrefix(), nil
 		}

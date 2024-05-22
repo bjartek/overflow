@@ -191,7 +191,7 @@ transaction(test:Address) {
  }
 }
 `, "transaction", WithArg("test", "bjartek"), WithSignerServiceAccount())
-		assert.ErrorContains(t, res.Error, "argument `test` with value `0xbjartek` is not expected type `Address`")
+		assert.ErrorContains(t, res.Error, "argument `test` with value `bjartek` is not expected type `Address`")
 	})
 
 	t.Run("Should set gas", func(t *testing.T) {
