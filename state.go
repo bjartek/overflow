@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -19,7 +20,6 @@ import (
 	"github.com/onflow/cadence/runtime/ast"
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
-	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flixkit-go/flixkit"
 	"github.com/onflow/flow-go-sdk"
@@ -30,7 +30,6 @@ import (
 	"github.com/onflow/flowkit/v2/output"
 	"github.com/onflow/flowkit/v2/project"
 	"github.com/pkg/errors"
-	"github.com/sanity-io/litter"
 	"golang.org/x/exp/slices"
 )
 
@@ -157,7 +156,7 @@ type OverflowState struct {
 
 type OverflowArgument struct {
 	Value interface{}
-	Type  ast.Type
+	Type  sema.Type
 	Name  string
 }
 
@@ -224,10 +223,7 @@ func (o *OverflowState) QualifiedIdentifier(contract string, name string) (strin
 	return "", fmt.Errorf("you are trying to get the qualified identifier for something you are not creating or have mentioned in flow.json with name=%s", contract)
 }
 
-func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
-	resultArgs := make([]cadence.Value, 0)
-	resultArgsMap := CadenceArguments{}
-
+func ExtractArguments(fileName string, code []byte, inputArgs map[string]interface{}) (OverflowArgumentList, error) {
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(code, location, codes)
@@ -248,7 +244,6 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			parameterList = transactionDeclaration[0].ParameterList.Parameters
 		}
 	}
-	litter.Dump(parameterList)
 
 	argumentNotPresent := []string{}
 	argumentNames := []string{}
@@ -263,15 +258,14 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			args = append(args, OverflowArgument{
 				Name:  parameterName,
 				Value: value,
-				Type:  parameter.TypeAnnotation.Type,
+				Type:  checker.ConvertType(parameter.TypeAnnotation.Type),
 			})
 		}
 	}
-	litter.Dump(args)
 
 	if len(argumentNotPresent) > 0 {
 		err := fmt.Errorf("the interaction '%s' is missing %v", fileName, argumentNotPresent)
-		return nil, nil, err
+		return nil, err
 	}
 
 	redundantArgument := []string{}
@@ -284,28 +278,68 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 	if len(redundantArgument) > 0 {
 		err := fmt.Errorf("the interaction '%s' has the following extra arguments %v", fileName, redundantArgument)
-		return nil, nil, err
+		return nil, err
 	}
 
 	if parameterList == nil {
-		return resultArgs, resultArgsMap, nil
+		return nil, nil
 	}
+	return args, nil
+}
 
+func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
+	resultArgs := make([]cadence.Value, 0)
+	resultArgsMap := CadenceArguments{}
+
+	args, err := ExtractArguments(fileName, code, inputArgs)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "extracting arguments")
+	}
 	for _, oa := range args {
 
-		name := oa.Name
-		argument := oa.Value
+		// todo multierr
+		cadenceVal, err := underflow.InputToCadenceWithHint(oa.Value, oa.Type, o.InputResolver)
+		if err != nil {
+			return nil, nil, err
+		}
+		resultArgs = append(resultArgs, cadenceVal)
+		resultArgsMap[oa.Name] = cadenceVal
+	}
+	return resultArgs, resultArgsMap, nil
 
-		cadenceVal, isCadenceValue := argument.(cadence.Value)
-		if isCadenceValue {
-			resultArgs = append(resultArgs, cadenceVal)
-			resultArgsMap[name] = cadenceVal
-			continue
+	/*
+		inter, interErr := interpreter.NewInterpreter(nil, nil, &interpreter.Config{})
+		if interErr != nil {
+			return nil, nil, interErr
 		}
 
-		litter.Dump(oa)
-		semaType := checker.ConvertType(oa.Type)
-		litter.Dump(semaType)
+		switch st := oa.Type.(type) {
+		case *sema.VariableSizedType:
+			fmt.Println("array type", st.Type)
+			args, err := ToInterfaceSlice(argument)
+			if err != nil {
+				return nil, nil, err
+			}
+			for _, i := range args {
+				// we should here need to run something recursive, becauset this might be an array of arrays
+				fmt.Println(i)
+			}
+		case *sema.ConstantSizedType:
+			fmt.Println("array type", st.Type)
+			args, err := ToInterfaceSlice(argument)
+			if err != nil {
+				return nil, nil, err
+			}
+			for _, i := range args {
+				fmt.Println(i)
+			}
+		case *sema.DictionaryType:
+			fmt.Println("we are dict type key", st.KeyType)
+			fmt.Println("we are dict type value", st.ValueType)
+
+		default:
+			fmt.Println("sema types type", st)
+		}
 
 		// what is the sema type, is this a "container"
 		var argumentString string
@@ -326,7 +360,7 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			continue
 		}
 
-		switch semaType {
+		switch oa.Type {
 		case sema.StringType:
 			if len(argumentString) > 0 && !strings.HasPrefix(argumentString, "\"") {
 				argumentString = "\"" + argumentString + "\""
@@ -344,18 +378,13 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			}
 		}
 
-		inter, interErr := interpreter.NewInterpreter(nil, nil, &interpreter.Config{})
-		if interErr != nil {
-			return nil, nil, interErr
-		}
-		value, err := runtime.ParseLiteral(argumentString, semaType, inter)
+		value, err := runtime.ParseLiteral(argumentString, oa.Type, inter)
 		if err != nil {
-			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", name, argumentString, semaType)
+			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", name, argumentString, oa.Type)
 		}
 		resultArgs = append(resultArgs, value)
 		resultArgsMap[name] = value
-	}
-	return resultArgs, resultArgsMap, nil
+	*/
 }
 
 func (o *OverflowState) AccountPublicKey(name string) (string, error) {
@@ -390,6 +419,39 @@ func (o *OverflowState) AccountE(key string) (*accounts.Account, error) {
 // return the address of an given account
 func (o *OverflowState) Address(key string) string {
 	return fmt.Sprintf("0x%s", o.FlowAddress(key))
+}
+
+// return the flow Address of the given name
+func (o *OverflowState) FlowAddressE(key string) (*flow.Address, error) {
+	account, err := o.AccountE(key)
+	if err == nil {
+		return &account.Address, nil
+	}
+
+	flowContract, err := o.State.Contracts().ByName(key)
+	if err != nil {
+		return nil, err
+	}
+
+	// we found the contract specified in contracts section
+	if flowContract != nil {
+		alias := flowContract.Aliases.ByNetwork(o.Network.Name)
+		if alias != nil {
+			return &alias.Address, nil
+		}
+	}
+
+	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, flowDeploymentContract := range flowDeploymentContracts {
+		if flowDeploymentContract.Name == key {
+			return &flowDeploymentContract.AccountAddress, nil
+		}
+	}
+	return nil, fmt.Errorf("Not valid user account, contract or deployment contract")
 }
 
 // return the flow Address of the given name
@@ -931,4 +993,36 @@ func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
 
 func (o *OverflowState) RollbackToBlockHeight(height uint64) error {
 	return o.EmulatorGatway.RollbackToBlockHeight(height)
+}
+
+func ToInterfaceSlice(input interface{}) ([]interface{}, error) {
+	v := reflect.ValueOf(input)
+
+	if v.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("input is not a slice")
+	}
+
+	result := make([]interface{}, v.Len())
+
+	for i := 0; i < v.Len(); i++ {
+		result[i] = v.Index(i).Interface()
+	}
+
+	return result, nil
+}
+
+func ToInterfaceMap(input interface{}) (map[interface{}]interface{}, error) {
+	v := reflect.ValueOf(input)
+
+	if v.Kind() != reflect.Map {
+		return nil, fmt.Errorf("input is not a map")
+	}
+
+	result := make(map[interface{}]interface{}, v.Len())
+
+	for _, key := range v.MapKeys() {
+		result[key.Interface()] = v.MapIndex(key).Interface()
+	}
+
+	return result, nil
 }

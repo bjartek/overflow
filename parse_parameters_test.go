@@ -9,11 +9,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestOverflowState_parseArguments(t *testing.T) {
+func TestParseArguments(t *testing.T) {
 	o, err := OverflowTesting()
 	require.NoError(t, err)
 	require.NotNil(t, o)
 
+	t.Run("testing user defined struct", func(t *testing.T) {
+		code := []byte(`
+    import "Debug"
+    transaction(data:Debug.Foo2){}
+
+    `)
+
+		data := Debug_Foo2{
+			Bar: "foo",
+		}
+		_, _, err := o.parseArguments("somefile", code, map[string]interface{}{"data": data})
+		require.Error(t, err)
+	})
 	type Args struct {
 		inputArgs map[string]interface{}
 		code      string

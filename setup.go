@@ -175,8 +175,15 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	if o.InputResolver != nil {
 		overflow.InputResolver = *o.InputResolver
 	} else {
-		overflow.InputResolver = func(name string) (string, error) {
-			return overflow.QualifiedIdentifierFromSnakeCase(name)
+		overflow.InputResolver = func(name string, resolveType underflow.ResolveType) (string, error) {
+			if resolveType == underflow.Identifier {
+				return overflow.QualifiedIdentifierFromSnakeCase(name)
+			}
+			address, err := overflow.FlowAddressE(name)
+			if err != nil {
+				return "", err
+			}
+			return address.HexWithPrefix(), nil
 		}
 	}
 	network, err := state.Networks().ByName(o.Network)

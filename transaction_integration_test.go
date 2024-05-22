@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/flow-go/utils/io"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ import (
 */
 
 func TestTransactionIntegration(t *testing.T) {
-	customResolver := func(input string) (string, error) {
+	customResolver := func(input string, _ underflow.ResolveType) (string, error) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
 	o, err := OverflowTesting(WithCoverageReport())
