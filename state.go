@@ -14,6 +14,7 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/hashicorp/go-multierror"
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime"
@@ -492,6 +493,7 @@ func (o *OverflowState) InitializeContracts(ctx context.Context) *OverflowState 
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
 func (o *OverflowState) GetAccount(ctx context.Context, key string) (*flow.Account, error) {
+	ctx = logging.InjectLogField(ctx, "account_name", key)
 	account, err := o.AccountE(key)
 	if err != nil {
 		return nil, err
@@ -611,12 +613,17 @@ func (o *OverflowState) GetLatestBlock(ctx context.Context) (*flow.Block, error)
 
 // get block at a given height
 func (o *OverflowState) GetBlockAtHeight(ctx context.Context, height uint64) (*flow.Block, error) {
+	ctx = logging.InjectLogField(ctx, "block_height", height)
 	bc := flowkit.BlockQuery{Height: height}
 	return o.Flowkit.GetBlock(ctx, bc)
+	// TODO: every get method should be decorated with this logging fields injection
+	// create PRs against main and v1.0
+	// on find-core, have a test for that (or wait for bjarte)
 }
 
 // blockId should be a hexadecimal string
 func (o *OverflowState) GetBlockById(ctx context.Context, blockId string) (*flow.Block, error) {
+	ctx = logging.InjectLogField(ctx, "block_id", blockId)
 	bid := flow.HexToID(blockId)
 	bc := flowkit.BlockQuery{ID: &bid}
 	return o.Flowkit.GetBlock(ctx, bc)
