@@ -228,9 +228,7 @@ func ExtractArguments(fileName string, code []byte, inputArgs map[string]interfa
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(code, location, codes)
 	checker, _ := cmd.PrepareChecker(program, location, codes, nil, nil, must)
-
 	var parameterList []*ast.Parameter
-
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
 	if functionDeclaration != nil {
 		if functionDeclaration.ParameterList != nil {
@@ -270,7 +268,6 @@ func ExtractArguments(fileName string, code []byte, inputArgs map[string]interfa
 
 	redundantArgument := []string{}
 	for inputKey := range inputArgs {
-		// If your IDE complains about this it is wrong, this is 1.18 generics not suported anywhere
 		if !slices.Contains(argumentNames, inputKey) {
 			redundantArgument = append(redundantArgument, inputKey)
 		}
