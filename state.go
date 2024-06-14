@@ -616,9 +616,6 @@ func (o *OverflowState) GetBlockAtHeight(ctx context.Context, height uint64) (*f
 	ctx = logging.InjectLogField(ctx, "block_height", height)
 	bc := flowkit.BlockQuery{Height: height}
 	return o.Flowkit.GetBlock(ctx, bc)
-	// TODO: every get method should be decorated with this logging fields injection
-	// create PRs against main and v1.0
-	// on find-core, have a test for that (or wait for bjarte)
 }
 
 // blockId should be a hexadecimal string
