@@ -19,6 +19,7 @@ import (
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/flixkit-go/flixkit"
 	"github.com/onflow/flow-emulator/emulator"
+	grpcAccess "github.com/onflow/flow-go-sdk/access/grpc"
 	"github.com/onflow/flowkit/v2"
 	"github.com/onflow/flowkit/v2/config"
 	"github.com/onflow/flowkit/v2/gateway"
@@ -225,7 +226,8 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 		overflow.EmulatorGatway = gw
 		overflow.Flowkit = flowkit.NewFlowkit(state, *network, gw, logger)
 	} else {
-		gw, err := gateway.NewGrpcGateway(*network, o.GrpcDialOptions...)
+		clientOpts := grpcAccess.WithGRPCDialOptions(o.GrpcDialOptions...)
+		gw, err := gateway.NewGrpcGateway(*network, clientOpts)
 		if err != nil {
 			overflow.Error = err
 			return overflow
