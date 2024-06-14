@@ -375,6 +375,7 @@ func (o *OverflowState) FlowAddressE(key string) (*flow.Address, error) {
 }
 
 // return the flow Address of the given name
+// DEPRECATED: use FlowAddressE
 func (o *OverflowState) FlowAddress(key string) flow.Address {
 	address, err := o.FlowAddressE(key)
 	if err != nil {
