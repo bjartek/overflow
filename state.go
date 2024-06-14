@@ -371,40 +371,16 @@ func (o *OverflowState) FlowAddressE(key string) (*flow.Address, error) {
 			return &flowDeploymentContract.AccountAddress, nil
 		}
 	}
-	return nil, fmt.Errorf("Not valid user account, contract or deployment contract")
+	return nil, fmt.Errorf("account with name=%s is not valid user account, contract or deployment contract", key)
 }
 
 // return the flow Address of the given name
 func (o *OverflowState) FlowAddress(key string) flow.Address {
-	account, err := o.AccountE(key)
-	if err == nil {
-		return account.Address
-	}
-
-	flowContract, err := o.State.Contracts().ByName(key)
+	address, err := o.FlowAddressE(key)
 	if err != nil {
-		panic(err)
+		panic(err.Error)
 	}
-
-	// we found the contract specified in contracts section
-	if flowContract != nil {
-		alias := flowContract.Aliases.ByNetwork(o.Network.Name)
-		if alias != nil {
-			return alias.Address
-		}
-	}
-
-	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, flowDeploymentContract := range flowDeploymentContracts {
-		if flowDeploymentContract.Name == key {
-			return flowDeploymentContract.AccountAddress
-		}
-	}
-	panic("Not valid user account, contract or deployment contract")
+	return *address
 }
 
 // return the account of a given account
