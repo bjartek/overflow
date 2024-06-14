@@ -14,6 +14,7 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
+	"github.com/hashicorp/go-multierror"
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/cadence/runtime/ast"
@@ -294,16 +295,16 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "extracting arguments")
 	}
+	var multiErr *multierror.Error
 	for _, oa := range args {
-		// todo multierr
 		cadenceVal, err := underflow.InputToCadenceWithHint(oa.Value, oa.Type, o.InputResolver)
 		if err != nil {
-			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", oa.Name, oa.Value, oa.Type)
+			multiErr = multierror.Append(errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", oa.Name, oa.Value, oa.Type))
 		}
 		resultArgs = append(resultArgs, cadenceVal)
 		resultArgsMap[oa.Name] = cadenceVal
 	}
-	return resultArgs, resultArgsMap, nil
+	return resultArgs, resultArgsMap, multiErr.ErrorOrNil()
 }
 
 func (o *OverflowState) AccountPublicKey(name string) (string, error) {
