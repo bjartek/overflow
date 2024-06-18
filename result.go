@@ -384,7 +384,7 @@ func getByteArray(data interface{}) ([]byte, error) {
 		if !ok {
 			return nil, fmt.Errorf("unexpected type at index %d", i)
 		}
-		byteSlice[i] = byte(b)
+		byteSlice[i] = b
 	}
 	return byteSlice, nil
 }

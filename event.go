@@ -77,7 +77,7 @@ func (me OverflowEvent) GetStakeholders() map[string][]string {
 				strings.Contains(eventName, "FungibleToken.Deposited") ||
 				strings.Contains(eventName, "NonFungibleToken.Deposited") ||
 				strings.Contains(eventName, "NonFungibleToken.Withdrawn") {
-				vaultType := me.Fields["type"].(string)
+				vaultType, _ := me.Fields["type"].(string)
 				existing = append(existing, fmt.Sprintf("%s/%s", vaultType, name))
 			} else {
 				existing = append(existing, fmt.Sprintf("%s/%s", me.Name, name))
@@ -241,11 +241,11 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 		if strings.HasSuffix(name, ".FungibleToken.Withdrawn") {
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
-				ftType := value.Fields["type"].(string)
+				ftType, _ := value.Fields["type"].(string)
 				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
 					continue
 				}
-				amount := value.Fields["amount"].(float64)
+				amount, _ := value.Fields["amount"].(float64)
 				from, ok := value.Fields["from"].(string)
 
 				if ok && amount == fee && from == payer {
@@ -264,11 +264,11 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 		if strings.HasSuffix(name, ".FungibleToken.Deposited") {
 			depositEvents := []OverflowEvent{}
 			for _, value := range events {
-				ftType := value.Fields["type"].(string)
+				ftType, _ := value.Fields["type"].(string)
 				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
 					continue
 				}
-				amount := value.Fields["amount"].(float64)
+				amount, _ := value.Fields["amount"].(float64)
 				to, ok := value.Fields["to"].(string)
 
 				if ok && amount == fee && slices.Contains(feeReceipients, to) {
@@ -288,7 +288,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			withDrawnEvents := []OverflowEvent{}
 			for _, value := range events {
 
-				amount := value.Fields["amount"].(float64)
+				amount, _ := value.Fields["amount"].(float64)
 				from, ok := value.Fields["from"].(string)
 
 				if ok && amount == fee && from == payer {
@@ -308,7 +308,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			depositEvents := []OverflowEvent{}
 			for _, value := range events {
 
-				amount := value.Fields["amount"].(float64)
+				amount, _ := value.Fields["amount"].(float64)
 				to, ok := value.Fields["to"].(string)
 
 				if ok && amount == fee && slices.Contains(feeReceipients, to) {

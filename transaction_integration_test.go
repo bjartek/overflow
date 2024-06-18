@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/bjartek/underflow"
 	"github.com/onflow/flow-go/utils/io"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,11 +15,11 @@ import (
 */
 
 func TestTransactionIntegration(t *testing.T) {
-	customResolver := func(input string) (string, error) {
+	customResolver := func(input string, _ underflow.ResolveType) (string, error) {
 		return "A.f8d6e0586b0a20c7.Debug.Foo", nil
 	}
-	o, err := OverflowTesting(WithCoverageReport())
-	require.NoError(t, err)
+	o, errG := OverflowTesting(WithCoverageReport())
+	require.NoError(t, errG)
 	require.NotNil(t, o)
 	o.Tx("mint_tokens", WithSignerServiceAccount(), WithArg("recipient", "first"), WithArg("amount", 1.0)).AssertSuccess(t)
 
@@ -163,13 +164,13 @@ func TestTransactionIntegration(t *testing.T) {
 			AssertSuccess(t)
 
 		var events []interface{}
-		err := result.MarshalEventsWithName("TokensDeposited", &events)
-		assert.NoError(t, err)
+		err2 := result.MarshalEventsWithName("TokensDeposited", &events)
+		assert.NoError(t, err2)
 		assert.Equal(t, 1, len(events))
 
 		var singleEvent interface{}
-		err = result.GetEventsWithName("TokensDeposited")[0].MarshalAs(&singleEvent)
-		assert.NoError(t, err)
+		err2 = result.GetEventsWithName("TokensDeposited")[0].MarshalAs(&singleEvent)
+		assert.NoError(t, err2)
 		assert.NotNil(t, singleEvent)
 	})
 
