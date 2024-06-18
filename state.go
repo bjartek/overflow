@@ -493,12 +493,12 @@ func (o *OverflowState) InitializeContracts(ctx context.Context) *OverflowState 
 
 // GetAccount takes the account name  and returns the state of that account on the given network.
 func (o *OverflowState) GetAccount(ctx context.Context, key string) (*flow.Account, error) {
-	ctx = logging.InjectLogField(ctx, "account_name", key)
 	account, err := o.AccountE(key)
 	if err != nil {
 		return nil, err
 	}
 	rawAddress := account.Address
+	ctx = logging.InjectFields(ctx, logging.Fields{"account_name", key, "account_address", rawAddress.String()})
 	return o.Flowkit.GetAccount(ctx, rawAddress)
 }
 
