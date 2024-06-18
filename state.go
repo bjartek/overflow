@@ -14,6 +14,7 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/hashicorp/go-multierror"
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime"
@@ -497,6 +498,7 @@ func (o *OverflowState) GetAccount(ctx context.Context, key string) (*flow.Accou
 		return nil, err
 	}
 	rawAddress := account.Address
+	ctx = logging.InjectFields(ctx, logging.Fields{"account_name", key, "account_address", rawAddress.String()})
 	return o.Flowkit.GetAccount(ctx, rawAddress)
 }
 
@@ -611,12 +613,14 @@ func (o *OverflowState) GetLatestBlock(ctx context.Context) (*flow.Block, error)
 
 // get block at a given height
 func (o *OverflowState) GetBlockAtHeight(ctx context.Context, height uint64) (*flow.Block, error) {
+	ctx = logging.InjectLogField(ctx, "block_height", height)
 	bc := flowkit.BlockQuery{Height: height}
 	return o.Flowkit.GetBlock(ctx, bc)
 }
 
 // blockId should be a hexadecimal string
 func (o *OverflowState) GetBlockById(ctx context.Context, blockId string) (*flow.Block, error) {
+	ctx = logging.InjectLogField(ctx, "block_id", blockId)
 	bid := flow.HexToID(blockId)
 	bc := flowkit.BlockQuery{ID: &bid}
 	return o.Flowkit.GetBlock(ctx, bc)

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bjartek/underflow"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/onflow/cadence/runtime/common"
 	"github.com/onflow/cadence/runtime/parser"
 	"github.com/onflow/flow-go-sdk"
@@ -144,6 +145,7 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 }
 
 func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.Identifier) (*OverflowTransaction, error) {
+	ctx = logging.InjectLogField(ctx, "transaction_id", id)
 	tx, txr, err := o.Flowkit.GetTransactionByID(ctx, id, false)
 	if err != nil {
 		return nil, err
@@ -156,6 +158,7 @@ func (o *OverflowState) GetOverflowTransactionById(ctx context.Context, id flow.
 }
 
 func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifier) (*flow.Transaction, error) {
+	ctx = logging.InjectLogField(ctx, "transaction_id", id)
 	tx, _, err := o.Flowkit.GetTransactionByID(ctx, id, false)
 	if err != nil {
 		return nil, err
@@ -164,6 +167,7 @@ func (o *OverflowState) GetTransactionById(ctx context.Context, id flow.Identifi
 }
 
 func (o *OverflowState) GetTransactionsByBlockId(ctx context.Context, id flow.Identifier) ([]*flow.Transaction, []*flow.TransactionResult, error) {
+	ctx = logging.InjectLogField(ctx, "block_id", id)
 	tx, txr, err := o.Flowkit.GetTransactionsByBlockID(ctx, id)
 	if err != nil {
 		return nil, nil, err
