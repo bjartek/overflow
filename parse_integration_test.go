@@ -11,8 +11,8 @@ import (
 )
 
 func TestParseConfig(t *testing.T) {
-	g, err := OverflowTesting()
-	require.NoError(t, err)
+	g, err2 := OverflowTesting()
+	require.NoError(t, err2)
 	require.NotNil(t, g)
 
 	t.Run("parse", func(t *testing.T) {

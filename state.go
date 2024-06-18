@@ -521,7 +521,7 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 		delete(msg, "level")
 		rawCom, ok := msg["computationUsed"]
 		if ok {
-			field := rawCom.(float64)
+			field, _ := rawCom.(float64)
 			doc.ComputationUsed = int(field)
 			delete(msg, "computationUsed")
 		}
@@ -708,9 +708,9 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if strings.HasSuffix(path, ".cdc") {
 			name := strings.TrimSuffix(info.Name(), ".cdc")
 			for _, txSkip := range txSkip {
-				match, err := regexp.MatchString(txSkip, name)
-				if err != nil {
-					return err
+				match, err2 := regexp.MatchString(txSkip, name)
+				if err2 != nil {
+					return err2
 				}
 				if match {
 					return nil
@@ -729,9 +729,9 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if strings.HasSuffix(path, ".cdc") {
 			name := strings.TrimSuffix(info.Name(), ".cdc")
 			for _, scriptSkip := range txSkip {
-				match, err := regexp.MatchString(scriptSkip, name)
+				match, err2 := regexp.MatchString(scriptSkip, name)
 				if err != nil {
-					return err
+					return err2
 				}
 				if match {
 					return nil
