@@ -176,8 +176,21 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 	if o.InputResolver != nil {
 		overflow.InputResolver = *o.InputResolver
 	} else {
-		overflow.InputResolver = func(name string) (string, error) {
-			return overflow.QualifiedIdentifierFromSnakeCase(name)
+		overflow.InputResolver = func(name string, resolveType underflow.ResolveType) (string, error) {
+			if resolveType == underflow.Identifier {
+				return overflow.QualifiedIdentifierFromSnakeCase(name)
+			}
+
+			adr, err2 := hexToAddress(name)
+			if err2 == nil {
+				return adr.String(), nil
+			}
+
+			address, err2 := overflow.FlowAddressE(name)
+			if err2 != nil {
+				return "", errors.Wrapf(err2, "could not parse %s into an address", name)
+			}
+			return address.HexWithPrefix(), nil
 		}
 	}
 	network, err := state.Networks().ByName(o.Network)
@@ -242,7 +255,6 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 			return overflow
 		}
 	}
-
 	if o.DeployContracts {
 		overflow = overflow.InitializeContracts(o.Ctx)
 		if overflow.Error != nil {

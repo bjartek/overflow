@@ -75,7 +75,7 @@ type OverflowInteractionBuilder struct {
 	// Event filters to apply to the interaction
 	EventFilter OverflowEventFilter
 
-	// Wheter to ignore global event filters from OverflowState or not
+	// Whether to ignore global event filters from OverflowState or not
 	IgnoreGlobalEventFilters bool
 
 	// Options to use when printing results

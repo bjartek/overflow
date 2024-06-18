@@ -6,9 +6,10 @@ toolchain go1.22.3
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.3.0
+	github.com/bjartek/underflow v1.5.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.16.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v1.0.0-preview.34
 	github.com/onflow/flixkit-go v1.2.1-cadence-v1-preview.18
@@ -97,7 +98,6 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

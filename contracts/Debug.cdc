@@ -1,4 +1,4 @@
-import NonFungibleToken from "NonFungibleToken.cdc"
+import "NonFungibleToken"
 
 access(all) contract Debug {
 

@@ -14,12 +14,12 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/enescakir/emoji"
+	"github.com/hashicorp/go-multierror"
 	"github.com/onflow/cadence"
 	"github.com/onflow/cadence/runtime"
 	"github.com/onflow/cadence/runtime/ast"
 	"github.com/onflow/cadence/runtime/cmd"
 	"github.com/onflow/cadence/runtime/common"
-	"github.com/onflow/cadence/runtime/interpreter"
 	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flixkit-go/flixkit"
 	"github.com/onflow/flow-go-sdk"
@@ -156,7 +156,7 @@ type OverflowState struct {
 
 type OverflowArgument struct {
 	Value interface{}
-	Type  ast.Type
+	Type  sema.Type
 	Name  string
 }
 
@@ -223,17 +223,12 @@ func (o *OverflowState) QualifiedIdentifier(contract string, name string) (strin
 	return "", fmt.Errorf("you are trying to get the qualified identifier for something you are not creating or have mentioned in flow.json with name=%s", contract)
 }
 
-func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
-	resultArgs := make([]cadence.Value, 0)
-	resultArgsMap := CadenceArguments{}
-
+func ExtractArguments(fileName string, code []byte, inputArgs map[string]interface{}) (OverflowArgumentList, error) {
 	codes := map[common.Location][]byte{}
 	location := common.StringLocation(fileName)
 	program, must := cmd.PrepareProgram(code, location, codes)
 	checker, _ := cmd.PrepareChecker(program, location, codes, nil, nil, must)
-
 	var parameterList []*ast.Parameter
-
 	functionDeclaration := sema.FunctionEntryPointDeclaration(program)
 	if functionDeclaration != nil {
 		if functionDeclaration.ParameterList != nil {
@@ -248,9 +243,6 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 		}
 	}
 
-	if parameterList == nil {
-		return resultArgs, resultArgsMap, nil
-	}
 	argumentNotPresent := []string{}
 	argumentNames := []string{}
 	args := OverflowArgumentList{}
@@ -264,19 +256,18 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 			args = append(args, OverflowArgument{
 				Name:  parameterName,
 				Value: value,
-				Type:  parameter.TypeAnnotation.Type,
+				Type:  checker.ConvertType(parameter.TypeAnnotation.Type),
 			})
 		}
 	}
 
 	if len(argumentNotPresent) > 0 {
 		err := fmt.Errorf("the interaction '%s' is missing %v", fileName, argumentNotPresent)
-		return nil, nil, err
+		return nil, err
 	}
 
 	redundantArgument := []string{}
 	for inputKey := range inputArgs {
-		// If your IDE complains about this it is wrong, this is 1.18 generics not suported anywhere
 		if !slices.Contains(argumentNames, inputKey) {
 			redundantArgument = append(redundantArgument, inputKey)
 		}
@@ -284,74 +275,33 @@ func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs m
 
 	if len(redundantArgument) > 0 {
 		err := fmt.Errorf("the interaction '%s' has the following extra arguments %v", fileName, redundantArgument)
-		return nil, nil, err
+		return nil, err
 	}
 
+	if parameterList == nil {
+		return nil, nil
+	}
+	return args, nil
+}
+
+func (o *OverflowState) parseArguments(fileName string, code []byte, inputArgs map[string]interface{}) ([]cadence.Value, CadenceArguments, error) {
+	resultArgs := make([]cadence.Value, 0)
+	resultArgsMap := CadenceArguments{}
+
+	args, err := ExtractArguments(fileName, code, inputArgs)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "extracting arguments")
+	}
+	var multiErr *multierror.Error
 	for _, oa := range args {
-
-		name := oa.Name
-		argument := oa.Value
-
-		cadenceVal, isCadenceValue := argument.(cadence.Value)
-		if isCadenceValue {
-			resultArgs = append(resultArgs, cadenceVal)
-			resultArgsMap[name] = cadenceVal
-			continue
-		}
-
-		var argumentString string
-		switch a := argument.(type) {
-		case nil:
-			argumentString = "nil"
-		case string:
-			argumentString = a
-		case int:
-			argumentString = fmt.Sprintf("%v", a)
-		default:
-			cadenceVal, err := underflow.InputToCadence(argument, o.InputResolver)
-			if err != nil {
-				return nil, nil, err
-			}
-			resultArgs = append(resultArgs, cadenceVal)
-			resultArgsMap[name] = cadenceVal
-			continue
-
-		}
-		semaType := checker.ConvertType(oa.Type)
-
-		switch semaType {
-		case sema.StringType:
-			if len(argumentString) > 0 && !strings.HasPrefix(argumentString, "\"") {
-				argumentString = "\"" + argumentString + "\""
-			}
-		}
-
-		switch semaType.(type) {
-		case *sema.AddressType:
-
-			account, _ := o.AccountE(argumentString)
-
-			if account != nil {
-				argumentString = account.Address.String()
-			}
-
-			if !strings.Contains(argumentString, "0x") {
-				argumentString = fmt.Sprintf("0x%s", argumentString)
-			}
-		}
-
-		inter, interErr := interpreter.NewInterpreter(nil, nil, &interpreter.Config{})
-		if interErr != nil {
-			return nil, nil, interErr
-		}
-		value, err := runtime.ParseLiteral(argumentString, semaType, inter)
+		cadenceVal, err := underflow.InputToCadenceWithHint(oa.Value, oa.Type, o.InputResolver)
 		if err != nil {
-			return nil, nil, errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", name, argumentString, semaType)
+			multiErr = multierror.Append(errors.Wrapf(err, "argument `%s` with value `%s` is not expected type `%s`", oa.Name, oa.Value, oa.Type))
 		}
-		resultArgs = append(resultArgs, value)
-		resultArgsMap[name] = value
+		resultArgs = append(resultArgs, cadenceVal)
+		resultArgsMap[oa.Name] = cadenceVal
 	}
-	return resultArgs, resultArgsMap, nil
+	return resultArgs, resultArgsMap, multiErr.ErrorOrNil()
 }
 
 func (o *OverflowState) AccountPublicKey(name string) (string, error) {
@@ -389,36 +339,46 @@ func (o *OverflowState) Address(key string) string {
 }
 
 // return the flow Address of the given name
-func (o *OverflowState) FlowAddress(key string) flow.Address {
+func (o *OverflowState) FlowAddressE(key string) (*flow.Address, error) {
 	account, err := o.AccountE(key)
 	if err == nil {
-		return account.Address
+		return &account.Address, nil
 	}
 
 	flowContract, err := o.State.Contracts().ByName(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// we found the contract specified in contracts section
 	if flowContract != nil {
 		alias := flowContract.Aliases.ByNetwork(o.Network.Name)
 		if alias != nil {
-			return alias.Address
+			return &alias.Address, nil
 		}
 	}
 
 	flowDeploymentContracts, err := o.State.DeploymentContractsByNetwork(o.Network)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	for _, flowDeploymentContract := range flowDeploymentContracts {
 		if flowDeploymentContract.Name == key {
-			return flowDeploymentContract.AccountAddress
+			return &flowDeploymentContract.AccountAddress, nil
 		}
 	}
-	panic("Not valid user account, contract or deployment contract")
+	return nil, fmt.Errorf("account with name=%s is not valid user account, contract or deployment contract", key)
+}
+
+// return the flow Address of the given name
+// DEPRECATED: use FlowAddressE
+func (o *OverflowState) FlowAddress(key string) flow.Address {
+	address, err := o.FlowAddressE(key)
+	if err != nil {
+		panic(err.Error)
+	}
+	return *address
 }
 
 // return the account of a given account
@@ -487,7 +447,7 @@ func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, er
 		if o.Network.Name == "emulator" && o.NewUserFlowAmount != 0.0 {
 			res := o.MintFlowTokens(account.Address.String(), o.NewUserFlowAmount)
 			if res.Error != nil {
-				return nil, errors.Wrap(err, "could not mint flow tokens")
+				return nil, errors.Wrap(res.Error, "could not mint flow tokens")
 			}
 			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
 		}
@@ -561,7 +521,7 @@ func (o OverflowState) readLog() ([]OverflowEmulatorLogMessage, error) {
 		delete(msg, "level")
 		rawCom, ok := msg["computationUsed"]
 		if ok {
-			field := rawCom.(float64)
+			field, _ := rawCom.(float64)
 			doc.ComputationUsed = int(field)
 			delete(msg, "computationUsed")
 		}
@@ -748,9 +708,9 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if strings.HasSuffix(path, ".cdc") {
 			name := strings.TrimSuffix(info.Name(), ".cdc")
 			for _, txSkip := range txSkip {
-				match, err := regexp.MatchString(txSkip, name)
-				if err != nil {
-					return err
+				match, err2 := regexp.MatchString(txSkip, name)
+				if err2 != nil {
+					return err2
 				}
 				if match {
 					return nil
@@ -769,9 +729,9 @@ func (o *OverflowState) ParseAllWithConfig(skipContracts bool, txSkip []string, 
 		if strings.HasSuffix(path, ".cdc") {
 			name := strings.TrimSuffix(info.Name(), ".cdc")
 			for _, scriptSkip := range txSkip {
-				match, err := regexp.MatchString(scriptSkip, name)
+				match, err2 := regexp.MatchString(scriptSkip, name)
 				if err != nil {
-					return err
+					return err2
 				}
 				if match {
 					return nil
