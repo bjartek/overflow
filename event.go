@@ -243,6 +243,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			for _, value := range events {
 				ftType, _ := value.Fields["type"].(string)
 				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
+					withDrawnEvents = append(withDrawnEvents, value)
 					continue
 				}
 				amount, _ := value.Fields["amount"].(float64)
@@ -266,6 +267,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 			for _, value := range events {
 				ftType, _ := value.Fields["type"].(string)
 				if !strings.HasSuffix(ftType, "FlowToken.Vault") {
+					depositEvents = append(depositEvents, value)
 					continue
 				}
 				amount, _ := value.Fields["amount"].(float64)
