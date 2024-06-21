@@ -477,7 +477,7 @@ func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, er
 			messages = append(messages, "with flow:", fmt.Sprintf("%.2f", o.NewUserFlowAmount))
 		}
 
-		if o.PrintOptions != nil && o.LogLevel == output.NoneLog {
+		if o.PrintOptions != nil && o.LogLevel != output.NoneLog {
 			fmt.Println(strings.Join(messages, " "))
 		}
 	}
