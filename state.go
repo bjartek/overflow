@@ -97,6 +97,8 @@ type OverflowClient interface {
 
 	// use this method to transform a flow transactionResult and transaction into a overflow transaction
 	CreateOverflowTransaction(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error)
+
+	CreateTestAccounts(ctx context.Context, num int, flowTokens float64) (map[string]*accounts.Account, error)
 }
 
 var _ OverflowClient = (*OverflowState)(nil)
@@ -891,4 +893,52 @@ func (o *OverflowState) GetCoverageReport() *runtime.CoverageReport {
 
 func (o *OverflowState) RollbackToBlockHeight(height uint64) error {
 	return o.EmulatorGatway.RollbackToBlockHeight(height)
+}
+
+// this methods create test accounts that can be used in WithManualSigner, they are not in flow json
+func (o *OverflowState) CreateTestAccounts(ctx context.Context, num int, flowTokens float64) (map[string]*accounts.Account, error) {
+	account, err := o.AccountE("account")
+	if err != nil {
+		return nil, err
+	}
+
+	pk, err := account.Key.PrivateKey()
+	if err != nil {
+		return nil, err
+	}
+	pki := *pk
+
+	accountKey := accounts.NewHexKeyFromPrivateKey(0, account.Key.HashAlgo(), pki)
+	users := map[string]*accounts.Account{}
+
+	keys := []accounts.PublicKey{{
+		Public:   pki.PublicKey(),
+		Weight:   1000,
+		SigAlgo:  account.Key.SigAlgo(),
+		HashAlgo: account.Key.HashAlgo(),
+	}}
+
+	for i := 0; i < num; i++ {
+		userAccount, _, err := o.Flowkit.CreateAccount(ctx, account, keys)
+		if err != nil {
+			return nil, err
+		}
+
+		address := userAccount.Address.Hex()
+		if flowTokens > 0.0 {
+			result := o.MintFlowTokens(address, flowTokens)
+			if result.Error != nil {
+				return nil, result.Error
+			}
+		}
+
+		a := &accounts.Account{
+			Name:    fmt.Sprintf("user-%d", i),
+			Address: userAccount.Address,
+			Key:     accountKey,
+		}
+
+		users[userAccount.Address.Hex()] = a
+	}
+	return users, nil
 }

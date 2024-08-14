@@ -6,18 +6,18 @@ toolchain go1.22.3
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.7.0
+	github.com/bjartek/underflow v1.8.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.16.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hexops/autogold v1.3.1
-	github.com/onflow/cadence v1.0.0-preview.39
+	github.com/onflow/cadence v1.0.0-preview.48
 	github.com/onflow/flixkit-go v1.2.1-cadence-v1-preview.18
-	github.com/onflow/flow-emulator v1.0.0-preview.36
-	github.com/onflow/flow-go v0.36.4-0.20240724205438-14f9fddeda2b
-	github.com/onflow/flow-go-sdk v1.0.0-preview.42
-	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.27
+	github.com/onflow/flow-emulator v1.0.0-preview.39
+	github.com/onflow/flow-go v0.37.1
+	github.com/onflow/flow-go-sdk v1.0.0-preview.50
+	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.30
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/sanity-io/litter v1.5.5
@@ -161,7 +161,7 @@ require (
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/onflow/atree v0.7.0-rc.2 // indirect
+	github.com/onflow/atree v0.8.0-rc.5 // indirect
 	github.com/onflow/crypto v0.25.1 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v1.3.1 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/templates v1.3.1 // indirect
@@ -243,7 +243,7 @@ require (
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	lukechampine.com/blake3 v1.2.1 // indirect
+	lukechampine.com/blake3 v1.3.0 // indirect
 	modernc.org/libc v1.37.6 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.7.2 // indirect
