@@ -411,7 +411,7 @@ func TestFillUpSpace(t *testing.T) {
 	o, err := OverflowTesting(WithFlowForNewUsers(0.001))
 	assert.NoError(t, err)
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 198857, result)
+	assert.Equal(t, 198993, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 

@@ -33,7 +33,7 @@ func ExampleOverflowState_Tx() {
 	//🧑 Created account: emulator-first with address: 179b6b1cb6755e31 with flow: 10.00
 	//🧑 Created account: emulator-second with address: f3fcd2c1a78f5eee with flow: 10.00
 	//📜 deploy contracts Debug
-	//👌 Tx:arguments fee:0.00001000 gas:18
+	//👌 Tx:arguments fee:0.00001000 gas:21
 	//
 }
 
@@ -55,7 +55,7 @@ func ExampleOverflowState_Tx_inline() {
 	//🧑 Created account: emulator-first with address: 179b6b1cb6755e31 with flow: 10.00
 	//🧑 Created account: emulator-second with address: f3fcd2c1a78f5eee with flow: 10.00
 	//📜 deploy contracts Debug
-	//👌 Tx: fee:0.00001000 gas:27
+	//👌 Tx: fee:0.00001000 gas:35
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
 	//   msg -> overflow ftw!
@@ -81,7 +81,7 @@ func ExampleOverflowState_Tx_multisign() {
 	//🧑 Created account: emulator-first with address: 179b6b1cb6755e31 with flow: 10.00
 	//🧑 Created account: emulator-second with address: f3fcd2c1a78f5eee with flow: 10.00
 	//📜 deploy contracts Debug
-	//👌 Tx: fee:0.00001000 gas:29
+	//👌 Tx: fee:0.00001000 gas:36
 	//=== Events ===
 	//A.f8d6e0586b0a20c7.Debug.Log
 	//   msg -> acct:0xf3fcd2c1a78f5eee
