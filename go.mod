@@ -6,7 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.6.0
+	github.com/bjartek/underflow v1.8.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.16.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
