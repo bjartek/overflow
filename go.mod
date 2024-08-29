@@ -12,12 +12,12 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hexops/autogold v1.3.1
-	github.com/onflow/cadence v1.0.0-preview.49
+	github.com/onflow/cadence v1.0.0-preview.50
 	github.com/onflow/flixkit-go v1.2.1-cadence-v1-preview.18
-	github.com/onflow/flow-emulator v1.0.0-preview.40
-	github.com/onflow/flow-go v0.37.7-0.20240822174309-8b4fff2114d4
-	github.com/onflow/flow-go-sdk v1.0.0-preview.51
-	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.31
+	github.com/onflow/flow-emulator v1.0.0-preview.41
+	github.com/onflow/flow-go v0.37.7-0.20240826193109-e211841b59f5
+	github.com/onflow/flow-go-sdk v1.0.0-preview.53
+	github.com/onflow/flowkit/v2 v2.0.0-stable-cadence-alpha.32
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/sanity-io/litter v1.5.5
