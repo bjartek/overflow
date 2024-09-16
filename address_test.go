@@ -23,3 +23,18 @@ func TestGetAddress(t *testing.T) {
 		})
 	}
 }
+
+func TestAddressNetworks(t *testing.T) {
+	t.Run("emulator with prefix", func(t *testing.T) {
+		assert.Equal(t, "emulator", GetNetworkFromAddress("0xf8d6e0586b0a20c7"))
+	})
+	t.Run("emulator", func(t *testing.T) {
+		assert.Equal(t, "emulator", GetNetworkFromAddress("f8d6e0586b0a20c7"))
+	})
+	t.Run("testnet", func(t *testing.T) {
+		assert.Equal(t, "testnet", GetNetworkFromAddress("9a0766d93b6608b7"))
+	})
+	t.Run("mainnet", func(t *testing.T) {
+		assert.Equal(t, "mainnet", GetNetworkFromAddress("f233dcee88fe0abe"))
+	})
+}
