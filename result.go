@@ -58,6 +58,7 @@ type OverflowResult struct {
 	Fee    map[string]interface{}
 	FeeGas int
 
+	Balance FeeBalance
 	// The name of the Transaction
 	Name string
 

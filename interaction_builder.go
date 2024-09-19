@@ -612,12 +612,13 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		result.FeeGas = gas
 	}
 
+	feeAmount := result.Fee["amount"]
+	eventsWithoutFees, feeFromEvents := overflowEvents.FilterFees(feeAmount.(float64), fmt.Sprintf("0x%s", result.Transaction.Payer.Hex()))
+	result.Balance = feeFromEvents
+
 	if !oib.IgnoreGlobalEventFilters {
-
-		fee := result.Fee["amount"]
-
-		if oib.Overflow.FilterOutFeeEvents && fee != nil {
-			overflowEvents = overflowEvents.FilterFees(fee.(float64), fmt.Sprintf("0x%s", result.Transaction.Payer.Hex()))
+		if oib.Overflow.FilterOutFeeEvents && feeAmount != nil {
+			overflowEvents = eventsWithoutFees
 		}
 		if oib.Overflow.FilterOutEmptyWithDrawDepositEvents {
 			overflowEvents = overflowEvents.FilterTempWithdrawDeposit()
