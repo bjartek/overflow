@@ -21,24 +21,27 @@ type Argument struct {
 }
 
 type OverflowTransaction struct {
-	Error            error
-	AuthorizerTypes  map[string][]string
-	Stakeholders     map[string][]string
-	Payer            string
-	Id               string
-	Status           string
-	BlockId          string
-	Authorizers      []string
-	Arguments        []Argument
-	Events           []OverflowEvent
-	Imports          []Import
-	Script           []byte
-	ProposalKey      flow.ProposalKey
-	Fee              float64
-	TransactionIndex int
-	GasLimit         uint64
-	GasUsed          uint64
-	ExecutionEffort  float64
+	Error              error
+	AuthorizerTypes    map[string][]string
+	Stakeholders       map[string][]string
+	Payer              string
+	Id                 string
+	Status             string
+	BlockId            string
+	Authorizers        []string
+	Arguments          []Argument
+	Events             []OverflowEvent
+	Imports            []Import
+	Script             []byte
+	ProposalKey        flow.ProposalKey
+	Fee                float64
+	TransactionIndex   int
+	GasLimit           uint64
+	GasUsed            uint64
+	ExecutionEffort    float64
+	Balances           FeeBalance
+	PayloadSignatures  []flow.TransactionSignature
+	EnvelopeSignatures []flow.TransactionSignature
 }
 
 func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionResult flow.TransactionResult, transaction flow.Transaction, txIndex int) (*OverflowTransaction, error) {
@@ -115,7 +118,8 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		standardStakeholders[fmt.Sprintf("0x%s", transaction.ProposalKey.Address.Hex())] = proposer
 	}
 
-	eventsWithoutFees := events.FilterFees(feeAmount, fmt.Sprintf("0x%s", transaction.Payer.Hex()))
+	// TODO: here we need to get out the balance of the payer and the fee recipient
+	eventsWithoutFees, balanceFees := events.FilterFees(feeAmount, fmt.Sprintf("0x%s", transaction.Payer.Hex()))
 
 	eventList := []OverflowEvent{}
 	for _, evList := range eventsWithoutFees {
@@ -123,24 +127,27 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 	}
 
 	return &OverflowTransaction{
-		Id:               transactionResult.TransactionID.String(),
-		TransactionIndex: txIndex,
-		BlockId:          blockId,
-		Status:           status,
-		Events:           eventList,
-		Stakeholders:     eventsWithoutFees.GetStakeholders(standardStakeholders),
-		Imports:          imports,
-		Error:            transactionResult.Error,
-		Arguments:        args,
-		Fee:              feeAmount,
-		Script:           transaction.Script,
-		Payer:            fmt.Sprintf("0x%s", transaction.Payer.String()),
-		ProposalKey:      transaction.ProposalKey,
-		GasLimit:         transaction.GasLimit,
-		GasUsed:          uint64(gas),
-		ExecutionEffort:  executionEffort,
-		Authorizers:      authorizers,
-		AuthorizerTypes:  authorizerTypes,
+		Id:                 transactionResult.TransactionID.String(),
+		TransactionIndex:   txIndex,
+		BlockId:            blockId,
+		Status:             status,
+		Events:             eventList,
+		Stakeholders:       eventsWithoutFees.GetStakeholders(standardStakeholders),
+		Imports:            imports,
+		Error:              transactionResult.Error,
+		Arguments:          args,
+		Fee:                feeAmount,
+		Script:             transaction.Script,
+		Payer:              fmt.Sprintf("0x%s", transaction.Payer.String()),
+		ProposalKey:        transaction.ProposalKey,
+		GasLimit:           transaction.GasLimit,
+		GasUsed:            uint64(gas),
+		ExecutionEffort:    executionEffort,
+		Authorizers:        authorizers,
+		AuthorizerTypes:    authorizerTypes,
+		Balances:           balanceFees,
+		PayloadSignatures:  transaction.PayloadSignatures,
+		EnvelopeSignatures: transaction.EnvelopeSignatures,
 	}, nil
 }
 

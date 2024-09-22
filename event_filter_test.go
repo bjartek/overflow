@@ -8,26 +8,23 @@ import (
 )
 
 func TestFilterOverflowEvents(t *testing.T) {
-
 	events := OverflowEvents{
-		"A.123.Test.Deposit": []OverflowEvent{{Fields: map[string]interface{}{
-			"id":     1,
-			"string": "string",
-		}},
+		"A.123.Test.Deposit": []OverflowEvent{
+			{Fields: map[string]interface{}{
+				"id":     1,
+				"string": "string",
+			}},
 		},
 	}
 
 	t.Run("Filter out all events should yield empty", func(t *testing.T) {
-
 		filter := OverflowEventFilter{
 			"Deposit": []string{"id", "string"},
 		}
 		filtered := events.FilterEvents(filter)
 		assert.Empty(t, filtered)
-
 	})
 	t.Run("Filter out single field", func(t *testing.T) {
-
 		filter := OverflowEventFilter{
 			"Deposit": []string{"id"},
 		}
@@ -39,7 +36,6 @@ func TestFilterOverflowEvents(t *testing.T) {
 	})
 
 	t.Run("Filter fees", func(t *testing.T) {
-
 		eventsWithFees := OverflowEvents{
 			"A.f919ee77447b7497.FlowFees.FeesDeducted": []OverflowEvent{
 				{Fields: map[string]interface{}{
@@ -64,7 +60,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 				}},
 			},
 		}
-		filtered := eventsWithFees.FilterFees(0.00000918, "0x55ad22f01ef568a1")
+		filtered, _ := eventsWithFees.FilterFees(0.00000918, "0x55ad22f01ef568a1")
 		want := autogold.Want("fees filtered", OverflowEvents{"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
 			{Fields: map[string]interface{}{
 				"amount": 1,
@@ -75,7 +71,6 @@ func TestFilterOverflowEvents(t *testing.T) {
 	})
 
 	t.Run("Filter fees with other transfer", func(t *testing.T) {
-
 		eventsWithFees := OverflowEvents{
 			"A.f919ee77447b7497.FlowFees.FeesDeducted": []OverflowEvent{{Fields: map[string]interface{}{
 				"amount":          0.00000918,
@@ -97,7 +92,7 @@ func TestFilterOverflowEvents(t *testing.T) {
 				"to":     "0xf919ee77447b7497",
 			}}},
 		}
-		filtered := eventsWithFees.FilterFees(0.00000918, "0x55ad22f01ef568a1")
+		filtered, _ := eventsWithFees.FilterFees(0.00000918, "0x55ad22f01ef568a1")
 		want := autogold.Want("fees filtered with transfer", OverflowEvents{
 			"A.1654653399040a61.FlowToken.TokensDeposited": []OverflowEvent{
 				{Fields: map[string]interface{}{
@@ -114,7 +109,6 @@ func TestFilterOverflowEvents(t *testing.T) {
 	})
 
 	t.Run("Filter empty deposit withdraw", func(t *testing.T) {
-
 		eventsWithFees := OverflowEvents{
 			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{{Fields: map[string]interface{}{
 				"amount": 0.00000918,
@@ -139,7 +133,6 @@ func TestFilterOverflowEvents(t *testing.T) {
 	})
 
 	t.Run("Filter non-empty deposit withdraw", func(t *testing.T) {
-
 		eventsWithFees := OverflowEvents{
 			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{{Fields: map[string]interface{}{
 				"amount": 0.00000918,
@@ -174,7 +167,6 @@ func TestFilterOverflowEvents(t *testing.T) {
 	})
 
 	t.Run("Filter all empty deposit withdraw", func(t *testing.T) {
-
 		eventsWithFees := OverflowEvents{
 			"A.1654653399040a61.FlowToken.TokensWithdrawn": []OverflowEvent{{Fields: map[string]interface{}{
 				"amount": 0.00000918,
@@ -189,5 +181,4 @@ func TestFilterOverflowEvents(t *testing.T) {
 		want := autogold.Want("filter all empty deposit withdraw", OverflowEvents{})
 		want.Equal(t, filtered)
 	})
-
 }

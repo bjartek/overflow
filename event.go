@@ -52,6 +52,11 @@ type OverflowEvent struct {
 	EventIndex    uint32                 `json:"eventIndex"`
 }
 
+type FeeBalance struct {
+	PayerBalance    float64 `json:"payerBalance"`
+	TotalFeeBalance float64 `json:"totalFeeBalance"`
+}
+
 // Check if an event exist in the other events
 func (o OverflowEvent) ExistIn(events []OverflowEvent) bool {
 	for _, ev := range events {
@@ -231,8 +236,10 @@ func (overflowEvents OverflowEvents) FilterTempWithdrawDeposit() OverflowEvents 
 var feeReceipients = []string{"0xf919ee77447b7497", "0x912d5440f7e3769e", "0xe5a8b7f23e8b548f", "0xab086ce9cc29fc80"}
 
 // Filtter out fee events
-func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) OverflowEvents {
+func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) (OverflowEvents, FeeBalance) {
 	filteredEvents := overflowEvents
+
+	fees := FeeBalance{}
 	for name, events := range overflowEvents {
 		if strings.HasSuffix(name, "FlowFees.FeesDeducted") {
 			delete(filteredEvents, name)
@@ -250,6 +257,8 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 				from, ok := value.Fields["from"].(string)
 
 				if ok && amount == fee && from == payer {
+					balance, _ := value.Fields["balanceAfter"].(float64)
+					fees.PayerBalance = balance
 					continue
 				}
 
@@ -274,6 +283,8 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 				to, ok := value.Fields["to"].(string)
 
 				if ok && amount == fee && slices.Contains(feeReceipients, to) {
+					balance, _ := value.Fields["balanceAfter"].(float64)
+					fees.TotalFeeBalance = balance
 					continue
 				}
 				depositEvents = append(depositEvents, value)
@@ -326,7 +337,7 @@ func (overflowEvents OverflowEvents) FilterFees(fee float64, payer string) Overf
 
 		}
 	}
-	return filteredEvents
+	return filteredEvents, fees
 }
 
 func printOrLog(t *testing.T, s string) {
