@@ -17,7 +17,7 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/onflow/cadence/runtime"
-	"github.com/onflow/flixkit-go/flixkit"
+	"github.com/onflow/flixkit-go/v2/flixkit"
 	"github.com/onflow/flow-emulator/emulator"
 	grpcAccess "github.com/onflow/flow-go-sdk/access/grpc"
 	"github.com/onflow/flowkit/v2"

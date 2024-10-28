@@ -8,8 +8,8 @@ import (
 
 	"github.com/bjartek/underflow"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
-	"github.com/onflow/cadence/runtime/common"
-	"github.com/onflow/cadence/runtime/parser"
+	"github.com/onflow/cadence/common"
+	"github.com/onflow/cadence/parser"
 	"github.com/onflow/flow-go-sdk"
 )
 

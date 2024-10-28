@@ -1,6 +1,6 @@
 package overflow
 
-import "github.com/onflow/cadence/runtime/common"
+import "github.com/onflow/cadence/common"
 
 // a type representing a meter that contains information about the inner workings of an interaction, only available on local emulator
 type OverflowMeter struct {
