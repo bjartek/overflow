@@ -98,7 +98,7 @@ func (o *OverflowState) CreateOverflowTransaction(blockId string, transactionRes
 		authorizers = append(authorizers, auth)
 		standardStakeholders[auth] = []string{"authorizer"}
 		if len(argInfo.Authorizers) > i {
-			authorizerTypes[auth] = argInfo.Authorizers[i]
+			authorizerTypes[auth] = argInfo.Authorizers[i].Entitlements
 		}
 	}
 

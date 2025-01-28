@@ -6,18 +6,29 @@
 			ParameterOrder: []string{},
 		},
 		"create_nft_collection": {
-			Parameters:     map[string]string{},
-			Authorizers:    overflow.OverflowAuthorizers{[]string{"Storage"}},
+			Parameters: map[string]string{},
+			Authorizers: overflow.OverflowAuthorizers{overflow.OverflowAuthorizer{
+				Name: "acct",
+				Entitlements: []string{
+					"Storage",
+				},
+			}},
 			ParameterOrder: []string{},
 		},
 		"emulatorFoo": {
-			Parameters:     map[string]string{"test": "String"},
-			Authorizers:    overflow.OverflowAuthorizers{[]string{"BorrowValue"}},
+			Parameters: map[string]string{"test": "String"},
+			Authorizers: overflow.OverflowAuthorizers{overflow.OverflowAuthorizer{
+				Name:         "acct",
+				Entitlements: []string{"BorrowValue"},
+			}},
 			ParameterOrder: []string{"test"},
 		},
 		"mainnetFoo": {
-			Parameters:     map[string]string{"test": "String"},
-			Authorizers:    overflow.OverflowAuthorizers{[]string{}},
+			Parameters: map[string]string{"test": "String"},
+			Authorizers: overflow.OverflowAuthorizers{overflow.OverflowAuthorizer{
+				Name:         "acct",
+				Entitlements: []string{},
+			}},
 			ParameterOrder: []string{"test"},
 		},
 		"mainnetaTransaction": {
@@ -35,7 +46,10 @@
 				"amount":    "UFix64",
 				"recipient": "Address",
 			},
-			Authorizers: overflow.OverflowAuthorizers{[]string{"BorrowValue"}},
+			Authorizers: overflow.OverflowAuthorizers{overflow.OverflowAuthorizer{
+				Name:         "signer",
+				Entitlements: []string{"BorrowValue"},
+			}},
 			ParameterOrder: []string{
 				"recipient",
 				"amount",
@@ -46,7 +60,10 @@
 				"amount": "UFix64",
 				"to":     "Address",
 			},
-			Authorizers: overflow.OverflowAuthorizers{[]string{"BorrowValue"}},
+			Authorizers: overflow.OverflowAuthorizers{overflow.OverflowAuthorizer{
+				Name:         "signer",
+				Entitlements: []string{"BorrowValue"},
+			}},
 			ParameterOrder: []string{
 				"amount",
 				"to",
@@ -55,14 +72,23 @@
 		"signWithMultipleAccounts": {
 			Parameters: map[string]string{"test": "String"},
 			Authorizers: overflow.OverflowAuthorizers{
-				[]string{},
-				[]string{},
+				overflow.OverflowAuthorizer{
+					Name:         "acct",
+					Entitlements: []string{},
+				},
+				overflow.OverflowAuthorizer{
+					Name:         "account2",
+					Entitlements: []string{},
+				},
 			},
 			ParameterOrder: []string{"test"},
 		},
 		"testnetFoo": {
-			Parameters:     map[string]string{"test": "String"},
-			Authorizers:    overflow.OverflowAuthorizers{[]string{"Storage"}},
+			Parameters: map[string]string{"test": "String"},
+			Authorizers: overflow.OverflowAuthorizers{overflow.OverflowAuthorizer{
+				Name:         "acct",
+				Entitlements: []string{"Storage"},
+			}},
 			ParameterOrder: []string{"test"},
 		},
 		"zTransaction": {

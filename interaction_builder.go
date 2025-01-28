@@ -88,6 +88,8 @@ type OverflowInteractionBuilder struct {
 	StopOnError *bool
 
 	Testing OverflowTestingAsssertions
+
+	AutoSigner bool
 }
 
 type OverflowTestingAsssertions struct {
@@ -315,6 +317,13 @@ func WithSigner(signer string) OverflowInteractionOption {
 	}
 }
 
+// set payer, proposer authorizer as the signer
+func WithAutoSigner() OverflowInteractionOption {
+	return func(oib *OverflowInteractionBuilder) {
+		oib.AutoSigner = true
+	}
+}
+
 // set service account as payer, proposer, authorizer
 func WithSignerServiceAccount() OverflowInteractionOption {
 	return func(oib *OverflowInteractionBuilder) {
@@ -492,15 +501,30 @@ func (oib OverflowInteractionBuilder) Send() *OverflowResult {
 		return result
 	}
 
-	if oib.Proposer == nil {
-		result.Err = fmt.Errorf("%v You need to set the proposer signer", emoji.PileOfPoo)
-		return result
-	}
-
 	codeFileName := fmt.Sprintf("%s/%s.cdc", oib.BasePath, oib.FileName)
 
 	result.DeclarationInfo = *declarationInfo(oib.TransactionCode)
 
+	// if we have more then one should the following be payload signers?
+	if oib.AutoSigner {
+		if len(result.DeclarationInfo.Authorizers) != 1 {
+			result.Err = errors.New("currently do not support more then 1 signer when using authSigner")
+			return result
+		}
+
+		account, err := oib.Overflow.AccountE(result.DeclarationInfo.Authorizers[0].Name)
+		if err != nil {
+			result.Err = err
+			return result
+		}
+		oib.Payer = account
+		oib.Proposer = account
+	}
+
+	if oib.Proposer == nil {
+		result.Err = fmt.Errorf("%v You need to set the proposer signer", emoji.PileOfPoo)
+		return result
+	}
 	oib.Overflow.Log.Reset()
 	/*
 		❗ Special case: if an account is both the payer and either a proposer or authorizer, it is only required to sign the envelope.

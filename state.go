@@ -404,6 +404,26 @@ func (o *OverflowState) ServiceAccountName() string {
 }
 
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
+func (o *OverflowState) GetEmulatorAccounts() map[string]string {
+	p := o.State
+	acct := *p.AccountsForNetwork(o.Network)
+
+	sort.SliceStable(acct, func(i, j int) bool {
+		return strings.Compare(acct[i].Name, acct[j].Name) < 1
+	})
+
+	accountMap := map[string]string{}
+	for _, account := range acct {
+		if account.Name == "emulator-account" {
+			continue
+		}
+
+		accountMap[strings.TrimPrefix(account.Name, "emulator-")] = account.Address.Hex()
+	}
+	return accountMap
+}
+
+// CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
 func (o *OverflowState) CreateAccountsE(ctx context.Context) (*OverflowState, error) {
 	p := o.State
 	signerAccount, err := p.Accounts().ByName(o.ServiceAccountName())
@@ -568,6 +588,7 @@ func (o *OverflowState) sendTx(ftb *OverflowInteractionBuilder) *OverflowResult 
 		po := *ftb.PrintOptions
 		result.Print(po...)
 	}
+
 	if o.StopOnError && result.Err != nil {
 		result.PrintArguments(nil)
 		panic(result.Err)

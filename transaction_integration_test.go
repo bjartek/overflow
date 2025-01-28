@@ -351,7 +351,7 @@ func TestTransactionIntegration(t *testing.T) {
 			WithSigner("first"),
 		).AssertSuccess(t)
 
-		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers[0])
+		assert.Equal(t, []string{"BorrowValue", "SaveValue"}, res.DeclarationInfo.Authorizers[0].Entitlements)
 	})
 
 	t.Run("send flow", func(t *testing.T) {
