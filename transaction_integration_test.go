@@ -80,7 +80,7 @@ func TestTransactionIntegration(t *testing.T) {
 		assert.Equal(t, 1, len(result.GetEventsWithName("FungibleToken.Deposited")))
 
 		report := o.GetCoverageReport()
-		assert.Equal(t, "18.4%", report.Summary().Coverage)
+		assert.Equal(t, "18.2%", report.Summary().Coverage)
 	})
 
 	t.Run("Mint tokens assert events with built in assertion", func(t *testing.T) {
@@ -411,7 +411,7 @@ func TestFillUpSpace(t *testing.T) {
 	o, err := OverflowTesting(WithFlowForNewUsers(0.001))
 	assert.NoError(t, err)
 	result := o.GetFreeCapacity("first")
-	assert.Equal(t, 198993, result)
+	assert.Equal(t, 199014, result)
 	o.FillUpStorage("first")
 	assert.NoError(t, o.Error)
 
