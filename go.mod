@@ -17,7 +17,7 @@ require (
 	github.com/onflow/flow-emulator v1.4.1
 	github.com/onflow/flow-go v0.40.1
 	github.com/onflow/flow-go-sdk v1.3.3
-	github.com/onflow/flowkit/v2 v2.3.3
+	github.com/onflow/flowkit/v2 v2.3.4
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/sanity-io/litter v1.5.5
