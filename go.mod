@@ -6,7 +6,7 @@ toolchain go1.24.4
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.13.0
+	github.com/bjartek/underflow v1.14.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.17.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
@@ -17,7 +17,7 @@ require (
 	github.com/onflow/flow-emulator v1.5.1
 	github.com/onflow/flow-go v0.41.0-rc.1.0.20250618213905-cfbf84027792
 	github.com/onflow/flow-go-sdk v1.6.1
-	github.com/onflow/flowkit/v2 v2.4.1
+	github.com/onflow/flowkit/v2 v2.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/sanity-io/litter v1.5.5

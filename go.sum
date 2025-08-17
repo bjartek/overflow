@@ -77,6 +77,8 @@ github.com/bits-and-blooms/bitset v1.17.0 h1:1X2TS7aHz1ELcC0yU1y2stUs/0ig5oMU6ST
 github.com/bits-and-blooms/bitset v1.17.0/go.mod h1:7hO7Gc7Pp1vODcmWvKMRA9BNmbv6a/7QIWpPxHddWR8=
 github.com/bjartek/underflow v1.13.0 h1:Mz/XJ4if89ALifoZqkqYMns23NXUsZHsI+nFqYixf1o=
 github.com/bjartek/underflow v1.13.0/go.mod h1:LrKpaaoqL5/H4G/jVdiJ57XSVpYll/PvugFosj1jjQQ=
+github.com/bjartek/underflow v1.14.0 h1:Toy9Ja1H5KzDRnC7lbpywn4L9ZJ/6x870FUERZlflMc=
+github.com/bjartek/underflow v1.14.0/go.mod h1:RYaHsaCyqD8TVRyjnO+E3AeDDgzK1Jz5ETbL2qo11mc=
 github.com/btcsuite/btcd/btcec/v2 v2.3.4 h1:3EJjcN70HCu/mwqlUsGK8GcNVyLVxFDlWurTXGPFfiQ=
 github.com/btcsuite/btcd/btcec/v2 v2.3.4/go.mod h1:zYzJ8etWJQIv1Ogk7OzpWjowwOdXY1W/17j2MW85J04=
 github.com/btcsuite/btcd/chaincfg/chainhash v1.0.3 h1:SDlJ7bAm4ewvrmZtR0DaiYbQGdKPeaaIm7bM+qRhFeU=
@@ -570,6 +572,8 @@ github.com/onflow/flow/protobuf/go/flow v0.4.10 h1:CGEO3n96XZQd/k5HtkZyb90ouem9G
 github.com/onflow/flow/protobuf/go/flow v0.4.10/go.mod h1:NA2pX2nw8zuaxfKphhKsk00kWLwfd+tv8mS23YXO4Sk=
 github.com/onflow/flowkit/v2 v2.4.1 h1:qD8EcxDZStOeLJ3EoUZVm8gITsWyZEQ+eJBCXSrTeOQ=
 github.com/onflow/flowkit/v2 v2.4.1/go.mod h1:EYHt+KezusfO6CTbqwk8VxgBGpEYvgmKtAaU0+wxIYM=
+github.com/onflow/flowkit/v2 v2.4.2 h1:hIAEFAUxtoaaM+pYbU7cFRpw7ipnxJEuuhttUfGCvLY=
+github.com/onflow/flowkit/v2 v2.4.2/go.mod h1:EYHt+KezusfO6CTbqwk8VxgBGpEYvgmKtAaU0+wxIYM=
 github.com/onflow/go-ethereum v1.15.10 h1:blZBeOLJDOVWqKuhkkMh6S2PKQAJvdgbvOL9ZNggFcU=
 github.com/onflow/go-ethereum v1.15.10/go.mod h1:t2nZJtwruVjA5u5yEK8InFzjImFLHrF7ak2bw3E4LDM=
 github.com/onflow/nft-storefront/lib/go/contracts v1.0.0 h1:sxyWLqGm/p4EKT6DUlQESDG1ZNMN9GjPCm1gTq7NGfc=
