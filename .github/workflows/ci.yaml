@@ -13,12 +13,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@6
         with:
           go-version: "1.25"
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
+          version: v2.1
           args: --timeout=3m
 
   tidy:
@@ -26,7 +27,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: "1.25"
       - uses: zencargo/github-action-go-mod-tidy@v1
@@ -38,7 +39,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: "1.25"
       - run: make test-report
@@ -53,7 +54,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: "1.25"
       - run: make coveralls
