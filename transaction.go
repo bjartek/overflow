@@ -192,10 +192,10 @@ func GetAddressImports(code []byte) ([]Import, error) {
 	for _, imp := range program.ImportDeclarations() {
 		address, isAddressImport := imp.Location.(common.AddressLocation)
 		if isAddressImport {
-			for _, id := range imp.Identifiers {
+			for _, id := range imp.Imports {
 				deps = append(deps, Import{
 					Address: fmt.Sprintf("0x%s", address.Address.Hex()),
-					Name:    id.Identifier,
+					Name:    id.Identifier.Identifier,
 				})
 			}
 		}
