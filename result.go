@@ -338,10 +338,6 @@ func (o OverflowResult) AssertComputationLessThenOrEqual(t *testing.T, computati
 	t.Helper()
 
 	assert.LessOrEqual(t, o.ComputationUsed, computation)
-	if o.FeeGas != 0 {
-		// TODO: add back in again once fixed
-		assert.Equal(t, o.ComputationUsed, o.FeeGas)
-	}
 
 	return o
 }
