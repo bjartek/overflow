@@ -217,6 +217,7 @@ func (o *OverflowBuilder) StartResult() *OverflowState {
 
 		emulatorOptions := []emulator.Option{
 			emulator.WithLogger(emulatorLogger),
+			emulator.WithScheduledTransactions(true),
 		}
 
 		if o.TransactionFees {
