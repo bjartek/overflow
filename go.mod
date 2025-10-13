@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.15.0
+	github.com/bjartek/underflow v1.16.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.17.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
@@ -162,7 +162,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nightlyone/lockfile v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/onflow/atree v0.10.1 // indirect
+	github.com/onflow/atree v0.11.0 // indirect
 	github.com/onflow/crypto v0.25.3 // indirect
 	github.com/onflow/fixed-point v0.1.1 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v1.9.0 // indirect
