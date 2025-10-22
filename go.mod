@@ -4,14 +4,14 @@ go 1.25.0
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/bjartek/underflow v1.16.0
+	github.com/bjartek/underflow v1.18.0
 	github.com/enescakir/emoji v1.0.0
 	github.com/fatih/color v1.17.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hexops/autogold v1.3.1
 	github.com/onflow/cadence v1.8.1
-	github.com/onflow/flixkit-go/v2 v2.5.1
+	github.com/onflow/flixkit-go/v2 v2.6.0
 	github.com/onflow/flow-emulator v1.9.0
 	github.com/onflow/flow-go v0.43.3-0.20251021182938-b0fef2c5ca47
 	github.com/onflow/flow-go-sdk v1.9.0
