@@ -196,7 +196,7 @@ func paramsAndAuthorizers(code []byte) (*ast.ParameterList, OverflowAuthorizers)
 		if txd.Prepare != nil {
 			prepareParams := txd.Prepare.FunctionDeclaration.ParameterList
 			if prepareParams != nil {
-				for _, parg := range txd.Prepare.FunctionDeclaration.ParameterList.ParametersByIdentifier() {
+				for _, parg := range txd.Prepare.FunctionDeclaration.ParameterList.Parameters {
 					name := parg.Identifier.Identifier
 					ta := parg.TypeAnnotation
 					if ta != nil {
