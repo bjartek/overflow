@@ -10,12 +10,12 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hexops/autogold v1.3.1
-	github.com/onflow/cadence v1.10.2
-	github.com/onflow/flixkit-go/v2 v2.9.0
-	github.com/onflow/flow-emulator v1.20.0
-	github.com/onflow/flow-go v0.47.0-ledger-service.1.0.20260415182425-f08ee47a2bec
-	github.com/onflow/flow-go-sdk v1.10.2
-	github.com/onflow/flowkit/v2 v2.13.0
+	github.com/onflow/cadence v1.10.3
+	github.com/onflow/flixkit-go/v2 v2.9.1
+	github.com/onflow/flow-emulator v1.21.1
+	github.com/onflow/flow-go v0.48.1-evm-cache-block.0.20260602223212-19c6bdbbe069
+	github.com/onflow/flow-go-sdk v1.10.3
+	github.com/onflow/flowkit/v2 v2.15.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.35.1
 	github.com/sanity-io/litter v1.5.8
@@ -57,7 +57,7 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/swiss v0.0.0-20250624142022-d6e517c1d961 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
-	github.com/consensys/gnark-crypto v0.18.0 // indirect
+	github.com/consensys/gnark-crypto v0.18.1 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/crate-crypto/go-eth-kzg v1.4.0 // indirect
 	github.com/crate-crypto/go-ipa v0.0.0-20240724233137-53bbb0ceb27a // indirect
@@ -104,7 +104,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.17.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -167,16 +167,16 @@ require (
 	github.com/onflow/atree v0.16.0 // indirect
 	github.com/onflow/crypto v0.25.4 // indirect
 	github.com/onflow/fixed-point v0.1.1 // indirect
-	github.com/onflow/flow-core-contracts/lib/go/contracts v1.9.3 // indirect
-	github.com/onflow/flow-core-contracts/lib/go/templates v1.9.3 // indirect
-	github.com/onflow/flow-evm-bridge v0.1.0 // indirect
-	github.com/onflow/flow-ft/lib/go/contracts v1.0.1 // indirect
-	github.com/onflow/flow-ft/lib/go/templates v1.0.1 // indirect
-	github.com/onflow/flow-nft/lib/go/contracts v1.3.0 // indirect
-	github.com/onflow/flow-nft/lib/go/templates v1.3.0 // indirect
+	github.com/onflow/flow-core-contracts/lib/go/contracts v1.10.3 // indirect
+	github.com/onflow/flow-core-contracts/lib/go/templates v1.10.3 // indirect
+	github.com/onflow/flow-evm-bridge v0.2.1 // indirect
+	github.com/onflow/flow-ft/lib/go/contracts v1.1.1 // indirect
+	github.com/onflow/flow-ft/lib/go/templates v1.1.1 // indirect
+	github.com/onflow/flow-nft/lib/go/contracts v1.4.1 // indirect
+	github.com/onflow/flow-nft/lib/go/templates v1.4.1 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.4.20 // indirect
 	github.com/onflow/go-ethereum v1.15.10 // indirect
-	github.com/onflow/nft-storefront/lib/go/contracts v1.0.0 // indirect
+	github.com/onflow/nft-storefront/lib/go/contracts v1.1.1-0.20260409183916-cddb825ea066 // indirect
 	github.com/onflow/sdks v0.6.0-preview.1 // indirect
 	github.com/onflow/wal v1.0.2 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
@@ -226,12 +226,12 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.61.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.31.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.39.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.31.0 // indirect
 	go.opentelemetry.io/otel/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
-	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
+	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
