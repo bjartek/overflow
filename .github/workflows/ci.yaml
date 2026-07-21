@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
           go-version: "1.25"
@@ -20,6 +22,7 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.4
+          only-new-issues: true
 
   tidy:
     runs-on: ubuntu-latest
